@@ -1,0 +1,32 @@
+#include "calorimetry.fcl"
+
+BEGIN_PROLOG
+
+microboone_calorimetryalgdata:	@local::standard_calorimetryalgdata
+microboone_calorimetryalgmc:	@local::standard_calorimetryalgmc
+
+#microboone_calorimetryalgmc.CalAmpConstants: [ 6.8906513e-3, 6.8906513e-3,6.8906513e-3 ] # Temporarily leaving all
+# planes same. Will need to change after calibration is done.
+#New constants derived using muon MC - T. Yang 11/27/13
+microboone_calorimetryalgmc.CalAmpConstants: [ 3.641e-3, 3.613e-3, 7.198e-3 ] # Temporarily leaving all
+
+microboone_calodata:                  @local::standard_calodata
+microboone_calodata.CaloAlg:          @local::microboone_calorimetryalgdata
+
+microboone_calomc:                    @local::standard_calomc
+microboone_calomc.CaloAlg:            @local::microboone_calorimetryalgmc
+microboone_calomc.CaloAlg.CaloUseModBox: true
+
+microboone_generalcalomc:
+{
+ module_type:            "GeneralCalorimetry"
+ TrackModuleLabel:       "track3d"
+ CaloAlg:	         @local::microboone_calorimetryalgmc
+}
+
+microboone_beziercalorimetry:         @local::standard_beziercalorimetry
+microboone_beziercalorimetry.CaloAlg: @local::microboone_calorimetryalgmc
+
+
+
+END_PROLOG
