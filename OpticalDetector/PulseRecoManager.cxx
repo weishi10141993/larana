@@ -25,7 +25,7 @@ namespace pmtana{
 
     _ped_method = kHEAD;
 
-  };
+  }
 
   //***************************************************************
   PulseRecoManager::~PulseRecoManager()
