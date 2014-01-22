@@ -240,7 +240,7 @@ namespace opdet {
     fEventID=evt.id().event();
 
     sprintf(HistName, "Event %d Flash Times", evt.id().event());
-    TH1D * FlashTimes;
+    TH1D * FlashTimes = nullptr;
     if(fMakeFlashTimeHist)
       {
 	FlashTimes = tfs->make<TH1D>(HistName, ";t (ns);", 
@@ -249,7 +249,7 @@ namespace opdet {
 					    fTimeEnd * 1000.);
       }
 
-    TH2D * FlashPositions;
+    TH2D * FlashPositions = nullptr;
     if(fMakeFlashPosHist)
       {
 	sprintf(HistName, "Event %d All Flashes YZ", evt.id().event());
@@ -275,7 +275,7 @@ namespace opdet {
 	fFlashTime = TheFlash.Time();
 	fFlashID++;
 	
-	TH2D * ThisFlashPosition;
+	TH2D * ThisFlashPosition = nullptr;
 	if(fMakePerFlashHists)
 	  {
 	    sprintf(HistName, "Event %d t = %f", evt.id().event(), fFlashTime);
