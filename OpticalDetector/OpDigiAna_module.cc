@@ -152,7 +152,7 @@ namespace opdet {
 	//   appropriate conversions are made from beginning and end time 
 	//   in us, and frequency in MHz.
 	sprintf(HistName, "Event %d OpDet %i", evt.id().event(), ThePulse.OpChannel());
-	TH1D* PulseHist;
+	TH1D* PulseHist = nullptr;
 	if(fMakeBipolarHist)
 	  {
 	    PulseHist= tfs->make<TH1D>(HistName, ";t (ns);", 
@@ -162,7 +162,7 @@ namespace opdet {
 	  }
 
 	sprintf(HistName, "Event %d uni OpDet %i", evt.id().event(), ThePulse.OpChannel());
-	TH1D* UnipolarHist;
+	TH1D* UnipolarHist = nullptr;
 	if(fMakeUnipolarHist)
 	  {
 	    UnipolarHist= tfs->make<TH1D>(HistName, ";t (ns);", 
