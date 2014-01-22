@@ -1,6 +1,25 @@
 
 art_make( BASENAME_ONLY
+          EXCLUDE OpFlashFinder_module.cc
+          LIBRARY_NAME OpticalDetector
+          LIB_LIBRARIES 
+                        ${SIMULATIONBASE}
+                        ${ART_FRAMEWORK_CORE}
+			${ART_FRAMEWORK_PRINCIPAL}
+			${ART_FRAMEWORK_SERVICES_REGISTRY}
+			${ART_FRAMEWORK_SERVICES_BASIC}
+			${ART_FRAMEWORK_SERVICES_OPTIONAL}
+			${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
+			${ART_PERSISTENCY_COMMON}
+			${ART_UTILITIES}
+			${MF_MESSAGELOGGER}
+			${MF_UTILITIES}
+	                ${FHICLCPP}
+			${CETLIB}
+                        ${ROOT_BASIC_LIB_LIST}
           MODULE_LIBRARIES OpDigiProperties_service
+	                OpticalDetector
                         PhotonVisibilityService_service
                         Filters
                         RecoObjects
@@ -26,7 +45,7 @@ art_make( BASENAME_ONLY
 	                ${FHICLCPP}
 			${CETLIB}
                         ${ROOT_BASIC_LIB_LIST}
-          SERVICE_LIBRARIES
+       SERVICE_LIBRARIES
                         Geometry
                         Geometry_service
                         ${ART_FRAMEWORK_CORE}
@@ -45,6 +64,28 @@ art_make( BASENAME_ONLY
                         ${ROOT_BASIC_LIB_LIST}
          )
 
+simple_plugin( OpFlashFinder module
+			TriggerAlgoMicroBoone_service
+			OpticalDetector
+                        RecoBase
+                        Geometry
+                        Geometry_service
+                        ${ART_FRAMEWORK_CORE}
+			${ART_FRAMEWORK_PRINCIPAL}
+			${ART_FRAMEWORK_SERVICES_REGISTRY}
+			${ART_FRAMEWORK_SERVICES_BASIC}
+			${ART_FRAMEWORK_SERVICES_OPTIONAL}
+			${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
+			${ART_PERSISTENCY_COMMON}
+			${ART_UTILITIES}
+			${MF_MESSAGELOGGER}
+			${MF_UTILITIES}
+	                ${FHICLCPP}
+			${CETLIB}
+                        ${ROOT_BASIC_LIB_LIST}
+               BASENAME_ONLY
+	     )
 
 install_headers()
 install_fhicl()
