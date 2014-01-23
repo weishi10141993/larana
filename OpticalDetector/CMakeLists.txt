@@ -32,6 +32,7 @@ art_make( BASENAME_ONLY
                         Utilities
                         RawData
                         AnalysisAlg
+                        AnalysisBase
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
