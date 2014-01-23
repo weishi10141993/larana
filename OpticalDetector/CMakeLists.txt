@@ -1,4 +1,6 @@
 
+# OpFlashFinder_module.cc is not built - it seems specific to uboone
+
 art_make( BASENAME_ONLY
           EXCLUDE OpFlashFinder_module.cc
           LIBRARY_NAME OpticalDetector
@@ -63,29 +65,6 @@ art_make( BASENAME_ONLY
                         ${CLHEP}
                         ${ROOT_BASIC_LIB_LIST}
          )
-
-simple_plugin( OpFlashFinder module
-			TriggerAlgoMicroBoone_service
-			OpticalDetector
-                        RecoBase
-                        Geometry
-                        Geometry_service
-                        ${ART_FRAMEWORK_CORE}
-			${ART_FRAMEWORK_PRINCIPAL}
-			${ART_FRAMEWORK_SERVICES_REGISTRY}
-			${ART_FRAMEWORK_SERVICES_BASIC}
-			${ART_FRAMEWORK_SERVICES_OPTIONAL}
-			${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
-			${ART_PERSISTENCY_COMMON}
-			${ART_UTILITIES}
-			${MF_MESSAGELOGGER}
-			${MF_UTILITIES}
-	                ${FHICLCPP}
-			${CETLIB}
-                        ${ROOT_BASIC_LIB_LIST}
-               BASENAME_ONLY
-	     )
 
 install_headers()
 install_fhicl()
