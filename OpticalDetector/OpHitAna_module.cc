@@ -195,7 +195,7 @@ namespace opdet {
     
     sprintf(HistName, "Event %d AllOpDets", evt.id().event());
     
-    TH1D * AllHits;
+    TH1D * AllHits = nullptr;
     if(fMakeHistAllChannels)
       {
 	AllHits = tfs->make<TH1D>(HistName, ";t (ns);", 
