@@ -2,7 +2,7 @@
 # OpFlashFinder_module.cc is not built - it seems specific to uboone
 
 art_make( BASENAME_ONLY
-          EXCLUDE OpFlashFinder_module.cc
+          # EXCLUDE OpFlashFinder_module.cc
           LIBRARY_NAME OpticalDetector
           LIB_LIBRARIES 
                         ${SIMULATIONBASE}
@@ -29,6 +29,7 @@ art_make( BASENAME_ONLY
                         Geometry
                         Geometry_service
                         Simulation
+                        TriggerAlgoMicroBoone_service
                         Utilities
                         RawData
                         AnalysisAlg
