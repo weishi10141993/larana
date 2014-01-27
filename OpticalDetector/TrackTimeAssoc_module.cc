@@ -35,8 +35,8 @@ namespace recob{
 
 
 namespace opdet {
-
-
+  
+  bool TrackTimeAssoc_tracksort(art::Ptr<recob::Track> t1, art::Ptr<recob::Track> t2);
 
   class TrackTimeAssoc : public art::EDProducer{
   public:
@@ -65,6 +65,8 @@ namespace opdet {
     std::string fFlashModuleLabel;
     int         fBezierResolution;
     int         fPairingMode;
+    double      fLengthCut;
+    double      fPECut;
   };
 
   
@@ -123,6 +125,7 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "Utilities/LArProperties.h"
 #include "TH2D.h"
 
 // C++ language includes
@@ -159,7 +162,11 @@ namespace opdet {
     fTrackModuleLabel = pset.get<std::string>("TrackModuleLabel");   
     fFlashModuleLabel = pset.get<std::string>("FlashModuleLabel");
     fBezierResolution = pset.get<int>("BezierResolution");
-    fPairingMode      = pset.get<double>("PairingMode");
+    fLengthCut        = pset.get<double>("LengthCut");
+    fPECut            = pset.get<double>("PECut");
+    fPairingMode      = pset.get<int>("PairingMode");
+  
+
   }
 
 
@@ -202,9 +209,18 @@ namespace opdet {
     double xyz[3];
     for (int b=0; b!=fBezierResolution; b++)
       {
+	art::ServiceHandle<util::LArProperties> larp;
+
+	double MIPYield   = larp->ScintYield();
+	double QE         = 0.01;
+	double MIPdQdx    = 2.1;
+	double PromptFrac = 0.25;
+	double PromptMIPScintYield = MIPYield * QE * MIPdQdx * PromptFrac;
+	
+	//	std::cout<<"check : " << PromptMIPScintYield<<std::endl;
+	
 	float s               = float(b) / float(fBezierResolution);
-	float dQdx            = 2.1;    // Assume MIP value
-	float LightAmount     = dQdx*TrackLength/float(fBezierResolution);
+	float LightAmount     = PromptMIPScintYield * TrackLength/float(fBezierResolution);
 	
 	
 	for(size_t i=0; i!=XSteps; ++i)
@@ -306,7 +322,7 @@ namespace opdet {
     for(unsigned int i=0; i < flashh->size(); ++i)
       {
 	art::Ptr<recob::OpFlash> flash(flashh,i);
-        Flashes.push_back(flash);
+        if(flash->TotalPE()>fPECut) Flashes.push_back(flash);
       }
 
     // Read in tracks from the event
@@ -316,18 +332,18 @@ namespace opdet {
     for(unsigned int i=0; i < trackh->size(); ++i)
       {
 	art::Ptr<recob::Track> track(trackh,i);
-        Tracks.push_back(track);
-	
+      	if(track->Length()>fLengthCut) Tracks.push_back(track);
       }
 
+    std::sort(Tracks.begin(), Tracks.end(), TrackTimeAssoc_tracksort);
 
     // Use these to produce Bezier tracks
+    std::vector<bool> TracksToCut(Tracks.size(),false);
     std::vector<trkf::BezierTrack*> BTracks;
     BTracks.clear();
     for(size_t i=0; i!=Tracks.size(); i++)
       BTracks.push_back(new trkf::BezierTrack(*Tracks.at(i)));
-
-
+        
     art::ServiceHandle<geo::Geometry> geom;
     size_t NOpDets = geom->NOpDet();
     
@@ -349,12 +365,12 @@ namespace opdet {
 
 	std::vector<double> ThisFlashShape(NOpDets,0);
 	    
-	if(Flashes.at(f)->InBeamFrame())
-	  {
-	    for(size_t i=0; i!=NOpDets; ++i)
-	      ThisFlashShape[i]=Flashes.at(f)->PE(i);
-	    if(Flashes.at(f)->OnBeamTime()) OnBeamFlashes[f]=true;
-	  }
+	//	if(Flashes.at(f)->InBeamFrame())
+	//	  {
+	for(size_t i=0; i!=NOpDets; ++i)
+	  ThisFlashShape[i]=Flashes.at(f)->PE(i);
+	if(Flashes.at(f)->OnBeamTime()) OnBeamFlashes[f]=true;
+	//	  }
 	FlashShapes.push_back(ThisFlashShape);
 
       }
@@ -424,10 +440,16 @@ namespace opdet {
 			    if(FlashExistingPref < 0)
 			      {
 				// This flash is available - make pairing
-				FlashesPaired[FlashID]  = i;
 				TracksPaired[i]         = FlashID;
-				MadeMatch    = true;
+				
+				// if the flash is on beam, claim to be 
+				//  satisfied, but don't occupy flash
+				// if flash is cosmic, claim it.
+				if(!OnBeamFlashes[FlashID])
+				  FlashesPaired[FlashID]  = i;
+				
 				StillPairing = true;
+				MadeMatch    = true;
 			      }
 			    else
 			      {
@@ -555,6 +577,15 @@ namespace opdet {
     evt.put(std::move(flash_matches));
     evt.put(std::move(assn_track));
     evt.put(std::move(assn_flash));
+  }
+
+
+  //-----------------------------------
+  // Helper function for performing track length sort
+  bool TrackTimeAssoc_tracksort(art::Ptr<recob::Track> t1, art::Ptr<recob::Track> t2)
+  {
+    return (t1->Length()>t2->Length());
+    
   }
 
 
