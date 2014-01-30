@@ -290,7 +290,6 @@ namespace opdet {
 		      
 		      if(NewVal1>=fFlashThreshold)
 			{
-			  mf::LogVerbatim("OpFlashFinder")<<"By jove, we have a flash in accumulator 1!"<<std::endl;
 			  
 			  // If this wasn't a flash already, add it to the list
 			  if( (NewVal1-PE)<fFlashThreshold)
@@ -299,7 +298,6 @@ namespace opdet {
 		      
 		      if(NewVal2>=fFlashThreshold)
 			{
-			  mf::LogVerbatim("OpFlashFinder")<<"By jove, we have a flash in accumulator 2!"<<std::endl;
 			  if( (NewVal2-PE)<fFlashThreshold)
 			    FlashesInAccumulator2.push_back(Accum2Index);
 			}
@@ -643,21 +641,21 @@ namespace opdet {
 		
 		// If smaller than, or within 2sigma of expectation,
 		//  attribute to late light and toss out
-		if( nsigma < 2. ) 
+		if( nsigma < 3. ) 
 		  {
-		    std::cout<<"Flash at time " << jTime << " is attributed to late light from flash time " << iTime<<std::endl;
 		    MarkedForRemoval[jFlash]=true;
 		  }
 	      }
 	    
 	  }
 	
-	for(int iFlash=MarkedForRemoval.size()-1.; iFlash!=-1; --iFlash)
+	for(int iFlash=OpFlashesThisFrame.size()-1.; iFlash!=-1; --iFlash)
 	  {
 	    if(MarkedForRemoval[iFlash])
 	      {
 		MarkedForRemoval.erase(MarkedForRemoval.begin()       + iFlash);
 		RefinedHitsPerFlash.erase(RefinedHitsPerFlash.begin() + iFlash);
+		OpFlashesThisFrame.erase(OpFlashesThisFrame.begin()   + iFlash);
 	      }
 	  }
 
