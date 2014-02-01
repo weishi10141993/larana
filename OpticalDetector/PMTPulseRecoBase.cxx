@@ -12,7 +12,7 @@
 namespace pmtana{
 
   //##################################################################
-  PMTPulseRecoBase::PMTPulseRecoBase(fhicl::ParameterSet const& pset)
+  PMTPulseRecoBase::PMTPulseRecoBase(fhicl::ParameterSet const& /*pset*/)
   //##################################################################
   {
 
