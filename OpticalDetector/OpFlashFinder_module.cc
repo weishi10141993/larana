@@ -241,7 +241,7 @@ namespace opdet {
 		continue;
 	      }
 
-	    if((TimeSlice<0)||(TimeSlice>fTimeSlicesPerFrame))
+	    if( /* (TimeSlice<0)|| */(TimeSlice>fTimeSlicesPerFrame))
 	      {
 		mf::LogError("OpFlashFinder")<<"This slice " << TimeSlice<< "is outside the countable region - skipping";
 		continue;

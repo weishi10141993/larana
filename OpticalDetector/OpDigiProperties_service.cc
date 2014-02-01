@@ -22,7 +22,7 @@ namespace opdet{
 
   //--------------------------------------------------------------------
   OpDigiProperties::OpDigiProperties(fhicl::ParameterSet const& pset, 
-					 art::ActivityRegistry &reg) 
+					 art::ActivityRegistry &/*reg*/) 
     : fAnalyticalSPE(0)
   {
     this->reconfigure(pset);

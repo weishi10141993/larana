@@ -99,7 +99,7 @@ namespace pmtana
     /** A core method: this executes the algorithm and stores reconstructed parameters
       in the pulse_param struct object.
     */
-    virtual bool RecoPulse(const std::vector<uint16_t> *wf){return true;};
+    virtual bool RecoPulse(const std::vector<uint16_t> * /* wf */){return true;};
 
     /** A getter for the pulse_param struct object. 
       Reconstruction algorithm may have more than one pulse reconstructed from an input waveform.

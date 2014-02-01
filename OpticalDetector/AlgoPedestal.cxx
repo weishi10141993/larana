@@ -12,7 +12,7 @@
 namespace pmtana{
 
   //#########################################################
-  AlgoPedestal::AlgoPedestal(fhicl::ParameterSet const& pset)
+  AlgoPedestal::AlgoPedestal(fhicl::ParameterSet const& /* pset */)
   //#########################################################
   {
 
