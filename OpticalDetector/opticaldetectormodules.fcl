@@ -69,6 +69,19 @@ standard_optical_readout:
 ###################################################################
 
 
+standard_beamflashcompat:
+{
+  module_type:            "BeamFlashCompatibilityCheck"
+  TrackModuleLabel:       "beziertracker"
+  FlashModuleLabel:       "opflash"
+  BezierResolution:       100
+  SingleChannelCut:       4
+  IntegralCut:            4
+}
+
+###################################################################
+
+
 standard_fifohistana:
 {
   module_type:            "FIFOHistogramAna"
@@ -153,6 +166,16 @@ standard_opdigiana:
   MakeUnipolarHist:        true
 }
 
+standard_flashpurity:
+{
+  module_type:            "FlashPurityCheckAna"
+  GenieGenModuleLabel:    "generator"  
+  TrackModuleLabel:       "beziertracker"
+  MatchModuleLabel:       "beamflashcompat"
+  OpFlashModuleLabel:     "opflash" 		
+}
+
+
 standard_opflashtruth:
 {
   module_type:            "OpFlashMCTruthAna"
@@ -217,7 +240,8 @@ standard_tracktimeassoc:
   FlashModuleLabel:       "opflash"
   BezierResolution:       100
   PairingMode:            1
-
+  LengthCut:              20
+  PECut:                  20
 }
 
 

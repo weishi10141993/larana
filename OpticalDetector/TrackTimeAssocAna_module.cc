@@ -77,6 +77,7 @@ namespace opdet {
     // Flash variables
     Float_t fFFlashTime; 
     Float_t fFAbsTime;
+    Float_t fFTimeWidth;
     bool    fFInBeamFrame;
     int     fFOnBeamTime;
     Float_t fFTotalPE;
@@ -133,8 +134,9 @@ namespace opdet {
     // Flash variables
     fMatchTree->Branch("FFlashTime",    &fFFlashTime,    "FFlashTime/F");
     fMatchTree->Branch("FAbsTime",      &fFAbsTime,      "FAbsTime/F");
-    fMatchTree->Branch("FInBeamFrame",  &fFInBeamFrame,  "FInBeamFrame/I");
-    fMatchTree->Branch("FOnBeamTime",   &fFOnBeamTime,   "FOnBeamTime/B");
+    fMatchTree->Branch("FTimeWidth",    &fFTimeWidth,    "FTimeWidth/F");
+    fMatchTree->Branch("FInBeamFrame",  &fFInBeamFrame,  "FInBeamFrame/B");
+    fMatchTree->Branch("FOnBeamTime",   &fFOnBeamTime,   "FOnBeamTime/I");
     fMatchTree->Branch("FTotalPE",      &fFTotalPE,      "FTotalPE/F");
     fMatchTree->Branch("FYCenter",      &fFYCenter,      "FYCenter/F");
     fMatchTree->Branch("FYWidth",       &fFYWidth,       "FYWidth/F");
@@ -215,6 +217,7 @@ namespace opdet {
 	// Fill flash variables
 	fFFlashTime   = Flashes.at(0)->Time(); 
         fFAbsTime     = Flashes.at(0)->AbsTime();
+	fFTimeWidth   = Flashes.at(0)->TimeWidth();
 	fFInBeamFrame = Flashes.at(0)->InBeamFrame();
 	fFOnBeamTime  = Flashes.at(0)->OnBeamTime();
         fFTotalPE     = Flashes.at(0)->TotalPE();

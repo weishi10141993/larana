@@ -180,7 +180,7 @@ namespace opdet {
 
     // Temporary - needs to be gotten from somewhere
     //  and not hard coded
-    uint32_t fTimeSlicesPerFrame=100000;
+    uint32_t fTimeSlicesPerFrame=110000;
     
     // Find out when the trigger happened 
     unsigned int   TrigFrame = 0;
@@ -241,7 +241,7 @@ namespace opdet {
 		continue;
 	      }
 
-	    if((TimeSlice<0)||(TimeSlice>fTimeSlicesPerFrame))
+	    if( /* (TimeSlice<0)|| */(TimeSlice>fTimeSlicesPerFrame))
 	      {
 		mf::LogError("OpFlashFinder")<<"This slice " << TimeSlice<< "is outside the countable region - skipping";
 		continue;
@@ -290,7 +290,6 @@ namespace opdet {
 		      
 		      if(NewVal1>=fFlashThreshold)
 			{
-			  mf::LogVerbatim("OpFlashFinder")<<"By jove, we have a flash in accumulator 1!"<<std::endl;
 			  
 			  // If this wasn't a flash already, add it to the list
 			  if( (NewVal1-PE)<fFlashThreshold)
@@ -299,7 +298,6 @@ namespace opdet {
 		      
 		      if(NewVal2>=fFlashThreshold)
 			{
-			  mf::LogVerbatim("OpFlashFinder")<<"By jove, we have a flash in accumulator 2!"<<std::endl;
 			  if( (NewVal2-PE)<fFlashThreshold)
 			    FlashesInAccumulator2.push_back(Accum2Index);
 			}
@@ -592,7 +590,8 @@ namespace opdet {
 	    double TimeWidth = (MaxTime-MinTime)/2.;
 	    
 	    int OnBeamTime =0; 
-	    if((InBeamFrame) && (fabs(RelTime) < fTrigCoinc*TimeWidth)) OnBeamTime=1;
+	    if((InBeamFrame) && (fabs(RelTime) < fTrigCoinc)) OnBeamTime=1;
+
 
 	    // Make the flash
 	    OpFlashesThisFrame.push_back( recob::OpFlash( RelTime,
@@ -612,6 +611,54 @@ namespace opdet {
 	    
 	    
 	  }
+
+
+	// We now toss out flashes which are consistent with being late light of another flash
+	//  The expected light in a trailing flash is A0 exp(-dt / tau) * w1/w0
+	// We allow 2sigma fluctuations around this also.
+	
+	std::vector<bool> MarkedForRemoval(OpFlashesThisFrame.size(),false);
+	
+	for(size_t iFlash=0; iFlash!=OpFlashesThisFrame.size(); ++iFlash)
+	  {
+	    double iTime = OpFlashesThisFrame.at(iFlash).Time();
+	    double iPE   = OpFlashesThisFrame.at(iFlash).TotalPE();
+	    double iWidth= OpFlashesThisFrame.at(iFlash).TimeWidth();
+	    
+	    for(size_t jFlash=0; jFlash!=OpFlashesThisFrame.size(); ++jFlash)
+	      {
+		double jTime = OpFlashesThisFrame.at(jFlash).Time();
+		
+		if(jTime <= iTime) continue;
+		
+		double jPE   = OpFlashesThisFrame.at(jFlash).TotalPE();
+		double jWidth= OpFlashesThisFrame.at(jFlash).TimeWidth();
+		
+		// Calculate hypothetical PE if this were actually a late flash from i
+		//  Argon time const is 1600, so 100 samples.
+		double HypPE = iPE * jWidth / iWidth * exp(-(jTime-iTime)/100.);
+		double nsigma = (jPE-HypPE)/pow(HypPE,0.5);
+		
+		// If smaller than, or within 2sigma of expectation,
+		//  attribute to late light and toss out
+		if( nsigma < 3. ) 
+		  {
+		    MarkedForRemoval[jFlash]=true;
+		  }
+	      }
+	    
+	  }
+	
+	for(int iFlash=OpFlashesThisFrame.size()-1.; iFlash!=-1; --iFlash)
+	  {
+	    if(MarkedForRemoval[iFlash])
+	      {
+		MarkedForRemoval.erase(MarkedForRemoval.begin()       + iFlash);
+		RefinedHitsPerFlash.erase(RefinedHitsPerFlash.begin() + iFlash);
+		OpFlashesThisFrame.erase(OpFlashesThisFrame.begin()   + iFlash);
+	      }
+	  }
+
 
 	// Now add into the main storage containers, and note where we're gona want associations
 	//  (making the assocs prematurely leads to a segfault, it turns out)
@@ -647,6 +694,10 @@ namespace opdet {
 	FlashesInAccumulator2.clear();
 
       }
+  
+
+
+	
 
 
     

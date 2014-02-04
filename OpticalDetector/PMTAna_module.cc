@@ -66,13 +66,13 @@ namespace pmtana {
     virtual ~PMTAna();
 
     /// Function to be called before an event loop
-    void beginJob(){};
+    void beginJob(){}
 
     /// Function to be called per sub run
-    void beginSubRun(const art::SubRun& srun){};
+    void beginSubRun(const art::SubRun& /*srun*/){}
 
     /// Function to be called per event
-    void analyze (const art::Event&); 
+    void analyze (const art::Event&);
 
   private:
 
