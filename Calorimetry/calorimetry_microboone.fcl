@@ -8,7 +8,10 @@ microboone_calorimetryalgmc:	@local::standard_calorimetryalgmc
 #microboone_calorimetryalgmc.CalAmpConstants: [ 6.8906513e-3, 6.8906513e-3,6.8906513e-3 ] # Temporarily leaving all
 # planes same. Will need to change after calibration is done.
 #New constants derived using muon MC - T. Yang 11/27/13
-microboone_calorimetryalgmc.CalAmpConstants: [ 3.641e-3, 3.613e-3, 7.198e-3 ] # Temporarily leaving all
+#microboone_calorimetryalgmc.CalAmpConstants: [ 3.641e-3, 3.613e-3, 7.198e-3 ] # Temporarily leaving all
+#New constats derived using muon MC, MC Challenge S2013.10.21; based on analysis of minimum ionizing muons - A. Schukraft 03/03/14
+microboone_calorimetryalgmc.CalAmpConstants: [ 2.677e-3, 2.804e-3, 5.716e-3 ]
+
 
 microboone_calodata:                  @local::standard_calodata
 microboone_calodata.CaloAlg:          @local::microboone_calorimetryalgdata
