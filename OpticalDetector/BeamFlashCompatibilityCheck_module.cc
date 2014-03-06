@@ -202,7 +202,7 @@ namespace opdet {
 	
 	Btrack->GetTrackPoint(s,xyz);
 	xyz[0]+=XOffset;
-	std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
+	const std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
 	float LightAmount = PromptMIPScintYield*TrackLength/float(fBezierResolution);
 	
 	for(size_t OpDet =0; OpDet!=PointVisibility->size();  OpDet++)
