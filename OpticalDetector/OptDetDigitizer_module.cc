@@ -81,6 +81,7 @@ namespace opdet {
 					    optdata::Channel_t const ch) const;
     art::ServiceHandle<OpDigiProperties> fOpDigiProperties;
     art::ServiceHandle<geo::Geometry> fGeom;
+
   };
 } // namespace opdet
 
@@ -122,7 +123,7 @@ namespace opdet {
     CLHEP::HepRandomEngine &engine = rng->getEngine();
     fFlatRandom       = new CLHEP::RandFlat(engine);
     fPoissonRandom    = new CLHEP::RandPoisson(rng->getEngine());
-
+    
   }
   
   //-------------------------------------------------
@@ -245,7 +246,7 @@ namespace opdet {
     double sampleFreq_ns = fSampleFreq /  1000;
     
     // Compute # of timeslices to be stored in the output. This is defined by a user input (fcl file)
-    optdata::TimeSlice_t timeSliceWindow(fOpDigiProperties->GetTimeSlice(timeEnd_ns - timeBegin_ns));
+    optdata::TimeSlice_t timeSliceWindow(fOpDigiProperties->GetTimeSlice(timeEnd_ns));
     
     /*
       Create output data product, optdata::ChannelDataGroup for each gain channel.
@@ -287,7 +288,7 @@ namespace opdet {
 	    // Sample a random subset according to QE
 	    if(fFlatRandom->fire(1.0)<=fQE)
 	      {
-		optdata::TimeSlice_t PhotonTime(fOpDigiProperties->GetTimeSlice(itPhot->Time - timeBegin_ns));
+		optdata::TimeSlice_t PhotonTime(fOpDigiProperties->GetTimeSlice(itPhot->Time));
 		if( itPhot->Time > timeBegin_ns  &&  itPhot->Time < timeEnd_ns )
 		  {
 		    if(fSimGainSpread)
