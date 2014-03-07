@@ -99,6 +99,7 @@ namespace opdet {
 #endif 
 
 #include "TriggerAlgo/TriggerAlgoMicroBoone.h"
+#include "OpticalDetector/OpDigiProperties.h"
 
 namespace opdet {
 
@@ -180,8 +181,9 @@ namespace opdet {
 
     // Temporary - needs to be gotten from somewhere
     //  and not hard coded
-    uint32_t fTimeSlicesPerFrame=110000;
-    
+    art::ServiceHandle<trigger::TriggerAlgoMicroBoone> trig_mod;
+    uint32_t fTimeSlicesPerFrame=trig_mod->FrameSizeTrigger();
+
     // Find out when the trigger happened 
     unsigned int   TrigFrame = 0;
     unsigned short TrigTime = 0;
@@ -261,8 +263,8 @@ namespace opdet {
 		      double Area  = fThreshAlg.GetPulse(k)->area;
 		      
 		      double AbsTime = TMax + TimeSlice;
-		      double RelTime = TMax + TimeSlice - TrigTime + 
-			(Frame - TrigFrame)*fTimeSlicesPerFrame;
+		      double RelTime = TMax + (double)TimeSlice - (double)TrigTime;
+		      RelTime += (((double)Frame - (double)TrigFrame)*fTimeSlicesPerFrame);
 		      
 		      double PE = Peak/fSPESize.at(Channel);
 		      
@@ -585,13 +587,12 @@ namespace opdet {
 	      }
 
 	    bool InBeamFrame = (Frame==TrigFrame);
-	    double RelTime   = AveTime - TrigTime +
-	      (Frame - TrigFrame) * fTimeSlicesPerFrame;
+	    double RelTime   = AveTime - (double)TrigTime;
+	    RelTime += ((double)Frame - (double)TrigFrame) * fTimeSlicesPerFrame;
 	    double TimeWidth = (MaxTime-MinTime)/2.;
 	    
 	    int OnBeamTime =0; 
 	    if((InBeamFrame) && (fabs(RelTime) < fTrigCoinc)) OnBeamTime=1;
-
 
 	    // Make the flash
 	    OpFlashesThisFrame.push_back( recob::OpFlash( RelTime,
@@ -744,23 +745,32 @@ namespace opdet {
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
-    art::ServiceHandle<trigger::TriggerAlgoMicroBoone> _trig_mod;
+    art::ServiceHandle<trigger::TriggerAlgoMicroBoone> trig_mod;
+    art::ServiceHandle<opdet::OpDigiProperties> opdigi;
     // 
     for(size_t index=0; index < beamGateArray.size(); ++index){
 
       const sim::BeamGateInfo* trig(beamGateArray.at(index));
 
-      Sample = _trig_mod->ConvertTime(trig->Start());
+      if(trig->Start() < (opdigi->TimeBegin())*1.e3) 
 
-      Frame  = Sample/(_trig_mod->FrameSizeTrigger());
-      
-      Sample = Sample - (Frame * (_trig_mod->FrameSizeTrigger()));
+	throw cet::exception(__FUNCTION__) << Form("Found beam time (=%g) before discrete clock count start (=%g)",
+						   trig->Start(),
+						   opdigi->TimeBegin()*1.e3);
+
+      double start_time = 1.e-3 * trig->Start() - opdigi->TimeBegin();
+      double sample_freq = opdigi->SampleFreq();
+
+      unsigned int ticks = (unsigned int)(start_time * sample_freq);
+
+      Frame  = ticks / ((unsigned int)(trig_mod->FrameSizeTrigger()));
+      Sample = (unsigned short)(ticks - (Frame * (trig_mod->FrameSizeTrigger())));
 
       if(index>0)
 
 	mf::LogError("OpFlashFinder")<<"Found more than 1 beam gate info!";
     }
-   
+
   }
 
   //-------------------------------------

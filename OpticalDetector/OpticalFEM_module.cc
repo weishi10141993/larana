@@ -32,6 +32,7 @@
 
 // ROOT includes (for diagnostic histograms)
 #include <TH1S.h>
+#include <TH1D.h>
 
 // C++ language includes
 #include <iostream>
@@ -104,6 +105,7 @@ namespace opdet {
 
     // Read in the parameters from the .fcl file.
     this->reconfigure(parameterSet);
+
   }
   
   void OpticalFEM::reconfigure(fhicl::ParameterSet const& p)
@@ -140,6 +142,9 @@ namespace opdet {
 
   void OpticalFEM::produce(art::Event& event)
   {
+    art::ServiceHandle<art::TFileService> _tfs;
+    art::ServiceHandle<opdet::OpDigiProperties> _odp;
+
     // The collection of channels we'll write in response to beam
     // gates and cosmic signals.
     std::unique_ptr< std::vector<optdata::FIFOChannel> > 
@@ -552,6 +557,7 @@ namespace opdet {
 		saveSlice = diffSize - fm_cosmicSlices[gain];
 
 	      // Time information for this FIFO channel.
+
 	      optdata::Frame_t cosmicFrame 
 		= channelDataGroup.Frame()
 		+ saveSlice / fm_clockFrameSize;
@@ -578,7 +584,7 @@ namespace opdet {
 			       cosmicFrame,
 			       channel,
 			       fm_cosmicSlices[gain] );
-				  
+
 	      // Copy the time slices.
 	      for ( optdata::TimeSlice_t t = saveSlice; 
 		    t != saveSlice + fm_cosmicSlices[gain]; ++t )
