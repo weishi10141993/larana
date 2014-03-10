@@ -233,21 +233,21 @@ namespace opdet {
     // For every OpDet:
     for(sim::SimPhotonsCollection::const_iterator itOpDet=ThePhotCollection.begin(); itOpDet!=ThePhotCollection.end(); itOpDet++)
       {
-	const sim::SimPhotons* ThePhot=itOpDet->second;
+	const sim::SimPhotons& ThePhot=itOpDet->second;
 	
-	int Ch = ThePhot->OpChannel();
+	int Ch = ThePhot.OpChannel();
 	
 	// For every photon in the hit:
-	for(sim::SimPhotons::const_iterator itPhot = ThePhot->begin(); itPhot!=ThePhot->end(); itPhot++)
+	for(const sim::OnePhoton& Phot: ThePhot)
 	  {
 	    // Sample a random subset according to QE
 	    if(fFlatRandom->fire(1.0)<=fQE)
 	      {
 		
 		// Convert photon arrival time to the appropriate bin, dictated by fSampleFreq. Photon arrival time is in ns, beginning time in us, and sample frequency in MHz. Notice that we have to accommodate for the beginning time
-		if((itPhot->Time > TimeBegin_ns) && (itPhot->Time < TimeEnd_ns))
+		if((Phot.Time > TimeBegin_ns) && (Phot.Time < TimeEnd_ns))
 		  {
-		    int binTime = int((itPhot->Time - TimeBegin_ns) * SampleFreq_ns);		
+		    int binTime = int((Phot.Time - TimeBegin_ns) * SampleFreq_ns);		
 	
 		    // Call function to add waveforms to our pulse
 		    AddTimedWaveform( binTime, PulsesFromDetPhotons[Ch], fSinglePEWaveform );

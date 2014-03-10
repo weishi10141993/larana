@@ -245,9 +245,9 @@ namespace opdet {
 
 	    //Get data from HitCollection entry
 	    fOpChannel=itOpDet->first;
-	    const sim::SimPhotons * TheHit=itOpDet->second;
+	    const sim::SimPhotons& TheHit=itOpDet->second;
 	     
-	    //	    std::cout<<"OpDet " << fOpChannel << " has size " << TheHit->size()<<std::endl;
+	    //	    std::cout<<"OpDet " << fOpChannel << " has size " << TheHit.size()<<std::endl;
 	    
 	    // Loop through OpDet phots.  
 	    //   Note we make the screen output decision outside the loop
@@ -256,13 +256,13 @@ namespace opdet {
 
 	    if(fVerbosity > 3)
 	      {
-		for(sim::SimPhotons::const_iterator itPhot = TheHit->begin(); itPhot!=TheHit->end(); itPhot++)
+		for(const sim::OnePhoton& Phot: TheHit)
 		  {
 		    // Calculate wavelength in nm
-		    fWavelength= (2.0*3.142)*0.000197/itPhot->Energy;
+		    fWavelength= (2.0*3.142)*0.000197/Phot.Energy;
 
 		    //Get arrival time from phot
-		    fTime= itPhot->Time;
+		    fTime= Phot.Time;
 		    std::cout<<"Arrival time: " << fTime<<std::endl;
 		    
 		    // Increment per OpDet counters and fill per phot trees
@@ -280,11 +280,11 @@ namespace opdet {
 	      }
 	    else
 	      {
-		for(sim::SimPhotons::const_iterator itPhot = TheHit->begin(); itPhot!=TheHit->end(); itPhot++)
+		for(const sim::OnePhoton& Phot: TheHit)
 		  {
 		    // Calculate wavelength in nm
-		    fWavelength= (2.0*3.142)*0.000197/itPhot->Energy;
-		    fTime= itPhot->Time;		
+		    fWavelength= (2.0*3.142)*0.000197/Phot.Energy;
+		    fTime= Phot.Time;		
     
 		    // Increment per OpDet counters and fill per phot trees
 		    fCountOpDetAll++;

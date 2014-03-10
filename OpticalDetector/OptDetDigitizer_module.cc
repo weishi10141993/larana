@@ -279,17 +279,17 @@ namespace opdet {
     // For every OpDet, convert PE into waveform and combine all together
     for(sim::SimPhotonsCollection::const_iterator itOpDet=ThePhotCollection.begin(); itOpDet!=ThePhotCollection.end(); itOpDet++)
       {
-	const sim::SimPhotons* ThePhot=itOpDet->second;
+	const sim::SimPhotons& ThePhot=itOpDet->second;
 
-	int ch = ThePhot->OpChannel();
+	int ch = ThePhot.OpChannel();
 	// For every photon in the hit:
-	for(sim::SimPhotons::const_iterator itPhot = ThePhot->begin(); itPhot!=ThePhot->end(); itPhot++)
+	for(const sim::OnePhoton& Phot: ThePhot)
 	  {
 	    // Sample a random subset according to QE
 	    if(fFlatRandom->fire(1.0)<=fQE)
 	      {
-		optdata::TimeSlice_t PhotonTime(fOpDigiProperties->GetTimeSlice(itPhot->Time));
-		if( itPhot->Time > timeBegin_ns  &&  itPhot->Time < timeEnd_ns )
+		optdata::TimeSlice_t PhotonTime(fOpDigiProperties->GetTimeSlice(Phot.Time));
+		if( Phot.Time > timeBegin_ns  &&  Phot.Time < timeEnd_ns )
 		  {
 		    if(fSimGainSpread)
 		      {
