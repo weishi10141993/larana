@@ -233,7 +233,7 @@ namespace opdet {
 		
 		if((xyz[0] > MaxX) || (xyz[0] < MinX) ) ValidTrajectory[i]=false; 
 		
-		std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
+		const std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
 		
 		for(size_t OpDet =0; OpDet!=PointVisibility->size();  OpDet++)
 		  {
@@ -295,7 +295,7 @@ namespace opdet {
 	
 	Btrack->GetTrackPoint(s,xyz);
 	xyz[0]+=XOffset;
-	std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
+	const std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
 	float LightAmount = dQdx*TrackLength/float(fBezierResolution);
 	
 	for(size_t OpDet =0; OpDet!=PointVisibility->size();  OpDet++)

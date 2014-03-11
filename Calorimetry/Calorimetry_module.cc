@@ -47,6 +47,7 @@ extern "C" {
 #include <TMath.h>
 #include <TGraph.h>
 #include <TF1.h>
+#include <TVector3.h>
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
@@ -161,6 +162,7 @@ namespace calo {
     std::vector<double> fdEdx;
     std::vector<double> fResRng;
     std::vector<double> fpitch;
+    std::vector<TVector3> fXYZ;
 
     double TPCsize[3];
 
@@ -376,6 +378,7 @@ void calo::Calorimetry::produce(art::Event& evt)
       fdEdx.clear();
       fpitch.clear();
       fResRng.clear();
+      fXYZ.clear();
 
       double Kin_En = 0.;
       double Trk_Length = 0.;
@@ -514,6 +517,8 @@ void calo::Calorimetry::produce(art::Event& evt)
 	fstime.push_back(stime);
 	fetime.push_back(etime);
 	fpitch.push_back(pitch);
+	TVector3 v(xyz3d[0],xyz3d[1],xyz3d[2]);
+	fXYZ.push_back(v);
 	++fnsps;
       }
       if (!fnsps){
@@ -523,7 +528,8 @@ void calo::Calorimetry::produce(art::Event& evt)
 						    vresRange,
 						    deadwire,
 						    util::kBogusD,
-						    fpitch));
+						    fpitch,
+						    fXYZ));
 	util::CreateAssn(*this, evt, *calorimetrycol, tracklist[trkIter], *assn);
 	continue;
       }
@@ -719,7 +725,8 @@ void calo::Calorimetry::produce(art::Event& evt)
 						  vresRange,
 						  deadwire,
 						  Trk_Length,
-						  fpitch));
+						  fpitch,
+						  fXYZ));
       util::CreateAssn(*this, evt, *calorimetrycol, tracklist[trkIter], *assn);
       
     }//end looping over planes
