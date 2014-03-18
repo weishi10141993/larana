@@ -89,7 +89,8 @@ namespace opreco {
     if(is_MC){
 
       art::ServiceHandle<cheat::BackTracker> bt;
-      std::vector<const simb::MCParticle*> particle_list = get_MC_particle_list(bt->ParticleList());
+      std::vector<simb::MCParticle> particle_list;
+      get_MC_particle_list(bt->ParticleList(),particle_list);
       fParticle_match_vector.resize(particle_list.size());
  
       mf::LogInfo("OpticalRecoAna")  
@@ -97,7 +98,7 @@ namespace opreco {
 
       match_flashes_to_particles(flash_handle,particle_list);
 
-      match_tracks_to_particles(track_handle,particle_list);
+      //match_tracks_to_particles(track_handle,particle_list);
 
     }
 
@@ -105,18 +106,18 @@ namespace opreco {
   
 
 
-  std::vector<const simb::MCParticle*> OpticalRecoAna::get_MC_particle_list(sim::ParticleList plist) {
+  void OpticalRecoAna::get_MC_particle_list(sim::ParticleList plist,std::vector<simb::MCParticle> & particle_vector) {
 
-    std::vector<const simb::MCParticle*> my_list;
     for(sim::ParticleList::const_iterator ipart = plist.begin(); ipart != plist.end(); ++ipart) {
-      
-      const simb::MCParticle* part = (*ipart).second;
+
+      const simb::MCParticle* part_ptr = (*ipart).second;
+      simb::MCParticle part(*part_ptr);
 
       //do not store if it's below our energy cut
-      if( part->E() < 0.001*part->Mass() +  fKineticEnergyMin ) continue;
+      if( part.E() < 0.001*part.Mass() +  fKineticEnergyMin ) continue;
       
       //check to see if it's a charged particle we expect to leave ionization
-      int pdg = std::abs(part->PdgCode());
+      int pdg = std::abs(part.PdgCode());
       if( pdg==11 // electron
 	  || pdg==13 //muon
 	  || pdg==15 //tau
@@ -129,10 +130,8 @@ namespace opreco {
 	  || pdg==3112 //sigma
 	  || pdg==3312 //xi
 	  || pdg==3334 //omega
-	  ) my_list.push_back(part);
+	  ) particle_vector.push_back(part);
     }
-
-    return my_list;
 
   }
   
@@ -161,21 +160,30 @@ namespace opreco {
   }//end match_falshes_to_tracks
 
  void OpticalRecoAna::match_flashes_to_particles(art::Handle< std::vector<recob::OpFlash> > flash_handle, 
-						 std::vector<const simb::MCParticle*>   particle_list){
+						 std::vector<simb::MCParticle>   particle_list){
     bool matching=false;
     
     for(size_t i_flash=0; i_flash < flash_handle->size(); i_flash++){
+
+      std::cout << "Processing flash " << i_flash << std::endl;
+
       art::Ptr<recob::OpFlash> my_flash(flash_handle, i_flash);
       if(!fFlash_match_vector.at(i_flash).flash) 
 	fFlash_match_vector.at(i_flash).flash = my_flash;
       
+      std::cout << "Got ptr to flash " << i_flash << std::endl;
+
       for(size_t i_particle=0; i_particle < particle_list.size(); i_particle++){
-	const simb::MCParticle* my_particle = particle_list.at(i_particle);
+	const simb::MCParticle my_particle = particle_list.at(i_particle);
 		
+	std::cout << "\tChecking particle " << i_particle << std::endl;
+	
 	matching=false;
 
-	if( std::abs(my_particle->T() - my_flash->Time() ) < fTimeMatchMax)
+	if( std::abs(my_particle.T() - my_flash->Time() ) < fTimeMatchMax)
 	  matching=true;
+
+	std::cout << "\t\t(Flash,Particle) = (" << my_flash->Time() << "," << my_particle.T() << ") match? " << matching << std::endl;
 
 	if(matching)
 	  fFlash_match_vector.at(i_flash).particles.push_back(my_particle);
@@ -187,7 +195,7 @@ namespace opreco {
 
 
     for(size_t i_particle=0; i_particle < particle_list.size(); i_particle++){
-      const simb::MCParticle* my_particle = particle_list.at(i_particle);
+      const simb::MCParticle my_particle = particle_list.at(i_particle);
       
       for(size_t i_flash=0; i_flash < flash_handle->size(); i_flash++){
 	art::Ptr<recob::OpFlash> my_flash(flash_handle, i_flash);
@@ -196,7 +204,7 @@ namespace opreco {
 		
 	matching=false;
 
-	if( std::abs(my_particle->T() - my_flash->Time() ) < fTimeMatchMax)
+	if( std::abs(my_particle.T() - my_flash->Time() ) < fTimeMatchMax)
 	  matching=true;
 
 	if(matching)
@@ -209,7 +217,7 @@ namespace opreco {
   }//end match_flashes_to_particles
 
  void OpticalRecoAna::match_tracks_to_particles(art::Handle< std::vector<recob::Track> > track_handle, 
-						 std::vector<const simb::MCParticle*>   particle_list){
+						 std::vector<simb::MCParticle>   particle_list){
     bool matching=false;
     
     for(size_t i_track=0; i_track < track_handle->size(); i_track++){
@@ -218,7 +226,7 @@ namespace opreco {
 	fTrack_match_vector.at(i_track).track = my_track;
       
       for(size_t i_particle=0; i_particle < particle_list.size(); i_particle++){
-	const simb::MCParticle* my_particle = particle_list.at(i_particle);
+	const simb::MCParticle my_particle = particle_list.at(i_particle);
 		
 	matching=false;
 	//put matching code here?

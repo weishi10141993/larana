@@ -1,4 +1,4 @@
-#include "job/services.fcl"
+#include "services_microboone.fcl"
 
 standard_opticalrecoana:
 {
