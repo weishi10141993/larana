@@ -27,7 +27,7 @@ namespace opreco {
 namespace opreco {
 
   // Constructor
-  OpticalRecoAna::OpticalRecoAna(fhicl::ParameterSet const& pset)
+  OpticalRecoAna::OpticalRecoAna(fhicl::ParameterSet const& pset): EDAnalyzer(pset)
   {
     
     // Indicate that the Input Module comes from .fcl
@@ -58,7 +58,7 @@ namespace opreco {
 
 
   // The analyzer itself
-  void OpticalRecoAna::analyze(const art::Event& evt) 
+  void OpticalRecoAna::analyze(const art::Event& evt)
   {
 
     fFlash_match_vector.clear();
