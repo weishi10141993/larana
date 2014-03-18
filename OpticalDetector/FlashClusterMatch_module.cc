@@ -38,6 +38,9 @@ namespace opdet {
     
     
   private:
+    
+    std::vector<double>  GetLightHypothesis(std::vector<recob::SpacePoint> spts);
+    
     trkf::SpacePointAlg       *  fSptalg;
 
     std::string fClusterModuleLabel;
@@ -76,6 +79,7 @@ namespace opdet{
 #include "RecoBase/Hit.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/SpacePoint.h"
+
 
 // FMWK includes
 #include "Utilities/AssociationUtil.h"
@@ -258,6 +262,9 @@ namespace opdet {
 	    fSptalg->makeSpacePoints(FlatHits, spts);
 
 	    if(int(spts.size()) < fMinSptsForOverlap) continue;
+
+	    // Get light hypothesis for this collection
+	    std::vector<double> hypothesis = GetLightHypothesis(spts);
  	    
 	  }
 
@@ -273,6 +280,41 @@ namespace opdet {
 
     
   }
+
+
+
+
+  // Get a hypothesis for the light from a spacepoint collection
+  std::vector<double> FlashClusterMatch::GetLightHypothesis(std::vector<recob::SpacePoint> spts)
+  {
+    art::ServiceHandle<geo::Geometry> geom;
+    std::vector<double> ReturnVector(geom->NOpDet(),0);
+
+    art::ServiceHandle<phot::PhotonVisibilityService> pvs;
+
+    double Charge=0;
+
+    for (size_t s=0; s!=spts.size(); s++)
+      {
+      	double xyz[3];
+	
+	for(size_t i=0; i!=3; ++i) xyz[i] = spts.at(s).XYZ()[i];
+	
+        const std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
+	const art::PtrVector<recob::Hit>& assochits = fSptalg->getAssociatedHits(spts.at(s));
+	for(size_t iHit=0; iHit!=assochits.size(); ++iHit)
+	  if(assochits.at(iHit)->View()==2) Charge += assochits.at(iHit)->Charge();
+       
+        for(size_t OpDet =0; OpDet!=PointVisibility->size();  OpDet++)
+          {
+            ReturnVector.at(OpDet)+= PointVisibility->at(OpDet) * Charge;
+          }
+      }
+    return ReturnVector;
+  }
+
+
+
 
 
 }
