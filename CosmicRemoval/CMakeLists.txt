@@ -7,6 +7,7 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 include_directories ( ${PROJECT_SOURCE_DIR} )
 art_make(BASENAME_ONLY
 	MODULE_LIBRARIES
+	BackTracker_service
         ${ART_FRAMEWORK_CORE}
 	${ART_FRAMEWORK_PRINCIPAL}
 	${ART_FRAMEWORK_SERVICES_REGISTRY}
@@ -22,7 +23,9 @@ art_make(BASENAME_ONLY
 
 # If you add a package by hand, you MUST also add the appropriate package block below
 # Remove the appropriate package block below if you delete a product from your srcs area
-
+install_headers()
+install_fhicl()
+install_source()
 # DO NOT DELETE cmake_include_dirs
 # larana package block
 
