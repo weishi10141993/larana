@@ -5,8 +5,9 @@
 
 
 #include "art/Framework/Core/EDProducer.h"
-#include "AnalysisBase/FlashMatch.h"
+#include "AnalysisBase/CosmicTag.h"
 #include "RecoAlg/SpacePointAlg.h"
+#include "AnalysisAlg/CalorimetryAlg.h"
 
 // ROOT includes.
 #include <Rtypes.h>
@@ -40,12 +41,17 @@ namespace opdet {
   private:
     
     std::vector<double>  GetLightHypothesis(std::vector<recob::SpacePoint> spts);
+    bool                 CheckCompatibility(std::vector<double>& hypothesis, std::vector<double>& signal);
+
     
     trkf::SpacePointAlg       *  fSptalg;
+    calo::CalorimetryAlg      *  fCaloAlg;
 
     std::string fClusterModuleLabel;
     std::string fFlashModuleLabel;
     int         fMinSptsForOverlap;
+    double      fSingleChannelCut;
+    double      fIntegralCut;
   };
 
 }
@@ -93,7 +99,7 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Utilities/LArProperties.h"
-
+#include "AnalysisAlg/CalorimetryAlg.h"
 
 // C++ language includes
 #include <iostream>
@@ -109,8 +115,8 @@ namespace opdet {
   
   FlashClusterMatch::FlashClusterMatch(fhicl::ParameterSet const& pset)
   {
-    produces< std::vector<anab::FlashMatch> >();
-    produces< art::Assns<recob::Cluster, anab::FlashMatch> >();
+    produces< std::vector<anab::CosmicTag> >();
+    produces< art::Assns<recob::Cluster, anab::CosmicTag> >();
 
     this->reconfigure(pset);
    }
@@ -123,8 +129,13 @@ namespace opdet {
     fClusterModuleLabel = pset.get<std::string>("ClusterModuleLabel");   
     fFlashModuleLabel   = pset.get<std::string>("FlashModuleLabel");
     fMinSptsForOverlap  = pset.get<int>("MinSptsForOverlap");
-    fSptalg             = new trkf::SpacePointAlg(pset.get<fhicl::ParameterSet>("SpacePointAlg"));
 
+    fSingleChannelCut   = pset.get<int>("SingleChannelCut");
+    fIntegralCut        = pset.get<int>("IntegralCut");
+
+    fSptalg             = new trkf::SpacePointAlg(pset.get<fhicl::ParameterSet>("SpacePointAlg"));
+    fCaloAlg            = new calo::CalorimetryAlg(pset.get< fhicl::ParameterSet >("CaloAlg"));
+    
   }
 
 
@@ -171,6 +182,11 @@ namespace opdet {
     if(n<10) goto top;
 
 
+    
+    std::unique_ptr< std::vector<anab::CosmicTag> > cosmic_tags ( new std::vector<anab::CosmicTag>);
+    std::unique_ptr< art::Assns<recob::Cluster, anab::CosmicTag > > assn_tag( new art::Assns<recob::Cluster, anab::CosmicTag>);
+
+
 
     
     // Read in flashes from the event
@@ -195,6 +211,24 @@ namespace opdet {
     
     // Pull associated hits from event
     art::FindManyP<recob::Hit> hits(clusterh, evt, fClusterModuleLabel);
+
+
+    // Extract flash shape info
+    std::vector<std::vector<double> > FlashShapes;
+    art::ServiceHandle<geo::Geometry> geom;
+    size_t NOpDets = geom->NOpDet();
+
+    for(size_t f=0; f!=Flashes.size(); ++f)
+      {
+	if(Flashes.at(f)->OnBeamTime())
+          {
+	    std::vector<double> ThisFlashShape(NOpDets,0);
+            for(size_t i=0; i!=NOpDets; ++i)
+	      ThisFlashShape[i]=Flashes.at(f)->PE(i);
+            FlashShapes.push_back(ThisFlashShape);
+          }
+      }
+
 
 
     std::vector<std::vector<int> > SortedByViews(3);
@@ -223,6 +257,8 @@ namespace opdet {
 
 	  }
       }
+
+    std::vector<std::vector<double> > hypotheses;
 
     // Loop over sets of 3 clusters
     for(size_t nU=0; nU!=SortedByViews[0].size(); ++nU)
@@ -265,23 +301,40 @@ namespace opdet {
 
 	    // Get light hypothesis for this collection
 	    std::vector<double> hypothesis = GetLightHypothesis(spts);
- 	    
+
+	    bool IsCompatible = false;
+	    
+	    // Check for each flash, whether this subevent is compatible
+	    for(size_t jFlash=0; jFlash!=FlashShapes.size(); ++jFlash)
+	      {
+		// It is compatible with the beam flash.
+		if(CheckCompatibility(hypothesis,FlashShapes.at(jFlash)))
+		  {
+		    IsCompatible=true;
+		  }	      
+	      }
+
+	    // If not compatible with any beam flash, throw out
+	    if(!IsCompatible)
+	      {
+		cosmic_tags->push_back(anab::CosmicTag(1));
+		util::CreateAssn(*this, evt, *(cosmic_tags.get()), Clusters.at(indexU), *(assn_tag.get()), cosmic_tags->size()-1);
+		util::CreateAssn(*this, evt, *(cosmic_tags.get()), Clusters.at(indexV), *(assn_tag.get()), cosmic_tags->size()-1);
+		util::CreateAssn(*this, evt, *(cosmic_tags.get()), Clusters.at(indexW), *(assn_tag.get()), cosmic_tags->size()-1);
+	      }
+	    
 	  }
-
-    std::unique_ptr< std::vector<anab::FlashMatch> > flash_matches ( new std::vector<anab::FlashMatch>);
-    std::unique_ptr< art::Assns<recob::Cluster, anab::FlashMatch > > assn_cluster( new art::Assns<recob::Cluster, anab::FlashMatch>);
-
-
-
-
-
-    evt.put(std::move(flash_matches));
-    evt.put(std::move(assn_cluster));
+    
 
     
+
+    evt.put(std::move(cosmic_tags));
+    evt.put(std::move(assn_tag));
   }
 
 
+
+  //---------------------------------------------------------
 
 
   // Get a hypothesis for the light from a spacepoint collection
@@ -292,7 +345,6 @@ namespace opdet {
 
     art::ServiceHandle<phot::PhotonVisibilityService> pvs;
 
-    double Charge=0;
 
     for (size_t s=0; s!=spts.size(); s++)
       {
@@ -302,17 +354,48 @@ namespace opdet {
 	
         const std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
 	const art::PtrVector<recob::Hit>& assochits = fSptalg->getAssociatedHits(spts.at(s));
+	
+	double Charge     = 0;
+	double WirePitch  = 0.3;
+	
 	for(size_t iHit=0; iHit!=assochits.size(); ++iHit)
-	  if(assochits.at(iHit)->View()==2) Charge += assochits.at(iHit)->Charge();
-       
+	  if(assochits.at(iHit)->View()==2) Charge += WirePitch * fCaloAlg->dEdx_AMP(assochits.at(iHit), 1);
+	
+	
+	
         for(size_t OpDet =0; OpDet!=PointVisibility->size();  OpDet++)
           {
-            ReturnVector.at(OpDet)+= PointVisibility->at(OpDet) * Charge;
+            ReturnVector.at(OpDet)+= PointVisibility->at(OpDet);
           }
       }
+    double PhotonYield = 24000;
+    double QE          = 0.01;
+    
+    for(size_t i=0; i!=ReturnVector.size(); ++i)
+      {
+	ReturnVector[i] *= QE * PhotonYield;
+      }
+
     return ReturnVector;
   }
 
+
+  //----------------------------------------------
+  bool FlashClusterMatch::CheckCompatibility(std::vector<double>& hypothesis, std::vector<double>& signal)
+  {
+    double sigintegral=0, hypintegral=0;
+    for(size_t i=0; i!=hypothesis.size(); ++i)
+      {
+	sigintegral+=signal.at(i);
+	hypintegral+=hypothesis.at(i);
+	double HypErr = pow(hypothesis.at(i),0.5);
+	if(( (hypothesis.at(i) - signal.at(i)) / HypErr) > fSingleChannelCut) return false;
+      }
+    double HypIntErr= pow(hypintegral,0.5);
+
+    if( ( (hypintegral - sigintegral)/HypIntErr) > fIntegralCut) return false;
+    return true;
+  }
 
 
 
