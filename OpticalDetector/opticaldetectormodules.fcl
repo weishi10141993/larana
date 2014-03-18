@@ -82,6 +82,16 @@ standard_beamflashcompat:
 ###################################################################
 
 
+standard_flashclustermatch:
+{
+  module_type:            "FlashClusterMatch"
+  TrackModuleLabel:       "fuzzycluster"
+  FlashModuleLabel:       "opflash"
+}
+
+###################################################################
+
+
 standard_fifohistana:
 {
   module_type:            "FIFOHistogramAna"
