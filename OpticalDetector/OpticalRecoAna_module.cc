@@ -51,6 +51,7 @@ opreco::OpticalRecoAna::~OpticalRecoAna()
 void opreco::OpticalRecoAna::beginJob()
 {
   art::ServiceHandle<art::TFileService> tfs;
+  fTimeDiff = tfs->make<TH1F>("htdiff","Time difference between particles and flashes; t_diff (ns); flash/particle pairs",1e3,-5e6,5e6);
 }
 
 
@@ -179,6 +180,8 @@ void opreco::OpticalRecoAna::match_flashes_to_particles(art::Handle< std::vector
       
       matching=false;
       
+      fTimeDiff->Fill(my_particle.T() - my_flash->Time()*16);
+
       if( std::abs(my_particle.T() - my_flash->Time()*16 ) < fTimeMatchMax)
 	matching=true;
       

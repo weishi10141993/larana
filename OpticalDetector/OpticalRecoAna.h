@@ -18,6 +18,8 @@
 #include "RecoBase/Track.h"
 #include "RecoBase/OpFlash.h"
 
+#include "TH1.h"
+
 namespace opreco {
 
   //bookkeeping on all the matches
@@ -68,6 +70,8 @@ namespace opreco {
     void match_tracks_to_particles(art::Handle<std::vector<recob::Track>>, std::vector<simb::MCParticle>);
     
     void check_flash_matches();
+
+    TH1F *fTimeDiff;
   };
 
 } 
