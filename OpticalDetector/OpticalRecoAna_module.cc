@@ -73,15 +73,15 @@ namespace opreco {
     evt.getByLabel(fFlashModuleLabel, flash_handle);
     fFlash_match_vector.resize(flash_handle->size());
 
-    mf::LogInfo("OpticalRecoAna")  
-      << "Number of flashes is " << fFlash_match_vector.size();
+    LOG_INFO ("OpticalRecoAna")  
+      << "Number of flashes is " << fFlash_match_vector.size() << std::flush;
 
     art::Handle< std::vector<recob::Track> > track_handle;
     evt.getByLabel(fTrackModuleLabel, track_handle);
     fTrack_match_vector.resize(track_handle->size());
 
-    mf::LogInfo("OpticalRecoAna")  
-      << "Number of tracks is " << fTrack_match_vector.size();
+    LOG_INFO ("OpticalRecoAna")  
+      << "Number of tracks is " << fTrack_match_vector.size() << std::flush;
 
     match_flashes_to_tracks(flash_handle, track_handle);
 
