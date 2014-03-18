@@ -1,0 +1,16 @@
+BEGIN_PROLOG
+
+microboone_cosmicremovalana:
+{
+module_type:              "CosmicRemovalAna"
+GenieGenModuleLabel:      "generator"
+LArGeantModuleLabel:      "largeant"
+HitsModuleLabel:          "ffthit"
+ClusterModuleLabel:       "fuzzy"
+TrackModuleLabel:         "bezier"
+
+
+}
+
+
+END_PROLOG
