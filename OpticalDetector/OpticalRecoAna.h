@@ -20,6 +20,23 @@
 
 namespace opreco {
 
+  //bookkeeping on all the matches
+  struct flash_match{
+    art::Ptr<recob::OpFlash> flash;
+    std::vector<simb::MCParticle> particles;
+    std::vector< art::Ptr<recob::Track> > tracks;
+  };
+  struct track_match{
+    art::Ptr<recob::Track> track;
+    std::vector< art::Ptr<recob::OpFlash> > flashes;
+    std::vector<simb::MCParticle> particles;
+  };
+  struct particle_match{
+    const simb::MCParticle particle;
+    std::vector< art::Ptr<recob::OpFlash> > flashes;
+    std::vector< art::Ptr<recob::Track> > tracks;
+  };
+
   class OpticalRecoAna : public art::EDAnalyzer{
   public:
  
@@ -37,22 +54,6 @@ namespace opreco {
     float       fKineticEnergyMin;
     float       fTimeMatchMax;
 
-    //bookkeeping on all the matches
-    struct flash_match{
-      art::Ptr<recob::OpFlash> flash;
-      std::vector<simb::MCParticle> particles;
-      std::vector< art::Ptr<recob::Track> > tracks;
-    };
-    struct track_match{
-      art::Ptr<recob::Track> track;
-      std::vector< art::Ptr<recob::OpFlash> > flashes;
-      std::vector<simb::MCParticle> particles;
-    };
-    struct particle_match{
-      const simb::MCParticle particle;
-      std::vector< art::Ptr<recob::OpFlash> > flashes;
-      std::vector< art::Ptr<recob::Track> > tracks;
-    };
     std::vector<flash_match>    fFlash_match_vector;
     std::vector<track_match>    fTrack_match_vector;
     std::vector<particle_match> fParticle_match_vector;
@@ -66,6 +67,7 @@ namespace opreco {
     void match_flashes_to_particles(art::Handle<std::vector<recob::OpFlash>>, std::vector<simb::MCParticle>);
     void match_tracks_to_particles(art::Handle<std::vector<recob::Track>>, std::vector<simb::MCParticle>);
     
+    void check_flash_matches();
   };
 
 } 
