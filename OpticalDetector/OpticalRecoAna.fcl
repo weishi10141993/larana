@@ -1,4 +1,5 @@
 #include "services_microboone.fcl"
+#include "opticaldetectormodules.fcl"
 
 standard_opticalrecoana:
 {
@@ -57,9 +58,10 @@ physics:
  analyzers:
  	{
         OpticalRecoAnaBezierTracks:  @local::microboone_opticalrecoana
+        OpFlashAna:                  @local::standard_opflashana
  	}
 
-    ana:  [ OpticalRecoAnaBezierTracks ]
+    ana:  [ OpticalRecoAnaBezierTracks, OpFlashAna ]
 
  #end_paths is a keyword and contains the paths that do not modify the art::Event, 
  #ie analyzers and output streams.  these all run simultaneously
@@ -68,5 +70,6 @@ physics:
 
 physics.analyzers.OpticalRecoAnaBezierTracks.TrackModule:  "beziertracker"
 physics.analyzers.OpticalRecoAnaBezierTracks.FlashModule:  "opflash"
-
-
+physics.analyzers.OpFlashAna.MakeFlashTimeHist:       true
+physics.analyzers.OpFlashAna.MakeFlashPosHist:        true
+physics.analyzers.OpFlashAna.MakePerFlashHists:       true
