@@ -26,6 +26,7 @@ art_make( BASENAME_ONLY
                         Filters
                         RecoObjects
                         RecoBase
+                        RecoAlg
                         Geometry
                         Geometry_service
                         Simulation
