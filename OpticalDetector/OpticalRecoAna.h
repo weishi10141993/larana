@@ -70,6 +70,8 @@ namespace opreco {
     void match_tracks_to_particles(art::Handle<std::vector<recob::Track>>, std::vector<simb::MCParticle>);
     
     void check_flash_matches();
+    void sort_and_print_flashes(std::vector<recob::OpFlash>);
+    //bool compare_flashes(const recob::OpFlash&, const recob::OpFlash&);
 
     TH1F *fTimeDiff;
   };
