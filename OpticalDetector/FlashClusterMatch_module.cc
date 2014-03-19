@@ -317,7 +317,7 @@ namespace opdet {
 	    // If not compatible with any beam flash, throw out
 	    if(!IsCompatible)
 	      {
-		cosmic_tags->push_back(anab::CosmicTag(1));
+		cosmic_tags->push_back(anab::CosmicTag(1.));
 		util::CreateAssn(*this, evt, *(cosmic_tags.get()), Clusters.at(indexU), *(assn_tag.get()), cosmic_tags->size()-1);
 		util::CreateAssn(*this, evt, *(cosmic_tags.get()), Clusters.at(indexV), *(assn_tag.get()), cosmic_tags->size()-1);
 		util::CreateAssn(*this, evt, *(cosmic_tags.get()), Clusters.at(indexW), *(assn_tag.get()), cosmic_tags->size()-1);
