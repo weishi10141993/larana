@@ -1,3 +1,6 @@
+#include "trackfinderalgorithms.fcl"
+#include "calorimetry.fcl"
+
 BEGIN_PROLOG
 
 ###################################################################
@@ -85,8 +88,14 @@ standard_beamflashcompat:
 standard_flashclustermatch:
 {
   module_type:            "FlashClusterMatch"
-  TrackModuleLabel:       "fuzzycluster"
+  ClusterModuleLabel:     "fuzzycluster"
   FlashModuleLabel:       "opflash"
+  SingleChannelCut:       5
+  IntegralCut:            5
+  MinSptsForOverlap:      5
+  SpacePointAlg:          @local::standard_spacepointalg
+  CaloAlg:                @local::standard_calorimetryalgmc
+
 }
 
 ###################################################################
