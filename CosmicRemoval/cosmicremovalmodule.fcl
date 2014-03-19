@@ -8,7 +8,7 @@ LArGeantModuleLabel:      "largeant"
 HitsModuleLabel:          "ffthit"
 ClusterModuleLabel:       "fuzzy"
 TrackModuleLabel:         "beziertracker"
-CosmicTagAssocLabel:      "cosmictagger"
+CosmicTagAssocLabel:      ["cosmictagger" , "flashtagger"]
 
 
 }
