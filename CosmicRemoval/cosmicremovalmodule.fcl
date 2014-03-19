@@ -5,8 +5,8 @@ microboone_cosmicremovalana:
 module_type:              "CosmicRemovalAna"
 GenieGenModuleLabel:      "generator"
 LArGeantModuleLabel:      "largeant"
-HitsModuleLabel:          "ffthit"
-ClusterModuleLabel:       "fuzzy"
+HitsModuleLabel:          "gaushit"
+ClusterModuleLabel:       "fuzzycluster"
 TrackModuleLabel:         "beziertracker"
 CosmicTagAssocLabel:      ["cosmictagger" , "flashtagger"]
 

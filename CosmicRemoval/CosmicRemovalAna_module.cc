@@ -270,12 +270,18 @@ if (evt.getByLabel(fHitsModuleLabel,hitListHandle))
 // ###########################################
 // ### Looping over hits to get TrackIDE's ###
 // ###########################################
-//int nhits = hitlist.size();
+int nhits = hitlist.size();
+
+std::cout<<"nhits = "<<nhits<<std::endl;
+std::cout<<std::endl;
 for ( auto const& itr : hitlist )
 //for (int hit = 0; hit<nhits; hit++)
 	{
 	std::vector<cheat::TrackIDE> eveIDs = bt->HitToEveID(itr);
+	//std::vector<cheat::TrackIDE> eveIDs = bt->HitToSimID(itr);
 	
+	//std::cout<<"eveID = "<<eveIDs<<std::endl;
+	//if(eveIDs.size() != 0){std::cout<<"Something is wrong"<<std::endl;}
 	// ############################
 	// ### Loop over eventIDE's ###
 	// ############################
