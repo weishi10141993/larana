@@ -116,7 +116,7 @@ fCosmicScoreThresholds    (pset.get<std::vector<float> > ("CosmicScoreThresholds
 }
 
 
-
+/////
 // =====================================================
 // Deconstructor
 // =====================================================
@@ -234,6 +234,8 @@ unsigned int clulist = clusterh->size();
    // ### Getting hits associatied with tracks ###	
    art::FindManyP<recob::Hit> TrkHit( tracklist, evt, fHitsModuleLabel);
    
+   art::Ptr<anab::CosmicTag> currentTag;
+   
    std::vector< art::Ptr<recob::Hit> > associatedTPCHits;
    // ###########################
    // ### Looping over tracks ###
@@ -245,13 +247,18 @@ unsigned int clulist = clusterh->size();
        // ############################################################
        bool TrkMatchToCosmicTag = false;
        
-       if(cosmicTrackTag.at(nCT).size()>1) 
-	 mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per track in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
+       //if(cosmicTrackTag.at(nCT).size()>1) 
+	 //mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per track in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
        
        if(cosmicTrackTag.at(nCT).size()==0) continue;
        
-       float CosmicScore = cosmicTrackTag.at(nCT).at(0).CosmicScore();
-       if(CosmicScore > fCosmicScoreThresholds[nCT]) TrkMatchToCosmicTag = true;
+      // float CosmicScore = cosmicTrackTag.at(nCT).at(0).CosmicScore();
+      // if(CosmicScore > fCosmicScoreThresholds[nCT]) TrkMatchToCosmicTag = true;
+       
+       //currentTag = cosmictag.at(trk).at(0);
+       currentTag = cosmicTrackTag.at(trk).at(0);
+       float Score = currentTag->CosmicScore();
+       std::cerr << "Score = " << Score << std::endl;
 	
 	
 	// ############################################
@@ -291,12 +298,15 @@ for(unsigned int clu = 0; clu < clulist; clu++)
 	// ##############################################################
 	bool CluMatchToCosmicTag = false;
 	
-	if(cosmicClusterTag.at(nCT).size()>1) 
-	  mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per cluster in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
+	//if(cosmicClusterTag.at(nCT).size()>1) 
+	  //mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per cluster in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
 	
        if(cosmicClusterTag.at(nCT).size()==0) continue;
        
-       float CosmicScore = cosmicClusterTag.at(nCT).at(0).CosmicScore();
+       //float CosmicScore = cosmicClusterTag.at(nCT).at(0).CosmicScore();
+       
+       currentTag = cosmicClusterTag.at(clu).at(0);
+       float CosmicScore = currentTag->CosmicScore();
        if(CosmicScore > fCosmicScoreThresholds[nCT]) CluMatchToCosmicTag = true;	
 	
 	
@@ -341,12 +351,18 @@ if (evt.getByLabel(fHitsModuleLabel,hitListHandle))
 // ###########################################
 // ### Looping over hits to get TrackIDE's ###
 // ###########################################
-//int nhits = hitlist.size();
+int nhits = hitlist.size();
+
+std::cout<<"nhits = "<<nhits<<std::endl;
+std::cout<<std::endl;
 for ( auto const& itr : hitlist )
 //for (int hit = 0; hit<nhits; hit++)
 	{
 	std::vector<cheat::TrackIDE> eveIDs = bt->HitToEveID(itr);
+	//std::vector<cheat::TrackIDE> eveIDs = bt->HitToSimID(itr);
 	
+	//std::cout<<"eveID = "<<eveIDs<<std::endl;
+	//if(eveIDs.size() != 0){std::cout<<"Something is wrong"<<std::endl;}
 	// ############################
 	// ### Loop over eventIDE's ###
 	// ############################
