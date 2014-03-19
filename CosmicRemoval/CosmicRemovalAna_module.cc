@@ -72,6 +72,22 @@ namespace microboone {
     private:
     unsigned int nCosmicTags;
     
+    std::vector<TH1D*> fCosmicScoresPerCT;
+    std::vector<TH1D*> fFractionChargeTaggedPerCT_Cosmic;
+    std::vector<TH1D*> fFractionChargeTaggedPerCT_NonCosmic;
+    TH1D * NAlgsRejected60_Cosmic;
+    TH1D * NAlgsRejected60_NonCosmic;
+    TH1D * NAlgsRejected80_Cosmic;
+    TH1D * NAlgsRejected80_NonCosmic;
+    TH1D * NAlgsRejected95_Cosmic;
+    TH1D * NAlgsRejected95_NonCosmic;
+    TH1D * TotalCharge_Cosmic;
+    TH1D * TotalCharge_NonCosmic;
+    TH1D * RejectedCharge_Cosmic;
+    TH1D * RejectedCharge_NonCosmic;
+    TH1D * NonRejectedCharge_Cosmic;
+    TH1D * NonRejectedCharge_NonCosmic;
+
     std::string fGenieGenModuleLabel;
     std::string fLArG4ModuleLabel;
     std::string fHitsModuleLabel;
