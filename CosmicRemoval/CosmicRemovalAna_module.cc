@@ -49,6 +49,8 @@
 #include <fstream>
 #include <algorithm>
 #include <functional>
+#include <sstream>
+
 
 #include "TTree.h"
 #include "TFile.h"
@@ -72,6 +74,22 @@ namespace microboone {
     private:
     unsigned int nCosmicTags;
     
+    std::vector<TH1D*> fCosmicScoresPerCT;
+    std::vector<TH1D*> fFractionChargeTaggedPerCT_Cosmic;
+    std::vector<TH1D*> fFractionChargeTaggedPerCT_NonCosmic;
+    TH1D * fNAlgsRejected60_Cosmic;
+    TH1D * fNAlgsRejected60_NonCosmic;
+    TH1D * fNAlgsRejected80_Cosmic;
+    TH1D * fNAlgsRejected80_NonCosmic;
+    TH1D * fNAlgsRejected95_Cosmic;
+    TH1D * fNAlgsRejected95_NonCosmic;
+    TH1D * fTotalCharge_Cosmic;
+    TH1D * fTotalCharge_NonCosmic;
+    TH1D * fRejectedCharge_Cosmic;
+    TH1D * fRejectedCharge_NonCosmic;
+    TH1D * fNonRejectedCharge_Cosmic;
+    TH1D * fNonRejectedCharge_NonCosmic;
+
     std::string fGenieGenModuleLabel;
     std::string fLArG4ModuleLabel;
     std::string fHitsModuleLabel;
@@ -111,10 +129,60 @@ microboone::CosmicRemovalAna::~CosmicRemovalAna()
 // =====================================================
 
 void microboone::CosmicRemovalAna::beginJob(){
-art::ServiceHandle<art::TFileService> tfs;
+  
+  nCosmicTags = fCosmicTagAssocLabel.size();
+  
+  art::ServiceHandle<art::TFileService> tfs;
 
+  // Set up TH1s
+  
+  double TotalChargeLimit = 10000;
+  
+  fNAlgsRejected60_Cosmic = (TH1D*)tfs->make<TH1D>("NAlgsRejected60Cosmic","Number of algorithms rejecting 60% charge, per cosmic particle; N_algs; Particles", nCosmicTags, 0, nCosmicTags);
+  fNAlgsRejected60_NonCosmic = (TH1D*)tfs->make<TH1D>("NAlgsRejected60NonCosmic","Number of algorithms rejecting 60% charge, per non-cosmic particle; N_algs; Particles", nCosmicTags, 0, nCosmicTags);
 
-nCosmicTags = fCosmicTagAssocLabel.size();
+  fNAlgsRejected80_Cosmic = (TH1D*)tfs->make<TH1D>("NAlgsRejected80Cosmic","Number of algorithms rejecting 80% charge, per cosmic particle; N_algs; Particles", nCosmicTags,0, nCosmicTags);
+  fNAlgsRejected80_NonCosmic = (TH1D*)tfs->make<TH1D>("NAlgsRejected80NonCosmic","Number of algorithms rejecting 80% charge, per non-cosmic particle; N_algs; Particles", nCosmicTags, 0, nCosmicTags);
+
+  fNAlgsRejected95_Cosmic = (TH1D*)tfs->make<TH1D>("NAlgsRejected95Cosmic","Number of algorithms rejecting 95% charge, per cosmic particle; N_algs; Particles", nCosmicTags, 0, nCosmicTags);
+  fNAlgsRejected95_NonCosmic = (TH1D*)tfs->make<TH1D>("NAlgsRejected95NonCosmic","Number of algorithms rejecting 95% charge, per non-cosmic particle; N_algs; Particles", nCosmicTags, 0, nCosmicTags);
+
+  fTotalCharge_Cosmic = (TH1D*)tfs->make<TH1D>("TotalChargeCosmic", "Total Hit Charge for True Cosmic Particles; Charge; N", 100,0,TotalChargeLimit);
+  fTotalCharge_NonCosmic = (TH1D*)tfs->make<TH1D>("TotalChargeNonCosmic", "Total Hit Charge for True NonCosmic Particles; Charge; N", 100,0,TotalChargeLimit);
+  
+  fRejectedCharge_Cosmic = (TH1D*)tfs->make<TH1D>("RejectedChargeCosmic", "Rejected Hit Charge for True Cosmic Particles; Charge; N", 100,0,TotalChargeLimit);
+  fRejectedCharge_NonCosmic = (TH1D*)tfs->make<TH1D>("RejectedChargeNonCosmic", "Rejected Hit Charge for True NonCosmic Particles; Charge; N", 100,0,TotalChargeLimit);
+  
+  fNonRejectedCharge_Cosmic = (TH1D*)tfs->make<TH1D>("NonRejectedChargeCosmic", "NonRejected Hit Charge for True Cosmic Particles; Charge; N", 100,0,TotalChargeLimit);
+  fNonRejectedCharge_NonCosmic = (TH1D*)tfs->make<TH1D>("NonRejectedChargeNonCosmic", "NonRejected Hit Charge for True NonCosmic Particles; Charge; N", 100,0,TotalChargeLimit);
+  
+  
+  for(size_t i=0; i!=nCosmicTags; ++i)
+    {
+      std::stringstream sname, stitle;
+      sname.str("");  sname.flush();
+      stitle.str(""); stitle.flush();
+
+      sname<<"CosmicScoresFor"<<fCosmicTagAssocLabel.at(i);
+      stitle<<"Cosmic score per object for " << fCosmicTagAssocLabel.at(i)<<"; Score; N";
+      fCosmicScoresPerCT.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 100,0,1));
+
+      sname.str("");  sname.flush();
+      stitle.str(""); stitle.flush();
+				    
+      sname<<"FractionTaggedCosmicFor"<<fCosmicTagAssocLabel.at(i);
+      stitle<<"Fraction of Cosmic Charge Tagged as Cosmic For " << fCosmicTagAssocLabel.at(i)<<"; Frac; N";
+      fFractionChargeTaggedPerCT_Cosmic.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 100,0,1));	  
+      
+      sname.str("");  sname.flush();
+      stitle.str(""); stitle.flush();
+      
+      sname<<"FractionTaggedNonCosmicFor"<<fCosmicTagAssocLabel.at(i);
+      stitle<<"Fraction of NonCosmic Charge Tagged as Cosmic For " << fCosmicTagAssocLabel.at(i)<<"; Frac; N";
+      fFractionChargeTaggedPerCT_NonCosmic.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 100,0,1));												   
+    }
+  
+
 
 }
 
@@ -125,17 +193,17 @@ nCosmicTags = fCosmicTagAssocLabel.size();
 void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 {
 
-
-
-// #################################################
-// ### Picking up track information on the event ###
-// #################################################
-art::Handle< std::vector<recob::Track> > trackh; //<---Track Handle
-evt.getByLabel(fTrackModuleLabel, trackh); 
-
-std::vector<art::Ptr<recob::Track> > tracklist;//<---Ptr Vector
-art::fill_ptr_vector(tracklist,trackh);//<---Fill the vector
-
+  
+  
+  // #################################################
+  // ### Picking up track information on the event ###
+  // #################################################
+  art::Handle< std::vector<recob::Track> > trackh; //<---Track Handle
+  evt.getByLabel(fTrackModuleLabel, trackh); 
+  
+  std::vector<art::Ptr<recob::Track> > tracklist;//<---Ptr Vector
+  art::fill_ptr_vector(tracklist,trackh);//<---Fill the vector
+  
 // ###################################################
 // ### Picking up cluster information on the event ###
 // ###################################################	
