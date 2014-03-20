@@ -185,7 +185,7 @@ namespace opdet {
     uint32_t fTimeSlicesPerFrame=trig_mod->FrameSizeTrigger();
 
     // Find out when the trigger happened 
-    unsigned int   TrigFrame = 0;
+    unsigned int   TrigFrame = 2;
     unsigned short TrigTime = 0;
     GetTriggerTime(evt, TrigFrame, TrigTime);
     
@@ -590,25 +590,33 @@ namespace opdet {
 	    double RelTime   = AveTime - (double)TrigTime;
 	    RelTime += ((double)Frame - (double)TrigFrame) * fTimeSlicesPerFrame;
 	    double TimeWidth = (MaxTime-MinTime)/2.;
+
+	    /*
+	    std::cout << "THIS FLASH --- " << TotalPE << std::endl;
+	    std::cout << "Frame,TrigFrame,InBeamFrame = " << Frame << "," << TrigFrame << "," << InBeamFrame << std::endl;
+	    std::cout << "RelTime,AveTime,TrigTime = " << RelTime << "," << AveTime << "," << TrigTime << std::endl;
+	    std::cout << "fTimeSlicesPerFrame=" << fTimeSlicesPerFrame << std::endl;
+	    std::cout << "TimeWidth=" << TimeWidth << std::endl;
+	    */
 	    
 	    int OnBeamTime =0; 
 	    if((InBeamFrame) && (fabs(RelTime) < fTrigCoinc)) OnBeamTime=1;
 
 	    // Make the flash
-	    OpFlashesThisFrame.push_back( recob::OpFlash( RelTime,
-							  TimeWidth,
-							  AveTime,
-							  Frame,
-							  PEs, 
-							  InBeamFrame,
-							  OnBeamTime,
-							  FastToTotal,
-							  meany, 
-							  widthy, 
-							  meanz, 
-							  widthz, 
-							  WireCenters, 
-							  WireWidths ));
+	    OpFlashesThisFrame.emplace_back( RelTime,
+					     TimeWidth,
+					     AveTime,
+					     Frame,
+					     PEs, 
+					     InBeamFrame,
+					     OnBeamTime,
+					     FastToTotal,
+					     meany, 
+					     widthy, 
+					     meanz, 
+					     widthz, 
+					     WireCenters, 
+					     WireWidths );
 	    
 	    
 	  }
@@ -733,6 +741,7 @@ namespace opdet {
     //  Eventually it will be replaced with code to look in a 
     //  corresponding reco object
 
+    //std::cout << "OK, we're in here..." << std::endl;
 
     //
     // Read in BeamGateInfo array ... handle the case if there's no BeamGateInfo 
@@ -745,9 +754,13 @@ namespace opdet {
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
+    //std::cout << "And made it here..." << std::endl;
+
     art::ServiceHandle<trigger::TriggerAlgoMicroBoone> trig_mod;
     art::ServiceHandle<opdet::OpDigiProperties> opdigi;
     // 
+    //std::cout << "beamGateArray.size()=" << beamGateArray.size() << std::endl;
+	
     for(size_t index=0; index < beamGateArray.size(); ++index){
 
       const sim::BeamGateInfo* trig(beamGateArray.at(index));
@@ -763,8 +776,12 @@ namespace opdet {
 
       unsigned int ticks = (unsigned int)(start_time * sample_freq);
 
+      //std::cout << "start_time,sample_freq,ticks = " << start_time << "," << sample_freq << "," << ticks << std::endl;
+
       Frame  = ticks / ((unsigned int)(trig_mod->FrameSizeTrigger()));
       Sample = (unsigned short)(ticks - (Frame * (trig_mod->FrameSizeTrigger())));
+
+      //std::cout << "Frame,Sample = " << Frame << "," << Sample << std::endl;
 
       if(index>0)
 

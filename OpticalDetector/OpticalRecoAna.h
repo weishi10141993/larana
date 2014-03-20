@@ -54,6 +54,7 @@ namespace opreco {
     std::string fFlashModuleLabel;
     std::string fTrackModuleLabel;
     float       fKineticEnergyMin;
+    float       fPEMin;
     float       fTimeMatchMax;
 
     std::vector<flash_match>    fFlash_match_vector;
@@ -70,10 +71,10 @@ namespace opreco {
     void match_tracks_to_particles(art::Handle<std::vector<recob::Track>>, std::vector<simb::MCParticle>);
     
     void check_flash_matches();
-    void sort_and_print_flashes(std::vector<recob::OpFlash>);
-    //bool compare_flashes(const recob::OpFlash&, const recob::OpFlash&);
+    float update_MC_particle_time(simb::MCParticle const&, bool &);
 
     TH1F *fTimeDiff;
+    TH1F *fTimeDiff_fine;
   };
 
 } 
