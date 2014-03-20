@@ -55,6 +55,7 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TH1.h"
+#include <iterator>
 
 
 namespace microboone {
@@ -72,6 +73,10 @@ namespace microboone {
 
     
     private:
+
+    double GetOverlapScore(std::vector<art::Ptr<recob::Hit> >& AllHits, std::vector<int>& HitsThisParticle, std::set<art::ProductID>&  TaggedHits);
+
+
     unsigned int nCosmicTags;
     
     std::vector<TH1D*> fCosmicScoresPerCT;
@@ -85,10 +90,6 @@ namespace microboone {
     TH1D * fNAlgsRejected95_NonCosmic;
     TH1D * fTotalCharge_Cosmic;
     TH1D * fTotalCharge_NonCosmic;
-    TH1D * fRejectedCharge_Cosmic;
-    TH1D * fRejectedCharge_NonCosmic;
-    TH1D * fNonRejectedCharge_Cosmic;
-    TH1D * fNonRejectedCharge_NonCosmic;
 
     std::string fGenieGenModuleLabel;
     std::string fLArG4ModuleLabel;
@@ -97,21 +98,21 @@ namespace microboone {
     std::string fTrackModuleLabel;
     std::vector <std::string> fCosmicTagAssocLabel;
     std::vector <float> fCosmicScoreThresholds;
-    };//<---End     
+  };//<---End
 }
 
 // =====================================================
 // fhicl::ParameterSet
 // =====================================================
 microboone::CosmicRemovalAna::CosmicRemovalAna(fhicl::ParameterSet const& pset):
-EDAnalyzer(pset),
-fGenieGenModuleLabel      (pset.get< std::string >("GenieGenModuleLabel")     ),
-fLArG4ModuleLabel         (pset.get< std::string >("LArGeantModuleLabel")     ),
-fHitsModuleLabel          (pset.get< std::string >("HitsModuleLabel")         ),
-fClusterModuleLabel       (pset.get< std::string >("ClusterModuleLabel")      ),
-fTrackModuleLabel         (pset.get< std::string >("TrackModuleLabel")	      ),
-fCosmicTagAssocLabel      (pset.get<std::vector< std::string > >("CosmicTagAssocLabel") ),
-fCosmicScoreThresholds    (pset.get<std::vector<float> > ("CosmicScoreThresholds") )
+  EDAnalyzer(pset),
+  fGenieGenModuleLabel      (pset.get< std::string >("GenieGenModuleLabel")     ),
+  fLArG4ModuleLabel         (pset.get< std::string >("LArGeantModuleLabel")     ),
+  fHitsModuleLabel          (pset.get< std::string >("HitsModuleLabel")         ),
+  fClusterModuleLabel       (pset.get< std::string >("ClusterModuleLabel")      ),
+  fTrackModuleLabel         (pset.get< std::string >("TrackModuleLabel")	      ),
+  fCosmicTagAssocLabel      (pset.get<std::vector< std::string > >("CosmicTagAssocLabel") ),
+  fCosmicScoreThresholds    (pset.get<std::vector<float> > ("CosmicScoreThresholds") )
 {
 }
 
@@ -128,12 +129,13 @@ microboone::CosmicRemovalAna::~CosmicRemovalAna()
 // BeginJob
 // =====================================================
 
-void microboone::CosmicRemovalAna::beginJob(){
+void microboone::CosmicRemovalAna::beginJob()
+{
   
   nCosmicTags = fCosmicTagAssocLabel.size();
   
   art::ServiceHandle<art::TFileService> tfs;
-
+  
   // Set up TH1s
   
   double TotalChargeLimit = 10000;
@@ -149,12 +151,6 @@ void microboone::CosmicRemovalAna::beginJob(){
 
   fTotalCharge_Cosmic = (TH1D*)tfs->make<TH1D>("TotalChargeCosmic", "Total Hit Charge for True Cosmic Particles; Charge; N", 100,0,TotalChargeLimit);
   fTotalCharge_NonCosmic = (TH1D*)tfs->make<TH1D>("TotalChargeNonCosmic", "Total Hit Charge for True NonCosmic Particles; Charge; N", 100,0,TotalChargeLimit);
-  
-  fRejectedCharge_Cosmic = (TH1D*)tfs->make<TH1D>("RejectedChargeCosmic", "Rejected Hit Charge for True Cosmic Particles; Charge; N", 100,0,TotalChargeLimit);
-  fRejectedCharge_NonCosmic = (TH1D*)tfs->make<TH1D>("RejectedChargeNonCosmic", "Rejected Hit Charge for True NonCosmic Particles; Charge; N", 100,0,TotalChargeLimit);
-  
-  fNonRejectedCharge_Cosmic = (TH1D*)tfs->make<TH1D>("NonRejectedChargeCosmic", "NonRejected Hit Charge for True Cosmic Particles; Charge; N", 100,0,TotalChargeLimit);
-  fNonRejectedCharge_NonCosmic = (TH1D*)tfs->make<TH1D>("NonRejectedChargeNonCosmic", "NonRejected Hit Charge for True NonCosmic Particles; Charge; N", 100,0,TotalChargeLimit);
   
   
   for(size_t i=0; i!=nCosmicTags; ++i)
@@ -183,7 +179,7 @@ void microboone::CosmicRemovalAna::beginJob(){
     }
   
 
-
+  
 }
 
 
@@ -195,200 +191,325 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 
   
   
+  // ===========================================================================================================
+  // ============================================ LOOKING AT MCTRUTH ===========================================
+  // ===========================================================================================================
+  
+  // ######################################
+  // ### Picking up BackTrackser Service ###
+  // ######################################
+  art::ServiceHandle<cheat::BackTracker> bt;
+  
+  // ###################################################################
+  // ### Defining a std::map of trackIDEs and vector of hit indicies ###
+  // ###################################################################
+  std::map<int, std::vector<int> > trkIDEsHitIndex_Cosmic;
+  std::map<int, std::vector<int> > trkIDEsHitIndex_NonCosmic;
+
+  std::map<int, float> TotalChargePerParticle_Cosmic;
+  std::map<int, float> TotalChargePerParticle_NonCosmic;
+
+  
+  // ##################################################################
+  // ### Grabbing ALL HITS in the event to monitor the backtracking ###
+  // ##################################################################
+  art::Handle< std::vector<recob::Hit> > hitListHandle;
+  std::vector<art::Ptr<recob::Hit> > hitlist;
+  
+  if (evt.getByLabel(fHitsModuleLabel,hitListHandle))
+    {art::fill_ptr_vector(hitlist, hitListHandle);}
+  
+  
+  
+  // ###########################################
+  // ### Looping over hits to get TrackIDE's ###
+  // ###########################################
+  int nhits = hitlist.size();
+  
+  int counter = 0;
+  
+  std::cout<<"nhits = "<<nhits<<std::endl;
+  std::cout<<std::endl;
+  int ntimethrough = 0;
+  for ( auto const& itr : hitlist )
+    {
+      std::vector<cheat::TrackIDE> eveIDs    = bt->HitToEveID(itr);
+      
+      if(eveIDs.size() == 0)
+	{
+	  continue;
+	}
+      // ############################
+      // ### Loop over eveIDs's ###
+      // ############################
+
+      for (size_t e = 0; e<eveIDs.size(); e++)
+	{
+	  art::Ptr<simb::MCTruth> mctruth = bt->TrackIDToMCTruth(eveIDs[e].trackID);
+	  
+	  int origin = mctruth->Origin();
+	  
+
+
+	  // Origin == 1 Not Cosmic
+	  // Origin == 2 Cosmic
+	  // ########################################################
+	  // ### If the Origin of this track is a Cosmic (i.e. 2) ###
+	  // ### then fill a map keyed by MCParticleID and the 
+	  // ### the second entry is a vector of hit indicies 
+	  // ### associated with that particle
+	  // ### Origin == 1 Not Cosmic
+	  // ### Origin == 2 Cosmic
+	  // ########################################################
+	  if(origin == 2)
+	    {
+	      trkIDEsHitIndex_Cosmic[eveIDs[e].trackID].push_back(counter);
+	      TotalChargePerParticle_Cosmic[eveIDs[e].trackID]+=itr->Charge();
+	    }
+	  else
+	    {
+	      trkIDEsHitIndex_NonCosmic[eveIDs[e].trackID].push_back(counter);
+	      TotalChargePerParticle_NonCosmic[eveIDs[e].trackID]+=itr->Charge();
+	    }
+
+
+	  //<---
+	  ntimethrough++;
+	}//<---End e loop
+      
+      counter++;
+    }//<--End nhits loop
+
+
+  for(auto it = TotalChargePerParticle_Cosmic.begin(); it!=TotalChargePerParticle_Cosmic.end(); ++it)
+    fTotalCharge_Cosmic->Fill(it->second);
+
+  for(auto it = TotalChargePerParticle_NonCosmic.begin(); it!=TotalChargePerParticle_NonCosmic.end(); ++it)
+    fTotalCharge_NonCosmic->Fill(it->second);
+  
+   
   // #################################################
   // ### Picking up track information on the event ###
   // #################################################
   art::Handle< std::vector<recob::Track> > trackh; //<---Track Handle
-  evt.getByLabel(fTrackModuleLabel, trackh); 
-  
+
+
   std::vector<art::Ptr<recob::Track> > tracklist;//<---Ptr Vector
   art::fill_ptr_vector(tracklist,trackh);//<---Fill the vector
   
-// ###################################################
-// ### Picking up cluster information on the event ###
-// ###################################################	
-art::Handle< std::vector<recob::Cluster> > clusterh; //<---Cluster Handle
-evt.getByLabel(fClusterModuleLabel, clusterh); 
+  
+  // ###################################################
+  // ### Picking up cluster information on the event ###
+  // ###################################################	
+  art::Handle< std::vector<recob::Cluster> > clusterh; //<---Cluster Handle
+  evt.getByLabel(fClusterModuleLabel, clusterh); 
+  
+  std::vector<art::Ptr<recob::Cluster> > clusterlist;//<---Ptr Vector
+  art::fill_ptr_vector(clusterlist,clusterh);//<---Fill the vector
 
-std::vector<art::Ptr<recob::Cluster> > clusterlist;//<---Ptr Vector
-art::fill_ptr_vector(clusterlist,clusterh);//<---Fill the vector
+  
+  std::map<int, int> NRejected60_Cosmic;
+  std::map<int, int> NRejected60_NonCosmic;
+  std::map<int, int> NRejected80_Cosmic;
+  std::map<int, int> NRejected80_NonCosmic;
+  std::map<int, int> NRejected95_Cosmic;
+  std::map<int, int> NRejected95_NonCosmic;
+  
+  // #################################################
+  // ### Looping over the collection of CosmicTags ###
+  // #################################################
 
-
-// ### Determining the number of tracks in the event ###
-unsigned int trklist = trackh->size();
-// ### Determining the number of clusters in the event ###
-unsigned int clulist = clusterh->size();
-
-
-// #################################################
-// ### Looping over the collection of CosmicTags ###
-// #################################################
- for(unsigned int nCT = 0; nCT < nCosmicTags; nCT++){
-   
-   // ### Getting current cosmic tag associations ###
-   art::FindManyP<anab::CosmicTag> cosmicTrackTag( tracklist, evt, fCosmicTagAssocLabel[nCT]);
-   
-   // ============================================================================================================
-   // ============================================== LOOKING AT TRACKS ===========================================
-   // ============================================================================================================
-   // ### Getting hits associatied with tracks ###	
-   art::FindManyP<recob::Hit> TrkHit( tracklist, evt, fHitsModuleLabel);
-   
-   art::Ptr<anab::CosmicTag> currentTag;
-   
-   std::vector< art::Ptr<recob::Hit> > associatedTPCHits;
-   // ###########################
-   // ### Looping over tracks ###
-   // ###########################
-   for(unsigned int trk = 0; trk < trklist; trk++)
-     {
-       // ############################################################
-       // ### Start assuming the track is not associated w/ cosmic ###
-       // ############################################################
-       bool TrkMatchToCosmicTag = false;
-       
-       //if(cosmicTrackTag.at(nCT).size()>1) 
-	 //mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per track in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
-       
-       if(cosmicTrackTag.at(nCT).size()==0) continue;
-       
-      // float CosmicScore = cosmicTrackTag.at(nCT).at(0).CosmicScore();
-      // if(CosmicScore > fCosmicScoreThresholds[nCT]) TrkMatchToCosmicTag = true;
-       
-       //currentTag = cosmictag.at(trk).at(0);
-       currentTag = cosmicTrackTag.at(trk).at(0);
-       float Score = currentTag->CosmicScore();
-       std::cerr << "Score = " << Score << std::endl;
+  art::Ptr<anab::CosmicTag> currentTag;
+  std::set<art::ProductID> TaggedHitIDs;
 	
+
+
+  for(unsigned int nCT = 0; nCT < nCosmicTags; nCT++)
+    {
+      
+      try{
 	
-	// ############################################
-	// ###   If Track is matched to a CosmicTag ###
-	// ### for the TPC then find associated hits###
-	// ############################################
-	if(TrkMatchToCosmicTag)
+	// ### Getting current cosmic tag associations ###      
+	art::FindManyP<anab::CosmicTag> cosmicTrackTag( tracklist, evt, fCosmicTagAssocLabel[nCT]);
+	
+	// ============================================================================================================
+	// ============================================== LOOKING AT TRACKS ===========================================
+	// ============================================================================================================
+	// ### Getting hits associatied with tracks ###	
+	art::FindManyP<recob::Hit> TrkHit( tracklist, evt, fHitsModuleLabel);
+	
+	// We will fill this set with the hit IDs of cosmic tagged hits
+	
+	// ###########################
+	// ### Looping over tracks ###
+	// ###########################
+	for(unsigned int trk = 0; trk < trackh->size(); trk++)
 	  {
-	    associatedTPCHits = TrkHit.at(trk);
+	    // ############################################################
+	    // ### Start assuming the track is not associated w/ cosmic ###
+	    // ############################################################
+	    bool TrkMatchToCosmicTag = false;
+	    
+	    if(cosmicTrackTag.at(nCT).size()>1) 
+	      std::cerr << "Warning : more than one cosmic tag per track in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
+	    
+	    if(cosmicTrackTag.at(nCT).size()==0) continue;
+	    
+	    currentTag = cosmicTrackTag.at(trk).at(0);
+	    float Score = currentTag->CosmicScore();
+	    std::cerr << "Score = " << Score << std::endl;
+	    
+	    fCosmicScoresPerCT[nCT]->Fill(Score);
+	    
+	    // ############################################
+	  // ###   If Track is matched to a CosmicTag ###
+	  // ### for the TPC then find associated hits###
+	  // ############################################
+	    if(TrkMatchToCosmicTag)
+	      {
+		for(size_t i=0; i!=TrkHit.at(trk).size(); ++ i)
+		  {
+		    TaggedHitIDs.insert(TrkHit.at(trk).at(i).id());
+		  }
+		
+	      	
+	      }//<---TrkMatchToCosmicTag
 	    
 	    
-	    
-	  }//<---TrkMatchToCosmicTag
-	
-	
-     }//<---end trk loop
-   
-	
-
-// ============================================================================================================
-// ============================================ LOOKING AT CLUSTERS ===========================================
-// ============================================================================================================
-
-// ####################################################
-// ### Getting the hits associated with the cluster ###
-// ####################################################
-art::FindManyP<recob::Hit> clusterHit(clusterlist, evt, fHitsModuleLabel);
-
- art::FindManyP<anab::CosmicTag> cosmicClusterTag( clusterlist, evt, fCosmicTagAssocLabel[nCT]);
-
-std::vector< art::Ptr<recob::Hit> > associatedClusterHits;
-
-for(unsigned int clu = 0; clu < clulist; clu++)
+	  }//<---end trk loop
+      }
+      catch(...)
 	{
-	// ##############################################################
-	// ### Start assuming the cluster is not associated w/ cosmic ###
-	// ##############################################################
-	bool CluMatchToCosmicTag = false;
+	  std::cout<<"No tracks for tag " << nCT<<", moving on"<<std::endl;
+	}
+    
+      // ============================================================================================================
+      // ============================================ LOOKING AT CLUSTERS ===========================================
+      // ============================================================================================================
+      
+      // ####################################################
+      // ### Getting the hits associated with the cluster ###
+      // ####################################################
+
+      try{
+
+	art::FindManyP<recob::Hit> CluHit(clusterlist, evt, fHitsModuleLabel);
 	
-	//if(cosmicClusterTag.at(nCT).size()>1) 
-	  //mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per cluster in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
+	art::FindManyP<anab::CosmicTag> cosmicClusterTag( clusterlist, evt, fCosmicTagAssocLabel[nCT]);
 	
-       if(cosmicClusterTag.at(nCT).size()==0) continue;
-       
-       //float CosmicScore = cosmicClusterTag.at(nCT).at(0).CosmicScore();
-       
-       currentTag = cosmicClusterTag.at(clu).at(0);
-       float CosmicScore = currentTag->CosmicScore();
-       if(CosmicScore > fCosmicScoreThresholds[nCT]) CluMatchToCosmicTag = true;	
-	
-	
-	// #############################################
-	// ### If Cluster is matched to a Flash then ###
-	// ###    find the hits associated with it   ###
-	// #############################################
-	if(CluMatchToCosmicTag)
-		{
-		associatedClusterHits = clusterHit.at(clu);
-		
-		
-		
-		}
-	
-	}//<---End clu loop	
-}//<---End nCT (number of cosmic tag) loop
-
-
-
-// ===========================================================================================================
-// ============================================ LOOKING AT MCTRUTH ===========================================
-// ===========================================================================================================
-
-// ######################################
-// ### Picking up BackTracker Service ###
-// ######################################
-art::ServiceHandle<cheat::BackTracker> bt;
-
-//const sim::ParticleList& plist = bt->ParticleList();
-
-// ##################################################################
-// ### Grabbing ALL HITS in the event to monitor the backtracking ###
-// ##################################################################
-art::Handle< std::vector<recob::Hit> > hitListHandle;
-std::vector<art::Ptr<recob::Hit> > hitlist;
-
-if (evt.getByLabel(fHitsModuleLabel,hitListHandle))
-	{art::fill_ptr_vector(hitlist, hitListHandle);}
-
-
-// ###########################################
-// ### Looping over hits to get TrackIDE's ###
-// ###########################################
-int nhits = hitlist.size();
-
-std::cout<<"nhits = "<<nhits<<std::endl;
-std::cout<<std::endl;
-for ( auto const& itr : hitlist )
-//for (int hit = 0; hit<nhits; hit++)
+	for(unsigned int clu = 0; clu < clusterh->size(); clu++)
+	  {
+	    // ##############################################################
+	    // ### Start assuming the cluster is not associated w/ cosmic ###
+	    // ##############################################################
+	    bool CluMatchToCosmicTag = false;
+	    
+	    //if(cosmicClusterTag.at(nCT).size()>1) 
+	    //mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per cluster in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
+	    
+	    if(cosmicClusterTag.at(nCT).size()==0) continue;
+	    
+	    //float CosmicScore = cosmicClusterTag.at(nCT).at(0).CosmicScore();
+	    
+	    currentTag = cosmicClusterTag.at(clu).at(0);
+	    float CosmicScore = currentTag->CosmicScore();
+	    if(CosmicScore > fCosmicScoreThresholds[nCT]) CluMatchToCosmicTag = true;	
+	    
+	    
+	    // #############################################
+	    // ### If Cluster is matched to a Flash then ###
+	    // ###    find the hits associated with it   ###
+	    // #############################################
+	    if(CluMatchToCosmicTag)
+	      {
+		for(size_t i=0; i!=CluHit.at(clu).size(); ++ i)
+		  {
+		    TaggedHitIDs.insert(CluHit.at(clu).at(i).id());
+		  }
+	      }
+	    
+	  }//<---End clu loop
+      }
+      catch(...)
 	{
-	std::vector<cheat::TrackIDE> eveIDs = bt->HitToEveID(itr);
-	//std::vector<cheat::TrackIDE> eveIDs = bt->HitToSimID(itr);
+	  std::cout<<"No clusters for tag " << nCT << ", moving on"<<std::endl;
+	}
 	
-	//std::cout<<"eveID = "<<eveIDs<<std::endl;
-	//if(eveIDs.size() != 0){std::cout<<"Something is wrong"<<std::endl;}
-	// ############################
-	// ### Loop over eventIDE's ###
-	// ############################
-	for (size_t e = 0; e<eveIDs.size(); e++)
-		{
-		art::Ptr<simb::MCTruth> mctruth = bt->TrackIDToMCTruth(eveIDs[e].trackID);
-		
-		int origin = mctruth->Origin();
-		
-		// Origin == 1 Not Cosmic
-		// Origin == 2 Cosmic
-		std::cout<<"Origin = "<<origin<<std::endl;
-		
-		}//<---End e loop
+      
+      for(auto itCosmicParticle = trkIDEsHitIndex_Cosmic.begin(); itCosmicParticle!=trkIDEsHitIndex_Cosmic.end(); ++itCosmicParticle)
+	{
+	  double OverlapScore = GetOverlapScore(hitlist, itCosmicParticle->second, TaggedHitIDs);
+	  if(OverlapScore > 0.60) NRejected60_Cosmic[itCosmicParticle->first]++;
+	  if(OverlapScore > 0.80) NRejected80_Cosmic[itCosmicParticle->first]++;
+	  if(OverlapScore > 0.95) NRejected95_Cosmic[itCosmicParticle->first]++;
+	  fFractionChargeTaggedPerCT_Cosmic[nCT]->Fill(OverlapScore);
+	}
+      
+      for(auto itNonCosmicParticle = trkIDEsHitIndex_NonCosmic.begin(); itNonCosmicParticle!=trkIDEsHitIndex_NonCosmic.end(); ++itNonCosmicParticle)
+	{
+	  double OverlapScore = GetOverlapScore(hitlist, itNonCosmicParticle->second, TaggedHitIDs);
+	  if(OverlapScore > 0.60) NRejected60_NonCosmic[itNonCosmicParticle->first]++;
+	  if(OverlapScore > 0.80) NRejected80_NonCosmic[itNonCosmicParticle->first]++;
+	  if(OverlapScore > 0.95) NRejected95_NonCosmic[itNonCosmicParticle->first]++;
+	  fFractionChargeTaggedPerCT_NonCosmic[nCT]->Fill(OverlapScore);
+	}
+  
+      
+      
 
-	
-	}//<--End nhits loop
+
+    }//<---End nCT (number of cosmic tag) loop
+
+  for(auto it =NRejected60_Cosmic.begin(); it!=NRejected60_Cosmic.end(); ++it)
+    fNAlgsRejected60_Cosmic->Fill(it->second);
+  for(auto it =NRejected60_NonCosmic.begin(); it!=NRejected60_NonCosmic.end(); ++it)
+    fNAlgsRejected60_NonCosmic->Fill(it->second);
+  for(auto it =NRejected80_Cosmic.begin(); it!=NRejected80_Cosmic.end(); ++it)
+    fNAlgsRejected80_Cosmic->Fill(it->second);
+  for(auto it =NRejected80_NonCosmic.begin(); it!=NRejected80_NonCosmic.end(); ++it)
+    fNAlgsRejected80_NonCosmic->Fill(it->second);
+  for(auto it =NRejected95_Cosmic.begin(); it!=NRejected95_Cosmic.end(); ++it)
+    fNAlgsRejected95_Cosmic->Fill(it->second);
+  for(auto it =NRejected95_NonCosmic.begin(); it!=NRejected95_NonCosmic.end(); ++it)
+    fNAlgsRejected95_NonCosmic->Fill(it->second);
 
 
-
+  
 }
+
+
+
+//-------------------------------------------------------
+
+
+double microboone::CosmicRemovalAna::GetOverlapScore(std::vector<art::Ptr<recob::Hit> >& AllHits, std::vector<int>& HitsThisParticle, std::set<art::ProductID>& TaggedHits)
+{
+  int CountAll = HitsThisParticle.size();
+  int CountTagged = 0 ;
+  for(size_t i=0; i!=HitsThisParticle.size(); ++i)
+    {
+      if( TaggedHits.count(AllHits.at(i).id() ) == 1 )
+	{
+	  CountTagged++;
+	}
+    }
+  return float(CountTagged) / float(CountAll);
+}
+
+
+//-------------------------------------------------------
 
 
 namespace microboone{
-
-DEFINE_ART_MODULE(CosmicRemovalAna)
+  
+  DEFINE_ART_MODULE(CosmicRemovalAna)  
 }
+
+
+
+
+
+
+
 
 #endif
