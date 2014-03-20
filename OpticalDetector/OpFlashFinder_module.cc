@@ -591,7 +591,7 @@ namespace opdet {
 	    RelTime += ((double)Frame - (double)TrigFrame) * fTimeSlicesPerFrame;
 	    double TimeWidth = (MaxTime-MinTime)/2.;
 
-	    /*
+	    /*	    
 	    std::cout << "THIS FLASH --- " << TotalPE << std::endl;
 	    std::cout << "Frame,TrigFrame,InBeamFrame = " << Frame << "," << TrigFrame << "," << InBeamFrame << std::endl;
 	    std::cout << "RelTime,AveTime,TrigTime = " << RelTime << "," << AveTime << "," << TrigTime << std::endl;
