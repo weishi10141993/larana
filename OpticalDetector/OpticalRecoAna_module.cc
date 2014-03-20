@@ -130,7 +130,10 @@ void opreco::OpticalRecoAna::get_MC_particle_list(sim::ParticleList plist,std::v
 	|| pdg==3112 //sigma
 	|| pdg==3312 //xi
 	|| pdg==3334 //omega
-	) particle_vector.push_back(part);
+	) {
+      particle_vector.push_back(part);
+      std::cout << "Particle " << particle_vector.size() << " is " << pdg << std::endl;
+    }
   }
   
 }
@@ -172,7 +175,8 @@ void opreco::OpticalRecoAna::match_flashes_to_particles(art::Handle< std::vector
       fFlash_match_vector.at(i_flash).flash = my_flash;
     
     std::cout << "Got ptr to flash " << i_flash << std::endl;
-    
+    std::cout << "Total PE in this falsh is " << my_flash->TotalPE() << std::endl;
+
     for(size_t i_particle=0; i_particle < particle_list.size(); i_particle++){
       const simb::MCParticle my_particle = particle_list.at(i_particle);
       
@@ -257,3 +261,14 @@ void opreco::OpticalRecoAna::match_tracks_to_particles(art::Handle< std::vector<
     
   }//end match_tracks_to_particles
 
+bool compare_flashes(const recob::OpFlash& f1, const recob::OpFlash& f2){
+  return (f1.Time() < f2.Time());
+}
+
+void opreco::OpticalRecoAna::sort_and_print_flashes(std::vector<recob::OpFlash> flash_vector){
+  
+  std::sort(flash_vector.begin(), flash_vector.end(), compare_flashes);
+  for ( auto const& flash : flash_vector)
+    std::cout << "Flash time is " << flash.Time();
+
+}
