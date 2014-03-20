@@ -53,6 +53,7 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TH1.h"
+#include <iterator>
 
 
 namespace microboone {
@@ -126,7 +127,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 {
 
 
-
+/*
 // #################################################
 // ### Picking up track information on the event ###
 // #################################################
@@ -149,7 +150,7 @@ art::fill_ptr_vector(clusterlist,clusterh);//<---Fill the vector
 // ### Determining the number of tracks in the event ###
 unsigned int trklist = trackh->size();
 // ### Determining the number of clusters in the event ###
-unsigned int clulist = clusterh->size();
+//unsigned int clulist = clusterh->size();
 
 
 // #################################################
@@ -254,10 +255,12 @@ for(unsigned int clu = 0; clu < clulist; clu++)
 		
 		}
 	
-	}//<---End clu loop	
+	}//<---End clu loop
+	
+		
 }//<---End nCT (number of cosmic tag) loop
 
-
+*/
 
 // ===========================================================================================================
 // ============================================ LOOKING AT MCTRUTH ===========================================
@@ -268,7 +271,10 @@ for(unsigned int clu = 0; clu < clulist; clu++)
 // ######################################
 art::ServiceHandle<cheat::BackTracker> bt;
 
-//const sim::ParticleList& plist = bt->ParticleList();
+// ###################################################################
+// ### Defining a std::map of trackIDEs and vector of hit indicies ###
+// ###################################################################
+std::map<int, std::vector<int> > trkIDEsHitIndex;
 
 // ##################################################################
 // ### Grabbing ALL HITS in the event to monitor the backtracking ###
@@ -280,40 +286,84 @@ if (evt.getByLabel(fHitsModuleLabel,hitListHandle))
 	{art::fill_ptr_vector(hitlist, hitListHandle);}
 
 
+/*std::set<int> backtracker;
+
+backtracker = bt->GetSetOfTrackIDs(hitlist);
+
+for(std::set<int>::iterator it=backtracker.begin(); it!=backtracker.end(); ++it)
+{
+	std::cout<<"set element : " << *it<<std::endl;
+}*/
+
+
 // ###########################################
 // ### Looping over hits to get TrackIDE's ###
 // ###########################################
 int nhits = hitlist.size();
 
+int counter = 0;
+
 std::cout<<"nhits = "<<nhits<<std::endl;
 std::cout<<std::endl;
+int ntimethrough = 0;
 for ( auto const& itr : hitlist )
-//for (int hit = 0; hit<nhits; hit++)
 	{
-	std::vector<cheat::TrackIDE> eveIDs = bt->HitToEveID(itr);
-	//std::vector<cheat::TrackIDE> eveIDs = bt->HitToSimID(itr);
 	
-	//std::cout<<"eveID = "<<eveIDs<<std::endl;
-	//if(eveIDs.size() != 0){std::cout<<"Something is wrong"<<std::endl;}
+	
+	std::vector<cheat::TrackIDE> eveIDs    = bt->HitToEveID(itr);
+	std::vector<cheat::TrackIDE> trackides = bt->HitToTrackID(itr);
+	
+
+	
+	//bt->ChannelToTrackID(trkIDE, channel, startTime, endTime);
+	
+	if(eveIDs.size() == 0)
+		{
+		//std::cout<<"Something is wrong, trkIDs.size() = "<<trackides.size()<<std::endl;
+		continue;
+		}
 	// ############################
-	// ### Loop over eventIDE's ###
+	// ### Loop over eveIDs's ###
 	// ############################
+	//for (size_t e = 0; e<trackides.size(); e++)
 	for (size_t e = 0; e<eveIDs.size(); e++)
 		{
+		
+		//art::Ptr<simb::MCTruth> mctruth = bt->TrackIDToMCTruth(trackides[e].trackID);
 		art::Ptr<simb::MCTruth> mctruth = bt->TrackIDToMCTruth(eveIDs[e].trackID);
 		
 		int origin = mctruth->Origin();
 		
 		// Origin == 1 Not Cosmic
 		// Origin == 2 Cosmic
-		std::cout<<"Origin = "<<origin<<std::endl;
-		
+		// ########################################################
+		// ### If the Origin of this track is a Cosmic (i.e. 2) ###
+		// ### then fill a map keyed by MCParticleID and the 
+		// ### the second entry is a vector of hit indicies 
+		// ### associated with that particle
+		// ### Origin == 1 Not Cosmic
+		// ### Origin == 2 Cosmic
+		// ########################################################
+		if(origin == 2)
+			{
+			//std::cout<<std::endl;
+			//std::cout<<"### This is a cosmic ###"<<std::endl;
+			//std::cout<<"Trackides[e].trackID = "<<trackides[e].trackID<<std::endl;
+			//std::cout<<"eveIDs[e].trackID = "<<eveIDs[e].trackID<<std::endl;
+			//std::cout<<"counter = "<<counter<<std::endl;
+			
+			trkIDEsHitIndex[eveIDs[e].trackID].push_back(counter);
+			
+			//std::cout<<"Current hit = "<<std::distance(hitlist.begin(), itr)<<std::endl;
+			
+			}//<---
+		ntimethrough++;
 		}//<---End e loop
 
-	
+	counter++;
 	}//<--End nhits loop
 
-
+std::cout<<"Made it through the trackides loop "<<ntimethrough<<" times"<<std::endl;
 
 }
 

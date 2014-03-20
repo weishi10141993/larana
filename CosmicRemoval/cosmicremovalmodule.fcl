@@ -4,6 +4,7 @@ microboone_cosmicremovalana:
 {
 module_type:              "CosmicRemovalAna"
 GenieGenModuleLabel:      "generator"
+#GenieGenModuleLabel:      "nugenerator"
 LArGeantModuleLabel:      "largeant"
 HitsModuleLabel:          "gaushit"
 ClusterModuleLabel:       "fuzzycluster"
