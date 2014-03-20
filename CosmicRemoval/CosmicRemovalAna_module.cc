@@ -73,6 +73,10 @@ namespace microboone {
 
     
     private:
+
+    double GetOverlapScore(std::vector<art::Ptr<recob::Hit> >& AllHits, std::vector<int>& HitsThisParticle, std::set<art::ProductID>&  TaggedHits);
+
+
     unsigned int nCosmicTags;
     
     std::vector<TH1D*> fCosmicScoresPerCT;
@@ -215,11 +219,6 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   art::fill_ptr_vector(clusterlist,clusterh);//<---Fill the vector
   
   
-  // ### Determining the number of tracks in the event ###
-  unsigned int trklist = trackh->size();
-  // ### Determining the number of clusters in the event ###
-  //unsigned int clulist = clusterh->size();
-  
   
   // #################################################
   // ### Looping over the collection of CosmicTags ###
@@ -238,21 +237,21 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
       
       art::Ptr<anab::CosmicTag> currentTag;
       
+      // We will fill this set with the hit IDs of cosmic tagged hits
       std::set<art::ProductID> TaggedHitIDs;
       
-      std::vector< art::Ptr<recob::Hit> > associatedTPCHits;
       // ###########################
       // ### Looping over tracks ###
       // ###########################
-      for(unsigned int trk = 0; trk < trklist; trk++)
+      for(unsigned int trk = 0; trk < trackh->size(); trk++)
 	{
 	  // ############################################################
 	  // ### Start assuming the track is not associated w/ cosmic ###
 	  // ############################################################
 	  bool TrkMatchToCosmicTag = false;
 	  
-	  //if(cosmicTrackTag.at(nCT).size()>1) 
-	  //mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per track in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
+	  if(cosmicTrackTag.at(nCT).size()>1) 
+	    std::cerr << "Warning : more than one cosmic tag per track in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
 	  
 	  if(cosmicTrackTag.at(nCT).size()==0) continue;
 	  
@@ -273,13 +272,10 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 	    {
 	      for(size_t i=0; i!=TrkHit.at(trk).size(); ++ i)
 		{
-		  
+		  TaggedHitIDs.insert(TrkHit.at(trk).at(i).id());
 		}
-	      TaggedHitIDs
-		associatedTPCHits = TrkHit.at(trk);
 	      
-	      
-	      
+	      	      
 	    }//<---TrkMatchToCosmicTag
 	  
 	  
@@ -294,13 +290,12 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
       // ####################################################
       // ### Getting the hits associated with the cluster ###
       // ####################################################
-      art::FindManyP<recob::Hit> clusterHit(clusterlist, evt, fHitsModuleLabel);
+      art::FindManyP<recob::Hit> CluHit(clusterlist, evt, fHitsModuleLabel);
       
       art::FindManyP<anab::CosmicTag> cosmicClusterTag( clusterlist, evt, fCosmicTagAssocLabel[nCT]);
       
-      std::vector< art::Ptr<recob::Hit> > associatedClusterHits;
       
-      for(unsigned int clu = 0; clu < clulist; clu++)
+      for(unsigned int clu = 0; clu < clusterh->size(); clu++)
 	{
 	  // ##############################################################
 	  // ### Start assuming the cluster is not associated w/ cosmic ###
@@ -325,8 +320,10 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 	  // #############################################
 	  if(CluMatchToCosmicTag)
 	    {
-	      associatedClusterHits = clusterHit.at(clu);
-	      
+	      for(size_t i=0; i!=CluHit.at(clu).size(); ++ i)
+		{
+		  TaggedHitIDs.insert(CluHit.at(clu).at(i).id());
+		}
 	      
 	      
 	    }
@@ -343,7 +340,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   // ===========================================================================================================
   
   // ######################################
-  // ### Picking up BackTracker Service ###
+  // ### Picking up BackTrackser Service ###
   // ######################################
   art::ServiceHandle<cheat::BackTracker> bt;
   
@@ -444,9 +441,35 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 }
 
 
+//-------------------------------------------------------
+
+
+double microboone::CosmicRemovalAna::GetOverlapScore(std::vector<art::Ptr<recob::Hit> >& AllHits, std::vector<int>& HitsThisParticle, std::set<art::ProductID>& TaggedHits)
+{
+  int CountAll = HitsThisParticle.size();
+  int CountTagged = 0 ;
+  for(size_t i=0; i!=HitsThisParticle.size(); ++i)
+    {
+
+
+    }
+  return 0;
+}
+
+
+//-------------------------------------------------------
+
+
 namespace microboone{
   
   DEFINE_ART_MODULE(CosmicRemovalAna)  
 }
+
+
+
+
+
+
+
 
 #endif
