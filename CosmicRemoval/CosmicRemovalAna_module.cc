@@ -450,10 +450,12 @@ double microboone::CosmicRemovalAna::GetOverlapScore(std::vector<art::Ptr<recob:
   int CountTagged = 0 ;
   for(size_t i=0; i!=HitsThisParticle.size(); ++i)
     {
-
-
+      if( TaggedHits.count(AllHits.at(i).id() ) == 1 )
+	{
+	  CountTagged++;
+	}
     }
-  return 0;
+  return float(CountTagged) / float(CountAll);
 }
 
 
