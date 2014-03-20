@@ -292,7 +292,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   // ### Picking up track information on the event ###
   // #################################################
   art::Handle< std::vector<recob::Track> > trackh; //<---Track Handle
-  evt.getByLabel(fTrackModuleLabel, trackh); 
+
 
   std::vector<art::Ptr<recob::Track> > tracklist;//<---Ptr Vector
   art::fill_ptr_vector(tracklist,trackh);//<---Fill the vector
@@ -318,62 +318,70 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   // #################################################
   // ### Looping over the collection of CosmicTags ###
   // #################################################
+
+  art::Ptr<anab::CosmicTag> currentTag;
+  std::set<art::ProductID> TaggedHitIDs;
+	
+
+
   for(unsigned int nCT = 0; nCT < nCosmicTags; nCT++)
     {
       
-      // ### Getting current cosmic tag associations ###
-      art::FindManyP<anab::CosmicTag> cosmicTrackTag( tracklist, evt, fCosmicTagAssocLabel[nCT]);
-      
-      // ============================================================================================================
-      // ============================================== LOOKING AT TRACKS ===========================================
-      // ============================================================================================================
-      // ### Getting hits associatied with tracks ###	
-      art::FindManyP<recob::Hit> TrkHit( tracklist, evt, fHitsModuleLabel);
-      
-      art::Ptr<anab::CosmicTag> currentTag;
-      
-      // We will fill this set with the hit IDs of cosmic tagged hits
-      std::set<art::ProductID> TaggedHitIDs;
-      
-      // ###########################
-      // ### Looping over tracks ###
-      // ###########################
-      for(unsigned int trk = 0; trk < trackh->size(); trk++)
-	{
-	  // ############################################################
-	  // ### Start assuming the track is not associated w/ cosmic ###
-	  // ############################################################
-	  bool TrkMatchToCosmicTag = false;
-	  
-	  if(cosmicTrackTag.at(nCT).size()>1) 
-	    std::cerr << "Warning : more than one cosmic tag per track in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
-	  
-	  if(cosmicTrackTag.at(nCT).size()==0) continue;
-	  
-	  currentTag = cosmicTrackTag.at(trk).at(0);
-	  float Score = currentTag->CosmicScore();
-	  std::cerr << "Score = " << Score << std::endl;
-	  
-	  fCosmicScoresPerCT[nCT]->Fill(Score);
-	  
-	  // ############################################
+      try{
+	
+	// ### Getting current cosmic tag associations ###      
+	art::FindManyP<anab::CosmicTag> cosmicTrackTag( tracklist, evt, fCosmicTagAssocLabel[nCT]);
+	
+	// ============================================================================================================
+	// ============================================== LOOKING AT TRACKS ===========================================
+	// ============================================================================================================
+	// ### Getting hits associatied with tracks ###	
+	art::FindManyP<recob::Hit> TrkHit( tracklist, evt, fHitsModuleLabel);
+	
+	// We will fill this set with the hit IDs of cosmic tagged hits
+	
+	// ###########################
+	// ### Looping over tracks ###
+	// ###########################
+	for(unsigned int trk = 0; trk < trackh->size(); trk++)
+	  {
+	    // ############################################################
+	    // ### Start assuming the track is not associated w/ cosmic ###
+	    // ############################################################
+	    bool TrkMatchToCosmicTag = false;
+	    
+	    if(cosmicTrackTag.at(nCT).size()>1) 
+	      std::cerr << "Warning : more than one cosmic tag per track in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
+	    
+	    if(cosmicTrackTag.at(nCT).size()==0) continue;
+	    
+	    currentTag = cosmicTrackTag.at(trk).at(0);
+	    float Score = currentTag->CosmicScore();
+	    std::cerr << "Score = " << Score << std::endl;
+	    
+	    fCosmicScoresPerCT[nCT]->Fill(Score);
+	    
+	    // ############################################
 	  // ###   If Track is matched to a CosmicTag ###
 	  // ### for the TPC then find associated hits###
 	  // ############################################
-	  if(TrkMatchToCosmicTag)
-	    {
-	      for(size_t i=0; i!=TrkHit.at(trk).size(); ++ i)
-		{
-		  TaggedHitIDs.insert(TrkHit.at(trk).at(i).id());
-		}
-	      
-	      	      
-	    }//<---TrkMatchToCosmicTag
-	  
-	  
-	}//<---end trk loop
-      
-      
+	    if(TrkMatchToCosmicTag)
+	      {
+		for(size_t i=0; i!=TrkHit.at(trk).size(); ++ i)
+		  {
+		    TaggedHitIDs.insert(TrkHit.at(trk).at(i).id());
+		  }
+		
+	      	
+	      }//<---TrkMatchToCosmicTag
+	    
+	    
+	  }//<---end trk loop
+      }
+      catch(...)
+	{
+	  std::cout<<"No tracks for tag " << nCT<<", moving on"<<std::endl;
+	}
     
       // ============================================================================================================
       // ============================================ LOOKING AT CLUSTERS ===========================================
@@ -382,46 +390,51 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
       // ####################################################
       // ### Getting the hits associated with the cluster ###
       // ####################################################
-      art::FindManyP<recob::Hit> CluHit(clusterlist, evt, fHitsModuleLabel);
-      
-      art::FindManyP<anab::CosmicTag> cosmicClusterTag( clusterlist, evt, fCosmicTagAssocLabel[nCT]);
-      
-      
-      for(unsigned int clu = 0; clu < clusterh->size(); clu++)
-	{
-	  // ##############################################################
-	  // ### Start assuming the cluster is not associated w/ cosmic ###
-	  // ##############################################################
-	  bool CluMatchToCosmicTag = false;
-	  
-	  //if(cosmicClusterTag.at(nCT).size()>1) 
-	  //mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per cluster in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
-	  
-	  if(cosmicClusterTag.at(nCT).size()==0) continue;
-     
-	  //float CosmicScore = cosmicClusterTag.at(nCT).at(0).CosmicScore();
-	  
-	  currentTag = cosmicClusterTag.at(clu).at(0);
-	  float CosmicScore = currentTag->CosmicScore();
-	  if(CosmicScore > fCosmicScoreThresholds[nCT]) CluMatchToCosmicTag = true;	
-	  
-	  
-	  // #############################################
-	  // ### If Cluster is matched to a Flash then ###
-	  // ###    find the hits associated with it   ###
-	  // #############################################
-	  if(CluMatchToCosmicTag)
-	    {
-	      for(size_t i=0; i!=CluHit.at(clu).size(); ++ i)
-		{
-		  TaggedHitIDs.insert(CluHit.at(clu).at(i).id());
-		}
-	    }
-	  
-	}//<---End clu loop
-      
 
-  
+      try{
+
+	art::FindManyP<recob::Hit> CluHit(clusterlist, evt, fHitsModuleLabel);
+	
+	art::FindManyP<anab::CosmicTag> cosmicClusterTag( clusterlist, evt, fCosmicTagAssocLabel[nCT]);
+	
+	for(unsigned int clu = 0; clu < clusterh->size(); clu++)
+	  {
+	    // ##############################################################
+	    // ### Start assuming the cluster is not associated w/ cosmic ###
+	    // ##############################################################
+	    bool CluMatchToCosmicTag = false;
+	    
+	    //if(cosmicClusterTag.at(nCT).size()>1) 
+	    //mf::LogInfo("CosmicRemovalAna") << "Warning : more than one cosmic tag per cluster in module " << fCosmicTagAssocLabel[nCT] << ". Confused, but just taking the first one anyway.";
+	    
+	    if(cosmicClusterTag.at(nCT).size()==0) continue;
+	    
+	    //float CosmicScore = cosmicClusterTag.at(nCT).at(0).CosmicScore();
+	    
+	    currentTag = cosmicClusterTag.at(clu).at(0);
+	    float CosmicScore = currentTag->CosmicScore();
+	    if(CosmicScore > fCosmicScoreThresholds[nCT]) CluMatchToCosmicTag = true;	
+	    
+	    
+	    // #############################################
+	    // ### If Cluster is matched to a Flash then ###
+	    // ###    find the hits associated with it   ###
+	    // #############################################
+	    if(CluMatchToCosmicTag)
+	      {
+		for(size_t i=0; i!=CluHit.at(clu).size(); ++ i)
+		  {
+		    TaggedHitIDs.insert(CluHit.at(clu).at(i).id());
+		  }
+	      }
+	    
+	  }//<---End clu loop
+      }
+      catch(...)
+	{
+	  std::cout<<"No clusters for tag " << nCT << ", moving on"<<std::endl;
+	}
+	
       
       for(auto itCosmicParticle = trkIDEsHitIndex_Cosmic.begin(); itCosmicParticle!=trkIDEsHitIndex_Cosmic.end(); ++itCosmicParticle)
 	{
