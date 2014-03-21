@@ -136,7 +136,9 @@ void microboone::CosmicRemovalAna::beginJob()
   
   art::ServiceHandle<art::TFileService> tfs;
   
-  // Set up TH1s
+  // ###################
+  // ### Set up TH1s ###
+  // ###################
   
   double TotalChargeLimit = 10000;
   
@@ -152,7 +154,9 @@ void microboone::CosmicRemovalAna::beginJob()
   fTotalCharge_Cosmic = (TH1D*)tfs->make<TH1D>("TotalChargeCosmic", "Total Hit Charge for True Cosmic Particles; Charge; N", 100,0,TotalChargeLimit);
   fTotalCharge_NonCosmic = (TH1D*)tfs->make<TH1D>("TotalChargeNonCosmic", "Total Hit Charge for True NonCosmic Particles; Charge; N", 100,0,TotalChargeLimit);
   
-  
+  // #############################################################
+  // ### Titling the TH1's uniquely for each CosmicRemoval Tag ###
+  // #############################################################
   for(size_t i=0; i!=nCosmicTags; ++i)
     {
       std::stringstream sname, stitle;
@@ -221,16 +225,17 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   
   
   
-  // ###########################################
-  // ### Looping over hits to get TrackIDE's ###
-  // ###########################################
+ 
   int nhits = hitlist.size();
   
   int counter = 0;
   
-  std::cout<<"nhits = "<<nhits<<std::endl;
-  std::cout<<std::endl;
+  //std::cout<<"nhits = "<<nhits<<std::endl;
+  //std::cout<<std::endl;
   int ntimethrough = 0;
+   // ###########################################
+  // ### Looping over hits to get TrackIDE's ###
+  // ###########################################
   for ( auto const& itr : hitlist )
     {
       std::vector<cheat::TrackIDE> eveIDs    = bt->HitToEveID(itr);
@@ -245,14 +250,16 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 
       for (size_t e = 0; e<eveIDs.size(); e++)
 	{
+	  // ###################################################
+	  // ### Retrieve mcTruth information for this eveID ###
+	  // ###################################################
 	  art::Ptr<simb::MCTruth> mctruth = bt->TrackIDToMCTruth(eveIDs[e].trackID);
 	  
-	  int origin = mctruth->Origin();
 	  
-
-
 	  // Origin == 1 Not Cosmic
 	  // Origin == 2 Cosmic
+	  int origin = mctruth->Origin();
+	  
 	  // ########################################################
 	  // ### If the Origin of this track is a Cosmic (i.e. 2) ###
 	  // ### then fill a map keyed by MCParticleID and the 
@@ -261,12 +268,16 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 	  // ### Origin == 1 Not Cosmic
 	  // ### Origin == 2 Cosmic
 	  // ########################################################
-	  if(origin == 2)
+	  if(origin == 2)//<---Cosmic Hit
 	    {
+	      // Fill the map keyed by the pointer and push back on 
+	      // the index of the current hit
 	      trkIDEsHitIndex_Cosmic[eveIDs[e].trackID].push_back(counter);
+	      // Fill the map keyed by the pointer and add the 
+	      // hit "charge" (ADC's) to the map
 	      TotalChargePerParticle_Cosmic[eveIDs[e].trackID]+=itr->Charge();
 	    }
-	  else
+	  else//<--Not cosmic hit
 	    {
 	      trkIDEsHitIndex_NonCosmic[eveIDs[e].trackID].push_back(counter);
 	      TotalChargePerParticle_NonCosmic[eveIDs[e].trackID]+=itr->Charge();
@@ -280,7 +291,11 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
       counter++;
     }//<--End nhits loop
 
-
+  // ##########################################################
+  // ### Once we are done with all the MC Particles, fill a ###
+  // ### histogram that has the total truth charge for all  ###
+  // ###    Cosmic and Non-cosmic particles in the event    ###
+  // ##########################################################
   for(auto it = TotalChargePerParticle_Cosmic.begin(); it!=TotalChargePerParticle_Cosmic.end(); ++it)
     fTotalCharge_Cosmic->Fill(it->second);
 
@@ -292,8 +307,6 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   // ### Picking up track information on the event ###
   // #################################################
   art::Handle< std::vector<recob::Track> > trackh; //<---Track Handle
-
-
   std::vector<art::Ptr<recob::Track> > tracklist;//<---Ptr Vector
   art::fill_ptr_vector(tracklist,trackh);//<---Fill the vector
   
@@ -322,12 +335,10 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   art::Ptr<anab::CosmicTag> currentTag;
   std::set<art::ProductID> TaggedHitIDs;
 	
-
-
-  for(unsigned int nCT = 0; nCT < nCosmicTags; nCT++)
+  for(unsigned int nCT = 0; nCT < nCosmicTags; nCT++)//<---This loops over the vector of cosmicTags in stored in the event
     {
       
-      try{
+      try{ //<---Putting in a try/catch in case no tags are found
 	
 	// ### Getting current cosmic tag associations ###      
 	art::FindManyP<anab::CosmicTag> cosmicTrackTag( tracklist, evt, fCosmicTagAssocLabel[nCT]);
@@ -361,7 +372,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 	    
 	    fCosmicScoresPerCT[nCT]->Fill(Score);
 	    
-	    // ############################################
+	  // ############################################
 	  // ###   If Track is matched to a CosmicTag ###
 	  // ### for the TPC then find associated hits###
 	  // ############################################
