@@ -226,7 +226,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   
   
  
-  int nhits = hitlist.size();
+  //int nhits = hitlist.size();
   
   int counter = 0;
   
