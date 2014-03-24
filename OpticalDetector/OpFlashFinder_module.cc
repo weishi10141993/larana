@@ -591,16 +591,17 @@ namespace opdet {
 	    RelTime += ((double)Frame - (double)TrigFrame) * fTimeSlicesPerFrame;
 	    double TimeWidth = (MaxTime-MinTime)/2.;
 
-	    /*	    
-	    std::cout << "THIS FLASH --- " << TotalPE << std::endl;
-	    std::cout << "Frame,TrigFrame,InBeamFrame = " << Frame << "," << TrigFrame << "," << InBeamFrame << std::endl;
-	    std::cout << "RelTime,AveTime,TrigTime = " << RelTime << "," << AveTime << "," << TrigTime << std::endl;
-	    std::cout << "fTimeSlicesPerFrame=" << fTimeSlicesPerFrame << std::endl;
-	    std::cout << "TimeWidth=" << TimeWidth << std::endl;
-	    */
-	    
 	    int OnBeamTime =0; 
-	    if((InBeamFrame) && (fabs(RelTime) < fTrigCoinc)) OnBeamTime=1;
+	    if( std::abs(RelTime) < fTrigCoinc ) OnBeamTime=1;
+
+	    if(TotalPE > 40){
+	      std::cout << "THIS FLASH --- " << TotalPE << std::endl;
+	      std::cout << "Frame,TrigFrame,InBeamFrame = " << Frame << "," << TrigFrame << "," << InBeamFrame << std::endl;
+	      std::cout << "RelTime,AveTime,TrigTime = " << RelTime << "," << AveTime << "," << TrigTime << std::endl;
+	      std::cout << "fTimeSlicesPerFrame=" << fTimeSlicesPerFrame << std::endl;
+	      std::cout << "TimeWidth=" << TimeWidth << std::endl;
+	      std::cout << "OnBeamTime = " << OnBeamTime << std::endl;;
+	    }
 
 	    // Make the flash
 	    OpFlashesThisFrame.emplace_back( RelTime,
@@ -776,12 +777,12 @@ namespace opdet {
 
       unsigned int ticks = (unsigned int)(start_time * sample_freq);
 
-      //std::cout << "start_time,sample_freq,ticks = " << start_time << "," << sample_freq << "," << ticks << std::endl;
+      std::cout << "start_time,sample_freq,ticks = " << start_time << "," << sample_freq << "," << ticks << std::endl;
 
       Frame  = ticks / ((unsigned int)(trig_mod->FrameSizeTrigger()));
       Sample = (unsigned short)(ticks - (Frame * (trig_mod->FrameSizeTrigger())));
 
-      //std::cout << "Frame,Sample = " << Frame << "," << Sample << std::endl;
+      std::cout << "Frame,Sample = " << Frame << "," << Sample << std::endl;
 
       if(index>0)
 
