@@ -593,7 +593,7 @@ namespace opdet {
 
 	    int OnBeamTime =0; 
 	    if( std::abs(RelTime) < fTrigCoinc ) OnBeamTime=1;
-
+	    /*
 	    if(TotalPE > 40){
 	      std::cout << "THIS FLASH --- " << TotalPE << std::endl;
 	      std::cout << "Frame,TrigFrame,InBeamFrame = " << Frame << "," << TrigFrame << "," << InBeamFrame << std::endl;
@@ -602,7 +602,7 @@ namespace opdet {
 	      std::cout << "TimeWidth=" << TimeWidth << std::endl;
 	      std::cout << "OnBeamTime = " << OnBeamTime << std::endl;;
 	    }
-
+	    */
 	    // Make the flash
 	    OpFlashesThisFrame.emplace_back( RelTime,
 					     TimeWidth,
