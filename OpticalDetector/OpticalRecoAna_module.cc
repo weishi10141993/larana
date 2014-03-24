@@ -54,7 +54,7 @@ void opreco::OpticalRecoAna::beginJob()
   art::ServiceHandle<art::TFileService> tfs;
   fTimeDiff = tfs->make<TH1F>("htdiff","Time difference between particles and flashes; t_diff (ns); flash/particle pairs",1e3,-5e6,5e6);
   fTimeDiff_fine = 
-    tfs->make<TH1F>("htdiff_fine","Time difference between particles and flashes; t_diff (ns); flash/particle pairs",200,-20000,20000);
+    tfs->make<TH1F>("htdiff_fine","Time difference between particles and flashes; t_diff (ns); flash/particle pairs",100,-1000,1000);
 }
 
 
