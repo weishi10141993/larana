@@ -768,7 +768,7 @@ namespace opdet {
 
       if(trig->Start() < (opdigi->TimeBegin())*1.e3) 
 
-	throw cet::exception(__FUNCTION__) << Form("Found beam time (=%g) before discrete clock count start (=%g)",
+	throw cet::exception(__FUNCTION__) << Form("Found beam time (=%g) before discrete clock count start (=%g)\n",
 						   trig->Start(),
 						   opdigi->TimeBegin()*1.e3);
 

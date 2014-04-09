@@ -148,7 +148,7 @@ void calo::GeneralCalorimetry::produce(art::Event& evt)
     // collection view are the same
     if( trk->NumberTrajectoryPoints() != trk->NumberdQdx(fCollectionView) )
       throw cet::exception("GeneralCalorimetry") << "inconsistent number of track trajectory "
-						 << " and dQdx points";
+						 << " and dQdx points\n";
       
     if (trk->NumberTrajectoryPoints()>2){
       for(size_t p = 1; p < trk->NumberTrajectoryPoints()-1; ++p){	

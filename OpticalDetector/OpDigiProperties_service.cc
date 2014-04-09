@@ -191,7 +191,7 @@ namespace opdet{
 	    PEWaveform.push_back( fPERescale * strtod( line.c_str(), NULL ) );
 	  }
       }
-    else throw cet::exception("No Waveform File") << "Unable to open file";
+    else throw cet::exception("OpDigiProperties") << "No Waveform File: Unable to open file\n";
 
     WaveformFile.close();
     return(PEWaveform);
@@ -213,7 +213,7 @@ namespace opdet{
 	cet::search_path sp("FW_SEARCH_PATH");
 
 	if( !sp.find_file(fHighGainFile, FullPath) )
-	  throw cet::exception("OpDigiProperties") << "Unable to find high gain spread file in " << sp.to_string();
+	  throw cet::exception("OpDigiProperties") << "Unable to find high gain spread file in " << sp.to_string() << "\n";
 
 	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening high gain spread file at " << FullPath.c_str();
 	ifstream HighGainFile(FullPath.c_str());
@@ -223,11 +223,11 @@ namespace opdet{
 	    getline(HighGainFile, line);
 	    fHighGainArray.push_back(strtod(line.c_str(),NULL));
 	  }
-	}else throw cet::exception("OpDigiProperties")<<"Unable to open file!";
+	}else throw cet::exception("OpDigiProperties")<<"Unable to open file!\n";
 
 	FullPath="";
 	if( !sp.find_file(fLowGainFile, FullPath) )
-	  throw cet::exception("OpDigiProperties") << "Unable to find low gain spread file in " << sp.to_string();
+	  throw cet::exception("OpDigiProperties") << "Unable to find low gain spread file in " << sp.to_string() << "\n";
 
 	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening low gain spread file at " << FullPath.c_str();	
 	ifstream LowGainFile(FullPath.c_str());
@@ -237,11 +237,11 @@ namespace opdet{
 	    getline(LowGainFile, line);
 	    fLowGainArray.push_back(strtod(line.c_str(),NULL));
 	  }
-	}else throw cet::exception("OpDigiProperties")<<"Unable to open file!";
+	}else throw cet::exception("OpDigiProperties")<<"Unable to open file!\n";
 
 	FullPath="";
 	if( !sp.find_file(fGainSpreadFile, FullPath) )
-	  throw cet::exception("OpDigiProperties") << "Unable to find low gain spread file in " << sp.to_string();
+	  throw cet::exception("OpDigiProperties") << "Unable to find low gain spread file in " << sp.to_string() << "\n";
 
 	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening low gain spread file at " << FullPath.c_str();	
 	ifstream GainSpreadFile(FullPath.c_str());
@@ -251,7 +251,7 @@ namespace opdet{
 	    getline(GainSpreadFile, line);
 	    fGainSpreadArray.push_back(strtod(line.c_str(),NULL));
 	  }
-	}else throw cet::exception("OpDigiProperties")<<"Unable to open file!";
+	}else throw cet::exception("OpDigiProperties")<<"Unable to open file!\n";
 	
       }
     else{
@@ -280,11 +280,11 @@ namespace opdet{
     // vector elements filled in this function.
     //
     if(fLowGainArray.size()<fGeometry->NOpChannels()) 
-      throw cet::exception("OpDigiProperties")<<"Low gain missing for some channels!";      
+      throw cet::exception("OpDigiProperties")<<"Low gain missing for some channels!\n";
     if(fHighGainArray.size()<fGeometry->NOpChannels()) 
-      throw cet::exception("OpDigiProperties")<<"High gain missing for some channels!";      
+      throw cet::exception("OpDigiProperties")<<"High gain missing for some channels!\n";
     if(fGainSpreadArray.size()<fGeometry->NOpChannels()) 
-      throw cet::exception("OpDigiProperties")<<"Gain spread missing for some channels!"; 
+      throw cet::exception("OpDigiProperties")<<"Gain spread missing for some channels!\n";
   }
 
   void OpDigiProperties::GenerateWaveform()
@@ -295,7 +295,7 @@ namespace opdet{
       cet::search_path sp("FW_SEARCH_PATH");    
       if( !sp.find_file(fWaveformFile, FullPath) )
 	
-	throw cet::exception("OpDigiProperties") << "Unable to find PMT waveform file in " << sp.to_string();
+	throw cet::exception("OpDigiProperties") << "Unable to find PMT waveform file in " << sp.to_string() << "\n";
       
       fWaveform   = GenEmpiricalWF(FullPath); 
       
@@ -325,10 +325,10 @@ namespace opdet{
 	    NSample++;
 	  }
 	// rescale
-	if(MaxAmp<=0) throw cet::exception("OpDigiProperties_module")<<"Waveform amplitude <=0!";	  
+	if(MaxAmp<=0) throw cet::exception("OpDigiProperties_module")<<"Waveform amplitude <=0!\n";
 	for(unsigned short i=0; i<PEWaveform.size(); i++){ PEWaveform[i]=PEWaveform[i]/MaxAmp; }
       }
-    else throw cet::exception("No Waveform File") << "Unable to open file";
+    else throw cet::exception("No Waveform File") << "Unable to open file\n";
 
     WaveformFile.close();
     return(PEWaveform);
@@ -362,7 +362,7 @@ namespace opdet{
     }
     
     // rescale
-    if(MaxAmp<=0) throw cet::exception("OpDigiProperties_module")<<"Waveform amplitude <=0!";	  
+    if(MaxAmp<=0) throw cet::exception("OpDigiProperties_module")<<"Waveform amplitude <=0!\n";
     for(unsigned short i=0; i<PEWaveform.size(); i++) {
       PEWaveform[i]=PEWaveform[i]/MaxAmp;
       if(PEWaveform[i]<1.e-4) PEWaveform[i]=0;

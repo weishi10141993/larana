@@ -113,7 +113,7 @@ namespace opdet {
     std::string FullFilePath(""); 
     cet::search_path sp("FW_SEARCH_PATH");
     if( !sp.find_file(fInputFile, FullFilePath) )
-      throw cet::exception("BoDataFrameInput") << "Unable to find optical data file in " << sp.to_string();
+      throw cet::exception("BoDataFrameInput") << "Unable to find optical data file in " << sp.to_string() << "\n";
 
 
     // We want to throw away the first command, as it will be "evt"
