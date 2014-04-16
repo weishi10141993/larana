@@ -106,8 +106,8 @@ namespace opdet {
   //-----------------------------------------------------------------------
   // Constructor
   OpFlashFinder::OpFlashFinder(const fhicl::ParameterSet & pset):
-      fPulseRecoMgr(pset.get<fhicl::ParameterSet>("reco_man")),
-      fThreshAlg(pset.get<fhicl::ParameterSet>("algo_threshold"))    
+    fPulseRecoMgr(),
+    fThreshAlg()
   {
 
     reconfigure(pset);

@@ -41,7 +41,7 @@ namespace pmtana
   public:
 
     /// Default constructor
-    PulseRecoManager(fhicl::ParameterSet const& pset);
+    PulseRecoManager();
     
     /// Default constructor 
     ~PulseRecoManager();

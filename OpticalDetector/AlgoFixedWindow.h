@@ -33,7 +33,7 @@ namespace pmtana
   public:
 
     /// Default constructor
-    AlgoFixedWindow(fhicl::ParameterSet const& pset);
+    AlgoFixedWindow();
 
     /// Default destructor
     virtual ~AlgoFixedWindow();

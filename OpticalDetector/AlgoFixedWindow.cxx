@@ -11,9 +11,9 @@
 
 namespace pmtana{
 
-  //########################################################################################
-  AlgoFixedWindow::AlgoFixedWindow(fhicl::ParameterSet const& pset) : PMTPulseRecoBase(pset)
-  //########################################################################################
+  //################################
+  AlgoFixedWindow::AlgoFixedWindow()
+  //################################
   {
     Reset();
 

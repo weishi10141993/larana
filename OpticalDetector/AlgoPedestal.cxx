@@ -11,9 +11,9 @@
 
 namespace pmtana{
 
-  //#########################################################
-  AlgoPedestal::AlgoPedestal(fhicl::ParameterSet const& /* pset */)
-  //#########################################################
+  //##########################
+  AlgoPedestal::AlgoPedestal()
+  //##########################
   {
 
     _mean  = -1;
@@ -35,12 +35,11 @@ namespace pmtana{
     _sigma = -1;
   
     if( (start + nsample) > wf->size() ){
-      mf::LogWarning(__PRETTY_FUNCTION__)
-	<<Form("Wavelength too short (%zu ADC samples) to compute pedestal! (minimum %zu)",
-	       wf->size(),(start + nsample));
+      std::cout << Form("Wavelength too short (%zu ADC samples) to compute pedestal! (minimum %zu)",
+			wf->size(),(start + nsample)) << std::endl;
       return;
     }
-
+    
     for(size_t index=start; index < (start + nsample); ++index)
 
       _mean += wf->at(index);

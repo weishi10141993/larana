@@ -11,10 +11,9 @@
 
 namespace pmtana{
 
-  //###################################################################################
-  PulseRecoManager::PulseRecoManager(fhicl::ParameterSet const& pset) : 
-    _ped_algo(pset.get<fhicl::ParameterSet>("ped_algo"))
-  //###################################################################################
+  //##################################
+  PulseRecoManager::PulseRecoManager()
+  //##################################
   {
 
     _reco_algo_v.clear();
@@ -43,7 +42,7 @@ namespace pmtana{
     //    
     if(fifo->size()<1){
       
-      mf::LogWarning(__PRETTY_FUNCTION__)<<"Found 0-length waveform vector!";
+      std::cerr <<"Found 0-length waveform vector!" << std::endl;
 
       return false;
     }
