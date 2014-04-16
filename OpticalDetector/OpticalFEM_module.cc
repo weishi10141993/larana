@@ -289,7 +289,7 @@ namespace opdet {
 	// The time of the "beginBin[gateIndex]" slice within the gateFrame.
 	gateWindowTime[gateIndex] = beginBin[gateIndex] % fm_clockFrameSize; 
 
-	mf::LogDebug("OpticalFEM") 
+	LOG_DEBUG("OpticalFEM") 
 	  << "Beam gate #" << gateIndex
 	  << " begin beam gate bin to save = " << beginBin[gateIndex]
 	  << "; end beam gate bin to save = " << endBin[gateIndex]
@@ -301,7 +301,7 @@ namespace opdet {
 
       // For each beam gate...
       for ( size_t gateIndex = 0; gateIndex != numberOfGates; ++gateIndex ) {
-	mf::LogDebug("OpticalFEM")
+	LOG_DEBUG("OpticalFEM")
 	  << "Writing beam gate channels:"
 	  << " at frame=" << gateFrame[gateIndex]
 	  << " slice=" << gateWindowTime[gateIndex]
