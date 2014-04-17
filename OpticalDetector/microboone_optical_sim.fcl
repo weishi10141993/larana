@@ -7,7 +7,7 @@
 # discriminated, and triggered PMT ADC counts; see the OpticalDetectorData
 # package for the data products added to the event. 
 
-#include "services.fcl"
+#include "services_microboone.fcl"
 #include "opticaldetectormodules.fcl"
 
 process_name: OpticalSimulation
