@@ -17,6 +17,7 @@
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
 #include "Utilities/AssociationUtil.h"
+#include "OpFlashAlg.h"
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
@@ -58,8 +59,6 @@ namespace opdet {
     // The producer routine, called once per event. 
     void produce (art::Event&); 
     
-    void GetTriggerTime(art::Event& evt, unsigned int& Frame, unsigned short& Sample);
-
     std::map<int, int>  GetChannelMap();
     std::vector<double> GetSPEScales();
 
@@ -182,18 +181,37 @@ namespace opdet {
     // Temporary - needs to be gotten from somewhere
     //  and not hard coded
     art::ServiceHandle<trigger::TriggerAlgoMicroBoone> trig_mod;
-    uint32_t fTimeSlicesPerFrame=trig_mod->FrameSizeTrigger();
+    const uint32_t fTimeSlicesPerFrame=trig_mod->FrameSizeTrigger();
+
+    art::ServiceHandle<opdet::OpDigiProperties> opdigi;
+
+
+    std::vector<const sim::BeamGateInfo*> beamGateArray;
+    try { evt.getView(fGenModule, beamGateArray); }
+    catch ( art::Exception const& err ){ 
+      if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
+    }
 
     // Find out when the trigger happened 
     unsigned int   TrigFrame = 2;
     unsigned short TrigTime = 0;
-    GetTriggerTime(evt, TrigFrame, TrigTime);
+    GetTriggerTime(beamGateArray,
+		   opdigi->TimeBegin(),
+		   opdigi->SampleFreq(),
+		   trig_mod->FrameSizeTrigger(),
+		   TrigFrame, TrigTime);
     
 
     // Get the pulses from the event
     art::Handle< std::vector< optdata::FIFOChannel > > FIFOChannelHandle;
     evt.getByLabel(fInputModule, FIFOChannelHandle);
-    
+    std::vector<optdata::FIFOChannel> const& FIFOChannelVector(*FIFOChannelHandle);
+
+    RunFlashFinder(FIFOChannelVector,
+		   *HitPtr,
+		   *FlashPtr,
+		   AssocList);
+
     // First we organize all the pulses we saw by frame
     std::map<unsigned int, std::vector<art::Ptr<optdata::FIFOChannel> > > FIFOChanByFrame;
     for(size_t i=0; i!=FIFOChannelHandle->size(); ++i)
@@ -736,62 +754,6 @@ namespace opdet {
 
   //--------------------------------------
 
-  void OpFlashFinder::GetTriggerTime(art::Event& evt, unsigned int& Frame, unsigned short& Sample)
-  {
-    // This code gets the trigger time from the BeamGateInfo
-    //  Eventually it will be replaced with code to look in a 
-    //  corresponding reco object
-
-    //std::cout << "OK, we're in here..." << std::endl;
-
-    //
-    // Read in BeamGateInfo array ... handle the case if there's no BeamGateInfo 
-    //
-    std::vector<const sim::BeamGateInfo*> beamGateArray;
-    try{
-      evt.getView(fGenModule, beamGateArray);
-    }
-    catch ( art::Exception const& err ) {
-      if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
-    }
-
-    //std::cout << "And made it here..." << std::endl;
-
-    art::ServiceHandle<trigger::TriggerAlgoMicroBoone> trig_mod;
-    art::ServiceHandle<opdet::OpDigiProperties> opdigi;
-    // 
-    //std::cout << "beamGateArray.size()=" << beamGateArray.size() << std::endl;
-	
-    for(size_t index=0; index < beamGateArray.size(); ++index){
-
-      const sim::BeamGateInfo* trig(beamGateArray.at(index));
-
-      if(trig->Start() < (opdigi->TimeBegin())*1.e3) 
-
-	throw cet::exception(__FUNCTION__) << Form("Found beam time (=%g) before discrete clock count start (=%g)\n",
-						   trig->Start(),
-						   opdigi->TimeBegin()*1.e3);
-
-      double start_time = 1.e-3 * trig->Start() - opdigi->TimeBegin();
-      double sample_freq = opdigi->SampleFreq();
-
-      unsigned int ticks = (unsigned int)(start_time * sample_freq);
-
-      std::cout << "start_time,sample_freq,ticks = " << start_time << "," << sample_freq << "," << ticks << std::endl;
-
-      Frame  = ticks / ((unsigned int)(trig_mod->FrameSizeTrigger()));
-      Sample = (unsigned short)(ticks - (Frame * (trig_mod->FrameSizeTrigger())));
-
-      std::cout << "Frame,Sample = " << Frame << "," << Sample << std::endl;
-
-      if(index>0)
-
-	mf::LogError("OpFlashFinder")<<"Found more than 1 beam gate info!";
-    }
-
-  }
-
-  //-------------------------------------
 
   std::vector<double> OpFlashFinder::GetSPEScales()
   {
