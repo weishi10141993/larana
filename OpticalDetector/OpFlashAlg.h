@@ -12,6 +12,8 @@
 #include "Simulation/BeamGateInfo.h"
 #include "OpticalDetectorData/OpticalTypes.h"
 #include "OpticalDetectorData/FIFOChannel.h"
+#include "OpticalDetector/AlgoThreshold.h"
+#include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
 
@@ -26,8 +28,55 @@ namespace opdet{
   void RunFlashFinder(std::vector<optdata::FIFOChannel> const&,
 		      std::vector<recob::OpHit>&,
 		      std::vector<recob::OpFlash>&,
-		      std::vector< std::vector<int> >&);
+		      std::vector< std::vector<int> >&,
+		      optdata::TimeSlice_t const&,
+		      int const&,
+		      pmtana::PulseRecoManager const&,
+		      pmtana::AlgoThreshold const&,
+		      std::map<int,int> const&,
+		      unsigned int const&,
+		      unsigned int const&,
+		      float const&,
+		      float const&,
+		      unsigned int const&,
+		      unsigned int const&,
+		      std::vector<double> const&);
   
+  void ProcessFrame(unsigned int,
+		    std::vector<const optdata::FIFOChannel*> const&,
+		    std::vector<recob::OpHit>&,
+		    std::vector<recob::OpFlash>&,
+		    optdata::TimeSlice_t const&,
+		    int const&,
+		    pmtana::PulseRecoManager const&,
+		    pmtana::AlgoThreshold const&,
+		    std::map<int,int> const&,
+		    unsigned int const&,
+		    float const&,
+		    float const&,
+		    unsigned int const&,
+		    unsigned int const&,
+		    std::vector<double> const&);
+
+  void ConstructHits(int const&,
+		     unsigned int const&,
+		     pmtana::AlgoThreshold const&,
+		     std::vector<recob::OpHit>&,
+		     optdata::TimeSlice_t const&,
+		     int const&,
+		     float const&,
+		     float const&,
+		     unsigned int const&,
+		     unsigned int const&,
+		     double const&,
+		     std::vector<double> const&,
+		     std::vector<double> const&,
+		     std::vector< std::vector<int> > const&,
+		     std::vector< std::vector<int> > const&,
+		     std::vector<int> const&,
+		     std::vector<int> const&);
+
+
 }//end opdet namespace
 
 #endif
