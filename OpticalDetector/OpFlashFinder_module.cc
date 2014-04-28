@@ -210,7 +210,19 @@ namespace opdet {
     RunFlashFinder(FIFOChannelVector,
 		   *HitPtr,
 		   *FlashPtr,
-		   AssocList);
+		   AssocList,
+		   trig_mod->FrameSizeTrigger(),
+		   fBinWidth,
+		   fPulseRecoMgr,
+		   fThreshAlg,
+		   fChannelMap,
+		   fNOpChannels,
+		   fNplanes,
+		   fHitThreshold,
+		   fFlashThreshold,
+		   TrigFrame,
+		   TrigTime,
+		   fSPESize);
 
     // First we organize all the pulses we saw by frame
     std::map<unsigned int, std::vector<art::Ptr<optdata::FIFOChannel> > > FIFOChanByFrame;

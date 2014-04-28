@@ -7,6 +7,7 @@
  */
 
 #include "OpFlashAlg.h"
+#include "RecoBase/OpHit.h"
 #include "cetlib/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -61,7 +62,7 @@ namespace opdet{
 		      std::vector<double> const& SPESize)
   {
     
-    std::map<unsigned int, std::vector<const optdata::FIFOChannel*> > FIFOChanByFrame;
+    std::map<unsigned short, std::vector<const optdata::FIFOChannel*> > FIFOChanByFrame;
     for(auto fifochannel : FIFOChannelVector)
       FIFOChanByFrame[fifochannel.Frame()].push_back(&fifochannel);
     
@@ -85,7 +86,7 @@ namespace opdet{
   }
   
   //-------------------------------------------------------------------------------------------------
-  void ProcessFrame(unsigned int Frame,
+  void ProcessFrame(unsigned short Frame,
 		    std::vector<const optdata::FIFOChannel*> const& FIFOChannelFramePtrVector,
 		    std::vector<recob::OpHit>& HitVector,
 		    std::vector<recob::OpFlash>& FlashVector,
@@ -116,13 +117,7 @@ namespace opdet{
     std::vector<int> FlashesInAccumulator2;
     
 
-    for(std::vector<const optdata::FIFOChannel*>::const_iterator i_chan=FIFOChannelFramePtrVector.begin();
-	i_chan!=FIFOChannelFramePtrVector.end();
-	i_chan++)
-      {
-
-	const optdata::FIFOChannel* fifo_ptr = i_chan;
-	//const std::vector<uint16_t> channel_data_vector = fifo_ptr;
+    for(auto fifo_ptr : FIFOChannelFramePtrVector){
 
 	const int Channel = ChannelMap.at(fifo_ptr->ChannelNumber());
 	const uint32_t TimeSlice = fifo_ptr->TimeSlice();
@@ -137,9 +132,10 @@ namespace opdet{
 	  continue;
 	}
 	
-	bool result = PulseRecoMgr.RecoPulse(fifo_ptr);
+	PulseRecoMgr.RecoPulse(&(*fifo_ptr));
 
 	ConstructHits(Channel,
+		      TimeSlice,
 		      Frame,
 		      ThreshAlg,
 		      HitVector,
@@ -150,8 +146,8 @@ namespace opdet{
 		      TrigFrame,
 		      TrigTime,
 		      SPESize.at(Channel),
-		      Contributors1, Contributors2,
 		      Binned1, Binned2,
+		      Contributors1, Contributors2,
 		      FlashesInAccumulator1, FlashesInAccumulator2);
 
       }//end loop over FIFO channels in frame
@@ -159,7 +155,8 @@ namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
   void ConstructHits(int const& Channel,
-		     unsigned int const& Frame,
+		     uint32_t const& TimeSlice,
+		     unsigned short const& Frame,
 		     pmtana::AlgoThreshold const& ThreshAlg,
 		     std::vector<recob::OpHit>& HitVector,
 		     optdata::TimeSlice_t const& TimeSlicesPerFrame,
@@ -169,12 +166,12 @@ namespace opdet{
 		     unsigned int const& TrigFrame,
 		     unsigned int const& TrigTime,
 		     double const& SPESize,
-		     std::vector<double> const& Contributors1,
-		     std::vector<double> const& Contributors1,
-		     std::vector< std::vector<int> > const& Binned1,
-		     std::vector< std::vector<int> > const& Binned2,
-		     std::vector<int> const& FlashesInAccumulator1,
-		     std::vector<int> const& FlashesInAccumulator2)
+		     std::vector<double> & Binned1,
+		     std::vector<double> & Binned2,
+		     std::vector< std::vector<int> > & Contributors1,
+		     std::vector< std::vector<int> > & Contributors2,
+		     std::vector<int> & FlashesInAccumulator1,
+		     std::vector<int> & FlashesInAccumulator2)
   {
     const size_t NPulses = ThreshAlg.GetNPulse();
     for(size_t k=0; k<NPulses; ++k){
@@ -200,15 +197,15 @@ namespace opdet{
 			      Area,
 			      Peak,
 			      PE,
-			      0);
+			      0.);
       
-      size_t HitIndex = OpHitsThisFrame.size()-1;
+      int HitIndex = HitVector.size()-1;
       
       size_t Accum1Index = int(TimeSlice  / BinWidth);
       size_t Accum2Index = int((TimeSlice + BinWidth/2)/BinWidth);
       
-      Contributors1.at(Accum1Index).push_back(HitIndex);
-      Contributors2.at(Accum2Index).push_back(HitIndex);
+      (Contributors1.at(Accum1Index)).push_back(HitIndex);
+      (Contributors2.at(Accum2Index)).push_back(HitIndex);
       
       Binned1.at(Accum1Index) += PE; 
       Binned2.at(Accum2Index) += PE;  

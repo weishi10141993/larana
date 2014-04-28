@@ -42,7 +42,7 @@ namespace opdet{
 		      unsigned int const&,
 		      std::vector<double> const&);
   
-  void ProcessFrame(unsigned int,
+  void ProcessFrame(unsigned short,
 		    std::vector<const optdata::FIFOChannel*> const&,
 		    std::vector<recob::OpHit>&,
 		    std::vector<recob::OpFlash>&,
@@ -59,7 +59,8 @@ namespace opdet{
 		    std::vector<double> const&);
 
   void ConstructHits(int const&,
-		     unsigned int const&,
+		     uint32_t const&,
+		     unsigned short const&,
 		     pmtana::AlgoThreshold const&,
 		     std::vector<recob::OpHit>&,
 		     optdata::TimeSlice_t const&,
@@ -69,12 +70,12 @@ namespace opdet{
 		     unsigned int const&,
 		     unsigned int const&,
 		     double const&,
-		     std::vector<double> const&,
-		     std::vector<double> const&,
-		     std::vector< std::vector<int> > const&,
-		     std::vector< std::vector<int> > const&,
-		     std::vector<int> const&,
-		     std::vector<int> const&);
+		     std::vector<double> &,
+		     std::vector<double> &,
+		     std::vector< std::vector<int> > &,
+		     std::vector< std::vector<int> > &,
+		     std::vector<int> &,
+		     std::vector<int> &);
 
 
 }//end opdet namespace
