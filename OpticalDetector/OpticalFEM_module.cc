@@ -289,7 +289,7 @@ namespace opdet {
 	// The time of the "beginBin[gateIndex]" slice within the gateFrame.
 	gateWindowTime[gateIndex] = beginBin[gateIndex] % fm_clockFrameSize; 
 
-	mf::LogDebug("OpticalFEM") 
+	LOG_DEBUG("OpticalFEM") 
 	  << "Beam gate #" << gateIndex
 	  << " begin beam gate bin to save = " << beginBin[gateIndex]
 	  << "; end beam gate bin to save = " << endBin[gateIndex]
@@ -301,7 +301,7 @@ namespace opdet {
 
       // For each beam gate...
       for ( size_t gateIndex = 0; gateIndex != numberOfGates; ++gateIndex ) {
-	mf::LogDebug("OpticalFEM")
+	LOG_DEBUG("OpticalFEM")
 	  << "Writing beam gate channels:"
 	  << " at frame=" << gateFrame[gateIndex]
 	  << " slice=" << gateWindowTime[gateIndex]
@@ -511,7 +511,7 @@ namespace opdet {
 		// slice to the list of slices for disc 0.
 		fire0.push_back( slice );
 			      
-		mf::LogDebug("OpticalFEM")
+		LOG_DEBUG("OpticalFEM")
 		  << "Disc 0 fires, channel=" << channel
 		  << " at frame=" 
 		  << channelDataGroup.Frame() + slice / fm_clockFrameSize
@@ -564,7 +564,7 @@ namespace opdet {
 	      optdata::TimeSlice_t cosmicTime 
 		= saveSlice % fm_clockFrameSize;
 				  
-	      mf::LogDebug("OpticalFEM")
+	      LOG_DEBUG("OpticalFEM")
 		<< "Disc 1 fires, Writing cosmic channel=" << channel
 		<< " at frame=" << cosmicFrame
 		<< " slice=" << cosmicTime
@@ -671,7 +671,7 @@ namespace opdet {
 	      // Save this value for PMT trigger tests.
 	      maxADC3.push_back( maxADC );
 	      
-	      mf::LogDebug("OpticalFEM")
+	      LOG_DEBUG("OpticalFEM")
 		<< "Disc 3 fires, channel=" << channel
 		<< " at frame=" 
 		<< channelDataGroup.Frame() + slice / fm_clockFrameSize
@@ -795,7 +795,7 @@ namespace opdet {
 	    // Save the trigger in our list.
 	    triggers.push_back( trigger_t( optdata::kCosmicPMTTrigger, slice ) );
 
-	    mf::LogDebug("OpticalFEM")
+	    LOG_DEBUG("OpticalFEM")
 	      << "Cosmic PMT Trigger"
 	      << " at frame=" << frame
 	      << " slice=" << sample
@@ -860,7 +860,7 @@ namespace opdet {
 	    // Save the trigger in our list.
 	    triggers.push_back( trigger_t( optdata::kCosmicPMTTrigger, slice ) );
 
-	    mf::LogDebug("OpticalFEM")
+	    LOG_DEBUG("OpticalFEM")
 	      << "Beam PMT Trigger"
 	      << " at frame=" << frame
 	      << " slice=" << sample
