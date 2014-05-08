@@ -7,7 +7,7 @@ fcldir product_dir job
 #
 product         version
 larreco		v1_01_00
-gcc		v4_8_1
+gcc		v4_8_2
 
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
