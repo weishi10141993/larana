@@ -77,6 +77,10 @@ namespace opdet{
 		     std::vector<int> &,
 		     std::vector<int> &);
 
+void SortFlashVectors( std::vector<int> &,
+		       std::vector<int> &,
+		       std::vector<double> const&,
+		       std::vector<double> const&);
 
 }//end opdet namespace
 

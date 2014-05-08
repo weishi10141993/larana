@@ -40,7 +40,11 @@ namespace opdet{
       unsigned int ticks = (unsigned int)(start_time * opdigi_SampleFreq);
       Frame  = ticks / trigger_frame_size;
       Sample = (unsigned short)(ticks - (Frame * trigger_frame_size));
+
     }
+
+    
+
   }
   
   //-------------------------------------------------------------------------------------------------
@@ -223,4 +227,28 @@ namespace opdet{
     
   } // end ConstructHits
   
+}
+
+//-------------------------------------------------------------------------------------------------
+class MaxFlashSorter{
+public:
+  MaxFlashSorter(std::vector<double> const& bv){_BinVector = bv;}
+  bool operator()(int i, int j) {return (_BinVector.at(i)>_BinVector.at(j));}
+private:
+  std::vector<double> _BinVector;
+};
+
+void SortFlashVectors( std::vector<int> & FlashesInAccumulator1,
+		       std::vector<int> & FlashesInAccumulator2,
+		       std::vector<double> const& Binned1,
+		       std::vector<double> const& Binned2)
+{
+
+  std::sort( FlashesInAccumulator1.begin(), 
+	     FlashesInAccumulator1.end(),
+	     MaxFlashSorter(Binned1) );
+  std::sort( FlashesInAccumulator2.begin(), 
+	     FlashesInAccumulator2.end(),
+	     MaxFlashSorter(Binned2) );
+
 }
