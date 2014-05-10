@@ -220,6 +220,7 @@ namespace opdet {
 		   fNplanes,
 		   fHitThreshold,
 		   fFlashThreshold,
+		   fWidthTolerance,
 		   TrigFrame,
 		   TrigTime,
 		   fSPESize);

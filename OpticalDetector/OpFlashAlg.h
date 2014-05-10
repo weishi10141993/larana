@@ -38,6 +38,7 @@ namespace opdet{
 		      unsigned int const&,
 		      float const&,
 		      float const&,
+		      float const&,
 		      unsigned int const&,
 		      unsigned int const&,
 		      std::vector<double> const&);
@@ -52,6 +53,7 @@ namespace opdet{
 		    pmtana::AlgoThreshold const&,
 		    std::map<int,int> const&,
 		    unsigned int const&,
+		    float const&,
 		    float const&,
 		    float const&,
 		    unsigned int const&,
@@ -77,10 +79,24 @@ namespace opdet{
 		     std::vector<int> &,
 		     std::vector<int> &);
 
-void SortFlashVectors( std::vector<int> &,
-		       std::vector<int> &,
-		       std::vector<double> const&,
-		       std::vector<double> const&);
+
+  void AssignHitsToFlash( std::vector<int> const&,
+			  std::vector<int> const&,
+			  std::vector<double> const&,
+			  std::vector<double> const&,
+			  std::vector< std::vector<int> > const&,
+			  std::vector< std::vector<int> > const&,
+			  size_t const&,
+			  std::vector<recob::OpHit> const&,
+			  std::vector< std::vector<int> >&,
+			  float const&);
+
+  void RefineHitsToFlash(std::vector< std::vector<int> > const&,
+			 std::vector<recob::OpHit> const&,
+			 std::vector< std::vector<int> >&,
+			 float const&,
+			 float const&);
+
 
 }//end opdet namespace
 
