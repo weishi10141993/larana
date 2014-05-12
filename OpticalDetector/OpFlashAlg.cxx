@@ -10,6 +10,7 @@
 #include "RecoBase/OpHit.h"
 #include "cetlib/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "Geometry/OpDetGeo.h"
 
 namespace opdet{
 
@@ -24,7 +25,7 @@ namespace opdet{
     //  Eventually it will be replaced with code to look in a 
     //  corresponding reco object
     
-    if(beamGateArray.size()>0)
+    if(beamGateArray.size()>1)
       mf::LogError("OpFlashFinder")<<"Found more than 1 beam gate info! " << beamGateArray.size();
     
     for(auto trig : beamGateArray){
@@ -57,38 +58,46 @@ namespace opdet{
 		      pmtana::PulseRecoManager const& PulseRecoMgr,
 		      pmtana::AlgoThreshold const& ThreshAlg,
 		      std::map<int,int> const& ChannelMap,
-		      unsigned int const& NOpChannels,
-		      unsigned int const& Nplanes,
+		      geo::Geometry const& geom,
 		      float const& HitThreshold,
 		      float const& FlashThreshold,
 		      float const& WidthTolerance,
 		      unsigned int const& TrigFrame,
 		      unsigned int const& TrigSample,
-		      std::vector<double> const& SPESize)
+		      std::vector<double> const& SPESize,
+		      float const& TrigCoinc)
   {
     
+    std::cout << "Running flash finder alg..." << std::endl;
+
     std::map<unsigned short, std::vector<const optdata::FIFOChannel*> > FIFOChanByFrame;
-    for(auto fifochannel : FIFOChannelVector)
+    for(auto const& fifochannel : FIFOChannelVector)
       FIFOChanByFrame[fifochannel.Frame()].push_back(&fifochannel);
     
+    std::cout << "Now going to process frames." << std::endl;
+
     for(auto fifoframe : FIFOChanByFrame)
       ProcessFrame(fifoframe.first,
 		   fifoframe.second,
 		   HitVector,
 		   FlashVector,
+		   AssocList,
 		   trigger_frame_size,
 		   BinWidth,
 		   PulseRecoMgr,
 		   ThreshAlg,
 		   ChannelMap,
-		   NOpChannels,
+		   geom,
 		   HitThreshold,
 		   FlashThreshold,
 		   WidthTolerance,
 		   TrigFrame,
 		   TrigSample,
-		   SPESize);
+		   SPESize,
+		   TrigCoinc);
     
+    std::cout << "Finished flash finder alg!" << std::endl;
+
   }
   
   //-------------------------------------------------------------------------------------------------
@@ -96,19 +105,24 @@ namespace opdet{
 		    std::vector<const optdata::FIFOChannel*> const& FIFOChannelFramePtrVector,
 		    std::vector<recob::OpHit>& HitVector,
 		    std::vector<recob::OpFlash>& FlashVector,
+		    std::vector< std::vector<int> >& AssocList,
 		    optdata::TimeSlice_t const& TimeSlicesPerFrame,
 		    int const& BinWidth,
 		    pmtana::PulseRecoManager const& PulseRecoMgr,
 		    pmtana::AlgoThreshold const& ThreshAlg,
 		    std::map<int,int> const& ChannelMap,
-		    unsigned int const& NOpChannels,
+		    geo::Geometry const& geom,
 		    float const& HitThreshold,
 		    float const& FlashThreshold,
 		    float const& WidthTolerance,
 		    unsigned int const& TrigFrame,
 		    unsigned int const& TrigTime,
-		    std::vector<double> const& SPESize)
+		    std::vector<double> const& SPESize,
+		    float const& TrigCoinc)
+
   {
+
+    std::cout << "Processing frame " << Frame << std::endl;
 
     // These are the accumulators which will hold broad-binned light yields
     std::vector<double>  Binned1((TimeSlicesPerFrame + BinWidth)/BinWidth);
@@ -124,46 +138,55 @@ namespace opdet{
     std::vector<int> FlashesInAccumulator2;
     
     size_t NHits_prev = HitVector.size();
+    unsigned int NOpChannels = geom.NOpChannels();
 
-    for(auto & fifo_ptr : FIFOChannelFramePtrVector){
+    for(auto const& fifo_ptr : FIFOChannelFramePtrVector){
 
-	const int Channel = ChannelMap.at(fifo_ptr->ChannelNumber());
-	const uint32_t TimeSlice = fifo_ptr->TimeSlice();
-	
-	if( Channel<0 || Channel > int(NOpChannels) ) {
-	    mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
-	    continue;
-	}
-	
-	if( TimeSlice>TimeSlicesPerFrame ){
-	  mf::LogError("OpFlashFinder")<<"This slice " << TimeSlice<< "is outside the countable region - skipping";
-	  continue;
-	}
-	
-	PulseRecoMgr.RecoPulse(&(*fifo_ptr));
+      std::cout << "Made it here ... " << std::endl;
 
-	ConstructHits(Channel,
-		      TimeSlice,
-		      Frame,
-		      ThreshAlg,
-		      HitVector,
-		      TimeSlicesPerFrame,
-		      BinWidth,
-		      HitThreshold,
-		      FlashThreshold,
-		      TrigFrame,
-		      TrigTime,
-		      SPESize.at(Channel),
-		      Binned1, Binned2,
-		      Contributors1, Contributors2,
-		      FlashesInAccumulator1, FlashesInAccumulator2);
+      std::cout << "\tWant to grab channel " << fifo_ptr->ChannelNumber() << std::endl;
 
+      const int Channel = ChannelMap.at((int)fifo_ptr->ChannelNumber());
+      const uint32_t TimeSlice = fifo_ptr->TimeSlice();
+
+      std::cout << "\tRunning channel " << Channel << std::endl;
+
+      if( Channel<0 || Channel > int(NOpChannels) ) {
+	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
+	continue;
+      }
+      
+      if( TimeSlice>TimeSlicesPerFrame ){
+	mf::LogError("OpFlashFinder")<<"This slice " << TimeSlice<< "is outside the countable region - skipping";
+	continue;
+      }
+      
+      PulseRecoMgr.RecoPulse(&(*fifo_ptr));
+      
+      ConstructHits(Channel,
+		    TimeSlice,
+		    Frame,
+		    ThreshAlg,
+		    HitVector,
+		    TimeSlicesPerFrame,
+		    BinWidth,
+		    HitThreshold,
+		    FlashThreshold,
+		    TrigFrame,
+		    TrigTime,
+		    SPESize.at(Channel),
+		    Binned1, Binned2,
+		    Contributors1, Contributors2,
+		    FlashesInAccumulator1, FlashesInAccumulator2);
+      
     }//end loop over FIFO channels in frame
+
+    std::cout << "Made all our hits!" << std::endl;
     
     //Now start to create flashes
     //First, need vector to keep track of which hits belong to which flashes
     std::vector< std::vector<int> > HitsPerFlash;
-    size_t NHits = HitVector.size() - NHits_prev;
+    size_t NHitsThisFrame = HitVector.size() - NHits_prev;
     
     AssignHitsToFlash(FlashesInAccumulator1,
 		      FlashesInAccumulator2,
@@ -171,10 +194,12 @@ namespace opdet{
 		      Binned2,
 		      Contributors1,
 		      Contributors2,
-		      NHits,
+		      NHitsThisFrame,
 		      HitVector,
 		      HitsPerFlash,
 		      FlashThreshold);
+
+    std::cout << "Assigned hits to flashes!" << std::endl;
 
     // Now we do the fine grained part.  
     // Subdivide each flash into sub-flashes with overlaps within hit widths (assumed wider than photon travel time)
@@ -184,6 +209,35 @@ namespace opdet{
 		      RefinedHitsPerFlash,
 		      WidthTolerance,
 		      FlashThreshold);
+
+    std::cout << "Refined hits to flashes!" << std::endl;
+
+    //Now we have all our hits assigned to a flash. Make the recob::OpFlash objects.
+    ConstructFlashes(RefinedHitsPerFlash,
+		     HitVector,
+		     FlashVector,
+		     TimeSlicesPerFrame,
+		     geom,
+		     TrigFrame,
+		     Frame,
+		     TrigCoinc);
+
+
+    RemoveLateLight(FlashVector,
+		    RefinedHitsPerFlash);
+
+    std::cout << "Made flashes!" << std::endl;
+
+    //Finally, write the association list
+    //The transform adds a constant offset to the elements of each vector in RefinedHitsPerFlash
+    //back_inserter tacks the result onto the end of AssocList
+    for(auto & HitIndicesThisFlash : RefinedHitsPerFlash){
+      for(auto & HitIndex : HitIndicesThisFlash)
+	HitIndex += NHits_prev;
+      AssocList.push_back(HitIndicesThisFlash);
+    }
+    
+    std::cout << "Done with frame!!!" << std::endl;
     
   }//end ProcessFrame
 
@@ -219,7 +273,7 @@ namespace opdet{
       double Width = ThreshAlg.GetPulse(k)->t_end - ThreshAlg.GetPulse(k)->t_start;
       double Area  = ThreshAlg.GetPulse(k)->area;
       double AbsTime = TMax + TimeSlice;
-      double RelTime = TMax + (double)TimeSlice - (double)TrigTime;
+      double RelTime = AbsTime - (double)TrigTime;
       RelTime += ((double)Frame - (double)TrigFrame)*TimeSlicesPerFrame;
       double PE = Peak/SPESize;
       
@@ -271,6 +325,9 @@ namespace opdet{
 			  float const& FlashThreshold)
   {
 
+    std::cout << "Starting to assign hits" << std::endl;
+    size_t NHits_prev = HitVector.size() - NHits;
+
     // Sort all the flashes found by size. The structure is:
     // FlashesBySize[flash size][accumulator_num] = [flash_index1, flash_index2...]     
     std::map<double, std::map<int,std::vector<int> > > FlashesBySize;
@@ -281,6 +338,8 @@ namespace opdet{
     for( auto const& flash : FlashesInAccumulator2)
       FlashesBySize[Binned2.at(flash)][2].push_back(flash);
   
+    std::cout << "Flashes sorted!" << std::endl;
+
     // This keeps track of which hits are claimed by which flash
     std::vector<int > HitClaimedByFlash(NHits,-1);
 
@@ -290,13 +349,19 @@ namespace opdet{
     // Walk through flashes in size order, largest to smallest
     for(auto const& itFlash : FlashesBySize){
 
+      std::cout << "L1" << std::endl;
+
       // If several with same size, walk walk through accumulators
       for(auto const& itAcc : itFlash.second){
+
+	std::cout << "L2" << std::endl;
 
 	  int Accumulator = itAcc.first;
 	  
 	  // Walk through flash-tagged bins in this accumulator
 	  for(auto const& Bin : itAcc.second){
+
+	    std::cout << "L3" << std::endl;
 
 	    std::vector<int>   HitsThisFlash;
 
@@ -305,8 +370,10 @@ namespace opdet{
 	      // for each hit in the flash
 	      for(auto const& HitIndex : Contributors1.at(Bin)){
 
+		std::cout << "L4 --- " << HitIndex << " " << NHits << std::endl;
+
 		// if unclaimed, claim it
-		if(HitClaimedByFlash.at(HitIndex)==-1)
+		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
 		  HitsThisFlash.push_back(HitIndex);
 	      }
 	    else if(Accumulator==2)
@@ -314,8 +381,10 @@ namespace opdet{
 	      // for each hit in the flash
 	      for(auto const& HitIndex : Contributors2.at(Bin)){
 		
+		std::cout << "L5 --- " << HitIndex << " " << NHits << std::endl;
+
 		// if unclaimed, claim it
-		if(HitClaimedByFlash.at(HitIndex)==-1)
+		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
 		  HitsThisFlash.push_back(HitIndex);
 	      }
 	    
@@ -324,16 +393,20 @@ namespace opdet{
 	    for(auto const& Hit : HitsThisFlash)
 	      PE += HitVector.at(Hit).PE();
 	    
+	    std::cout << "PE is now " << PE << std::endl;
+
 	    // if it still gets over threshold
 	    if(PE >= FlashThreshold){
+	      
+	      std::cout << "PE above threshold " << PE << std::endl;
 	      
 	      // add the flash to the list
 	      HitsPerFlash.push_back(HitsThisFlash);
 	      
 	      // and claim all the hits
 	      for(auto const& Hit : HitsThisFlash){
-		if(HitClaimedByFlash.at(Hit)==-1)
-		  HitClaimedByFlash.at(Hit)=HitsPerFlash.size()-1;
+		if(HitClaimedByFlash.at(Hit-NHits_prev)==-1)
+		  HitClaimedByFlash.at(Hit-NHits_prev)=HitsPerFlash.size()-1;
 	      }//end loop over hits in this flash
 
 	    }//end if PE above threshold
@@ -437,6 +510,159 @@ namespace opdet{
 
   }//end RefineHitsToFlash
 
+
+  //-------------------------------------------------------------------------------------------------
+  void ConstructFlashes(std::vector< std::vector<int> > const& RefinedHitsPerFlash,
+			std::vector<recob::OpHit> const& HitVector,
+			std::vector<recob::OpFlash>& FlashVector,
+			uint32_t const& TimeSlicesPerFrame,
+			geo::Geometry const& geom,
+			unsigned int const& TrigFrame,
+			unsigned short const& Frame,
+			float const& TrigCoinc){
+
+    for(auto const& HitsPerFlashVec : RefinedHitsPerFlash){
+
+      double MaxTime = -100, MinTime = TimeSlicesPerFrame;
+
+      std::vector<double> PEs(geom.NOpChannels());
+      unsigned int Nplanes = geom.Nplanes();
+      std::vector<double> sumw(Nplanes,0), sumw2(Nplanes,0);
+
+      double TotalPE=0, AveTime=0, AveAbsTime=0, FastToTotal=0, sumy=0, sumz=0, sumy2=0, sumz2=0;
+
+      for(auto const& HitID : HitsPerFlashVec){
+
+	double FastToTotalThisHit   = HitVector.at(HitID).FastToTotal();
+	double PEThisHit            = HitVector.at(HitID).PE();
+	double TimeThisHit          = HitVector.at(HitID).PeakTime();
+	double AbsTimeThisHit       = HitVector.at(HitID).PeakTimeAbs();
+	unsigned int ChannelThisHit = HitVector.at(HitID).OpChannel();
+	if(TimeThisHit > MaxTime) MaxTime = TimeThisHit;
+	if(TimeThisHit < MinTime) MinTime = TimeThisHit;
+
+	// These quantities for the flash are defined as the weighted averages
+	//   over the hits
+	FastToTotal += FastToTotalThisHit *PEThisHit;
+	AveTime     += TimeThisHit        *PEThisHit;
+	AveAbsTime  += AbsTimeThisHit     *PEThisHit;
+	
+	// These are totals
+	TotalPE     += PEThisHit;
+	PEs.at(ChannelThisHit)+=PEThisHit;
+	
+	unsigned int o=0, c=0;
+	geom.OpChannelToCryoOpDet(ChannelThisHit,o,c);
+	
+	double xyz[3];
+	geom.Cryostat(c).OpDet(o).GetCenter(xyz);
+	
+	for(size_t p=0; p!=Nplanes; p++){
+	  unsigned int w = geom.NearestWire(xyz,p);
+	  sumw.at(p)  += w*PEThisHit;
+	  sumw2.at(p) += w*w*PEThisHit;
+	}             
+		
+	sumy+=xyz[1]*PEThisHit; sumy2+=xyz[1]*xyz[1]*PEThisHit;
+	sumz+=xyz[2]*PEThisHit; sumz2+=xyz[2]*xyz[2]*PEThisHit;
+      
+      }//end loop over hits in (refined) flash
+
+	    
+      AveTime     /= TotalPE;
+      AveAbsTime  /= TotalPE;
+      FastToTotal /= TotalPE;
+      
+      double meany = sumy / TotalPE;
+      double meanz = sumz / TotalPE;
+      
+      double widthy = std::sqrt(sumy2*TotalPE - sumy*sumy)/TotalPE;
+      double widthz = std::sqrt(sumz2*TotalPE - sumz*sumz)/TotalPE;
+ 
+      std::vector<double> WireCenters(Nplanes,0);
+      std::vector<double> WireWidths(Nplanes,0);
+      
+      for(size_t p=0; p!=Nplanes; ++p){
+	WireCenters.at(p) = sumw.at(p)/TotalPE;
+	WireWidths.at(p)  = std::sqrt(sumw2.at(p)*TotalPE - sumw.at(p)*sumw.at(p))/TotalPE;
+      }
+      
+      bool InBeamFrame = (Frame==TrigFrame);
+      double TimeWidth = (MaxTime-MinTime)/2.;
+      
+      int OnBeamTime =0; 
+      if( std::abs(AveTime) < TrigCoinc ) OnBeamTime=1;
+
+      FlashVector.emplace_back( AveTime,
+				TimeWidth,
+				AveAbsTime,
+				Frame,
+				PEs, 
+				InBeamFrame,
+				OnBeamTime,
+				FastToTotal,
+				meany, 
+				widthy, 
+				meanz, 
+				widthz, 
+				WireCenters, 
+				WireWidths);
+      
+      
+    }//end loop over all flashes
+
+  }//end ConstructFlashes
+
+
+  //-------------------------------------------------------------------------------------------------
+  void RemoveLateLight(std::vector<recob::OpFlash>& FlashVector,
+		       std::vector< std::vector<int> >& RefinedHitsPerFlash){
+
+    std::vector<bool> MarkedForRemoval(RefinedHitsPerFlash.size(),false);
+
+    size_t NFlashesThisFrame = RefinedHitsPerFlash.size();
+    size_t BeginFlash = FlashVector.size() - NFlashesThisFrame;
+
+    recob::OpFlashSortByTime sort_flash_by_time;
+    std::sort(FlashVector.begin()+BeginFlash,
+	      FlashVector.end(),
+	      sort_flash_by_time);
+
+    for(size_t iFlash=BeginFlash; iFlash!=FlashVector.size(); ++iFlash){
+
+      double iTime = FlashVector.at(iFlash).Time();
+      double iPE   = FlashVector.at(iFlash).TotalPE();
+      double iWidth= FlashVector.at(iFlash).TimeWidth();
+      
+      for(size_t jFlash=iFlash+1; jFlash!=FlashVector.size(); ++jFlash){
+
+	if(MarkedForRemoval.at(jFlash-BeginFlash)) continue;
+
+	double jTime = FlashVector.at(jFlash).Time();
+	double jPE   = FlashVector.at(jFlash).TotalPE();
+	double jWidth= FlashVector.at(jFlash).TimeWidth();
+	
+	// Calculate hypothetical PE if this were actually a late flash from i
+	//  Argon time const is 1600, so 100 samples.
+	double HypPE = iPE * jWidth / iWidth * exp(-(jTime-iTime)/100.);
+	double nsigma = (jPE-HypPE)/pow(HypPE,0.5);
+	
+	// If smaller than, or within 2sigma of expectation,
+	//  attribute to late light and toss out
+	if( nsigma < 3. ) 
+	  MarkedForRemoval.at(jFlash-BeginFlash)=true;
+      }	    
+    }
+
+    for(int iFlash=MarkedForRemoval.size()-1; iFlash!=-1; --iFlash){
+      if(MarkedForRemoval.at(iFlash)){
+	RefinedHitsPerFlash.erase(RefinedHitsPerFlash.begin()+iFlash);
+	FlashVector.erase(FlashVector.begin()+BeginFlash+iFlash);
+      }
+    }
+
+
+  }
 
 }//end namespace opdet
 

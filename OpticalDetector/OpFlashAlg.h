@@ -16,6 +16,7 @@
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
+#include "Geometry/Geometry.h"
 
 namespace opdet{
 
@@ -34,31 +35,33 @@ namespace opdet{
 		      pmtana::PulseRecoManager const&,
 		      pmtana::AlgoThreshold const&,
 		      std::map<int,int> const&,
-		      unsigned int const&,
-		      unsigned int const&,
+		      geo::Geometry const&,
 		      float const&,
 		      float const&,
 		      float const&,
 		      unsigned int const&,
 		      unsigned int const&,
-		      std::vector<double> const&);
+		      std::vector<double> const&,
+		      float const&);
   
   void ProcessFrame(unsigned short,
 		    std::vector<const optdata::FIFOChannel*> const&,
 		    std::vector<recob::OpHit>&,
 		    std::vector<recob::OpFlash>&,
+		    std::vector< std::vector<int> >&,
 		    optdata::TimeSlice_t const&,
 		    int const&,
 		    pmtana::PulseRecoManager const&,
 		    pmtana::AlgoThreshold const&,
 		    std::map<int,int> const&,
-		    unsigned int const&,
+		    geo::Geometry const&,
 		    float const&,
 		    float const&,
 		    float const&,
 		    unsigned int const&,
 		    unsigned int const&,
-		    std::vector<double> const&);
+		    std::vector<double> const&,
+		    float const&);
 
   void ConstructHits(int const&,
 		     uint32_t const&,
@@ -97,6 +100,17 @@ namespace opdet{
 			 float const&,
 			 float const&);
 
+  void ConstructFlashes(std::vector< std::vector<int> > const&,
+			std::vector<recob::OpHit> const&,
+			std::vector<recob::OpFlash>&,
+			uint32_t const&,
+			geo::Geometry const&,
+			unsigned int const&,
+			unsigned short const&,
+			float const&);
+
+  void RemoveLateLight(std::vector<recob::OpFlash>&,
+		       std::vector< std::vector<int> >&);
 
 }//end opdet namespace
 
