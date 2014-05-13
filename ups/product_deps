@@ -11,9 +11,9 @@ gcc		v4_8_2
 
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build  cetbuildtools   v3_07_11
+only_for_build  cetbuildtools   v3_10_01
   
-# e4  - with gcc 4.8.1 and -std=c++11
+# e5  - with gcc 4.8.1 and -std=c++11
 qualifier	larreco		gcc	notes
 e5:debug	e5:debug	-nq-
 e5:opt		e5:opt		-nq-
