@@ -5,6 +5,7 @@ art_make( BASENAME_ONLY
           # EXCLUDE OpFlashFinder_module.cc
           LIBRARY_NAME OpticalDetector
           LIB_LIBRARIES 
+                        RecoBase
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}

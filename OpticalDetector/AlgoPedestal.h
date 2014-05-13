@@ -46,21 +46,21 @@ namespace pmtana
     virtual ~AlgoPedestal();
 
     /// Method to compute a pedestal of the input waveform using "nsample" ADC samples from "start" index.
-    void ComputePedestal(const std::vector<uint16_t>* wf, size_t start, size_t nsample);
+    void ComputePedestal(const std::vector<uint16_t>* wf, size_t start, size_t nsample) const;
 
     /// Getter of the pedestal mean value
-    double Mean(){return _mean;};
+    double Mean() const {return _mean;};
 
     /// Getter of the pedestal standard deviation
-    double Sigma() {return _sigma;};
+    double Sigma() const {return _sigma;};
 
   protected:
 
     /// A variable holder for pedestal mean value
-    double _mean;
+    mutable double _mean;
 
     /// A variable holder for pedestal standard deviation
-    double _sigma;
+    mutable double _sigma;
 
 
   };

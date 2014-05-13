@@ -32,7 +32,7 @@ namespace pmtana{
   {}
 
   //***************************************************************
-  bool PulseRecoManager::RecoPulse(const std::vector<uint16_t> *fifo)
+  bool PulseRecoManager::RecoPulse(const std::vector<uint16_t> *fifo) const
   //***************************************************************
   {
     bool status = true;
@@ -59,7 +59,7 @@ namespace pmtana{
 
     case kHEAD:
       
-      _ped_algo.ComputePedestal(fifo, 0, ped_nsample);
+      _ped_algo.ComputePedestal(&(*fifo), 0, ped_nsample);
       
       ped_mean = _ped_algo.Mean();
       
