@@ -209,8 +209,8 @@ namespace opdet{
 		     TrigCoinc);
 
 
-    //RemoveLateLight(FlashVector,
-    //		    RefinedHitsPerFlash);
+    RemoveLateLight(FlashVector,
+    		    RefinedHitsPerFlash);
 
     //Finally, write the association list
     //The transform adds a constant offset to the elements of each vector in RefinedHitsPerFlash
@@ -610,8 +610,7 @@ namespace opdet{
 
     std::vector<bool> MarkedForRemoval(RefinedHitsPerFlash.size(),false);
 
-    size_t NFlashesThisFrame = RefinedHitsPerFlash.size();
-    size_t BeginFlash = FlashVector.size() - NFlashesThisFrame;
+    size_t BeginFlash = FlashVector.size() - RefinedHitsPerFlash.size();
 
     recob::OpFlashSortByTime sort_flash_by_time;
     std::sort(FlashVector.begin()+BeginFlash,
@@ -633,9 +632,9 @@ namespace opdet{
 	double jWidth= FlashVector.at(jFlash).TimeWidth();
 	
 	// Calculate hypothetical PE if this were actually a late flash from i
-	//  Argon time const is 1600, so 100 samples.
-	double HypPE = iPE * jWidth / iWidth * exp(-(jTime-iTime)/100.);
-	double nsigma = (jPE-HypPE)/pow(HypPE,0.5);
+	//  Argon time const is 1600 ns, so 1.6.
+	double HypPE = iPE * jWidth / iWidth * std::exp(-(jTime-iTime)/1.6);
+	double nsigma = (jPE-HypPE)/std::sqrt(HypPE);
 	
 	// If smaller than, or within 2sigma of expectation,
 	//  attribute to late light and toss out
