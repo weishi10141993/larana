@@ -100,7 +100,7 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
     
 
     art::ServiceHandle<opdet::OpDigiProperties> odp;
-    const float ns_per_PMT_tick = ( 1e3 / odp->SampleFreq()) ; //SampleFreq is in MHz
+    const float ns_per_PMT_tick = 1e3;// already converted to microseconds//( 1e3 / odp->SampleFreq()) ; //SampleFreq is in MHz
     art::ServiceHandle<geo::Geometry> geometry_handle;
 
     match_flashes_to_particles(flash_vector,
@@ -229,12 +229,19 @@ void opreco::OpticalRecoAna::match_flashes_to_particles(std::vector<recob::OpFla
       
       const float flash_time = my_flash.Time()*ns_per_PMT_tick;
 
-      std::cout << "\tFlash " << i_flash << " time is " << flash_time << std::endl;
+      if(my_flash.OnBeamTime()) 
+	std::cout << "\tFlash " << i_flash << " time is " << flash_time << std::endl;
 
       fTimeDiff->Fill(particle_time-flash_time);
       fTimeDiff_fine->Fill(particle_time-flash_time);
       
-      if( std::abs(particle_time - flash_time ) < fTimeMatchMax){
+      if( std::abs(particle_time - flash_time ) < fTimeMatchMax && my_flash.OnBeamTime()){
+	
+	std::cout << "\t\tParticle (x,y,z)=(" << my_particle.Vx() << "," << my_particle.Vy() << "," << my_particle.Vz() << std::endl;
+	std::cout << "\t\tFlash (y,z) = (" 
+		  << my_flash.YCenter() << " +/- " << my_flash.YWidth() << ","
+		  << my_flash.ZCenter() << " +/- " << my_flash.ZWidth() << std::endl;
+
 	fFlash_match_vector.at(i_flash).particle_indices.push_back(i_particle);
 	fParticle_match_vector.at(i_particle).flash_indices.push_back(i_flash);
       }

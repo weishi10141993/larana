@@ -19,7 +19,7 @@ namespace opdet{
 		      double const& opdigi_TimeBegin,
 		      double const& opdigi_SampleFreq,
 		      optdata::TimeSlice_t const& trigger_frame_size,
-		      unsigned int& Frame, unsigned short& Sample)
+		      unsigned int& Frame, double& TrigTime)
   {
     // This code gets the trigger time from the BeamGateInfo
     //  Eventually it will be replaced with code to look in a 
@@ -40,7 +40,9 @@ namespace opdet{
       
       unsigned int ticks = (unsigned int)(start_time * opdigi_SampleFreq);
       Frame  = ticks / trigger_frame_size;
-      Sample = (unsigned short)(ticks - (Frame * trigger_frame_size));
+      //Sample = (unsigned short)(ticks - (Frame * trigger_frame_size));
+
+      TrigTime = start_time; //trigger time
 
     }
 
@@ -63,19 +65,16 @@ namespace opdet{
 		      float const& FlashThreshold,
 		      float const& WidthTolerance,
 		      unsigned int const& TrigFrame,
-		      unsigned int const& TrigSample,
+		      double const& TrigTimeAbs,
+		      double const& opdigi_SampleFreq,
 		      std::vector<double> const& SPESize,
 		      float const& TrigCoinc)
   {
     
-    std::cout << "Running flash finder alg..." << std::endl;
-
     std::map<unsigned short, std::vector<const optdata::FIFOChannel*> > FIFOChanByFrame;
     for(auto const& fifochannel : FIFOChannelVector)
       FIFOChanByFrame[fifochannel.Frame()].push_back(&fifochannel);
     
-    std::cout << "Now going to process frames." << std::endl;
-
     for(auto fifoframe : FIFOChanByFrame)
       ProcessFrame(fifoframe.first,
 		   fifoframe.second,
@@ -92,12 +91,11 @@ namespace opdet{
 		   FlashThreshold,
 		   WidthTolerance,
 		   TrigFrame,
-		   TrigSample,
+		   TrigTimeAbs,
+		   opdigi_SampleFreq,
 		   SPESize,
 		   TrigCoinc);
     
-    std::cout << "Finished flash finder alg!" << std::endl;
-
   }
   
   //-------------------------------------------------------------------------------------------------
@@ -116,13 +114,12 @@ namespace opdet{
 		    float const& FlashThreshold,
 		    float const& WidthTolerance,
 		    unsigned int const& TrigFrame,
-		    unsigned int const& TrigTime,
+		    double const& TrigTimeAbs,
+		    double const& opdigi_SampleFreq,
 		    std::vector<double> const& SPESize,
 		    float const& TrigCoinc)
 
   {
-
-    std::cout << "Processing frame " << Frame << std::endl;
 
     // These are the accumulators which will hold broad-binned light yields
     std::vector<double>  Binned1((TimeSlicesPerFrame + BinWidth)/BinWidth);
@@ -142,14 +139,8 @@ namespace opdet{
 
     for(auto const& fifo_ptr : FIFOChannelFramePtrVector){
 
-      std::cout << "Made it here ... " << std::endl;
-
-      std::cout << "\tWant to grab channel " << fifo_ptr->ChannelNumber() << std::endl;
-
       const int Channel = ChannelMap.at((int)fifo_ptr->ChannelNumber());
       const uint32_t TimeSlice = fifo_ptr->TimeSlice();
-
-      std::cout << "\tRunning channel " << Channel << std::endl;
 
       if( Channel<0 || Channel > int(NOpChannels) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
@@ -173,7 +164,8 @@ namespace opdet{
 		    HitThreshold,
 		    FlashThreshold,
 		    TrigFrame,
-		    TrigTime,
+		    TrigTimeAbs,
+		    opdigi_SampleFreq,
 		    SPESize.at(Channel),
 		    Binned1, Binned2,
 		    Contributors1, Contributors2,
@@ -181,8 +173,6 @@ namespace opdet{
       
     }//end loop over FIFO channels in frame
 
-    std::cout << "Made all our hits!" << std::endl;
-    
     //Now start to create flashes
     //First, need vector to keep track of which hits belong to which flashes
     std::vector< std::vector<int> > HitsPerFlash;
@@ -199,8 +189,6 @@ namespace opdet{
 		      HitsPerFlash,
 		      FlashThreshold);
 
-    std::cout << "Assigned hits to flashes!" << std::endl;
-
     // Now we do the fine grained part.  
     // Subdivide each flash into sub-flashes with overlaps within hit widths (assumed wider than photon travel time)
     std::vector<std::vector<int> > RefinedHitsPerFlash;
@@ -209,8 +197,6 @@ namespace opdet{
 		      RefinedHitsPerFlash,
 		      WidthTolerance,
 		      FlashThreshold);
-
-    std::cout << "Refined hits to flashes!" << std::endl;
 
     //Now we have all our hits assigned to a flash. Make the recob::OpFlash objects.
     ConstructFlashes(RefinedHitsPerFlash,
@@ -223,10 +209,8 @@ namespace opdet{
 		     TrigCoinc);
 
 
-    RemoveLateLight(FlashVector,
-		    RefinedHitsPerFlash);
-
-    std::cout << "Made flashes!" << std::endl;
+    //RemoveLateLight(FlashVector,
+    //		    RefinedHitsPerFlash);
 
     //Finally, write the association list
     //The transform adds a constant offset to the elements of each vector in RefinedHitsPerFlash
@@ -236,8 +220,6 @@ namespace opdet{
 	HitIndex += NHits_prev;
       AssocList.push_back(HitIndicesThisFlash);
     }
-    
-    std::cout << "Done with frame!!!" << std::endl;
     
   }//end ProcessFrame
 
@@ -252,7 +234,8 @@ namespace opdet{
 		     float const& HitThreshold,
 		     float const& FlashThreshold,
 		     unsigned int const& TrigFrame,
-		     unsigned int const& TrigTime,
+		     double const& TrigTimeAbs,
+		     double const& opdigi_SampleFreq,
 		     double const& SPESize,
 		     std::vector<double> & Binned1,
 		     std::vector<double> & Binned2,
@@ -272,14 +255,28 @@ namespace opdet{
       double TMax  = ThreshAlg.GetPulse(k)->t_max;
       double Width = ThreshAlg.GetPulse(k)->t_end - ThreshAlg.GetPulse(k)->t_start;
       double Area  = ThreshAlg.GetPulse(k)->area;
-      double AbsTime = TMax + TimeSlice;
-      double RelTime = AbsTime - (double)TrigTime;
-      RelTime += ((double)Frame - (double)TrigFrame)*TimeSlicesPerFrame;
+      double AbsTime = (TMax + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
+      double RelTime = AbsTime - TrigTimeAbs;
       double PE = Peak/SPESize;
-      
+
+      /*
+      std::cout << "Time summary for this hit:"
+		<< "\n\tTMax: " << TMax
+		<< "\n\tWidth: " << Width
+		<< "\n\tArea: " << Area
+		<< "\n\tPeak: " << Peak
+		<< "\n\tTimeSlice: " << TimeSlice
+		<< "\n\tAbsTime: " << AbsTime
+		<< "\n\tTrigTime: " << TrigTimeAbs
+		<< "\n\tFrame: " << Frame
+		<< "\n\tTimeSlicesPerFrame: " << TimeSlicesPerFrame
+		<< "\n\tRelTime: " << RelTime
+		<< "\n\tSampleFreq: " << opdigi_SampleFreq
+		<< "\n\tPE: " << PE << std::endl;
+      */
       HitVector.emplace_back( Channel,
-			      AbsTime,
 			      RelTime,
+			      AbsTime,
 			      Frame,
 			      Width,
 			      Area,
@@ -325,7 +322,6 @@ namespace opdet{
 			  float const& FlashThreshold)
   {
 
-    std::cout << "Starting to assign hits" << std::endl;
     size_t NHits_prev = HitVector.size() - NHits;
 
     // Sort all the flashes found by size. The structure is:
@@ -338,8 +334,6 @@ namespace opdet{
     for( auto const& flash : FlashesInAccumulator2)
       FlashesBySize[Binned2.at(flash)][2].push_back(flash);
   
-    std::cout << "Flashes sorted!" << std::endl;
-
     // This keeps track of which hits are claimed by which flash
     std::vector<int > HitClaimedByFlash(NHits,-1);
 
@@ -349,19 +343,13 @@ namespace opdet{
     // Walk through flashes in size order, largest to smallest
     for(auto const& itFlash : FlashesBySize){
 
-      std::cout << "L1" << std::endl;
-
       // If several with same size, walk walk through accumulators
       for(auto const& itAcc : itFlash.second){
-
-	std::cout << "L2" << std::endl;
 
 	  int Accumulator = itAcc.first;
 	  
 	  // Walk through flash-tagged bins in this accumulator
 	  for(auto const& Bin : itAcc.second){
-
-	    std::cout << "L3" << std::endl;
 
 	    std::vector<int>   HitsThisFlash;
 
@@ -369,8 +357,6 @@ namespace opdet{
 
 	      // for each hit in the flash
 	      for(auto const& HitIndex : Contributors1.at(Bin)){
-
-		std::cout << "L4 --- " << HitIndex << " " << NHits << std::endl;
 
 		// if unclaimed, claim it
 		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
@@ -381,8 +367,6 @@ namespace opdet{
 	      // for each hit in the flash
 	      for(auto const& HitIndex : Contributors2.at(Bin)){
 		
-		std::cout << "L5 --- " << HitIndex << " " << NHits << std::endl;
-
 		// if unclaimed, claim it
 		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
 		  HitsThisFlash.push_back(HitIndex);
@@ -393,12 +377,8 @@ namespace opdet{
 	    for(auto const& Hit : HitsThisFlash)
 	      PE += HitVector.at(Hit).PE();
 	    
-	    std::cout << "PE is now " << PE << std::endl;
-
 	    // if it still gets over threshold
 	    if(PE >= FlashThreshold){
-	      
-	      std::cout << "PE above threshold " << PE << std::endl;
 	      
 	      // add the flash to the list
 	      HitsPerFlash.push_back(HitsThisFlash);
@@ -523,7 +503,7 @@ namespace opdet{
 
     for(auto const& HitsPerFlashVec : RefinedHitsPerFlash){
 
-      double MaxTime = -100, MinTime = TimeSlicesPerFrame;
+      double MaxTime = -1e9, MinTime = 1e9;
 
       std::vector<double> PEs(geom.NOpChannels());
       unsigned int Nplanes = geom.Nplanes();
@@ -592,7 +572,17 @@ namespace opdet{
       
       int OnBeamTime =0; 
       if( std::abs(AveTime) < TrigCoinc ) OnBeamTime=1;
-
+      /*
+      std::cout << "Time summary for this flash:"
+		<< "\n\tAveTime: " << AveTime
+		<< "\n\tAveAbsTime: " << AveAbsTime
+		<< "\n\tTotalPE: " << TotalPE
+		<< "\n\tmeany,widthy: " << meany << "," << widthy
+		<< "\n\tmeanz,widthz: " << meanz << "," << widthz
+		<< "\n\tFrame: " << Frame
+		<< "\n\tInBeamFrame: " << InBeamFrame
+		<< "\n\tOnBeamTime: " << OnBeamTime << std::endl;
+      */
       FlashVector.emplace_back( AveTime,
 				TimeWidth,
 				AveAbsTime,

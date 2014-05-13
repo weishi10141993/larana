@@ -78,7 +78,7 @@ namespace opdet {
     Float_t fFlashThreshold;
     Float_t fHitThreshold;
     Float_t fWidthTolerance;
-    Float_t fTrigCoinc;
+    Double_t fTrigCoinc;
     
 
     unsigned int fNplanes;
@@ -134,7 +134,7 @@ namespace opdet {
     fBinWidth       = pset.get<int>          ("BinWidth");
     fFlashThreshold = pset.get<float>        ("FlashThreshold");
     fWidthTolerance = pset.get<float>        ("WidthTolerance");
-    fTrigCoinc      = pset.get<float>        ("TrigCoinc");
+    fTrigCoinc      = pset.get<double>       ("TrigCoinc");
     fHitThreshold   = pset.get<float>        ("HitThreshold");
     
 
@@ -192,7 +192,7 @@ namespace opdet {
 
     // Find out when the trigger happened 
     unsigned int   TrigFrame = 2;
-    unsigned short TrigTime = 0;
+    double TrigTime = 0;
     GetTriggerTime(beamGateArray,
 		   opdigi->TimeBegin(),
 		   opdigi->SampleFreq(),
@@ -223,6 +223,7 @@ namespace opdet {
 		   fWidthTolerance,
 		   TrigFrame,
 		   TrigTime,
+		   opdigi->SampleFreq(),
 		   fSPESize,
 		   fTrigCoinc);
 

@@ -244,7 +244,7 @@ standard_opflash:
    FlashThreshold:   2
    HitThreshold:     0.2 
    WidthTolerance:   0.5
-   TrigCoinc:        2
+   TrigCoinc:        2.5 #in microseconds!
    reco_man:         @local::standard_preco_manager
    algo_threshold:   @local::standard_algo_threshold
 }

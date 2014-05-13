@@ -24,7 +24,7 @@ namespace opdet{
 		      double const&,
 		      double const&,
 		      optdata::TimeSlice_t const&,
-		      unsigned int&, unsigned short&);
+		      unsigned int&, double&);
 
   void RunFlashFinder(std::vector<optdata::FIFOChannel> const&,
 		      std::vector<recob::OpHit>&,
@@ -40,7 +40,8 @@ namespace opdet{
 		      float const&,
 		      float const&,
 		      unsigned int const&,
-		      unsigned int const&,
+		      double const&,
+		      double const&,
 		      std::vector<double> const&,
 		      float const&);
   
@@ -59,7 +60,8 @@ namespace opdet{
 		    float const&,
 		    float const&,
 		    unsigned int const&,
-		    unsigned int const&,
+		    double const&,
+		    double const&,
 		    std::vector<double> const&,
 		    float const&);
 
@@ -73,7 +75,8 @@ namespace opdet{
 		     float const&,
 		     float const&,
 		     unsigned int const&,
-		     unsigned int const&,
+		     double const&,
+		     double const&,
 		     double const&,
 		     std::vector<double> &,
 		     std::vector<double> &,
