@@ -61,6 +61,7 @@ namespace opreco {
     std::vector<particle_match> fParticle_match_vector;
 
     void get_MC_particle_list(sim::ParticleList const& ,std::vector<simb::MCParticle> & );
+    simb::Origin_t get_MC_particle_origin(simb::MCParticle const& );
     float update_MC_particle_time(simb::MCParticle const&, bool& ,geo::Geometry const&);
 
     //matching functions

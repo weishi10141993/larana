@@ -171,7 +171,10 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
   
 }
 
-
+simb::Origin_t opreco::OpticalRecoAna::get_MC_particle_origin(simb::MCParticle const& particle){
+  art::ServiceHandle<cheat::BackTracker> bt;
+  return (bt->TrackIDToMCTruth(particle.TrackId()))->Origin();
+}
 
 void opreco::OpticalRecoAna::get_MC_particle_list(sim::ParticleList const& plist,std::vector<simb::MCParticle> & particle_vector) {
   
@@ -317,11 +320,11 @@ void opreco::OpticalRecoAna::match_flashes_to_particles(std::vector<recob::OpFla
       fFlashZWidth = my_flash.ZWidth();
       fFlashPE = my_flash.TotalPE();
       fFlashOnBeamTime = my_flash.OnBeamTime();
-      
-      bool beam_match = (std::abs(particle_time - flash_time )/fFlashTimeWidth < fTimeMatchMax && 
-			 my_particle.Mother()==0 && my_particle.TrackId()>1e4);
-      bool nonbeam_match = (std::abs(particle_time - flash_time )/fFlashTimeWidth < fTimeMatchMax && 
-			    !(my_particle.Mother()==0 && my_particle.TrackId()>1e4));
+
+      bool beam_match = ((std::abs(particle_time - flash_time )/fFlashTimeWidth)<fTimeMatchMax &&
+			 get_MC_particle_origin(my_particle)==simb::kBeamNeutrino);
+      bool nonbeam_match = ((std::abs(particle_time - flash_time )/fFlashTimeWidth)<fTimeMatchMax && 
+			    get_MC_particle_origin(my_particle)!=simb::kBeamNeutrino);
 
       if( beam_match ){	
 	fMatchTree_PF->Fill();
