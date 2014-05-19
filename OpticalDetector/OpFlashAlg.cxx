@@ -11,6 +11,8 @@
 #include "cetlib/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Geometry/OpDetGeo.h"
+#include "TH1D.h"
+#include "TFile.h"
 
 namespace opdet{
 
@@ -99,6 +101,27 @@ namespace opdet{
   }
   
   //-------------------------------------------------------------------------------------------------
+  void writeHistogram(std::vector<double> const& binned){
+
+    TH1D *binned_histogram = new TH1D("binned_histogram","Collection of All OpHits;Time (ms);PEs",binned.size(),0,binned.size());
+    for(size_t i=0; i<binned.size(); i++)
+      binned_histogram->SetBinContent(i,binned.at(i));
+
+    TFile f_out("output_hist.root","RECREATE");
+    binned_histogram->Write();
+    f_out.Close();
+
+    delete binned_histogram;
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void checkOnBeamFlash(std::vector<recob::OpFlash> const& FlashVector){
+    for(auto const& flash : FlashVector){
+      if(flash.OnBeamTime()==1) std::cout << "OnBeamFlash with time " <<  flash.Time() << std::endl;;
+    }
+  }
+
+  //-------------------------------------------------------------------------------------------------
   void ProcessFrame(unsigned short Frame,
 		    std::vector<const optdata::FIFOChannel*> const& FIFOChannelFramePtrVector,
 		    std::vector<recob::OpHit>& HitVector,
@@ -121,13 +144,15 @@ namespace opdet{
 
   {
 
+    //The +3000 here is microboone specific, to account for the beam-gate window size.
+
     // These are the accumulators which will hold broad-binned light yields
-    std::vector<double>  Binned1((TimeSlicesPerFrame + BinWidth)/BinWidth);
-    std::vector<double>  Binned2((TimeSlicesPerFrame + BinWidth)/BinWidth);
+    std::vector<double>  Binned1((TimeSlicesPerFrame + 3000 + BinWidth)/BinWidth);
+    std::vector<double>  Binned2((TimeSlicesPerFrame + 3000 + BinWidth)/BinWidth);
     
     // These will keep track of which pulses put activity in each bin
-    std::vector<std::vector<int> > Contributors1((TimeSlicesPerFrame + BinWidth)/BinWidth);
-    std::vector<std::vector<int> > Contributors2((TimeSlicesPerFrame + BinWidth)/BinWidth);
+    std::vector<std::vector<int> > Contributors1((TimeSlicesPerFrame + 3000 + BinWidth)/BinWidth);
+    std::vector<std::vector<int> > Contributors2((TimeSlicesPerFrame + 3000 + BinWidth)/BinWidth);
     
     // These will keep track of where we have met the flash condition
     //  (in order to prevent second pointless loop)
@@ -178,6 +203,8 @@ namespace opdet{
     std::vector< std::vector<int> > HitsPerFlash;
     size_t NHitsThisFrame = HitVector.size() - NHits_prev;
     
+    //if(Frame==1) writeHistogram(Binned1);
+
     AssignHitsToFlash(FlashesInAccumulator1,
 		      FlashesInAccumulator2,
 		      Binned1,
@@ -212,6 +239,8 @@ namespace opdet{
     RemoveLateLight(FlashVector,
     		    RefinedHitsPerFlash);
 
+    //checkOnBeamFlash(FlashVector);
+
     //Finally, write the association list
     //The transform adds a constant offset to the elements of each vector in RefinedHitsPerFlash
     //back_inserter tacks the result onto the end of AssocList
@@ -222,6 +251,7 @@ namespace opdet{
     }
     
   }//end ProcessFrame
+
 
   //-------------------------------------------------------------------------------------------------
   void ConstructHits(int const& Channel,
@@ -286,9 +316,9 @@ namespace opdet{
       
       int HitIndex = HitVector.size()-1;
       
-      size_t Accum1Index = int(TimeSlice  / BinWidth);
-      size_t Accum2Index = int((TimeSlice + BinWidth/2)/BinWidth);
-      
+      size_t Accum1Index = int( (TMax+TimeSlice)  / BinWidth);
+      size_t Accum2Index = int(( (TMax+TimeSlice) + BinWidth/2)/BinWidth);
+
       (Contributors1.at(Accum1Index)).push_back(HitIndex);
       (Contributors2.at(Accum2Index)).push_back(HitIndex);
       
