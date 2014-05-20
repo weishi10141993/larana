@@ -20,6 +20,7 @@
 #include "Geometry/Geometry.h"
 
 #include "TH1.h"
+#include "TTree.h"
 
 namespace opreco {
 
@@ -60,6 +61,7 @@ namespace opreco {
     std::vector<particle_match> fParticle_match_vector;
 
     void get_MC_particle_list(sim::ParticleList const& ,std::vector<simb::MCParticle> & );
+    simb::Origin_t get_MC_particle_origin(simb::MCParticle const& );
     float update_MC_particle_time(simb::MCParticle const&, bool& ,geo::Geometry const&);
 
     //matching functions
@@ -87,8 +89,39 @@ namespace opreco {
 				    bool &,
 				    geo::Geometry const&);    
 
+    void FillMatchTree_PF(std::vector<recob::OpFlash> const&, 
+			  std::vector<simb::MCParticle> const&,
+			  float const&,
+			  geo::Geometry const&);
+
+
     TH1F *fTimeDiff;
     TH1F *fTimeDiff_fine;
+    TH1I *fNBeamFlashes;
+    
+    TTree *fMatchTree_PF;
+    TTree *fMatchTree_PF_NotNu;
+    int fRun;
+    int fEvent;
+    int fParticleID;
+    int fParticleMother;
+    int fParticleTrackID;
+    float fParticleTime;
+    float fParticleVx;
+    float fParticleVy;
+    float fParticleVz;
+    int fFlashID;
+    float fFlashTime;
+    float fFlashTimeWidth;
+    float fFlashY;
+    float fFlashZ;
+    float fFlashYWidth;
+    float fFlashZWidth;
+    float fFlashPE;
+    int fFlashOnBeamTime;
+    int fMatchIndex;
+    int fMatchIndex_NotNu;
+
   };
 
 } 
