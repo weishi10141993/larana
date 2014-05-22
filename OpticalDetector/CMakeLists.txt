@@ -6,6 +6,8 @@ art_make( BASENAME_ONLY
           LIBRARY_NAME OpticalDetector
           LIB_LIBRARIES 
                         RecoBase
+                        Geometry
+                        Geometry_service
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -24,6 +26,7 @@ art_make( BASENAME_ONLY
           MODULE_LIBRARIES OpDigiProperties_service
 	                OpticalDetector
                         PhotonVisibilityService_service
+			BackTracker_service
                         Filters
                         RecoObjects
                         RecoBase
