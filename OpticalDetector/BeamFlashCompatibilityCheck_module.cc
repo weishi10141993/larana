@@ -13,7 +13,8 @@
 
 
 #include "art/Framework/Core/EDProducer.h"
-#include "AnalysisBase/FlashMatch.h"
+//#include "AnalysisBase/FlashMatch.h"
+#include "AnalysisBase/CosmicTag.h"
 
 
 // ROOT includes.
@@ -139,8 +140,8 @@ namespace opdet {
   BeamFlashCompatabilityCheck::BeamFlashCompatabilityCheck(fhicl::ParameterSet const& pset)
   {
 
-    produces< std::vector<anab::FlashMatch> >();
-    produces< art::Assns<recob::Track, anab::FlashMatch> >();
+    produces< std::vector<anab::CosmicTag> >();
+    produces< art::Assns<recob::Track, anab::CosmicTag> >();
 
     this->reconfigure(pset);
    }
@@ -263,6 +264,8 @@ namespace opdet {
     art::ServiceHandle<geo::Geometry> geom;
     size_t NOpDets = geom->NOpDet();
     
+    std::vector<bool> Compatible(TrackHypotheses.size(),false);
+
     for(size_t f=0; f!=Flashes.size(); ++f)
       {
 	if(Flashes.at(f)->OnBeamTime())
@@ -271,43 +274,43 @@ namespace opdet {
 	    for(size_t i=0; i!=NOpDets; ++i)
 	      ThisFlashShape[i]=Flashes.at(f)->PE(i);
 	    FlashShapes.push_back(ThisFlashShape);
-	  }
-      }
 
-
-    // This will hold the list of matches
-    std::vector<anab::FlashMatch> Matches;
-
-    
-    std::vector<bool> Compatible(TrackHypotheses.size(),false);
-    for(size_t i=0; i!=TrackHypotheses.size(); ++i)
-      {
-	for(size_t j=0; j!=FlashShapes.size(); ++j)	    
-	  {
-	    if(CheckCompatibility(TrackHypotheses.at(i),FlashShapes.at(j))) 
+	    for(size_t i=0; i!=TrackHypotheses.size(); ++i)
 	      {
-		Compatible[i]=true;
+		if(CheckCompatibility(TrackHypotheses.at(i),ThisFlashShape)) 
+		  {
+		    Compatible[i]=true;
+		  }
 	      }
 	  }
-	if(!Compatible[i])  Matches.push_back(anab::FlashMatch(-1,-1,i,false)); 
       }
-    
 
-    std::unique_ptr< std::vector<anab::FlashMatch> > flash_matches ( new std::vector<anab::FlashMatch>);
-    std::unique_ptr< art::Assns<recob::Track, anab::FlashMatch > > assn_track( new art::Assns<recob::Track, anab::FlashMatch>);
+    std::unique_ptr< std::vector<anab::CosmicTag> > CosmicTagPtr ( new std::vector<anab::CosmicTag>);
+    std::vector<anab::CosmicTag> & CosmicTagVector(*CosmicTagPtr);
 
-    for(size_t i=0; i!=Matches.size(); ++i)
-      {
-	std::cout<<"Storing negative match for " << Matches.at(i).SubjectID()<<std::endl;
-	
-	flash_matches->push_back(Matches.at(i));
-	
-	util::CreateAssn(*this, evt, *(flash_matches.get()), Tracks.at(Matches.at(i).SubjectID()), *(assn_track.get()), i); 
+    std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > > assn_track( new art::Assns<recob::Track, anab::CosmicTag>);
 
-      }
-    
+    float cosmic_score;
+    double xyz_begin[3];
+    double xyz_end[3];
+    for(size_t itrack=0; itrack<BTracks.size(); itrack++){
+      
 
-    evt.put(std::move(flash_matches));
+      if(Compatible.at(itrack)) cosmic_score = 0; //not a cosmic
+      else if(!Compatible.at(itrack)) cosmic_score = 1; //is a cosmic
+      
+      BTracks.at(itrack)->GetTrackPoint(0,xyz_begin); //load in beginning point
+      std::vector<float> endPt1 = { (float)xyz_begin[0], (float)xyz_begin[1], (float)xyz_begin[2] };
+      BTracks.at(itrack)->GetTrackPoint(1,xyz_end); //load in ending point
+      std::vector<float> endPt2 = { (float)xyz_end[0], (float)xyz_end[1], (float)xyz_end[2] };
+
+      CosmicTagVector.emplace_back(endPt1,endPt2,cosmic_score,10); //use 10 as type for now for flash-track matching
+      util::CreateAssn(*this, evt, *(CosmicTagPtr.get()), Tracks.at(itrack), *(assn_track.get()), itrack); 
+
+    }
+
+
+    evt.put(std::move(CosmicTagPtr));
     evt.put(std::move(assn_track));
 
     
