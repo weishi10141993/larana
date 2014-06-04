@@ -33,7 +33,7 @@ namespace pmtana
   public:
 
     /// Default constructor
-    AlgoThreshold(fhicl::ParameterSet const& pset);
+    AlgoThreshold();
 
     /// Default destructor
     virtual ~AlgoThreshold();
