@@ -86,6 +86,8 @@ namespace microboone {
 			      std::vector< int > &hitsVector,
 			     std::vector < std::vector<int> > &originVector, 
 			     float &cOverA, float &dOverB );
+			     
+    void FillTrackTree( art::Ptr<anab::CosmicTag> &currentTag, float CosmicScore, const art::Event& evt);
 
     unsigned int nCosmicTags;
     
@@ -280,7 +282,9 @@ void microboone::CosmicRemovalAna::beginJob()
 
     }
   
-
+  // ##################################################
+  // ### Setting up TTree for Track based CosmicTag ###
+  // ##################################################
   tTreeTrack = tfs->make<TTree>("CosmicTree","CosmicTree");
   tTreeTrack->Branch("eventNumber", &cTrack.eventNumber, "eventNumber/I");
   tTreeTrack->Branch("tagType"	  , &cTrack.tagType    , "tagType/I");
@@ -364,7 +368,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   int ntimethrough = 0;
   int nBadHits=0;
   int nTaggedHits = 0;
-   // ###########################################
+  // ###########################################
   // ### Looping over hits to get TrackIDE's ###
   // ###########################################
   for ( auto const& itr : hitlist )
@@ -441,8 +445,6 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   // #################################################
   // ### Picking up track information on the event ###
   // #################################################
-
-
   art::Handle< std::vector<recob::Track> > trackh; //<---Track Handle
   evt.getByLabel(fTrackModuleLabel,trackh);
   std::vector<art::Ptr<recob::Track> > tracklist;//<---Ptr Vector
@@ -455,8 +457,6 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   // ###################################################	
   art::Handle< std::vector<recob::Cluster> > clusterh; //<---Cluster Handle
   evt.getByLabel(fClusterModuleLabel, clusterh); 
-  
-
   std::vector<art::Ptr<recob::Cluster> > clusterlist;//<---Ptr Vector
   art::fill_ptr_vector(clusterlist,clusterh);//<---Fill the vector
 
@@ -531,6 +531,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   for(unsigned int nCT = 0; nCT < nCosmicTags; nCT++)//<---This loops over the vector of cosmicTags in stored in the event
     {
       
+
       TaggedHitIDs.clear();
       
       try{ //<---Putting in a try/catch in case no tags are found
@@ -599,44 +600,9 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 	    //std::cerr << "debugging... " << TrkMatchToCosmicTag << ", hit ids are ";
 	    //for(size_t i=0; i!=TrkHit.at(trk).size(); ++ i) std::cerr << " " << TrkHit.at(trk).at(i).id() << " " << TrkHit.at(trk).at(i).key();
 	    //std::cerr << std::endl;
-
-	    cTrack.eventNumber = -1;
-	    cTrack.tagType     = -1;
-	    cTrack.x0          = -1;	   
-	    cTrack.x1          = -1;
-	    cTrack.y0          = -1;
-	    cTrack.y1          = -1;
-	    cTrack.z0          = -1;
-	    cTrack.z1          = -1;
-	    cTrack.nHits       = -1;
-	    cTrack.nGoodHits   = -1;
-	    cTrack.origin      = -1;
-	    cTrack.score       = -1;
-	    cTrack.pdg         = -999;
-	    cTrack.energy      = -999;
-
+	    FillTrackTree(currentTag, Score, evt);
 	    
-	    cTrack.eventNumber = evt.event();
-	    cTrack.tagType     = currentTag->CosmicType();
-	    cTrack.x0          = currentTag->endPt1[0];
-	    cTrack.x1          = currentTag->endPt2[0];
-	    cTrack.y0          = currentTag->endPt1[1];
-	    cTrack.y1          = currentTag->endPt2[1];
-	    cTrack.z0          = currentTag->endPt1[2];
-	    cTrack.z1          = currentTag->endPt2[2];
-	    cTrack.nHits       = -1;//anotherCounter; 
-	    cTrack.nGoodHits   = -1;//numberGoodEvID; 
-//	    int count1s = count( tempOrigin.begin(), tempOrigin.end(), 1);
-//	    int count2s = count( tempOrigin.begin(), tempOrigin.end(), 2);
-//	    std::cerr << "----- COUNTS: nu: " << count1s << " cosmic: " << count2s << " position: " <<  currentTag->endPt1[0]<< " " << currentTag->endPt2[0] << " " ;
-//	    int majorityOrigin = -1;
-//	    if(tempOrigin.size()>0) majorityOrigin = count1s > count2s ? 1 : 2;
-//	    std::cerr << "majority origin " << majorityOrigin << std::endl;
-	    cTrack.origin   = -1;//majorityOrigin;	    
-	    cTrack.score = Score;
-	    cTrack.pdg    = -999;
-	    cTrack.energy = -999;
-	    tTreeTrack->Fill();
+	    
 
 	  }//<---end trk loop
       }
@@ -971,6 +937,52 @@ void microboone::CosmicRemovalAna::GetNewOverlapScore( std::vector< float > &sco
   cEvent.B = countB;
   cEvent.C = countC;
   cEvent.D = countD;
+
+}
+
+
+void microboone::CosmicRemovalAna::FillTrackTree(art::Ptr<anab::CosmicTag> &currentTag, float CosmicScore, const art::Event& evt)
+{
+    cTrack.eventNumber = -1;
+    cTrack.tagType     = -1;
+    cTrack.x0          = -1;	   
+    cTrack.x1          = -1;
+    cTrack.y0          = -1;
+    cTrack.y1          = -1;
+    cTrack.z0          = -1;
+    cTrack.z1          = -1;
+    cTrack.nHits       = -1;
+    cTrack.nGoodHits   = -1;
+    cTrack.origin      = -1;
+    cTrack.score       = -1;
+    cTrack.pdg         = -999;
+    cTrack.energy      = -999;
+
+	    
+    cTrack.eventNumber = evt.event();
+    cTrack.tagType     = currentTag->CosmicType();
+    cTrack.x0          = currentTag->endPt1[0];
+    cTrack.x1          = currentTag->endPt2[0];
+    cTrack.y0          = currentTag->endPt1[1];
+    cTrack.y1          = currentTag->endPt2[1];
+    cTrack.z0          = currentTag->endPt1[2];
+    cTrack.z1          = currentTag->endPt2[2];
+    cTrack.nHits       = -1;//anotherCounter; 
+    cTrack.nGoodHits   = -1;//numberGoodEvID; 
+//	    int count1s = count( tempOrigin.begin(), tempOrigin.end(), 1);
+//	    int count2s = count( tempOrigin.begin(), tempOrigin.end(), 2);
+//	    std::cerr << "----- COUNTS: nu: " << count1s << " cosmic: " << count2s << " position: " <<  currentTag->endPt1[0]<< " " << currentTag->endPt2[0] << " " ;
+//	    int majorityOrigin = -1;
+//	    if(tempOrigin.size()>0) majorityOrigin = count1s > count2s ? 1 : 2;
+//	    std::cerr << "majority origin " << majorityOrigin << std::endl;
+    cTrack.origin   = -1;//majorityOrigin;	    
+    cTrack.score = CosmicScore;
+    cTrack.pdg    = -999;
+    cTrack.energy = -999;
+    tTreeTrack->Fill();
+
+
+
 
 }
 //-------------------------------------------------------
