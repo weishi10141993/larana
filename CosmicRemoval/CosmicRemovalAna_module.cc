@@ -94,6 +94,11 @@ namespace microboone {
     std::vector<TH1D*> fCosmicScoresPerCT;
     std::vector<TH1D*> fFractionChargeTaggedPerCT_Cosmic;
     std::vector<TH1D*> fFractionChargeTaggedPerCT_NonCosmic;
+    std::vector<TH1D*> fFractionChargeTaggedPerCT_Cosmic_TrackNorm;
+    std::vector<TH1D*> fFractionChargeTaggedPerCT_NonCosmic_TrackNorm;
+    std::vector<TH1D*> fFractionChargeTaggedPerCT_Cosmic_ClusterNorm;
+    std::vector<TH1D*> fFractionChargeTaggedPerCT_NonCosmic_ClusterNorm;
+
     TH1D * fNAlgsRejected60_Cosmic;
     TH1D * fNAlgsRejected60_NonCosmic;
     TH1D * fNAlgsRejected80_Cosmic;
@@ -208,11 +213,11 @@ void microboone::CosmicRemovalAna::beginJob()
   fTotalCharge_Cosmic = (TH1D*)tfs->make<TH1D>("TotalChargeCosmic", "Total Hit Charge for True Cosmic Particles; Charge; N", 100,0,TotalChargeLimit);
   fTotalCharge_NonCosmic = (TH1D*)tfs->make<TH1D>("TotalChargeNonCosmic", "Total Hit Charge for True NonCosmic Particles; Charge; N", 100,0,TotalChargeLimit);
 
-  fTrackedFraction_Cosmic = (TH1D*)tfs->make<TH1D>("TrackedFractionCosmic", "Tracked Hit Charge Fraction for True Cosmic Particles; Charge; N", 100,0,1.5);
-  fTrackedFraction_NonCosmic = (TH1D*)tfs->make<TH1D>("TrackedFractionNonCosmic", "Tracked Charge Fraction for True NonCosmic Particles; Charge; N", 100,0,1.5);
+  fTrackedFraction_Cosmic = (TH1D*)tfs->make<TH1D>("TrackedFractionCosmic", "Tracked Hit Charge Fraction for True Cosmic Particles; Charge; N", 100,0,1.1);
+  fTrackedFraction_NonCosmic = (TH1D*)tfs->make<TH1D>("TrackedFractionNonCosmic", "Tracked Charge Fraction for True NonCosmic Particles; Charge; N", 100,0,1.1);
 
-  fClusteredFraction_Cosmic = (TH1D*)tfs->make<TH1D>("ClusteredFractionCosmic", "Clustered Hit Charge Fraction for True Cosmic Particles; Charge; N", 100,0,1.5);
-  fClusteredFraction_NonCosmic = (TH1D*)tfs->make<TH1D>("ClusteredFractionNonCosmic", "Clustered Charge Fraction for True NonCosmic Particles; Charge; N", 100,0, 1.5);
+  fClusteredFraction_Cosmic = (TH1D*)tfs->make<TH1D>("ClusteredFractionCosmic", "Clustered Hit Charge Fraction for True Cosmic Particles; Charge; N", 100,0,1.1);
+  fClusteredFraction_NonCosmic = (TH1D*)tfs->make<TH1D>("ClusteredFractionNonCosmic", "Clustered Charge Fraction for True NonCosmic Particles; Charge; N", 100,0, 1.1);
 
   fTPCCosmicType = (TH1F*)tfs->make<TH1F>("fTPCCosmicType","TPC Cosmic Type", 5, -0.5, 4.5);
   
@@ -235,13 +240,46 @@ void microboone::CosmicRemovalAna::beginJob()
       sname<<"FractionTaggedCosmicFor"<<fCosmicTagAssocLabel.at(i);
       stitle<<"Fraction of Cosmic Charge Tagged as Cosmic For " << fCosmicTagAssocLabel.at(i)<<"; Frac; N";
       fFractionChargeTaggedPerCT_Cosmic.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 101,0,1.01));	  
-      
+
       sname.str("");  sname.flush();
       stitle.str(""); stitle.flush();
-      
+				    
       sname<<"FractionTaggedNonCosmicFor"<<fCosmicTagAssocLabel.at(i);
       stitle<<"Fraction of NonCosmic Charge Tagged as Cosmic For " << fCosmicTagAssocLabel.at(i)<<"; Frac; N";
-      fFractionChargeTaggedPerCT_NonCosmic.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 101,0,1.01));												   
+      fFractionChargeTaggedPerCT_NonCosmic.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 101,0,1.01));		
+
+
+      // Now declare the ones normalized to clustered and tracked charge
+
+      sname.str("");  sname.flush();
+      stitle.str(""); stitle.flush();
+				    
+      sname<<"FractionTaggedCosmicFor"<<fCosmicTagAssocLabel.at(i)<<"TrackNorm";
+      stitle<<"Fraction of Cosmic Charge Tagged as Cosmic For " << fCosmicTagAssocLabel.at(i)<<", Normed to Tracked Charge; Frac; N";
+      fFractionChargeTaggedPerCT_Cosmic_TrackNorm.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 101,0,1.01));	  
+
+      sname.str("");  sname.flush();
+      stitle.str(""); stitle.flush();
+				    
+      sname<<"FractionTaggedNonCosmicFor"<<fCosmicTagAssocLabel.at(i)<<"TrackNorm";;
+      stitle<<"Fraction of NonCosmic Charge Tagged as Cosmic For " << fCosmicTagAssocLabel.at(i)<<", Normed to Track Charge; Frac; N";
+      fFractionChargeTaggedPerCT_NonCosmic_TrackNorm.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 101,0,1.01));		
+
+      sname.str("");  sname.flush();
+      stitle.str(""); stitle.flush();
+				    
+      sname<<"FractionTaggedCosmicFor"<<fCosmicTagAssocLabel.at(i)<<"ClusterNorm";;
+      stitle<<"Fraction of Cosmic Charge Tagged as Cosmic For " << fCosmicTagAssocLabel.at(i)<<", Normed to Cluster Charge; Frac; N";
+      fFractionChargeTaggedPerCT_Cosmic_ClusterNorm.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 101,0,1.01));	  
+
+      sname.str("");  sname.flush();
+      stitle.str(""); stitle.flush();
+				    
+      sname<<"FractionTaggedNonCosmicFor"<<fCosmicTagAssocLabel.at(i)<<"ClusterNorm";;
+      stitle<<"Fraction of NonCosmic Charge Tagged as Cosmic For " << fCosmicTagAssocLabel.at(i)<<", Normed to Cluster Charge; Frac; N";
+      fFractionChargeTaggedPerCT_NonCosmic_ClusterNorm.push_back( (TH1D*)tfs->make<TH1D>(sname.str().c_str(), stitle.str().c_str(), 101,0,1.01));		
+
+
     }
   
   // ##################################################
@@ -470,11 +508,20 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
       ClusteredHitIDs.insert(CluHit.at(clu).at(i).key());
 
 
-  // These get filled later, but they should be filled ~here in future - Ben J
-  double TrackedFractionCosmic = 0;
-  double TrackedFractionNonCosmic = 0;
-  double ClusteredFractionCosmic = 0;
-  double ClusteredFractionNonCosmic = 0;
+  // Work out the tracked and custered charge fractions
+
+  double TrackedFractionCosmic = GetOverlapScore(hitlist, trkIDEsHitIndex_Cosmic, TrackedHitIDs);
+  fTrackedFraction_Cosmic->Fill(TrackedFractionCosmic);
+  
+  double TrackedFractionNonCosmic = GetOverlapScore(hitlist, trkIDEsHitIndex_NonCosmic, TrackedHitIDs);
+  fTrackedFraction_NonCosmic->Fill(TrackedFractionNonCosmic);
+  
+  double ClusteredFractionCosmic = GetOverlapScore(hitlist, trkIDEsHitIndex_Cosmic, ClusteredHitIDs);
+  fClusteredFraction_Cosmic->Fill(ClusteredFractionCosmic);
+  
+  double ClusteredFractionNonCosmic = GetOverlapScore(hitlist, trkIDEsHitIndex_NonCosmic, ClusteredHitIDs);
+  fClusteredFraction_NonCosmic->Fill(ClusteredFractionNonCosmic);
+  
 
 
 
@@ -579,8 +626,6 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
       // ####################################################
 
       try{
-
-	evt.getByLabel( fClusterModuleLabel, clusterh ); 
 	std::vector<art::Ptr<recob::Cluster> > clusterVector2; //<---Ptr Vector
 	art::fill_ptr_vector(clusterVector2,clusterh);        //<---Fill the vector
 
@@ -686,35 +731,19 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 // 	}
 
 
-
-      
-      // this needs moving outside the nCT loop, along with the truth stuff - Ben J
-
-      if(nCT==0)
-	{
-	  TrackedFractionCosmic = GetOverlapScore(hitlist, trkIDEsHitIndex_Cosmic, TrackedHitIDs);
-	  fTrackedFraction_Cosmic->Fill(TrackedFractionCosmic);
-
-	  TrackedFractionNonCosmic = GetOverlapScore(hitlist, trkIDEsHitIndex_NonCosmic, TrackedHitIDs);
-
-	  fTrackedFraction_NonCosmic->Fill(TrackedFractionNonCosmic);
-
-	  ClusteredFractionCosmic = GetOverlapScore(hitlist, trkIDEsHitIndex_Cosmic, ClusteredHitIDs);
-
-	  fClusteredFraction_Cosmic->Fill(ClusteredFractionCosmic);
-	  
-	  ClusteredFractionNonCosmic = GetOverlapScore(hitlist, trkIDEsHitIndex_NonCosmic, ClusteredHitIDs);
-
-	  fClusteredFraction_NonCosmic->Fill(ClusteredFractionNonCosmic);
-	}
-
       // Checking on an Efficiency Measure
       double OverlapScore = GetOverlapScore(hitlist, trkIDEsHitIndex_Cosmic, TaggedHitIDs);
       fFractionChargeTaggedPerCT_Cosmic[nCT]->Fill(OverlapScore);
+      fFractionChargeTaggedPerCT_Cosmic_TrackNorm[nCT]->Fill(OverlapScore / TrackedFractionCosmic);
+      fFractionChargeTaggedPerCT_Cosmic_ClusterNorm[nCT]->Fill(OverlapScore / ClusteredFractionCosmic);
+
 
       // Checking on a Purity Measure
       OverlapScore = GetOverlapScore(hitlist, trkIDEsHitIndex_NonCosmic, TaggedHitIDs);
       fFractionChargeTaggedPerCT_NonCosmic[nCT]->Fill(OverlapScore);
+      fFractionChargeTaggedPerCT_NonCosmic_TrackNorm[nCT]->Fill(OverlapScore / TrackedFractionNonCosmic);
+      fFractionChargeTaggedPerCT_NonCosmic_ClusterNorm[nCT]->Fill(OverlapScore / ClusteredFractionNonCosmic);
+
 
       std::cerr << "Report... Total hits in hit collection: " << hitlist.size() << std::endl;
       std::cerr << "Number of hits without an eveIDE: " << nBadHits << std::endl;
