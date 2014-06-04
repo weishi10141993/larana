@@ -87,7 +87,7 @@ namespace microboone {
 			     std::vector < std::vector<int> > &originVector, 
 			     float &cOverA, float &dOverB );
 			     
-    void FillTrackTree( art::Ptr<anab::CosmicTag> &currentTag, const art::Event& evt);
+    void FillTrackTree( art::Ptr<anab::CosmicTag> &currentTag, float CosmicScore, const art::Event& evt);
 
     unsigned int nCosmicTags;
     
@@ -553,45 +553,9 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 	    //std::cerr << "debugging... " << TrkMatchToCosmicTag << ", hit ids are ";
 	    //for(size_t i=0; i!=TrkHit.at(trk).size(); ++ i) std::cerr << " " << TrkHit.at(trk).at(i).id() << " " << TrkHit.at(trk).at(i).key();
 	    //std::cerr << std::endl;
-	    FillTrackTree(currentTag, evt);
+	    FillTrackTree(currentTag, Score, evt);
 	    
-	    cTrack.eventNumber = -1;
-	    cTrack.tagType     = -1;
-	    cTrack.x0          = -1;	   
-	    cTrack.x1          = -1;
-	    cTrack.y0          = -1;
-	    cTrack.y1          = -1;
-	    cTrack.z0          = -1;
-	    cTrack.z1          = -1;
-	    cTrack.nHits       = -1;
-	    cTrack.nGoodHits   = -1;
-	    cTrack.origin      = -1;
-	    cTrack.score       = -1;
-	    cTrack.pdg         = -999;
-	    cTrack.energy      = -999;
-
 	    
-	    cTrack.eventNumber = evt.event();
-	    cTrack.tagType     = currentTag->CosmicType();
-	    cTrack.x0          = currentTag->endPt1[0];
-	    cTrack.x1          = currentTag->endPt2[0];
-	    cTrack.y0          = currentTag->endPt1[1];
-	    cTrack.y1          = currentTag->endPt2[1];
-	    cTrack.z0          = currentTag->endPt1[2];
-	    cTrack.z1          = currentTag->endPt2[2];
-	    cTrack.nHits       = -1;//anotherCounter; 
-	    cTrack.nGoodHits   = -1;//numberGoodEvID; 
-//	    int count1s = count( tempOrigin.begin(), tempOrigin.end(), 1);
-//	    int count2s = count( tempOrigin.begin(), tempOrigin.end(), 2);
-//	    std::cerr << "----- COUNTS: nu: " << count1s << " cosmic: " << count2s << " position: " <<  currentTag->endPt1[0]<< " " << currentTag->endPt2[0] << " " ;
-//	    int majorityOrigin = -1;
-//	    if(tempOrigin.size()>0) majorityOrigin = count1s > count2s ? 1 : 2;
-//	    std::cerr << "majority origin " << majorityOrigin << std::endl;
-	    cTrack.origin   = -1;//majorityOrigin;	    
-	    cTrack.score = Score;
-	    cTrack.pdg    = -999;
-	    cTrack.energy = -999;
-	    tTreeTrack->Fill();
 
 	  }//<---end trk loop
       }
@@ -948,9 +912,45 @@ void microboone::CosmicRemovalAna::GetNewOverlapScore( std::vector< float > &sco
 }
 
 
-void microboone::CosmicRemovalAna::FillTrackTree(art::Ptr<anab::CosmicTag> &currentTag, const art::Event& evt)
+void microboone::CosmicRemovalAna::FillTrackTree(art::Ptr<anab::CosmicTag> &currentTag, float CosmicScore, const art::Event& evt)
 {
+    cTrack.eventNumber = -1;
+    cTrack.tagType     = -1;
+    cTrack.x0          = -1;	   
+    cTrack.x1          = -1;
+    cTrack.y0          = -1;
+    cTrack.y1          = -1;
+    cTrack.z0          = -1;
+    cTrack.z1          = -1;
+    cTrack.nHits       = -1;
+    cTrack.nGoodHits   = -1;
+    cTrack.origin      = -1;
+    cTrack.score       = -1;
+    cTrack.pdg         = -999;
+    cTrack.energy      = -999;
 
+	    
+    cTrack.eventNumber = evt.event();
+    cTrack.tagType     = currentTag->CosmicType();
+    cTrack.x0          = currentTag->endPt1[0];
+    cTrack.x1          = currentTag->endPt2[0];
+    cTrack.y0          = currentTag->endPt1[1];
+    cTrack.y1          = currentTag->endPt2[1];
+    cTrack.z0          = currentTag->endPt1[2];
+    cTrack.z1          = currentTag->endPt2[2];
+    cTrack.nHits       = -1;//anotherCounter; 
+    cTrack.nGoodHits   = -1;//numberGoodEvID; 
+//	    int count1s = count( tempOrigin.begin(), tempOrigin.end(), 1);
+//	    int count2s = count( tempOrigin.begin(), tempOrigin.end(), 2);
+//	    std::cerr << "----- COUNTS: nu: " << count1s << " cosmic: " << count2s << " position: " <<  currentTag->endPt1[0]<< " " << currentTag->endPt2[0] << " " ;
+//	    int majorityOrigin = -1;
+//	    if(tempOrigin.size()>0) majorityOrigin = count1s > count2s ? 1 : 2;
+//	    std::cerr << "majority origin " << majorityOrigin << std::endl;
+    cTrack.origin   = -1;//majorityOrigin;	    
+    cTrack.score = CosmicScore;
+    cTrack.pdg    = -999;
+    cTrack.energy = -999;
+    tTreeTrack->Fill();
 
 
 
