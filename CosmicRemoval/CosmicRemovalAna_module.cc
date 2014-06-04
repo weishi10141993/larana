@@ -553,6 +553,11 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 	    //std::cerr << "debugging... " << TrkMatchToCosmicTag << ", hit ids are ";
 	    //for(size_t i=0; i!=TrkHit.at(trk).size(); ++ i) std::cerr << " " << TrkHit.at(trk).at(i).id() << " " << TrkHit.at(trk).at(i).key();
 	    //std::cerr << std::endl;
+	    
+	    // #############################################################
+	    // ###   Pusing the TTree track stuff to its own function    ###
+	    // ### This stuff likely should be moved outside this module ###
+	    // #############################################################
 	    FillTrackTree(currentTag, Score, evt);
 	    
 	    
