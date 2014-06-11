@@ -112,8 +112,8 @@ namespace opdet {
   // Constructor
   LEDCalibrationAna::LEDCalibrationAna(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset),
-      fPulseRecoMgr(pset.get<fhicl::ParameterSet>("reco_man")),
-      fThreshAlg(pset.get<fhicl::ParameterSet>("algo_threshold"))    
+      fPulseRecoMgr(),
+      fThreshAlg()
   {
     // Indicate that the Input Module comes from .fcl
     fInputModule    = pset.get<std::string>("InputModule");

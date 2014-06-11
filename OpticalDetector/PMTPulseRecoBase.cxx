@@ -11,9 +11,9 @@
 
 namespace pmtana{
 
-  //##################################################################
-  PMTPulseRecoBase::PMTPulseRecoBase(fhicl::ParameterSet const& /*pset*/)
-  //##################################################################
+  //##################################
+  PMTPulseRecoBase::PMTPulseRecoBase()
+  //##################################
   {
 
     _ped_mean = _ped_rms = -1;
@@ -33,9 +33,9 @@ namespace pmtana{
   {
     if(begin >= wf->size() || end >= wf->size() || begin > end){
 
-      mf::LogError(__PRETTY_FUNCTION__)
-	<< Form("Invalid arguments: waveform length = %zu, begin = %zu, end = %zu!",
-		wf->size(), begin, end);
+      std::cerr << Form("Invalid arguments: waveform length = %zu, begin = %zu, end = %zu!",
+			wf->size(), begin, end)
+		<< std::endl;
       return false;
 
     }

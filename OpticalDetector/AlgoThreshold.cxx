@@ -11,9 +11,9 @@
 
 namespace pmtana{
 
-  //########################################################################################
-  AlgoThreshold::AlgoThreshold(fhicl::ParameterSet const& pset) : PMTPulseRecoBase(pset)
-  //########################################################################################
+  //############################
+  AlgoThreshold::AlgoThreshold()
+  //############################
   {
 
     _adc_thres = 3;

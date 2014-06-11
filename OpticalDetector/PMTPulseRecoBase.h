@@ -15,35 +15,13 @@
 #ifndef PMTPULSERECOBASE_H
 #define PMTPULSERECOBASE_H
 
-// ART includes
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Core/FindManyP.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
-
-// LArSoft
-#include "SimulationBase/MCTruth.h"
-#include "SimulationBase/MCParticle.h"
-#include "RecoBase/Hit.h"
-#include "RecoBase/Cluster.h"
-#include "RecoBase/SpacePoint.h"
-#include "RecoAlg/SpacePointAlg.h"
-#include "Utilities/DetectorProperties.h"
-#include "Geometry/Geometry.h"
 // STL
 #include <set>
 #include <vector>
 #include <cmath>
 #include <functional>
 #include <numeric>
-
+#include <iostream>
 
 // ROOT
 #include <TString.h>
@@ -88,7 +66,7 @@ namespace pmtana
   public:
 
     /// Default constructor with fhicl parameters
-    PMTPulseRecoBase(fhicl::ParameterSet const& pset);
+    PMTPulseRecoBase();
 
     /// Default destructor
     virtual ~PMTPulseRecoBase();
