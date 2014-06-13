@@ -56,6 +56,7 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TH1.h"
+#include "TStopwatch.h"
 #include <iterator>
 
 
@@ -113,87 +114,59 @@ namespace microboone {
     std::vector<float> cTaggedCharge_NonCosmic;
     std::vector<int>   cTaggedHits_Cosmic;
     std::vector<int>   cTaggedHits_NonCosmic;
-    std::vector<const char*> cTagAlgorithmNames;
+    std::vector<std::string> *cTagAlgorithmNames;
 
-  int runNumber;
-  int eventNumber;
-  
-  int nHitsTotal_Unknown;
-  int nHitsTotal_Cosmic;
-  int nHitsTotal_NonCosmic;
-  
-  float qTotal_Unknown;
-  float qTotal_Cosmic;
-  float qTotal_NonCosmic;
-  
-  int nHitsTrack;
-  int nHitsTrack_Cosmic;
-  int nHitsTrack_NonCosmic;
-  
-  float qTrack;
-  float qTrack_Cosmic;
-  float qTrack_NonCosmic;
-  
-  int nHitsCluster;
-  int nHitsCluster_Cosmic;
-  int nHitsCluster_NonCosmic;
-  
-  float qCluster;
-  float qCluster_Cosmic;
-  float qCluster_NonCosmic;
-
+    typedef struct {
+      int eventNumber;
+      int tagType;
+      float x0;
+      float x1;
+      float y0;
+      float y1;
+      float z0;
+      float z1;
+      int nHits;
+      int nGoodHits;
+      int origin;
+      float score;
+      int pdg;
+      float energy;
+    } cTagProperties_t;
+    cTagProperties_t cTagVals;
+    
   };//<---End class
 }
 
-
-typedef struct {
-  int eventNumber;
-  int tagType;
-  float x0;
-  float x1;
-  float y0;
-  float y1;
-  float z0;
-  float z1;
-  int nHits;
-  int nGoodHits;
-  int origin;
-  float score;
-  int pdg;
-  float energy;
-} cTagProperties_t;
-cTagProperties_t cTagVals;
-
-typedef struct {
-  int runNumber;
-  int eventNumber;
-  
-  int nHitsTotal_Unknown;
-  int nHitsTotal_Cosmic;
-  int nHitsTotal_NonCosmic;
-  
-  float qTotal_Unknown;
-  float qTotal_Cosmic;
-  float qTotal_NonCosmic;
-  
-  int nHitsTrack;
-  int nHitsTrack_Cosmic;
-  int nHitsTrack_NonCosmic;
-  
-  float qTrack;
-  float qTrack_Cosmic;
-  float qTrack_NonCosmic;
-  
-  int nHitsCluster;
-  int nHitsCluster_Cosmic;
-  int nHitsCluster_NonCosmic;
-  
-  float qCluster;
-  float qCluster_Cosmic;
-  float qCluster_NonCosmic;
-  
-} cEventProperties_t;
-cEventProperties_t cEventVals;
+    typedef struct {
+      int runNumber;
+      int eventNumber;
+      
+      int nHitsTotal_Unknown;
+      int nHitsTotal_Cosmic;
+      int nHitsTotal_NonCosmic;
+      
+      float qTotal_Unknown;
+      float qTotal_Cosmic;
+      float qTotal_NonCosmic;
+      
+      int nHitsTrack;
+      int nHitsTrack_Cosmic;
+      int nHitsTrack_NonCosmic;
+      
+      float qTrack;
+      float qTrack_Cosmic;
+      float qTrack_NonCosmic;
+      
+      int nHitsCluster;
+      int nHitsCluster_Cosmic;
+      int nHitsCluster_NonCosmic;
+      
+      float qCluster;
+      float qCluster_Cosmic;
+      float qCluster_NonCosmic;
+      
+    } cEventProperties_t;
+    cEventProperties_t cEventVals;
 
 
 // =====================================================
@@ -228,16 +201,12 @@ void microboone::CosmicRemovalAna::beginJob()
   art::ServiceHandle<art::TFileService> tfs;
   tEventTree = (TTree*)tfs->make<TTree>("CosmicEventTree","CosmicEventTree");
   
-  for(size_t i=0; i!=nCosmicTags; ++i)
-    {
-      std::string tmp = fCosmicTagAssocLabel.at(i) + "0";
-      cTagAlgorithmNames.push_back(tmp.c_str());
-    }
+  //for(size_t i=0; i!=nCosmicTags; ++i)
+  //cTagAlgorithmNames->push_back(fCosmicTagAssocLabel.at(i));
   
   //tTagTree->Branch("tag", &cTagVals, "eventNumber/I:tagType/I:x0/F:x1/F:y0/F:y1/F:z0/F,z1/F:nHits/I:nGoodHits/I:score/F:origin/I:pdg/I:energy/F");
   
   tEventTree->Branch("event", &cEventVals, "runNumber/I:eventNumber/I:nHitsTotal_Unknown/I:nHitsTotal_Cosmic/I:nHitsTotal_NonCosmic/I:qTotal_Unknown/F:qTotal_Cosmic/F:qTotal_NonCosmic/F:nHitsTrack/I:nHitsTrack_Cosmic/I:nHitsTrack_NonCosmic/I:qTrack/F:qTrack_Cosmic/F:qTrack_NonCosmic/F:nHitsCluster/I:nHitsCluster_Cosmic/I:nHitsCluster_NonCosmic/I:qCluster/F:qCluster_Cosmic/F:qCluster_NonCosmic/F");
-  //tEventTree->Branch("runNumber", &runNumber, "runNumber/I");
   tEventTree->Branch("TaggedCharge_Cosmic",&cTaggedCharge_Cosmic);
   tEventTree->Branch("TaggedCharge_NonCosmic",&cTaggedCharge_NonCosmic);
   tEventTree->Branch("TaggedHits_Cosmic",&cTaggedHits_Cosmic);
@@ -253,7 +222,14 @@ void microboone::CosmicRemovalAna::beginJob()
 void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 {
 
+  std::vector< std::pair<std::string,double> > times;
+  TStopwatch sw;
+
   InitEventTree(evt.run(), evt.event());
+
+  sw.Stop();
+  times.push_back( std::make_pair<std::string,double>("initTree",sw.RealTime()) );
+  sw.Start();
 
   // ##################################################################
   // ### Grabbing ALL HITS in the event to monitor the backtracking ###
@@ -264,12 +240,23 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   std::vector<art::Ptr<recob::Hit> > hitlist;  
   art::fill_ptr_vector(hitlist, hitListHandle);
 
+  sw.Stop();
+  times.push_back( std::make_pair<std::string,double>("readHits",sw.RealTime()) );
+  sw.Start();
+
   std::vector<hit_origin_t> hitOrigins; hitOrigins.resize(hitlist.size());
   FillMCInfo(hitlist, hitOrigins);  
  
+  sw.Stop();
+  times.push_back( std::make_pair<std::string,double>("FillMCInfo",sw.RealTime()) );
+  sw.Start();
   
   art::FindManyP<recob::Track> tracks_per_hit(hitlist, evt, fTrackModuleLabel);
   art::FindManyP<recob::Cluster> clusters_per_hit(hitlist, evt, fClusterModuleLabel);
+
+  sw.Stop();
+  times.push_back( std::make_pair<std::string,double>("GrabAssociations",sw.RealTime()) );
+  sw.Start();
 
   std::vector<bool> false_vector(fCosmicTagAssocLabel.size(),false);
   std::vector< std::vector<bool> > hitsAccounted(hitlist.size(),false_vector);
@@ -295,10 +282,20 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 
   }//end loop over all the hits
 
+  sw.Stop();
+  times.push_back( std::make_pair<std::string,double>("GetRecoInfo",sw.RealTime()) );
+  sw.Start();
   
 
   tEventTree->Fill();
 
+  sw.Stop();
+  times.push_back( std::make_pair<std::string,double>("FillTree",sw.RealTime()) );
+  sw.Start();
+
+
+  for(auto const& time_check : times)
+    std::cout << time_check.first << ":" << time_check.second << std::endl;
 }
 
 //-------------------------------------------------------------------------------------------------------------------
