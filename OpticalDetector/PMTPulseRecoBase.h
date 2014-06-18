@@ -61,8 +61,9 @@ namespace pmtana
       reset_param();
     };
   
-    void reset_param(){      
-      peak = area = -1;
+    void reset_param(){
+      area = 0;
+      peak = -1;
       t_start = t_max = t_end = -1;
     };
     
