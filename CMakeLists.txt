@@ -63,6 +63,9 @@ add_subdirectory(OpticalDetector)
 add_subdirectory(ParticleIdentification)
 add_subdirectory(CosmicRemoval)
 
+# tests
+add_subdirectory(test)
+
 # ups - table and config files
 add_subdirectory(ups)
 
