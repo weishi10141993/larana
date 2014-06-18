@@ -252,6 +252,35 @@ namespace opdet{
     
   }//end ProcessFrame
 
+  //-------------------------------------------------------------------------------------------------
+  void ConstructHit( float const& HitThreshold,
+		     int const& Channel,
+		     uint32_t const& TimeSlice,
+		     unsigned short const& Frame,
+		     const pmtana::pulse_param* pulse,
+		     optdata::TimeSlice_t const& TimeSlicesPerFrame,
+		     double const& opdigi_SampleFreq,
+		     double const& TrigTimeAbs,
+		     double const& SPESize,
+		     std::vector<recob::OpHit>& HitVector)
+  {
+    if( pulse->peak<HitThreshold ) return;
+    
+    double AbsTime = (pulse->t_max + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
+    double RelTime = AbsTime - TrigTimeAbs;
+    double PE = pulse->peak/SPESize;
+    
+    HitVector.emplace_back( Channel,
+			    RelTime,
+			    AbsTime,
+			    Frame,
+			    pulse->t_end - pulse->t_start,
+			    pulse->area,
+			    pulse->peak,
+			    PE,
+			    0.);
+  }
+
 
   //-------------------------------------------------------------------------------------------------
   void ConstructHits(int const& Channel,

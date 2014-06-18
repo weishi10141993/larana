@@ -14,6 +14,7 @@
 #include "OpticalDetectorData/FIFOChannel.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/PulseRecoManager.h"
+#include "OpticalDetector/PMTPulseRecoBase.h"
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
 #include "Geometry/Geometry.h"
@@ -85,6 +86,17 @@ namespace opdet{
 		     std::vector<int> &,
 		     std::vector<int> &);
 
+
+  void ConstructHit( float const&, 
+		     int const&,
+		     uint32_t const&,
+		     unsigned short const&,
+		     const pmtana::pulse_param*,
+		     optdata::TimeSlice_t const&,
+		     double const&,
+		     double const&,
+		     double const&,
+		     std::vector<recob::OpHit>&);
 
   void AssignHitsToFlash( std::vector<int> const&,
 			  std::vector<int> const&,
