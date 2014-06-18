@@ -91,6 +91,34 @@ BOOST_AUTO_TEST_CASE(checkTrianglePulse)
   BOOST_CHECK_CLOSE(myAlgoThreshold.GetPulse(0)->peak,10.0,tolerance);
 }
 
+BOOST_AUTO_TEST_CASE(checkNonZeroPed)
+{ 
+
+  double ped = 2;
+  std::vector<uint16_t> wf(20,(uint16_t)ped);
+  myAlgoThreshold.SetPedMean(ped);
+
+  double area = 0;
+  for(size_t iter=0; iter<wf.size(); iter++){
+    if(iter<=10)
+      wf[iter] += iter;
+    else if(iter>10)
+      wf[iter] += 20-iter;
+
+    if(wf[iter]>=3+ped) 
+      area += wf[iter] - ped;
+
+  }
+
+  myAlgoThreshold.RecoPulse(&wf);
+  BOOST_CHECK_EQUAL(myAlgoThreshold.GetNPulse(),1ul);
+  BOOST_CHECK_CLOSE(myAlgoThreshold.GetPulse(0)->t_start,3,tolerance);
+  BOOST_CHECK_CLOSE(myAlgoThreshold.GetPulse(0)->t_end,17,tolerance);
+  BOOST_CHECK_CLOSE(myAlgoThreshold.GetPulse(0)->t_max,10,tolerance);
+  BOOST_CHECK_CLOSE(myAlgoThreshold.GetPulse(0)->area,area,tolerance);
+  BOOST_CHECK_CLOSE(myAlgoThreshold.GetPulse(0)->peak,10.0,tolerance);
+}
+
 BOOST_AUTO_TEST_CASE(checkPulseOffEnd)
 { 
 
