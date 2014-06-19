@@ -51,6 +51,7 @@ find_ups_product( larreco v1_00_00 )
 find_ups_product( nutools v1_00_00 )
 find_ups_product( art v1_09_00 )
 find_ups_product( cetbuildtools v3_10_00 )
+find_ups_product( postgresql v9_1_5 )
 
 # macros for dictionary and simple_plugin
 include(ArtDictionary)
