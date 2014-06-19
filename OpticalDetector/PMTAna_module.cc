@@ -106,9 +106,9 @@ namespace pmtana {
   //#######################################################################################################
   PMTAna::PMTAna(fhicl::ParameterSet const& pset) :
     EDAnalyzer(pset), 
-    _preco_man(pset.get<fhicl::ParameterSet>("reco_man")), 
-    _th_algo(pset.get<fhicl::ParameterSet>("algo_threshold")), 
-    _fw_algo(pset.get<fhicl::ParameterSet>("algo_fixed_window"))
+    _preco_man(),
+    _th_algo(),
+    _fw_algo()
   //#######################################################################################################
   {
 
