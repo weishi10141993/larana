@@ -7,8 +7,7 @@
 
 struct AlgoThresholdFixture{
 
-  AlgoThresholdFixture() : pset(), myAlgoThreshold(pset) {};
-  fhicl::ParameterSet pset;
+  AlgoThresholdFixture() : myAlgoThreshold() {};
   pmtana::AlgoThreshold myAlgoThreshold;
 
 };
