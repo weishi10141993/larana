@@ -98,6 +98,19 @@ namespace opdet{
 		     double const&,
 		     std::vector<recob::OpHit>&);
 
+  unsigned int GetAccumIndex(double const& TMax, 
+			     uint32_t const& TimeSlice, 
+			     int const& BinWidth, 
+			     double const& BinOffset);
+
+  void FillAccumulator(unsigned int const& AccumIndex,
+		       unsigned int const& HitIndex,
+		       double const& PE,
+		       float const& FlashThreshold,
+		       std::vector<double> & Binned,
+		       std::vector< std::vector<int> > & Contributors,
+		       std::vector<int> & FlashesInAccumulator);
+
   void AssignHitsToFlash( std::vector<int> const&,
 			  std::vector<int> const&,
 			  std::vector<double> const&,
@@ -108,6 +121,11 @@ namespace opdet{
 			  std::vector<recob::OpHit> const&,
 			  std::vector< std::vector<int> >&,
 			  float const&);
+
+  void FillFlashesBySizeMap(std::vector<int> const& FlashesInAccumulator,
+			    std::vector<double> const& BinnedPE,
+			    int const& Accumulator,
+			    std::map<double, std::map<int,std::vector<int> > > & FlashesBySize);
 
   void RefineHitsToFlash(std::vector< std::vector<int> > const&,
 			 std::vector<recob::OpHit> const&,

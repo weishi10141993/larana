@@ -5,6 +5,7 @@
 #include "OpticalDetectorData/OpticalTypes.h"
 
 const float HitThreshold = 3;
+const float FlashThreshold = 50;
 const int Channel = 1;
 const uint32_t TimeSlice = 1000;
 const unsigned short Frame = 1;
@@ -93,6 +94,111 @@ BOOST_AUTO_TEST_CASE(ConstructHit_checkPulseAbovThreshold)
   BOOST_CHECK_CLOSE(HitVector[0].Amplitude(),pulse.peak,tolerance);
   BOOST_CHECK_CLOSE(HitVector[0].PE(),pulse.peak/SPESize,tolerance);
   BOOST_CHECK_CLOSE(HitVector[0].FastToTotal(),0.,tolerance);
+
+}
+
+BOOST_AUTO_TEST_CASE(checkGetAccumIndex)
+{
+
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,0,1,0),10ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,0,2,0),5ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,0,3,0),3ul);
+
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,1,0),15ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,2,0),7ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,3,0),5ul);
+
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,1,0.5),15ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,2,1),8ul);
+
+}
+
+BOOST_AUTO_TEST_CASE(FillAccumulator_checkBelowThreshold){
+
+  const size_t vector_size = 1;
+  const double PE_base = 10;
+
+  unsigned int AccumIndex = 0;
+  unsigned int HitIndex = 0;
+  double PE = 10;
+  std::vector<double> Binned(vector_size,PE_base);
+  std::vector< std::vector<int> > Contributors(vector_size);
+  std::vector<int> FlashesInAccumulator;
+
+  opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
+			 Binned,Contributors,FlashesInAccumulator);
+
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1);
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , HitIndex );
+  BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
+  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 0);
+
+}
+
+BOOST_AUTO_TEST_CASE(FillAccumulator_checkAboveThreshold){
+
+  const size_t vector_size = 1;
+  const double PE_base = 10;
+
+  unsigned int AccumIndex = 0;
+  unsigned int HitIndex = 0;
+  double PE = 40;
+  std::vector<double> Binned(vector_size,PE_base);
+  std::vector< std::vector<int> > Contributors(vector_size);
+  std::vector<int> FlashesInAccumulator;
+
+  opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
+			 Binned,Contributors,FlashesInAccumulator);
+
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1);
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , HitIndex );
+  BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
+  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 1);
+
+}
+
+BOOST_AUTO_TEST_CASE(FillAccumulator_checkMultipleHits){
+
+  const size_t vector_size = 1;
+  const double PE_base = 10;
+
+  unsigned int AccumIndex = 0;
+  unsigned int HitIndex = 0;
+  double PE = 25;
+  std::vector<double> Binned(vector_size,PE_base);
+  std::vector< std::vector<int> > Contributors(vector_size);
+  std::vector<int> FlashesInAccumulator;
+
+  opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
+			 Binned,Contributors,FlashesInAccumulator);
+
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1);
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , HitIndex );
+  BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
+  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 0);
+
+
+  unsigned int HitIndex2 = 1;
+  opdet::FillAccumulator(AccumIndex,HitIndex2,PE,FlashThreshold,
+			 Binned,Contributors,FlashesInAccumulator);
+
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 2);
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , HitIndex );
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(1) , HitIndex2 );
+  BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE*2+PE_base );
+  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 1);
+
+}
+
+BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkNoFlash)
+{
+  const size_t vector_size = 1;
+  const double PE_vals = 10;
+
+  std::vector<double> Binned(vector_size,PE_vals);
+  std::vector<int> FlashesInAccumulator;
+
+  
 
 }
 

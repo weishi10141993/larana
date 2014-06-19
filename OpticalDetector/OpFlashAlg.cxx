@@ -159,7 +159,7 @@ namespace opdet{
     std::vector<int> FlashesInAccumulator1;
     std::vector<int> FlashesInAccumulator2;
     
-    size_t NHits_prev = HitVector.size();
+    const size_t NHits_prev = HitVector.size();
     unsigned int NOpChannels = geom.NOpChannels();
 
     for(auto const& fifo_ptr : FIFOChannelFramePtrVector){
@@ -192,24 +192,32 @@ namespace opdet{
 		      TrigTimeAbs,
 		      SPESize.at(Channel),
 		      HitVector );
-      }
 
-      ConstructHits(Channel,
-		    TimeSlice,
-		    Frame,
-		    ThreshAlg,
-		    HitVector,
-		    TimeSlicesPerFrame,
-		    BinWidth,
-		    HitThreshold,
-		    FlashThreshold,
-		    TrigFrame,
-		    TrigTimeAbs,
-		    opdigi_SampleFreq,
-		    SPESize.at(Channel),
-		    Binned1, Binned2,
-		    Contributors1, Contributors2,
-		    FlashesInAccumulator1, FlashesInAccumulator2);
+	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k)->t_max, 
+						TimeSlice, 
+						BinWidth, 
+						0);
+	FillAccumulator(AccumIndex1,
+			HitVector.size()-1,
+			HitVector[HitVector.size()-1].PE(),
+			FlashThreshold,
+			Binned1,
+			Contributors1,
+			FlashesInAccumulator1);
+
+	unsigned int AccumIndex2 = GetAccumIndex(ThreshAlg.GetPulse(k)->t_max, 
+						TimeSlice, 
+						BinWidth, 
+						BinWidth/2);
+	FillAccumulator(AccumIndex2,
+			HitVector.size()-1,
+			HitVector[HitVector.size()-1].PE(),
+			FlashThreshold,
+			Binned2,
+			Contributors2,
+			FlashesInAccumulator2);
+  
+      }
       
     }//end loop over FIFO channels in frame
 
@@ -298,7 +306,7 @@ namespace opdet{
 
 
   //-------------------------------------------------------------------------------------------------
-  unsigned int GetAccumIndex(double const& TMAx, 
+  unsigned int GetAccumIndex(double const& TMax, 
 			     uint32_t const& TimeSlice, 
 			     int const& BinWidth, 
 			     double const& BinOffset){
@@ -318,7 +326,7 @@ namespace opdet{
       
     (Contributors.at(AccumIndex)).push_back(HitIndex);
     
-    Binned1.at(AccumIndex) += PE; 
+    Binned.at(AccumIndex) += PE; 
     
     // If this wasn't a flash already, add it to the list
     if( Binned.at(AccumIndex)>=FlashThreshold &&
@@ -412,6 +420,15 @@ namespace opdet{
     
   } // end ConstructHits
   
+  //-------------------------------------------------------------------------------------------------
+  void FillFlashesBySizeMap(std::vector<int> const& FlashesInAccumulator,
+			    std::vector<double> const& BinnedPE,
+			    int const& Accumulator,
+			    std::map<double, std::map<int,std::vector<int> > > & FlashesBySize){
+    for( auto const& flash : FlashesInAccumulator)
+      FlashesBySize[BinnedPE.at(flash)][Accumulator].push_back(flash);
+  }
+
 
   //-------------------------------------------------------------------------------------------------
   void AssignHitsToFlash( std::vector<int> const& FlashesInAccumulator1,
@@ -433,10 +450,15 @@ namespace opdet{
     std::map<double, std::map<int,std::vector<int> > > FlashesBySize;
       
     // Sort the flashes by size using map
-    for( auto const& flash : FlashesInAccumulator1)
-      FlashesBySize[Binned1.at(flash)][1].push_back(flash);
-    for( auto const& flash : FlashesInAccumulator2)
-      FlashesBySize[Binned2.at(flash)][2].push_back(flash);
+    FillFlashesBySizeMap(FlashesInAccumulator1,
+			 Binned1,
+			 1,
+			 FlashesBySize);
+    FillFlashesBySizeMap(FlashesInAccumulator2,
+			 Binned2,
+			 2,
+			 FlashesBySize);
+    
   
     // This keeps track of which hits are claimed by which flash
     std::vector<int > HitClaimedByFlash(NHits,-1);
@@ -457,7 +479,7 @@ namespace opdet{
 
 	    std::vector<int>   HitsThisFlash;
 
-	    if(Accumulator==1)
+	    if(Accumulator==1){
 
 	      // for each hit in the flash
 	      for(auto const& HitIndex : Contributors1.at(Bin)){
@@ -466,7 +488,8 @@ namespace opdet{
 		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
 		  HitsThisFlash.push_back(HitIndex);
 	      }
-	    else if(Accumulator==2)
+	    }
+	    else if(Accumulator==2){
 
 	      // for each hit in the flash
 	      for(auto const& HitIndex : Contributors2.at(Bin)){
@@ -475,6 +498,7 @@ namespace opdet{
 		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
 		  HitsThisFlash.push_back(HitIndex);
 	      }
+	    }
 	    
 	    //Check for newly claimed hits
 	    double PE = 0;
