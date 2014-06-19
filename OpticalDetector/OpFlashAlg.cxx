@@ -179,6 +179,21 @@ namespace opdet{
       
       PulseRecoMgr.RecoPulse(&(*fifo_ptr));
       
+      const size_t NPulses = ThreshAlg.GetNPulse();
+      for(size_t k=0; k<NPulses; ++k){
+	
+	ConstructHit( HitThreshold,
+		      Channel,
+		      TimeSlice,
+		      Frame,
+		      ThreshAlg.GetPulse(k),
+		      TimeSlicesPerFrame,
+		      opdigi_SampleFreq,
+		      TrigTimeAbs,
+		      SPESize.at(Channel),
+		      HitVector );
+      }
+
       ConstructHits(Channel,
 		    TimeSlice,
 		    Frame,
@@ -281,6 +296,36 @@ namespace opdet{
 			    0.);
   }
 
+
+  //-------------------------------------------------------------------------------------------------
+  unsigned int GetAccumIndex(double const& TMAx, 
+			     uint32_t const& TimeSlice, 
+			     int const& BinWidth, 
+			     double const& BinOffset){
+    return ( (TMax + TimeSlice) + BinOffset) / BinWidth;
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void FillAccumulator(unsigned int const& AccumIndex,
+		       unsigned int const& HitIndex,
+		       double const& PE,
+		       float const& FlashThreshold,
+		       std::vector<double> & Binned,
+		       std::vector< std::vector<int> > & Contributors,
+		       std::vector<int> & FlashesInAccumulator)
+  {
+  
+      
+    (Contributors.at(AccumIndex)).push_back(HitIndex);
+    
+    Binned1.at(AccumIndex) += PE; 
+    
+    // If this wasn't a flash already, add it to the list
+    if( Binned.at(AccumIndex)>=FlashThreshold &&
+	(Binned.at(AccumIndex)-PE)<FlashThreshold )
+      FlashesInAccumulator.push_back(AccumIndex);
+    
+  }
 
   //-------------------------------------------------------------------------------------------------
   void ConstructHits(int const& Channel,
