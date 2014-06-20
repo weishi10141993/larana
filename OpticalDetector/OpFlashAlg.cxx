@@ -6,6 +6,9 @@
  * These are the algorithms used by OpFlashFinder to produce flashes.
  */
 
+#include <algorithm>
+#include <functional>
+
 #include "OpFlashAlg.h"
 #include "RecoBase/OpHit.h"
 #include "cetlib/exception.h"
@@ -336,99 +339,55 @@ namespace opdet{
   }
 
   //-------------------------------------------------------------------------------------------------
-  void ConstructHits(int const& Channel,
-		     uint32_t const& TimeSlice,
-		     unsigned short const& Frame,
-		     pmtana::AlgoThreshold const& ThreshAlg,
-		     std::vector<recob::OpHit>& HitVector,
-		     optdata::TimeSlice_t const& TimeSlicesPerFrame,
-		     int const& BinWidth,
-		     float const& HitThreshold,
-		     float const& FlashThreshold,
-		     unsigned int const& TrigFrame,
-		     double const& TrigTimeAbs,
-		     double const& opdigi_SampleFreq,
-		     double const& SPESize,
-		     std::vector<double> & Binned1,
-		     std::vector<double> & Binned2,
-		     std::vector< std::vector<int> > & Contributors1,
-		     std::vector< std::vector<int> > & Contributors2,
-		     std::vector<int> & FlashesInAccumulator1,
-		     std::vector<int> & FlashesInAccumulator2)
-  {
-    const size_t NPulses = ThreshAlg.GetNPulse();
-    for(size_t k=0; k<NPulses; ++k){
-      
-      double Peak  = ThreshAlg.GetPulse(k)->peak;
-      if( Peak<HitThreshold ) continue;
-      
-      //note, these times are in units of pmt ticks. 
-      //These need to be translated to real times once the time service gets up and running.
-      double TMax  = ThreshAlg.GetPulse(k)->t_max;
-      double Width = ThreshAlg.GetPulse(k)->t_end - ThreshAlg.GetPulse(k)->t_start;
-      double Area  = ThreshAlg.GetPulse(k)->area;
-      double AbsTime = (TMax + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
-      double RelTime = AbsTime - TrigTimeAbs;
-      double PE = Peak/SPESize;
-
-      /*
-      std::cout << "Time summary for this hit:"
-		<< "\n\tTMax: " << TMax
-		<< "\n\tWidth: " << Width
-		<< "\n\tArea: " << Area
-		<< "\n\tPeak: " << Peak
-		<< "\n\tTimeSlice: " << TimeSlice
-		<< "\n\tAbsTime: " << AbsTime
-		<< "\n\tTrigTime: " << TrigTimeAbs
-		<< "\n\tFrame: " << Frame
-		<< "\n\tTimeSlicesPerFrame: " << TimeSlicesPerFrame
-		<< "\n\tRelTime: " << RelTime
-		<< "\n\tSampleFreq: " << opdigi_SampleFreq
-		<< "\n\tPE: " << PE << std::endl;
-      */
-      HitVector.emplace_back( Channel,
-			      RelTime,
-			      AbsTime,
-			      Frame,
-			      Width,
-			      Area,
-			      Peak,
-			      PE,
-			      0.);
-      
-      int HitIndex = HitVector.size()-1;
-      
-      size_t Accum1Index = int( (TMax+TimeSlice)  / BinWidth);
-      size_t Accum2Index = int(( (TMax+TimeSlice) + BinWidth/2)/BinWidth);
-
-      (Contributors1.at(Accum1Index)).push_back(HitIndex);
-      (Contributors2.at(Accum2Index)).push_back(HitIndex);
-      
-      Binned1.at(Accum1Index) += PE; 
-      Binned2.at(Accum2Index) += PE;  
-      
-      // If this wasn't a flash already, add it to the list
-      if( Binned1.at(Accum1Index)>=FlashThreshold &&
-	  (Binned1.at(Accum1Index)-PE)<FlashThreshold )
-	FlashesInAccumulator1.push_back(Accum1Index);
-      
-      if( Binned2.at(Accum1Index)>=FlashThreshold &&
-	  (Binned2.at(Accum1Index)-PE)<FlashThreshold )
-	FlashesInAccumulator2.push_back(Accum1Index);
-      
-    }//end loop over pulses
-    
-  } // end ConstructHits
-  
-  //-------------------------------------------------------------------------------------------------
   void FillFlashesBySizeMap(std::vector<int> const& FlashesInAccumulator,
 			    std::vector<double> const& BinnedPE,
 			    int const& Accumulator,
-			    std::map<double, std::map<int,std::vector<int> > > & FlashesBySize){
+			    std::map<double, std::map<int,std::vector<int> >, std::greater<double> > & FlashesBySize){
     for( auto const& flash : FlashesInAccumulator)
       FlashesBySize[BinnedPE.at(flash)][Accumulator].push_back(flash);
   }
 
+  //-------------------------------------------------------------------------------------------------
+  void FillHitsThisFlash(std::vector< std::vector<int> > const& Contributors,
+			 int const& Bin,
+			 size_t const& NHits_prev,
+			 std::vector<int> const& HitClaimedByFlash,
+			 std::vector<int> & HitsThisFlash){
+    
+    // for each hit in the flash
+    for(auto const& HitIndex : Contributors.at(Bin)){
+      
+      // if unclaimed, claim it
+      if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
+	HitsThisFlash.push_back(HitIndex);
+    }
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void ClaimHits(std::vector<recob::OpHit> const& HitVector,
+		 std::vector<int> const& HitsThisFlash,
+		 float const& FlashThreshold,
+		 std::vector< std::vector<int> > & HitsPerFlash,
+		 size_t const& NHits_prev,
+		 std::vector<int> & HitClaimedByFlash){
+
+    //Check for newly claimed hits
+    double PE = 0;
+    for(auto const& Hit : HitsThisFlash)
+      PE += HitVector.at(Hit).PE();
+    
+    if(PE < FlashThreshold) return;
+    
+    // add the flash to the list
+    HitsPerFlash.push_back(HitsThisFlash);
+    
+    // and claim all the hits
+    for(auto const& Hit : HitsThisFlash){
+      if(HitClaimedByFlash.at(Hit-NHits_prev)==-1)
+	HitClaimedByFlash.at(Hit-NHits_prev)=HitsPerFlash.size()-1;
+    }//end loop over hits in this flash
+    
+  }
 
   //-------------------------------------------------------------------------------------------------
   void AssignHitsToFlash( std::vector<int> const& FlashesInAccumulator1,
@@ -447,7 +406,7 @@ namespace opdet{
 
     // Sort all the flashes found by size. The structure is:
     // FlashesBySize[flash size][accumulator_num] = [flash_index1, flash_index2...]     
-    std::map<double, std::map<int,std::vector<int> > > FlashesBySize;
+    std::map<double, std::map<int,std::vector<int> >, std::greater<double> > FlashesBySize;
       
     // Sort the flashes by size using map
     FillFlashesBySizeMap(FlashesInAccumulator1,
@@ -464,9 +423,7 @@ namespace opdet{
     std::vector<int > HitClaimedByFlash(NHits,-1);
 
     // Walk from largest to smallest, claiming hits. The biggest flash always gets dibbs,
-    // but we keep track of overlaps for re-merging later
-
-    // Walk through flashes in size order, largest to smallest
+    // but we keep track of overlaps for re-merging later (do we? ---WK)
     for(auto const& itFlash : FlashesBySize){
 
       // If several with same size, walk walk through accumulators
@@ -479,46 +436,26 @@ namespace opdet{
 
 	    std::vector<int>   HitsThisFlash;
 
-	    if(Accumulator==1){
+	    if(Accumulator==1)
+	      FillHitsThisFlash(Contributors1,
+				Bin,
+				NHits_prev,
+				HitClaimedByFlash,
+				HitsThisFlash);	    
+	    else if(Accumulator==2)
+	      FillHitsThisFlash(Contributors2,
+				Bin,
+				NHits_prev,
+				HitClaimedByFlash,
+				HitsThisFlash);
 
-	      // for each hit in the flash
-	      for(auto const& HitIndex : Contributors1.at(Bin)){
-
-		// if unclaimed, claim it
-		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
-		  HitsThisFlash.push_back(HitIndex);
-	      }
-	    }
-	    else if(Accumulator==2){
-
-	      // for each hit in the flash
-	      for(auto const& HitIndex : Contributors2.at(Bin)){
-		
-		// if unclaimed, claim it
-		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
-		  HitsThisFlash.push_back(HitIndex);
-	      }
-	    }
+	    ClaimHits(HitVector,
+		      HitsThisFlash,
+		      FlashThreshold,
+		      HitsPerFlash,
+		      NHits_prev,
+		      HitClaimedByFlash);
 	    
-	    //Check for newly claimed hits
-	    double PE = 0;
-	    for(auto const& Hit : HitsThisFlash)
-	      PE += HitVector.at(Hit).PE();
-	    
-	    // if it still gets over threshold
-	    if(PE >= FlashThreshold){
-	      
-	      // add the flash to the list
-	      HitsPerFlash.push_back(HitsThisFlash);
-	      
-	      // and claim all the hits
-	      for(auto const& Hit : HitsThisFlash){
-		if(HitClaimedByFlash.at(Hit-NHits_prev)==-1)
-		  HitClaimedByFlash.at(Hit-NHits_prev)=HitsPerFlash.size()-1;
-	      }//end loop over hits in this flash
-
-	    }//end if PE above threshold
-
 	  }//end loop over this accumulator
 
       }//end loops over accumulators

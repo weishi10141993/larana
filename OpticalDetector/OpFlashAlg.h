@@ -66,27 +66,6 @@ namespace opdet{
 		    std::vector<double> const&,
 		    float const&);
 
-  void ConstructHits(int const&,
-		     uint32_t const&,
-		     unsigned short const&,
-		     pmtana::AlgoThreshold const&,
-		     std::vector<recob::OpHit>&,
-		     optdata::TimeSlice_t const&,
-		     int const&,
-		     float const&,
-		     float const&,
-		     unsigned int const&,
-		     double const&,
-		     double const&,
-		     double const&,
-		     std::vector<double> &,
-		     std::vector<double> &,
-		     std::vector< std::vector<int> > &,
-		     std::vector< std::vector<int> > &,
-		     std::vector<int> &,
-		     std::vector<int> &);
-
-
   void ConstructHit( float const&, 
 		     int const&,
 		     uint32_t const&,
@@ -125,7 +104,20 @@ namespace opdet{
   void FillFlashesBySizeMap(std::vector<int> const& FlashesInAccumulator,
 			    std::vector<double> const& BinnedPE,
 			    int const& Accumulator,
-			    std::map<double, std::map<int,std::vector<int> > > & FlashesBySize);
+			    std::map<double, std::map<int,std::vector<int> >, std::greater<double> > & FlashesBySize);
+
+  void FillHitsThisFlash(std::vector< std::vector<int> > const& Contributors,
+			 int const& Bin,
+			 size_t const& NHits_prev,
+			 std::vector<int> const& HitClaimedByFlash,
+			 std::vector<int> & HitsThisFlash);
+  
+  void ClaimHits(std::vector<recob::OpHit> const& HitVector,
+		 std::vector<int> const& HitsThisFlash,
+		 float const& FlashThreshold,
+		 std::vector< std::vector<int> > & HitsPerFlash,
+		 size_t const& NHits_prev,
+		 std::vector<int> & HitClaimedByFlash);
 
   void RefineHitsToFlash(std::vector< std::vector<int> > const&,
 			 std::vector<recob::OpHit> const&,
