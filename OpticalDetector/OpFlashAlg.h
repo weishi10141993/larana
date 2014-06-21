@@ -14,6 +14,7 @@
 #include "OpticalDetectorData/FIFOChannel.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/PulseRecoManager.h"
+#include "OpticalDetector/PMTPulseRecoBase.h"
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
 #include "Geometry/Geometry.h"
@@ -65,26 +66,29 @@ namespace opdet{
 		    std::vector<double> const&,
 		    float const&);
 
-  void ConstructHits(int const&,
+  void ConstructHit( float const&, 
+		     int const&,
 		     uint32_t const&,
 		     unsigned short const&,
-		     pmtana::AlgoThreshold const&,
-		     std::vector<recob::OpHit>&,
+		     const pmtana::pulse_param*,
 		     optdata::TimeSlice_t const&,
-		     int const&,
-		     float const&,
-		     float const&,
-		     unsigned int const&,
 		     double const&,
 		     double const&,
 		     double const&,
-		     std::vector<double> &,
-		     std::vector<double> &,
-		     std::vector< std::vector<int> > &,
-		     std::vector< std::vector<int> > &,
-		     std::vector<int> &,
-		     std::vector<int> &);
+		     std::vector<recob::OpHit>&);
 
+  unsigned int GetAccumIndex(double const& TMax, 
+			     uint32_t const& TimeSlice, 
+			     int const& BinWidth, 
+			     double const& BinOffset);
+
+  void FillAccumulator(unsigned int const& AccumIndex,
+		       unsigned int const& HitIndex,
+		       double const& PE,
+		       float const& FlashThreshold,
+		       std::vector<double> & Binned,
+		       std::vector< std::vector<int> > & Contributors,
+		       std::vector<int> & FlashesInAccumulator);
 
   void AssignHitsToFlash( std::vector<int> const&,
 			  std::vector<int> const&,
@@ -97,20 +101,77 @@ namespace opdet{
 			  std::vector< std::vector<int> >&,
 			  float const&);
 
-  void RefineHitsToFlash(std::vector< std::vector<int> > const&,
-			 std::vector<recob::OpHit> const&,
-			 std::vector< std::vector<int> >&,
-			 float const&,
-			 float const&);
+  void FillFlashesBySizeMap(std::vector<int> const& FlashesInAccumulator,
+			    std::vector<double> const& BinnedPE,
+			    int const& Accumulator,
+			    std::map<double, std::map<int,std::vector<int> >, std::greater<double> > & FlashesBySize);
 
-  void ConstructFlashes(std::vector< std::vector<int> > const&,
-			std::vector<recob::OpHit> const&,
-			std::vector<recob::OpFlash>&,
-			uint32_t const&,
-			geo::Geometry const&,
-			unsigned int const&,
-			unsigned short const&,
-			float const&);
+  void FillHitsThisFlash(std::vector< std::vector<int> > const& Contributors,
+			 int const& Bin,
+			 size_t const& NHits_prev,
+			 std::vector<int> const& HitClaimedByFlash,
+			 std::vector<int> & HitsThisFlash);
+  
+  void ClaimHits(std::vector<recob::OpHit> const& HitVector,
+		 std::vector<int> const& HitsThisFlash,
+		 float const& FlashThreshold,
+		 std::vector< std::vector<int> > & HitsPerFlash,
+		 size_t const& NHits_prev,
+		 std::vector<int> & HitClaimedByFlash);
+  
+  void RefineHitsInFlash(std::vector<int> const& HitsThisFlash,
+			 std::vector<recob::OpHit> const& HitVector,
+			 std::vector< std::vector<int> >& RefinedHitsPerFlash,
+			 float const& WidthTolerance,
+			 float const& FlashThreshold);
+  
+  void FindSeedHit(std::map<double, std::vector<int>, std::greater<double> > const& HitsBySize,
+		   std::vector<bool> & HitsUsed,
+		   std::vector<recob::OpHit> const& HitVector,
+		   std::vector<int> & HitsThisRefinedFlash,
+		   double & PEAccumulated,
+		   double & FlashMaxTime,
+		   double & FlashMinTime);
+
+  void AddHitToFlash( int const& HitID,
+		      std::vector<bool> & HitsUsed,
+		      recob::OpHit const& currentHit,
+		      double const& WidthTolerance,
+		      std::vector<int> & HitsThisRefinedFlash,
+		      double & PEAccumulated,
+		      double & FlashMaxTime,
+		      double & FlashMinTime);
+
+  void CheckAndStoreFlash( std::vector< std::vector<int> >& RefinedHitsPerFlash,
+			   std::vector<int> const& HitsThisRefinedFlash,
+			   double const& PEAccumulated,
+			   float const& FlashThreshold,
+			   std::vector<bool> & HitsUsed );
+
+  void ConstructFlash(std::vector<int> const& HitsPerFlashVec,
+		      std::vector<recob::OpHit> const& HitVector,
+		      std::vector<recob::OpFlash>& FlashVector,
+		      uint32_t const& TimeSlicesPerFrame,
+		      geo::Geometry const& geom,
+		      unsigned int const& TrigFrame,
+		      unsigned short const& Frame,
+		      float const& TrigCoinc);
+
+  void AddHitContribution( recob::OpHit const& currentHit,
+			   double & MaxTime,
+			   double & MinTime,
+			   double & AveTime,
+			   double & FastToTotal,
+			   double & AveAbsTime,
+			   double & TotalPE,
+			   std::vector<double> & PEs);
+
+  void GetHitGeometryInfo(recob::OpHit const& currentHit,
+			  geo::Geometry const& geom,
+			  std::vector<double> & sumw,
+			  std::vector<double> & sumw2,
+			  double & sumy, double & sumy2,
+			  double & sumz, double & sumz2);
 
   void RemoveLateLight(std::vector<recob::OpFlash>&,
 		       std::vector< std::vector<int> >&);

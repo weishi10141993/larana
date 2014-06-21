@@ -6,6 +6,9 @@
  * These are the algorithms used by OpFlashFinder to produce flashes.
  */
 
+#include <algorithm>
+#include <functional>
+
 #include "OpFlashAlg.h"
 #include "RecoBase/OpHit.h"
 #include "cetlib/exception.h"
@@ -159,7 +162,7 @@ namespace opdet{
     std::vector<int> FlashesInAccumulator1;
     std::vector<int> FlashesInAccumulator2;
     
-    size_t NHits_prev = HitVector.size();
+    const size_t NHits_prev = HitVector.size();
     unsigned int NOpChannels = geom.NOpChannels();
 
     for(auto const& fifo_ptr : FIFOChannelFramePtrVector){
@@ -179,22 +182,45 @@ namespace opdet{
       
       PulseRecoMgr.RecoPulse(&(*fifo_ptr));
       
-      ConstructHits(Channel,
-		    TimeSlice,
-		    Frame,
-		    ThreshAlg,
-		    HitVector,
-		    TimeSlicesPerFrame,
-		    BinWidth,
-		    HitThreshold,
-		    FlashThreshold,
-		    TrigFrame,
-		    TrigTimeAbs,
-		    opdigi_SampleFreq,
-		    SPESize.at(Channel),
-		    Binned1, Binned2,
-		    Contributors1, Contributors2,
-		    FlashesInAccumulator1, FlashesInAccumulator2);
+      const size_t NPulses = ThreshAlg.GetNPulse();
+      for(size_t k=0; k<NPulses; ++k){
+	
+	ConstructHit( HitThreshold,
+		      Channel,
+		      TimeSlice,
+		      Frame,
+		      ThreshAlg.GetPulse(k),
+		      TimeSlicesPerFrame,
+		      opdigi_SampleFreq,
+		      TrigTimeAbs,
+		      SPESize.at(Channel),
+		      HitVector );
+
+	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k)->t_max, 
+						TimeSlice, 
+						BinWidth, 
+						0);
+	FillAccumulator(AccumIndex1,
+			HitVector.size()-1,
+			HitVector[HitVector.size()-1].PE(),
+			FlashThreshold,
+			Binned1,
+			Contributors1,
+			FlashesInAccumulator1);
+
+	unsigned int AccumIndex2 = GetAccumIndex(ThreshAlg.GetPulse(k)->t_max, 
+						TimeSlice, 
+						BinWidth, 
+						BinWidth/2);
+	FillAccumulator(AccumIndex2,
+			HitVector.size()-1,
+			HitVector[HitVector.size()-1].PE(),
+			FlashThreshold,
+			Binned2,
+			Contributors2,
+			FlashesInAccumulator2);
+  
+      }
       
     }//end loop over FIFO channels in frame
 
@@ -219,14 +245,16 @@ namespace opdet{
     // Now we do the fine grained part.  
     // Subdivide each flash into sub-flashes with overlaps within hit widths (assumed wider than photon travel time)
     std::vector<std::vector<int> > RefinedHitsPerFlash;
-    RefineHitsToFlash(HitsPerFlash,
-		      HitVector,
-		      RefinedHitsPerFlash,
-		      WidthTolerance,
-		      FlashThreshold);
-
+    for(auto const& HitsThisFlash : HitsPerFlash)
+      RefineHitsInFlash(HitsThisFlash,
+			HitVector,
+			RefinedHitsPerFlash,
+			WidthTolerance,
+			FlashThreshold);
+    
     //Now we have all our hits assigned to a flash. Make the recob::OpFlash objects.
-    ConstructFlashes(RefinedHitsPerFlash,
+    for(auto const& HitsPerFlashVec : RefinedHitsPerFlash)
+      ConstructFlash(HitsPerFlashVec,
 		     HitVector,
 		     FlashVector,
 		     TimeSlicesPerFrame,
@@ -234,7 +262,6 @@ namespace opdet{
 		     TrigFrame,
 		     Frame,
 		     TrigCoinc);
-
 
     RemoveLateLight(FlashVector,
     		    RefinedHitsPerFlash);
@@ -252,92 +279,129 @@ namespace opdet{
     
   }//end ProcessFrame
 
+  //-------------------------------------------------------------------------------------------------
+  double ConvertPulseTime(double const& pulse_time,
+			  uint32_t const& TimeSlice,
+			  unsigned short const& Frame,
+			  optdata::TimeSlice_t const& TimeSlicesPerFrame,
+			  double const& opdigi_SampleFreq){
+    return (pulse_time + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
+  }
+
 
   //-------------------------------------------------------------------------------------------------
-  void ConstructHits(int const& Channel,
+  void ConstructHit( float const& HitThreshold,
+		     int const& Channel,
 		     uint32_t const& TimeSlice,
 		     unsigned short const& Frame,
-		     pmtana::AlgoThreshold const& ThreshAlg,
-		     std::vector<recob::OpHit>& HitVector,
+		     const pmtana::pulse_param* pulse,
 		     optdata::TimeSlice_t const& TimeSlicesPerFrame,
-		     int const& BinWidth,
-		     float const& HitThreshold,
-		     float const& FlashThreshold,
-		     unsigned int const& TrigFrame,
-		     double const& TrigTimeAbs,
 		     double const& opdigi_SampleFreq,
+		     double const& TrigTimeAbs,
 		     double const& SPESize,
-		     std::vector<double> & Binned1,
-		     std::vector<double> & Binned2,
-		     std::vector< std::vector<int> > & Contributors1,
-		     std::vector< std::vector<int> > & Contributors2,
-		     std::vector<int> & FlashesInAccumulator1,
-		     std::vector<int> & FlashesInAccumulator2)
+		     std::vector<recob::OpHit>& HitVector)
   {
-    const size_t NPulses = ThreshAlg.GetNPulse();
-    for(size_t k=0; k<NPulses; ++k){
-      
-      double Peak  = ThreshAlg.GetPulse(k)->peak;
-      if( Peak<HitThreshold ) continue;
-      
-      //note, these times are in units of pmt ticks. 
-      //These need to be translated to real times once the time service gets up and running.
-      double TMax  = ThreshAlg.GetPulse(k)->t_max;
-      double Width = ThreshAlg.GetPulse(k)->t_end - ThreshAlg.GetPulse(k)->t_start;
-      double Area  = ThreshAlg.GetPulse(k)->area;
-      double AbsTime = (TMax + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
-      double RelTime = AbsTime - TrigTimeAbs;
-      double PE = Peak/SPESize;
-
-      /*
-      std::cout << "Time summary for this hit:"
-		<< "\n\tTMax: " << TMax
-		<< "\n\tWidth: " << Width
-		<< "\n\tArea: " << Area
-		<< "\n\tPeak: " << Peak
-		<< "\n\tTimeSlice: " << TimeSlice
-		<< "\n\tAbsTime: " << AbsTime
-		<< "\n\tTrigTime: " << TrigTimeAbs
-		<< "\n\tFrame: " << Frame
-		<< "\n\tTimeSlicesPerFrame: " << TimeSlicesPerFrame
-		<< "\n\tRelTime: " << RelTime
-		<< "\n\tSampleFreq: " << opdigi_SampleFreq
-		<< "\n\tPE: " << PE << std::endl;
-      */
-      HitVector.emplace_back( Channel,
-			      RelTime,
-			      AbsTime,
-			      Frame,
-			      Width,
-			      Area,
-			      Peak,
-			      PE,
-			      0.);
-      
-      int HitIndex = HitVector.size()-1;
-      
-      size_t Accum1Index = int( (TMax+TimeSlice)  / BinWidth);
-      size_t Accum2Index = int(( (TMax+TimeSlice) + BinWidth/2)/BinWidth);
-
-      (Contributors1.at(Accum1Index)).push_back(HitIndex);
-      (Contributors2.at(Accum2Index)).push_back(HitIndex);
-      
-      Binned1.at(Accum1Index) += PE; 
-      Binned2.at(Accum2Index) += PE;  
-      
-      // If this wasn't a flash already, add it to the list
-      if( Binned1.at(Accum1Index)>=FlashThreshold &&
-	  (Binned1.at(Accum1Index)-PE)<FlashThreshold )
-	FlashesInAccumulator1.push_back(Accum1Index);
-      
-      if( Binned2.at(Accum1Index)>=FlashThreshold &&
-	  (Binned2.at(Accum1Index)-PE)<FlashThreshold )
-	FlashesInAccumulator2.push_back(Accum1Index);
-      
-    }//end loop over pulses
+    if( pulse->peak<HitThreshold ) return;
     
-  } // end ConstructHits
+    double AbsTime = ConvertPulseTime(pulse->t_max,TimeSlice,Frame,TimeSlicesPerFrame,opdigi_SampleFreq);
+    double RelTime = AbsTime - TrigTimeAbs;
+    double PE = pulse->peak/SPESize;
+    
+    double width = ConvertPulseTime(pulse->t_end,TimeSlice,Frame,TimeSlicesPerFrame,opdigi_SampleFreq) - 
+      ConvertPulseTime(pulse->t_start,TimeSlice,Frame,TimeSlicesPerFrame,opdigi_SampleFreq);
+			    
+    HitVector.emplace_back( Channel,
+			    RelTime,
+			    AbsTime,
+			    Frame,
+			    width,
+			    pulse->area,
+			    pulse->peak,
+			    PE,
+			    0.);
+  }
+
+
+  //-------------------------------------------------------------------------------------------------
+  unsigned int GetAccumIndex(double const& TMax, 
+			     uint32_t const& TimeSlice, 
+			     int const& BinWidth, 
+			     double const& BinOffset){
+    return ( (TMax + TimeSlice) + BinOffset) / BinWidth;
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void FillAccumulator(unsigned int const& AccumIndex,
+		       unsigned int const& HitIndex,
+		       double const& PE,
+		       float const& FlashThreshold,
+		       std::vector<double> & Binned,
+		       std::vector< std::vector<int> > & Contributors,
+		       std::vector<int> & FlashesInAccumulator)
+  {
   
+      
+    (Contributors.at(AccumIndex)).push_back(HitIndex);
+    
+    Binned.at(AccumIndex) += PE; 
+    
+    // If this wasn't a flash already, add it to the list
+    if( Binned.at(AccumIndex)>=FlashThreshold &&
+	(Binned.at(AccumIndex)-PE)<FlashThreshold )
+      FlashesInAccumulator.push_back(AccumIndex);
+    
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void FillFlashesBySizeMap(std::vector<int> const& FlashesInAccumulator,
+			    std::vector<double> const& BinnedPE,
+			    int const& Accumulator,
+			    std::map<double, std::map<int,std::vector<int> >, std::greater<double> > & FlashesBySize){
+    for( auto const& flash : FlashesInAccumulator)
+      FlashesBySize[BinnedPE.at(flash)][Accumulator].push_back(flash);
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void FillHitsThisFlash(std::vector< std::vector<int> > const& Contributors,
+			 int const& Bin,
+			 size_t const& NHits_prev,
+			 std::vector<int> const& HitClaimedByFlash,
+			 std::vector<int> & HitsThisFlash){
+    
+    // for each hit in the flash
+    for(auto const& HitIndex : Contributors.at(Bin)){
+      
+      // if unclaimed, claim it
+      if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
+	HitsThisFlash.push_back(HitIndex);
+    }
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void ClaimHits(std::vector<recob::OpHit> const& HitVector,
+		 std::vector<int> const& HitsThisFlash,
+		 float const& FlashThreshold,
+		 std::vector< std::vector<int> > & HitsPerFlash,
+		 size_t const& NHits_prev,
+		 std::vector<int> & HitClaimedByFlash){
+
+    //Check for newly claimed hits
+    double PE = 0;
+    for(auto const& Hit : HitsThisFlash)
+      PE += HitVector.at(Hit).PE();
+    
+    if(PE < FlashThreshold) return;
+    
+    // add the flash to the list
+    HitsPerFlash.push_back(HitsThisFlash);
+    
+    // and claim all the hits
+    for(auto const& Hit : HitsThisFlash){
+      if(HitClaimedByFlash.at(Hit-NHits_prev)==-1)
+	HitClaimedByFlash.at(Hit-NHits_prev)=HitsPerFlash.size()-1;
+    }//end loop over hits in this flash
+    
+  }
 
   //-------------------------------------------------------------------------------------------------
   void AssignHitsToFlash( std::vector<int> const& FlashesInAccumulator1,
@@ -356,21 +420,24 @@ namespace opdet{
 
     // Sort all the flashes found by size. The structure is:
     // FlashesBySize[flash size][accumulator_num] = [flash_index1, flash_index2...]     
-    std::map<double, std::map<int,std::vector<int> > > FlashesBySize;
+    std::map<double, std::map<int,std::vector<int> >, std::greater<double> > FlashesBySize;
       
     // Sort the flashes by size using map
-    for( auto const& flash : FlashesInAccumulator1)
-      FlashesBySize[Binned1.at(flash)][1].push_back(flash);
-    for( auto const& flash : FlashesInAccumulator2)
-      FlashesBySize[Binned2.at(flash)][2].push_back(flash);
+    FillFlashesBySizeMap(FlashesInAccumulator1,
+			 Binned1,
+			 1,
+			 FlashesBySize);
+    FillFlashesBySizeMap(FlashesInAccumulator2,
+			 Binned2,
+			 2,
+			 FlashesBySize);
+    
   
     // This keeps track of which hits are claimed by which flash
     std::vector<int > HitClaimedByFlash(NHits,-1);
 
     // Walk from largest to smallest, claiming hits. The biggest flash always gets dibbs,
-    // but we keep track of overlaps for re-merging later
-
-    // Walk through flashes in size order, largest to smallest
+    // but we keep track of overlaps for re-merging later (do we? ---WK)
     for(auto const& itFlash : FlashesBySize){
 
       // If several with same size, walk walk through accumulators
@@ -384,43 +451,25 @@ namespace opdet{
 	    std::vector<int>   HitsThisFlash;
 
 	    if(Accumulator==1)
-
-	      // for each hit in the flash
-	      for(auto const& HitIndex : Contributors1.at(Bin)){
-
-		// if unclaimed, claim it
-		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
-		  HitsThisFlash.push_back(HitIndex);
-	      }
+	      FillHitsThisFlash(Contributors1,
+				Bin,
+				NHits_prev,
+				HitClaimedByFlash,
+				HitsThisFlash);	    
 	    else if(Accumulator==2)
+	      FillHitsThisFlash(Contributors2,
+				Bin,
+				NHits_prev,
+				HitClaimedByFlash,
+				HitsThisFlash);
 
-	      // for each hit in the flash
-	      for(auto const& HitIndex : Contributors2.at(Bin)){
-		
-		// if unclaimed, claim it
-		if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
-		  HitsThisFlash.push_back(HitIndex);
-	      }
+	    ClaimHits(HitVector,
+		      HitsThisFlash,
+		      FlashThreshold,
+		      HitsPerFlash,
+		      NHits_prev,
+		      HitClaimedByFlash);
 	    
-	    //Check for newly claimed hits
-	    double PE = 0;
-	    for(auto const& Hit : HitsThisFlash)
-	      PE += HitVector.at(Hit).PE();
-	    
-	    // if it still gets over threshold
-	    if(PE >= FlashThreshold){
-	      
-	      // add the flash to the list
-	      HitsPerFlash.push_back(HitsThisFlash);
-	      
-	      // and claim all the hits
-	      for(auto const& Hit : HitsThisFlash){
-		if(HitClaimedByFlash.at(Hit-NHits_prev)==-1)
-		  HitClaimedByFlash.at(Hit-NHits_prev)=HitsPerFlash.size()-1;
-	      }//end loop over hits in this flash
-
-	    }//end if PE above threshold
-
 	  }//end loop over this accumulator
 
       }//end loops over accumulators
@@ -431,208 +480,287 @@ namespace opdet{
 
 
   //-------------------------------------------------------------------------------------------------
-  void RefineHitsToFlash(std::vector< std::vector<int> > const& HitsPerFlash,
+  void FindSeedHit(std::map<double, std::vector<int>, std::greater<double> > const& HitsBySize,
+		   std::vector<bool> & HitsUsed,
+		   std::vector<recob::OpHit> const& HitVector,
+		   std::vector<int> & HitsThisRefinedFlash,
+		   double & PEAccumulated,
+		   double & FlashMaxTime,
+		   double & FlashMinTime){
+    
+    for(auto const& itHit : HitsBySize){
+      for(auto const& HitID : itHit.second){
+	
+	if(HitsUsed.at(HitID)) continue;
+
+	PEAccumulated = HitVector.at(HitID).PE();
+	FlashMaxTime = HitVector.at(HitID).PeakTime() + 
+	  0.5 * HitVector.at(HitID).Width();
+	FlashMinTime = HitVector.at(HitID).PeakTime() - 
+	  0.5 * HitVector.at(HitID).Width();
+
+	HitsThisRefinedFlash.clear();
+	HitsThisRefinedFlash.push_back(HitID);
+
+	HitsUsed.at(HitID)=true; 
+	return;
+	
+      }//end loop over inner vector
+      
+    }// end loop over HitsBySize map
+   
+  }//end FindSeedHit
+
+  //-------------------------------------------------------------------------------------------------
+  void AddHitToFlash( int const& HitID,
+		      std::vector<bool> & HitsUsed,
+		      recob::OpHit const& currentHit,
+		      double const& WidthTolerance,
+		      std::vector<int> & HitsThisRefinedFlash,
+		      double & PEAccumulated,
+		      double & FlashMaxTime,
+		      double & FlashMinTime)
+  {
+
+    if(HitsUsed.at(HitID)) return;
+    
+    double HitTime  =   currentHit.PeakTime();
+    double HitWidth =   0.5*currentHit.Width();
+    double FlashTime =  0.5*(FlashMaxTime + FlashMinTime);
+    double FlashWidth = 0.5*(FlashMaxTime - FlashMinTime);
+
+    if( std::abs(HitTime-FlashTime) > WidthTolerance*(HitWidth + FlashWidth) ) return;
+
+    HitsThisRefinedFlash.push_back(HitID);
+    FlashMaxTime = std::max(FlashMaxTime, HitTime + HitWidth);
+    FlashMinTime = std::min(FlashMinTime, HitTime - HitWidth);
+    PEAccumulated += currentHit.PE();
+    HitsUsed[HitID] = true;
+    
+  }//end AddHitToFlash
+
+  //-------------------------------------------------------------------------------------------------
+  void CheckAndStoreFlash( std::vector< std::vector<int> >& RefinedHitsPerFlash,
+			   std::vector<int> const& HitsThisRefinedFlash,
+			   double const& PEAccumulated,
+			   float const& FlashThreshold,
+			   std::vector<bool> & HitsUsed )
+  {
+    
+    //if above threshold, we just add hits to the flash vector, and move on
+    if(PEAccumulated >= FlashThreshold){
+      RefinedHitsPerFlash.push_back(HitsThisRefinedFlash);
+      return;
+    }
+
+    //if there is only one hit in collection, we can immediately move on
+    if(HitsThisRefinedFlash.size()==1) return;
+
+    //we need to release all other hits (allow possible reuse)
+    for(size_t i=1; i<HitsThisRefinedFlash.size(); i++)
+      HitsUsed.at( HitsThisRefinedFlash[i] ) = false;
+
+  }//end CheckAndStoreFlash
+
+  //-------------------------------------------------------------------------------------------------
+  void RefineHitsInFlash(std::vector<int> const& HitsThisFlash,
 			 std::vector<recob::OpHit> const& HitVector,
 			 std::vector< std::vector<int> >& RefinedHitsPerFlash,
 			 float const& WidthTolerance,
 			 float const& FlashThreshold){
 
-    for(size_t iFlash=0; iFlash!=HitsPerFlash.size(); ++iFlash){}
-    for(auto const& flash : HitsPerFlash){
+    // Sort the hits by their size using map
+    // HitsBySize[HitSize] = [hit1, hit2 ...]
+    std::map<double, std::vector<int>, std::greater<double> > HitsBySize;
+    for(auto const& HitID : HitsThisFlash)
+      HitsBySize[HitVector.at(HitID).PE()].push_back(HitID);
+    
+    // Heres what we do:
+    //  1.Start with the biggest remaining hit
+    //  2.Look for any within one width of this hit
+    //  3.Find the new upper and lower bounds of the flash
+    //  4.Collect again
+    //  5.Repeat until no new hits collected
+    //  6.Remove these hits from consideration and repeat
+    
+    std::vector<bool> HitsUsed(HitVector.size(),false);
+    double PEAccumulated, FlashMaxTime, FlashMinTime;
+    std::vector<int> HitsThisRefinedFlash;
 
-      // Sort the hits in each flash by their size using map
-      // HitsBySize[HitSize] = [hit1, hit2 ...]
-      std::map<double, std::vector<int> > HitsBySize;
-      for(auto const& HitID : flash)
-	HitsBySize[HitVector.at(HitID).PE()].push_back(HitID);
-
-      // Heres what we do:
-      //  1.Start with the biggest remaining hit
-      //  2.Look for any within one width of this hit
-      //  3.Find the new upper and lower bounds of the flash
-      //  4.Collect again
-      //  5.Repeat until no new hits collected
-      //  6.Remove these hits from consideration and repeat
+    while(true){
       
-      std::vector<bool> HitsUsed(HitVector.size(),false);
-      bool HitsLeft = true, StillCollecting = true;
-      double PEAccumulated, FlashMaxTime, FlashMinTime;
-      std::vector<int> HitsThisRefinedFlash;
-      while(HitsLeft){
-
-	HitsLeft = false;
-	PEAccumulated = 0; FlashMaxTime = 0; FlashMinTime = 0;
-
-	for(auto const& itHit : HitsBySize){
+      HitsThisRefinedFlash.clear();
+      PEAccumulated = 0; FlashMaxTime = 0; FlashMinTime = 0;
+      
+      FindSeedHit(HitsBySize,
+		  HitsUsed,
+		  HitVector,
+		  HitsThisRefinedFlash,
+		  PEAccumulated,
+		  FlashMaxTime,
+		  FlashMinTime);
+      
+      if( HitsThisRefinedFlash.size()==0 ) return;
+      
+      size_t NHitsThisRefinedFlash = 0; //start this at zero to do the while at least once
+      
+      //if size of HitsThisRefinedFlash is same size, that means we're not adding anymore
+      while(NHitsThisRefinedFlash < HitsThisRefinedFlash.size()){
+	NHitsThisRefinedFlash = HitsThisRefinedFlash.size();
+	
+	for(auto const& itHit : HitsBySize)
 	  for(auto const& HitID : itHit.second){
+	    AddHitToFlash( HitID,
+			   HitsUsed,
+			   HitVector.at(HitID),
+			   WidthTolerance,
+			   HitsThisRefinedFlash,
+			   PEAccumulated,
+			   FlashMaxTime,
+			   FlashMinTime);	
+	  }
+    
+      }
+      
+      // We did our collecting, now check if the flash is
+      // still good and push back
+      CheckAndStoreFlash(RefinedHitsPerFlash,
+			 HitsThisRefinedFlash,
+			 PEAccumulated,
+			 FlashThreshold,
+			 HitsUsed);
+      
+    }//end while there are hits left
+    
+  }//end RefineHitsInFlash
+  
+  
+  //-------------------------------------------------------------------------------------------------
+  void AddHitContribution( recob::OpHit const& currentHit,
+			   double & MaxTime,
+			   double & MinTime,
+			   double & AveTime,
+			   double & FastToTotal,
+			   double & AveAbsTime,
+			   double & TotalPE,
+			   std::vector<double> & PEs)
+  {
 
-	    if(!HitsUsed.at(HitID)){
-	      HitsLeft = true;
-	      PEAccumulated += HitVector.at(HitID).PE();
-	      FlashMaxTime = HitVector.at(HitID).PeakTime() + 
-		WidthTolerance * HitVector.at(HitID).Width();
-	      FlashMinTime = HitVector.at(HitID).PeakTime() - 
-		WidthTolerance * HitVector.at(HitID).Width();
-	      HitsThisRefinedFlash.push_back(HitID);
-	      HitsUsed.at(HitID)=true; 
-	      break;
-	    }
+    double PEThisHit            = currentHit.PE();
+    double TimeThisHit          = currentHit.PeakTime();
+    if(TimeThisHit > MaxTime) MaxTime = TimeThisHit;
+    if(TimeThisHit < MinTime) MinTime = TimeThisHit;
+    
+    // These quantities for the flash are defined as the weighted averages
+    //   over the hits
+    AveTime     += TimeThisHit        *PEThisHit;
+    FastToTotal += currentHit.FastToTotal() *PEThisHit;
+    AveAbsTime  += currentHit.PeakTimeAbs()     *PEThisHit;
+    
+    // These are totals
+    TotalPE     += PEThisHit;
+    PEs.at(currentHit.OpChannel())+=PEThisHit;
 
-	  }//end loop over inner vector
-	  
-	  if(HitsLeft==true) break;
-	
-	}// end loop over HitsBySize map
-
-
-	// Now iteratively collect hits within the flash width
-	StillCollecting = true;
-	while(StillCollecting){
-	  
-	  StillCollecting = false;
-	  for(auto const& HitID : flash){
-	    
-	    if(!HitsUsed.at(HitID)){
-	      double HitTime  =   HitVector.at(HitID).PeakTime();
-	      double HitWidth =   HitVector.at(HitID).Width();
-	      double FlashTime =  0.5*(FlashMaxTime + FlashMinTime);
-	      double FlashWidth = 0.5*(FlashMaxTime - FlashMinTime);
-	      if( fabs(HitTime-FlashTime) < WidthTolerance*(HitWidth + FlashWidth) ){
-		HitsThisRefinedFlash.push_back(HitID);
-		HitsUsed.at(HitID) = true;
-		FlashMaxTime = std::max(FlashMaxTime, HitTime + HitWidth);
-		FlashMinTime = std::min(FlashMinTime, HitTime - HitWidth);
-		PEAccumulated += HitVector.at(HitID).PE();
-		StillCollecting = true;
-	      }//end if hit matches flash
-	    }//end if hit unused
-	  }// end loop over hits
-	}//end while collecting hits into flashes
-	
-
-	// We did our collecting, now check if the flash is
-	// still good and push back
-	if(PEAccumulated >= FlashThreshold)
-	    RefinedHitsPerFlash.push_back(HitsThisRefinedFlash);
-		
-      }//end while there are hits left
-    }//end loop over hits per flash
-
-  }//end RefineHitsToFlash
-
+  }
 
   //-------------------------------------------------------------------------------------------------
-  void ConstructFlashes(std::vector< std::vector<int> > const& RefinedHitsPerFlash,
-			std::vector<recob::OpHit> const& HitVector,
-			std::vector<recob::OpFlash>& FlashVector,
-			uint32_t const& TimeSlicesPerFrame,
-			geo::Geometry const& geom,
-			unsigned int const& TrigFrame,
-			unsigned short const& Frame,
-			float const& TrigCoinc){
-
-    for(auto const& HitsPerFlashVec : RefinedHitsPerFlash){
-
-      double MaxTime = -1e9, MinTime = 1e9;
-
-      std::vector<double> PEs(geom.NOpChannels());
-      unsigned int Nplanes = geom.Nplanes();
-      std::vector<double> sumw(Nplanes,0), sumw2(Nplanes,0);
-
-      double TotalPE=0, AveTime=0, AveAbsTime=0, FastToTotal=0, sumy=0, sumz=0, sumy2=0, sumz2=0;
-
-      for(auto const& HitID : HitsPerFlashVec){
-
-	double FastToTotalThisHit   = HitVector.at(HitID).FastToTotal();
-	double PEThisHit            = HitVector.at(HitID).PE();
-	double TimeThisHit          = HitVector.at(HitID).PeakTime();
-	double AbsTimeThisHit       = HitVector.at(HitID).PeakTimeAbs();
-	unsigned int ChannelThisHit = HitVector.at(HitID).OpChannel();
-	if(TimeThisHit > MaxTime) MaxTime = TimeThisHit;
-	if(TimeThisHit < MinTime) MinTime = TimeThisHit;
-
-	// These quantities for the flash are defined as the weighted averages
-	//   over the hits
-	FastToTotal += FastToTotalThisHit *PEThisHit;
-	AveTime     += TimeThisHit        *PEThisHit;
-	AveAbsTime  += AbsTimeThisHit     *PEThisHit;
-	
-	// These are totals
-	TotalPE     += PEThisHit;
-	PEs.at(ChannelThisHit)+=PEThisHit;
-	
-	unsigned int o=0, c=0;
-	geom.OpChannelToCryoOpDet(ChannelThisHit,o,c);
-	
-	double xyz[3];
+  void GetHitGeometryInfo(recob::OpHit const& currentHit,
+			  geo::Geometry const& geom,
+			  std::vector<double> & sumw,
+			  std::vector<double> & sumw2,
+			  double & sumy, double & sumy2,
+			  double & sumz, double & sumz2)
+  {
+	unsigned int o=0, c=0; double xyz[3];
+	geom.OpChannelToCryoOpDet(currentHit.OpChannel(),o,c);
 	geom.Cryostat(c).OpDet(o).GetCenter(xyz);
 	
-	for(size_t p=0; p!=Nplanes; p++){
+	double PEThisHit = currentHit.PE();
+	for(size_t p=0; p!=geom.Nplanes(); p++){
 	  unsigned int w = geom.NearestWire(xyz,p);
 	  sumw.at(p)  += w*PEThisHit;
 	  sumw2.at(p) += w*w*PEThisHit;
-	}             
+	}
 		
 	sumy+=xyz[1]*PEThisHit; sumy2+=xyz[1]*xyz[1]*PEThisHit;
 	sumz+=xyz[2]*PEThisHit; sumz2+=xyz[2]*xyz[2]*PEThisHit;
-      
-      }//end loop over hits in (refined) flash
+  }
 
-	    
-      AveTime     /= TotalPE;
-      AveAbsTime  /= TotalPE;
-      FastToTotal /= TotalPE;
-      
-      double meany = sumy / TotalPE;
-      double meanz = sumz / TotalPE;
-      
-      double widthy = std::sqrt(sumy2*TotalPE - sumy*sumy)/TotalPE;
-      double widthz = std::sqrt(sumz2*TotalPE - sumz*sumz)/TotalPE;
- 
-      std::vector<double> WireCenters(Nplanes,0);
-      std::vector<double> WireWidths(Nplanes,0);
-      
-      for(size_t p=0; p!=Nplanes; ++p){
-	WireCenters.at(p) = sumw.at(p)/TotalPE;
-	WireWidths.at(p)  = std::sqrt(sumw2.at(p)*TotalPE - sumw.at(p)*sumw.at(p))/TotalPE;
-      }
-      
-      bool InBeamFrame = (Frame==TrigFrame);
-      double TimeWidth = (MaxTime-MinTime)/2.;
-      
-      int OnBeamTime =0; 
-      if( std::abs(AveTime) < TrigCoinc ) OnBeamTime=1;
-      /*
-      std::cout << "Time summary for this flash:"
-		<< "\n\tAveTime: " << AveTime
-		<< "\n\tAveAbsTime: " << AveAbsTime
-		<< "\n\tTotalPE: " << TotalPE
-		<< "\n\tmeany,widthy: " << meany << "," << widthy
-		<< "\n\tmeanz,widthz: " << meanz << "," << widthz
-		<< "\n\tFrame: " << Frame
-		<< "\n\tInBeamFrame: " << InBeamFrame
-		<< "\n\tOnBeamTime: " << OnBeamTime << std::endl;
-      */
-      FlashVector.emplace_back( AveTime,
-				TimeWidth,
-				AveAbsTime,
-				Frame,
-				PEs, 
-				InBeamFrame,
-				OnBeamTime,
-				FastToTotal,
-				meany, 
-				widthy, 
-				meanz, 
-				widthz, 
-				WireCenters, 
-				WireWidths);
-      
-      
-    }//end loop over all flashes
+  //-------------------------------------------------------------------------------------------------
+  void ConstructFlash(std::vector<int> const& HitsPerFlashVec,
+		      std::vector<recob::OpHit> const& HitVector,
+		      std::vector<recob::OpFlash>& FlashVector,
+		      uint32_t const& TimeSlicesPerFrame,
+		      geo::Geometry const& geom,
+		      unsigned int const& TrigFrame,
+		      unsigned short const& Frame,
+		      float const& TrigCoinc)
+  {
 
-  }//end ConstructFlashes
+    double MaxTime = -1e9, MinTime = 1e9;
+    
+    std::vector<double> PEs(geom.NOpChannels(),0);
+    unsigned int Nplanes = geom.Nplanes();
+    std::vector<double> sumw(Nplanes,0), sumw2(Nplanes,0);
+    
+    double TotalPE=0, AveTime=0, AveAbsTime=0, FastToTotal=0, sumy=0, sumz=0, sumy2=0, sumz2=0;
 
+    for(auto const& HitID : HitsPerFlashVec){
+      AddHitContribution(HitVector.at(HitID),
+			 MaxTime,
+			 MinTime,
+			 AveTime,
+			 FastToTotal,
+			 AveAbsTime,
+			 TotalPE,
+			 PEs);
+      GetHitGeometryInfo(HitVector.at(HitID),
+			 geom,
+			 sumw,
+			 sumw2,
+			 sumy, sumy2,
+			 sumz, sumz2);
+    }
+
+    AveTime     /= TotalPE;
+    AveAbsTime  /= TotalPE;
+    FastToTotal /= TotalPE;
+    
+    double meany = sumy / TotalPE;
+    double meanz = sumz / TotalPE;
+    
+    double widthy = std::sqrt(sumy2*TotalPE - sumy*sumy)/TotalPE;
+    double widthz = std::sqrt(sumz2*TotalPE - sumz*sumz)/TotalPE;
+    
+    std::vector<double> WireCenters(Nplanes,0);
+    std::vector<double> WireWidths(Nplanes,0);
+    
+    for(size_t p=0; p!=Nplanes; ++p){
+      WireCenters.at(p) = sumw.at(p)/TotalPE;
+      WireWidths.at(p)  = std::sqrt(sumw2.at(p)*TotalPE - sumw.at(p)*sumw.at(p))/TotalPE;
+    }
+    
+    bool InBeamFrame = (Frame==TrigFrame);
+    double TimeWidth = (MaxTime-MinTime)/2.;
+    
+    int OnBeamTime =0; 
+    if( std::abs(AveTime) < TrigCoinc ) OnBeamTime=1;
+    
+    FlashVector.emplace_back( AveTime,
+			      TimeWidth,
+			      AveAbsTime,
+			      Frame,
+			      PEs, 
+			      InBeamFrame,
+			      OnBeamTime,
+			      FastToTotal,
+			      meany, 
+			      widthy, 
+			      meanz, 
+			      widthz, 
+			      WireCenters, 
+			      WireWidths);
+  }
 
   //-------------------------------------------------------------------------------------------------
   void RemoveLateLight(std::vector<recob::OpFlash>& FlashVector,
