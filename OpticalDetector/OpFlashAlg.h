@@ -176,6 +176,20 @@ namespace opdet{
   void RemoveLateLight(std::vector<recob::OpFlash>&,
 		       std::vector< std::vector<int> >&);
 
+  double GetLikelihoodLateLight(double const& iPE, double const& iTime, double const& iWidth,
+				double const& jPE, double const& jTime, double const& jWidth);
+
+  void MarkFlashesForRemoval(std::vector<recob::OpFlash> const& FlashVector,
+			     size_t const& BeginFlash,
+			     std::vector<bool> & MarkedForRemoval);
+
+  void RemoveFlashesFromVectors(std::vector<bool> const& MarkedForRemoval,
+				std::vector<recob::OpFlash>& FlashVector,
+				size_t const& BeginFlash,
+				std::vector< std::vector<int> >& RefinedHitsPerFlash);
+
+
+
 }//end opdet namespace
 
 #endif

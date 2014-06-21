@@ -687,6 +687,11 @@ namespace opdet{
   }
 
   //-------------------------------------------------------------------------------------------------
+  double CalculateWidth(double const& sum, double const& sum_squared, double const& weights_sum){
+    return std::sqrt( sum_squared*weights_sum + sum*sum )/weights_sum;
+  }
+
+  //-------------------------------------------------------------------------------------------------
   void ConstructFlash(std::vector<int> const& HitsPerFlashVec,
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
@@ -729,15 +734,15 @@ namespace opdet{
     double meany = sumy / TotalPE;
     double meanz = sumz / TotalPE;
     
-    double widthy = std::sqrt(sumy2*TotalPE - sumy*sumy)/TotalPE;
-    double widthz = std::sqrt(sumz2*TotalPE - sumz*sumz)/TotalPE;
+    double widthy = CalculateWidth(sumy,sumy2,TotalPE);
+    double widthz = CalculateWidth(sumz,sumz2,TotalPE);
     
     std::vector<double> WireCenters(Nplanes,0);
     std::vector<double> WireWidths(Nplanes,0);
     
     for(size_t p=0; p!=Nplanes; ++p){
       WireCenters.at(p) = sumw.at(p)/TotalPE;
-      WireWidths.at(p)  = std::sqrt(sumw2.at(p)*TotalPE - sumw.at(p)*sumw.at(p))/TotalPE;
+      WireWidths.at(p)  = CalculateWidth(sumw.at(p),sumw2.at(p),TotalPE);
     }
     
     bool InBeamFrame = (Frame==TrigFrame);
@@ -763,17 +768,25 @@ namespace opdet{
   }
 
   //-------------------------------------------------------------------------------------------------
-  void RemoveLateLight(std::vector<recob::OpFlash>& FlashVector,
-		       std::vector< std::vector<int> >& RefinedHitsPerFlash){
+  double GetLikelihoodLateLight(double const& iPE, double const& iTime, double const& iWidth,
+				double const& jPE, double const& jTime, double const& jWidth)
+  {
 
-    std::vector<bool> MarkedForRemoval(RefinedHitsPerFlash.size(),false);
+    if(iTime > jTime) return 1e6;
 
-    size_t BeginFlash = FlashVector.size() - RefinedHitsPerFlash.size();
+    // Calculate hypothetical PE if this were actually a late flash from i
+    //  Argon time const is 1600 ns, so 1.6.
+    double HypPE = iPE * jWidth / iWidth * std::exp(-(jTime-iTime)/1.6);
+    double nsigma = (jPE-HypPE)/std::sqrt(HypPE);
+    return nsigma;
 
-    recob::OpFlashSortByTime sort_flash_by_time;
-    std::sort(FlashVector.begin()+BeginFlash,
-	      FlashVector.end(),
-	      sort_flash_by_time);
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void MarkFlashesForRemoval(std::vector<recob::OpFlash> const& FlashVector,
+			     size_t const& BeginFlash,
+			     std::vector<bool> & MarkedForRemoval)
+  {
 
     for(size_t iFlash=BeginFlash; iFlash!=FlashVector.size(); ++iFlash){
 
@@ -788,18 +801,22 @@ namespace opdet{
 	double jTime = FlashVector.at(jFlash).Time();
 	double jPE   = FlashVector.at(jFlash).TotalPE();
 	double jWidth= FlashVector.at(jFlash).TimeWidth();
-	
-	// Calculate hypothetical PE if this were actually a late flash from i
-	//  Argon time const is 1600 ns, so 1.6.
-	double HypPE = iPE * jWidth / iWidth * std::exp(-(jTime-iTime)/1.6);
-	double nsigma = (jPE-HypPE)/std::sqrt(HypPE);
-	
+
 	// If smaller than, or within 2sigma of expectation,
 	//  attribute to late light and toss out
-	if( nsigma < 3. ) 
+	if( GetLikelihoodLateLight(iPE,iTime,iWidth,jPE,jTime,jWidth) < 3. ) 
 	  MarkedForRemoval.at(jFlash-BeginFlash)=true;
-      }	    
+      }
     }
+
+  }
+
+  //-------------------------------------------------------------------------------------------------
+  void RemoveFlashesFromVectors(std::vector<bool> const& MarkedForRemoval,
+				std::vector<recob::OpFlash>& FlashVector,
+				size_t const& BeginFlash,
+				std::vector< std::vector<int> >& RefinedHitsPerFlash)
+  {
 
     for(int iFlash=MarkedForRemoval.size()-1; iFlash!=-1; --iFlash){
       if(MarkedForRemoval.at(iFlash)){
@@ -808,8 +825,31 @@ namespace opdet{
       }
     }
 
-
   }
+
+  //-------------------------------------------------------------------------------------------------
+  void RemoveLateLight(std::vector<recob::OpFlash>& FlashVector,
+		       std::vector< std::vector<int> >& RefinedHitsPerFlash){
+
+    std::vector<bool> MarkedForRemoval(RefinedHitsPerFlash.size(),false);
+
+    size_t BeginFlash = FlashVector.size() - RefinedHitsPerFlash.size();
+
+    recob::OpFlashSortByTime sort_flash_by_time;
+    std::sort(FlashVector.begin()+BeginFlash,
+	      FlashVector.end(),
+	      sort_flash_by_time);
+
+    MarkFlashesForRemoval(FlashVector,
+			  BeginFlash,
+			  MarkedForRemoval);
+
+    RemoveFlashesFromVectors(MarkedForRemoval,
+			     FlashVector,
+			     BeginFlash,
+			     RefinedHitsPerFlash);
+
+  }//end RemoveLateLight
 
 }//end namespace opdet
 

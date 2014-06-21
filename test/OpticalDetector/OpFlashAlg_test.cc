@@ -1065,4 +1065,459 @@ BOOST_AUTO_TEST_CASE(AddHitContribution_AddSecondHit)
     BOOST_CHECK_EQUAL( PEs.at(4) , 0 );
 }
 
+
+BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_BackwardsTime)
+{
+
+  double iPE = 100; double iTime = 0; double iWidth=0.5;
+  double jPE = 100; double jTime = -1; double jWidth=0.5;
+  
+  double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
+						jPE, jTime, jWidth);
+  
+  BOOST_CHECK_CLOSE( result, 1e6, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_EqualFlashes)
+{
+
+  double iPE = 100; double iTime = 0; double iWidth=0.5;
+  double jPE = 100; double jTime = 0; double jWidth=0.5;
+  
+  double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
+						jPE, jTime, jWidth);
+  
+  BOOST_CHECK_CLOSE( result, 0, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_LateFlash)
+{
+
+  double iPE = 100; double iTime = 0; double iWidth=0.5;
+  double jPE = 10; double jTime = 1.6; double jWidth=0.5;
+  
+  double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
+						jPE, jTime, jWidth);
+  
+  double good_result = (jPE - std::exp(-1)*iPE)/(std::sqrt(std::exp(-1)*iPE));
+
+  BOOST_CHECK_CLOSE( result, good_result, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_VeryLateFlash)
+{
+
+  double iPE = 100; double iTime = 0; double iWidth=0.5;
+  double jPE = 10; double jTime = 16; double jWidth=0.5;
+  
+  double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
+						jPE, jTime, jWidth);
+  
+  double good_result = (jPE - std::exp(-10)*iPE)/(std::sqrt(std::exp(-10)*iPE));
+
+  BOOST_CHECK_CLOSE( result, good_result, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_UnequalWidths)
+{
+
+  double iPE = 100; double iTime = 0; double iWidth=1;
+  double jPE = 10; double jTime = 1.6; double jWidth=0.5;
+  
+  double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
+						jPE, jTime, jWidth);
+  
+  double good_result = (jPE - std::exp(-1)*iPE*0.5)/(std::sqrt(std::exp(-1)*iPE*0.5));
+
+  BOOST_CHECK_CLOSE( result, good_result, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_NoFlashes)
+{
+  size_t NFlashes=5;
+  size_t BeginFlash=5; //that is, no new flashes to look at
+
+  std::vector<recob::OpFlash> FlashVector(NFlashes);
+  std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
+
+  opdet::MarkFlashesForRemoval(FlashVector,
+			       BeginFlash,
+			       MarkedForRemoval);
+
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 0 );
+
+}
+
+BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_OneFlash)
+{
+  size_t NFlashes=1;
+  size_t BeginFlash=0;
+
+  std::vector<double> PEs(30,0);
+  PEs.at(0) = 100;
+  std::vector<double> WireCenters(3,0);
+  std::vector<double> WireWidths(3,0);
+
+  std::vector<recob::OpFlash> FlashVector;
+  FlashVector.emplace_back(0, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
+
+  opdet::MarkFlashesForRemoval(FlashVector,
+			       BeginFlash,
+			       MarkedForRemoval);
+
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 1 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 1 );
+  BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
+  BOOST_CHECK_EQUAL( FlashVector[0].TimeWidth() , 0.5 );
+
+}
+
+BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_TwoIndieFlashes)
+{
+  size_t NFlashes=2;
+  size_t BeginFlash=0;
+
+  std::vector<double> PEs(30,0);
+  PEs.at(0) = 100;
+  std::vector<double> WireCenters(3,0);
+  std::vector<double> WireWidths(3,0);
+
+  std::vector<recob::OpFlash> FlashVector;
+  FlashVector.emplace_back(0, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(1e6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
+
+  opdet::MarkFlashesForRemoval(FlashVector,
+			       BeginFlash,
+			       MarkedForRemoval);
+
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 2 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[1] , false );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 2 );
+  BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
+  BOOST_CHECK_EQUAL( FlashVector[1].Time() , 1e6 );
+
+}
+
+BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_RemoveOneFlash)
+{
+  size_t NFlashes=3;
+  size_t BeginFlash=0;
+
+  std::vector<double> PEs(30,0);
+  PEs.at(0) = 100;
+  std::vector<double> PEs_Small(30,0);
+  PEs_Small.at(0) = 5;
+  std::vector<double> WireCenters(3,0);
+  std::vector<double> WireWidths(3,0);
+
+  std::vector<recob::OpFlash> FlashVector;
+  FlashVector.emplace_back(0, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(1.6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs_Small, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(1e6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
+
+  opdet::MarkFlashesForRemoval(FlashVector,
+			       BeginFlash,
+			       MarkedForRemoval);
+
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 3 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[1] , true );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[2] , false );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 3 );
+  BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
+  BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
+  BOOST_CHECK_EQUAL( FlashVector[1].Time() , 1.6 );
+  BOOST_CHECK_EQUAL( FlashVector[1].TotalPE() , 5 );
+  BOOST_CHECK_EQUAL( FlashVector[2].Time() , 1e6 );
+  BOOST_CHECK_EQUAL( FlashVector[2].TotalPE() , 100 );
+
+}
+
+BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_IgnoreFirstFlash)
+{
+  size_t NFlashes=4;
+  size_t BeginFlash=1;
+
+  std::vector<double> PEs(30,0);
+  PEs.at(0) = 100;
+  std::vector<double> PEs_Small(30,0);
+  PEs_Small.at(0) = 5;
+  std::vector<double> WireCenters(3,0);
+  std::vector<double> WireWidths(3,0);
+
+  std::vector<recob::OpFlash> FlashVector;
+  FlashVector.emplace_back(-1e6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(0, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(1.6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs_Small, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(1e6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
+
+  opdet::MarkFlashesForRemoval(FlashVector,
+			       BeginFlash,
+			       MarkedForRemoval);
+
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 3 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[1] , true );
+  BOOST_CHECK_EQUAL( MarkedForRemoval[2] , false );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 4 );
+  BOOST_CHECK_EQUAL( FlashVector[0].Time() , -1e6 );
+  BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
+  BOOST_CHECK_EQUAL( FlashVector[1].Time() , 0 );
+  BOOST_CHECK_EQUAL( FlashVector[1].TotalPE() , 100 );
+  BOOST_CHECK_EQUAL( FlashVector[2].Time() , 1.6 );
+  BOOST_CHECK_EQUAL( FlashVector[2].TotalPE() , 5 );
+  BOOST_CHECK_EQUAL( FlashVector[3].Time() , 1e6 );
+  BOOST_CHECK_EQUAL( FlashVector[3].TotalPE() , 100 );
+
+}
+
+BOOST_AUTO_TEST_CASE(RemoveFlashesFromVectors_IgnoreFirstFlash)
+{
+  size_t NFlashes=4;
+  size_t BeginFlash=1;
+
+  std::vector<double> PEs(30,0);
+  PEs.at(0) = 100;
+  std::vector<double> PEs_Small(30,0);
+  PEs_Small.at(0) = 5;
+  std::vector<double> WireCenters(3,0);
+  std::vector<double> WireWidths(3,0);
+
+  std::vector<recob::OpFlash> FlashVector;
+  FlashVector.emplace_back(-1e6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(0, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(1.6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs_Small, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  FlashVector.emplace_back(1e6, //time
+			   0.5, //TimeWidth,
+			   0, //AveAbsTime,
+			   0, //Frame,
+			   PEs, 
+			   0, //InBeamFrame,
+			   0, //OnBeamTime,
+			   0, //FastToTotal,
+			   0, //meany, 
+			   0, //widthy, 
+			   0, //meanz, 
+			   0, //widthz, 
+			   WireCenters, 
+			   WireWidths);
+  std::vector<bool> MarkedForRemoval{false, true, false};
+  std::vector< std::vector<int> > RefinedHitsPerFlash(NFlashes-BeginFlash);
+  RefinedHitsPerFlash[0].push_back(0);
+  RefinedHitsPerFlash[1].push_back(1);
+  RefinedHitsPerFlash[2].push_back(2);
+
+  opdet::RemoveFlashesFromVectors(MarkedForRemoval,
+				  FlashVector,
+				  BeginFlash,
+				  RefinedHitsPerFlash);
+
+  BOOST_CHECK_EQUAL( FlashVector.size() , 3 );
+  BOOST_CHECK_EQUAL( FlashVector[0].Time() , -1e6 );
+  BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
+  BOOST_CHECK_EQUAL( FlashVector[1].Time() , 0 );
+  BOOST_CHECK_EQUAL( FlashVector[1].TotalPE() , 100 );
+  BOOST_CHECK_EQUAL( FlashVector[2].Time() , 1e6 );
+  BOOST_CHECK_EQUAL( FlashVector[2].TotalPE() , 100 );
+
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size() , 2 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0] , 0 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[1][0] , 2 );
+
+}
+
+BOOST_AUTO_TEST_CASE(RemoveFlashesFromVectors_NoFlashes)
+{
+  size_t NFlashes=5;
+  size_t BeginFlash=5; //that is, no new flashes to look at
+
+  std::vector<recob::OpFlash> FlashVector(NFlashes);
+  std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
+  std::vector< std::vector<int> > RefinedHitsPerFlash(NFlashes-BeginFlash);
+
+  opdet::RemoveFlashesFromVectors(MarkedForRemoval,
+				  FlashVector,
+				  BeginFlash,
+				  RefinedHitsPerFlash);
+
+  BOOST_CHECK_EQUAL( FlashVector.size() , NFlashes );
+
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
