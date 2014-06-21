@@ -6,6 +6,7 @@
 
 const float HitThreshold = 3;
 const float FlashThreshold = 50;
+const double WidthTolerance = 0.5;
 const int Channel = 1;
 const uint32_t TimeSlice = 1000;
 const unsigned short Frame = 1;
@@ -83,13 +84,15 @@ BOOST_AUTO_TEST_CASE(ConstructHit_checkPulseAbovThreshold)
 		      HitVector);
   
   double peak_time_abs = (pulse.t_max + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
+  double pulse_end = (pulse.t_end + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
+  double pulse_begin = (pulse.t_start + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
 
   BOOST_CHECK_EQUAL(HitVector.size(),1ul);
   BOOST_CHECK_EQUAL(HitVector[0].OpChannel(),Channel);
   BOOST_CHECK_CLOSE(HitVector[0].PeakTimeAbs(),peak_time_abs,tolerance);
   BOOST_CHECK_CLOSE(HitVector[0].PeakTime(),peak_time_abs-TrigTimeAbs,tolerance);
   BOOST_CHECK_EQUAL(HitVector[0].Frame(),Frame);
-  BOOST_CHECK_CLOSE(HitVector[0].Width(),pulse.t_end-pulse.t_start,tolerance);
+  BOOST_CHECK_CLOSE(HitVector[0].Width(),pulse_end-pulse_begin,tolerance);
   BOOST_CHECK_CLOSE(HitVector[0].Area(),pulse.area,tolerance);
   BOOST_CHECK_CLOSE(HitVector[0].Amplitude(),pulse.peak,tolerance);
   BOOST_CHECK_CLOSE(HitVector[0].PE(),pulse.peak/SPESize,tolerance);
@@ -630,6 +633,436 @@ BOOST_AUTO_TEST_CASE(ClaimHits_WithPrevHits)
   BOOST_CHECK_EQUAL( HitsPerFlash[0][1], 11);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[1], 0);
+}
+
+BOOST_AUTO_TEST_CASE(FindSeedHit_AllUsed)
+{
+
+  size_t NHits = 5;
+
+  std::vector<int> HitsThisRefinedFlash;
+  double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
+  
+  double hit_pe = 20;
+  double peak_time = 0;
+  double width = 10;
+  std::vector<recob::OpHit> HitVector;
+  for(size_t i=0; i<NHits; i++){
+    HitVector.emplace_back(0,peak_time,0,0,width,0,0,hit_pe,0);
+    hit_pe+=10;
+    peak_time+=1;
+  }
+
+  std::map<double, std::vector<int>, std::greater<double> > HitsBySize;
+  for(size_t i=0; i<NHits; i++)
+    HitsBySize[HitVector.at(i).PE()].push_back(i);
+
+  std::vector<bool> HitsUsed(NHits,true);
+
+  opdet::FindSeedHit(HitsBySize,
+		     HitsUsed,
+		     HitVector,
+		     HitsThisRefinedFlash,
+		     PEAccumulated,
+		     FlashMaxTime,
+		     FlashMinTime);
+
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 0 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , NHits);
+  BOOST_CHECK_EQUAL( PEAccumulated , 0 );
+  BOOST_CHECK_EQUAL( FlashMaxTime , 0 );
+  BOOST_CHECK_EQUAL( FlashMinTime , 0 );
+
+}
+
+BOOST_AUTO_TEST_CASE(FindSeedHit_NoneUsed)
+{
+
+  size_t NHits = 5;
+
+  std::vector<int> HitsThisRefinedFlash;
+  double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
+  
+  double hit_pe = 20;
+  double peak_time = 0;
+  double width = 10;
+  std::vector<recob::OpHit> HitVector;
+  for(size_t i=0; i<NHits; i++){
+    HitVector.emplace_back(0,peak_time,0,0,width,0,0,hit_pe,0);
+    hit_pe+=10;
+    peak_time+=1;
+  }
+
+  std::map<double, std::vector<int>, std::greater<double> > HitsBySize;
+  for(size_t i=0; i<NHits; i++)
+    HitsBySize[HitVector.at(i).PE()].push_back(i);
+
+  std::vector<bool> HitsUsed(NHits,false);
+
+  opdet::FindSeedHit(HitsBySize,
+		     HitsUsed,
+		     HitVector,
+		     HitsThisRefinedFlash,
+		     PEAccumulated,
+		     FlashMaxTime,
+		     FlashMinTime);
+
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
+  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
+  BOOST_CHECK_EQUAL( PEAccumulated , 60 );
+  BOOST_CHECK_EQUAL( FlashMaxTime , 9. );
+  BOOST_CHECK_EQUAL( FlashMinTime , -1. );
+
+}
+
+BOOST_AUTO_TEST_CASE(FindSeedHit_FirstUsed)
+{
+
+  size_t NHits = 5;
+
+  std::vector<int> HitsThisRefinedFlash;
+  double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
+  
+  double hit_pe = 20;
+  double peak_time = 0;
+  double width = 10;
+  std::vector<recob::OpHit> HitVector;
+  for(size_t i=0; i<NHits; i++){
+    HitVector.emplace_back(0,peak_time,0,0,width,0,0,hit_pe,0);
+    hit_pe+=10;
+    peak_time+=1;
+  }
+
+  std::map<double, std::vector<int>, std::greater<double> > HitsBySize;
+  for(size_t i=0; i<NHits; i++)
+    HitsBySize[HitVector.at(i).PE()].push_back(i);
+
+  std::vector<bool> HitsUsed(NHits,false);
+  HitsUsed[NHits-1] = true;
+
+  opdet::FindSeedHit(HitsBySize,
+		     HitsUsed,
+		     HitVector,
+		     HitsThisRefinedFlash,
+		     PEAccumulated,
+		     FlashMaxTime,
+		     FlashMinTime);
+
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 2);
+  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
+  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , true);
+  BOOST_CHECK_EQUAL( PEAccumulated , 50 );
+  BOOST_CHECK_EQUAL( FlashMaxTime , 8. );
+  BOOST_CHECK_EQUAL( FlashMinTime , -2. );
+
+}
+
+BOOST_AUTO_TEST_CASE(AddHitToFlash_UsedHit)
+{
+
+  size_t NHits = 5;
+
+  std::vector<int> HitsThisRefinedFlash;
+  double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
+  
+  double hit_pe = 20;
+  double peak_time = 0;
+  double width = 10;
+  std::vector<recob::OpHit> HitVector;
+  for(size_t i=0; i<NHits; i++){
+    HitVector.emplace_back(0,peak_time,0,0,width,0,0,hit_pe,0);
+    hit_pe+=10;
+    peak_time+=1;
+  }
+
+  std::map<double, std::vector<int>, std::greater<double> > HitsBySize;
+  for(size_t i=0; i<NHits; i++)
+    HitsBySize[HitVector.at(i).PE()].push_back(i);
+  std::vector<bool> HitsUsed(NHits,false);
+
+  opdet::FindSeedHit(HitsBySize,
+		     HitsUsed,
+		     HitVector,
+		     HitsThisRefinedFlash,
+		     PEAccumulated,
+		     FlashMaxTime,
+		     FlashMinTime);
+
+  int HitID = 4;
+  opdet::AddHitToFlash( HitID,
+			HitsUsed,
+			HitVector.at(HitID),
+			WidthTolerance,
+			HitsThisRefinedFlash,
+			PEAccumulated,
+			FlashMaxTime,
+			FlashMinTime);
+
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
+  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
+  BOOST_CHECK_EQUAL( PEAccumulated , 60 );
+  BOOST_CHECK_EQUAL( FlashMaxTime , 9. );
+  BOOST_CHECK_EQUAL( FlashMinTime , -1. );
+
+}
+
+BOOST_AUTO_TEST_CASE(AddHitToFlash_NewHit)
+{
+
+  size_t NHits = 5;
+
+  std::vector<int> HitsThisRefinedFlash;
+  double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
+  
+  double hit_pe = 20;
+  double peak_time = 0;
+  double width = 10;
+  std::vector<recob::OpHit> HitVector;
+  for(size_t i=0; i<NHits; i++){
+    HitVector.emplace_back(0,peak_time,0,0,width,0,0,hit_pe,0);
+    hit_pe+=10;
+    peak_time+=1;
+  }
+
+  std::map<double, std::vector<int>, std::greater<double> > HitsBySize;
+  for(size_t i=0; i<NHits; i++)
+    HitsBySize[HitVector.at(i).PE()].push_back(i);
+  std::vector<bool> HitsUsed(NHits,false);
+
+  opdet::FindSeedHit(HitsBySize,
+		     HitsUsed,
+		     HitVector,
+		     HitsThisRefinedFlash,
+		     PEAccumulated,
+		     FlashMaxTime,
+		     FlashMinTime);
+
+  int HitID = 3;
+  opdet::AddHitToFlash( HitID,
+			HitsUsed,
+			HitVector.at(HitID),
+			WidthTolerance,
+			HitsThisRefinedFlash,
+			PEAccumulated,
+			FlashMaxTime,
+			FlashMinTime);
+
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 2 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 2);
+  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
+  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , true);
+  BOOST_CHECK_EQUAL( PEAccumulated , 110 );
+  BOOST_CHECK_EQUAL( FlashMaxTime , 9. );
+  BOOST_CHECK_EQUAL( FlashMinTime , -2. );
+
+}
+
+BOOST_AUTO_TEST_CASE(AddHitToFlash_OutsideWidth)
+{
+
+  size_t NHits = 5;
+
+  std::vector<int> HitsThisRefinedFlash;
+  double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
+  
+  double hit_pe = 20;
+  double peak_time = 0;
+  double width = 0.1;
+  std::vector<recob::OpHit> HitVector;
+  for(size_t i=0; i<NHits; i++){
+    HitVector.emplace_back(0,peak_time,0,0,width,0,0,hit_pe,0);
+    hit_pe+=10;
+    peak_time+=1;
+  }
+
+  std::map<double, std::vector<int>, std::greater<double> > HitsBySize;
+  for(size_t i=0; i<NHits; i++)
+    HitsBySize[HitVector.at(i).PE()].push_back(i);
+  std::vector<bool> HitsUsed(NHits,false);
+
+  opdet::FindSeedHit(HitsBySize,
+		     HitsUsed,
+		     HitVector,
+		     HitsThisRefinedFlash,
+		     PEAccumulated,
+		     FlashMaxTime,
+		     FlashMinTime);
+
+  int HitID = 3;
+  opdet::AddHitToFlash( HitID,
+			HitsUsed,
+			HitVector.at(HitID),
+			WidthTolerance,
+			HitsThisRefinedFlash,
+			PEAccumulated,
+			FlashMaxTime,
+			FlashMinTime);
+
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
+  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
+  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , false);
+  BOOST_CHECK_EQUAL( PEAccumulated , 60 );
+  BOOST_CHECK_EQUAL( FlashMaxTime , 4.05 );
+  BOOST_CHECK_EQUAL( FlashMinTime , 3.95 );
+
+}
+
+BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_AboveThreshold)
+{
+  std::vector< std::vector<int> > RefinedHitsPerFlash;
+
+  std::vector<int> HitsThisRefinedFlash{0,1,2};
+  std::vector<bool> HitsUsed{true,true,true,false,false};
+  double PEAccumulated = 60;
+
+  opdet::CheckAndStoreFlash( RefinedHitsPerFlash,
+			     HitsThisRefinedFlash,
+			     PEAccumulated,
+			     FlashThreshold,
+			     HitsUsed );
+
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 1 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0].size(), 3 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0], 0 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][1], 1 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][2], 2 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 3);
+
+}
+
+BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_AboveThreshold_OneHit)
+{
+  std::vector< std::vector<int> > RefinedHitsPerFlash;
+
+  std::vector<int> HitsThisRefinedFlash{0};
+  std::vector<bool> HitsUsed{true,false,false,false,false};
+  double PEAccumulated = 60;
+
+  opdet::CheckAndStoreFlash( RefinedHitsPerFlash,
+			     HitsThisRefinedFlash,
+			     PEAccumulated,
+			     FlashThreshold,
+			     HitsUsed );
+
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 1 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0].size(), 1 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0], 0 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
+
+}
+
+BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_BelowThreshold_OneHit)
+{
+  std::vector< std::vector<int> > RefinedHitsPerFlash;
+
+  std::vector<int> HitsThisRefinedFlash{0};
+  std::vector<bool> HitsUsed{true,false,false,false,false};
+  double PEAccumulated = 30;
+
+  opdet::CheckAndStoreFlash( RefinedHitsPerFlash,
+			     HitsThisRefinedFlash,
+			     PEAccumulated,
+			     FlashThreshold,
+			     HitsUsed );
+
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 0 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
+  BOOST_CHECK_EQUAL( HitsUsed[0] , true);
+
+}
+
+BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_BelowThreshold_MultipleHits)
+{
+  std::vector< std::vector<int> > RefinedHitsPerFlash;
+
+  std::vector<int> HitsThisRefinedFlash{0,1,2};
+  std::vector<bool> HitsUsed{true,true,true,false,false};
+  double PEAccumulated = 30;
+
+  opdet::CheckAndStoreFlash( RefinedHitsPerFlash,
+			     HitsThisRefinedFlash,
+			     PEAccumulated,
+			     FlashThreshold,
+			     HitsUsed );
+
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 0 );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
+  BOOST_CHECK_EQUAL( HitsUsed[0] , true);
+  BOOST_CHECK_EQUAL( HitsUsed[1] , false);
+  BOOST_CHECK_EQUAL( HitsUsed[2] , false);
+
+}
+
+BOOST_AUTO_TEST_CASE(AddHitContribution_AddFirstHit)
+{
+    double MaxTime = -1e9, MinTime = 1e9;
+    double TotalPE=0, AveTime=0, AveAbsTime=0, FastToTotal=0;
+
+    size_t NOpChannels = 5;
+    std::vector<double> PEs(NOpChannels,0);    
+
+    double hit_pe = 20;
+    double peak_time = 1;
+    double width = 5;
+    int op_channel = 0;
+    recob::OpHit currentHit(op_channel,peak_time,0,0,width,0,0,hit_pe,0);
+
+    opdet::AddHitContribution( currentHit,
+			       MaxTime,
+			       MinTime,
+			       AveTime,
+			       FastToTotal,
+			       AveAbsTime,
+			       TotalPE,
+			       PEs);
+
+    BOOST_CHECK_EQUAL( MaxTime , peak_time );
+    BOOST_CHECK_EQUAL( MinTime , peak_time );
+    BOOST_CHECK_EQUAL( AveTime , peak_time*hit_pe );
+    BOOST_CHECK_EQUAL( AveAbsTime , 0 );
+    BOOST_CHECK_EQUAL( FastToTotal , 0 );
+    BOOST_CHECK_EQUAL( TotalPE , hit_pe );
+    BOOST_CHECK_EQUAL( PEs.at(op_channel) , hit_pe );
+    BOOST_CHECK_EQUAL( PEs.at(4) , 0 );
+}
+
+BOOST_AUTO_TEST_CASE(AddHitContribution_AddSecondHit)
+{
+    double MaxTime = 1, MinTime = 1;
+    double TotalPE=20, AveTime=20, AveAbsTime=0, FastToTotal=0;
+
+    size_t NOpChannels = 5;
+    std::vector<double> PEs(NOpChannels,0);
+    PEs.at(0)+=20;
+
+    double hit_pe = 30;
+    double peak_time = 5;
+    double width = 5;
+    int op_channel = 2;
+    recob::OpHit currentHit(op_channel,peak_time,0,0,width,0,0,hit_pe,0);
+
+    opdet::AddHitContribution( currentHit,
+			       MaxTime,
+			       MinTime,
+			       AveTime,
+			       FastToTotal,
+			       AveAbsTime,
+			       TotalPE,
+			       PEs);
+
+    BOOST_CHECK_EQUAL( MaxTime , peak_time );
+    BOOST_CHECK_EQUAL( MinTime , 1 );
+    BOOST_CHECK_EQUAL( AveTime , peak_time*hit_pe+20 );
+    BOOST_CHECK_EQUAL( AveAbsTime , 0 );
+    BOOST_CHECK_EQUAL( FastToTotal , 0 );
+    BOOST_CHECK_EQUAL( TotalPE , hit_pe+20 );
+    BOOST_CHECK_EQUAL( PEs.at(op_channel) , hit_pe );
+    BOOST_CHECK_EQUAL( PEs.at(0) , 20 );
+    BOOST_CHECK_EQUAL( PEs.at(4) , 0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
