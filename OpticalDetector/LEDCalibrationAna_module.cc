@@ -294,7 +294,7 @@ namespace opdet {
 		   
 		    const optdata::FIFOChannel* fifo_ptr = &FIFOChannelHandle->at(i);
 
-		    fPulseRecoMgr.RecoPulse(fifo_ptr);
+		    fPulseRecoMgr.RecoPulse(*fifo_ptr);
 		    
 		    size_t NPulses = fThreshAlg.GetNPulse();
 

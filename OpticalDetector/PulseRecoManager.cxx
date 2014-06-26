@@ -32,7 +32,7 @@ namespace pmtana{
   {}
 
   //***************************************************************
-  bool PulseRecoManager::RecoPulse(const std::vector<uint16_t> *fifo) const
+  bool PulseRecoManager::RecoPulse(const std::vector<uint16_t> &fifo) const
   //***************************************************************
   {
     bool status = true;
@@ -40,7 +40,7 @@ namespace pmtana{
     //
     // Step 0: skipe 0-length waveform with a warning message
     //    
-    if(fifo->size()<1){
+    if(fifo.size()<1){
       
       std::cerr <<"Found 0-length waveform vector!" << std::endl;
 
@@ -59,7 +59,7 @@ namespace pmtana{
 
     case kHEAD:
       
-      _ped_algo.ComputePedestal(&(*fifo), 0, ped_nsample);
+      _ped_algo.ComputePedestal(fifo, 0, ped_nsample);
       
       ped_mean = _ped_algo.Mean();
       
@@ -69,7 +69,7 @@ namespace pmtana{
       
     case kTAIL:
       
-      _ped_algo.ComputePedestal(fifo, (fifo->size()-ped_nsample), ped_nsample);
+      _ped_algo.ComputePedestal(fifo, (fifo.size()-ped_nsample), ped_nsample);
       
       ped_mean = _ped_algo.Mean();
       
@@ -85,7 +85,7 @@ namespace pmtana{
       
       sigma  = _ped_algo.Sigma();
       
-      _ped_algo.ComputePedestal(fifo, (fifo->size()-ped_nsample), ped_nsample);
+      _ped_algo.ComputePedestal(fifo, (fifo.size()-ped_nsample), ped_nsample);
       
       if( sigma > _ped_algo.Sigma() ) {
 	

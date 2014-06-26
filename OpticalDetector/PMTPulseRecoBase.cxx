@@ -28,19 +28,19 @@ namespace pmtana{
   {}
 
   //***************************************************************
-  bool CheckIndex(const std::vector<uint16_t> *wf, const size_t &begin, size_t &end)
+  bool CheckIndex(const std::vector<uint16_t> &wf, const size_t &begin, size_t &end)
   //***************************************************************
   {
-    if(begin >= wf->size() || end >= wf->size() || begin > end){
+    if(begin >= wf.size() || end >= wf.size() || begin > end){
 
       std::cerr << Form("Invalid arguments: waveform length = %zu, begin = %zu, end = %zu!",
-			wf->size(), begin, end)
+			wf.size(), begin, end)
 		<< std::endl;
       return false;
 
     }
 
-    if(!end) end = wf->size() - 1;
+    if(!end) end = wf.size() - 1;
 
     return true;
   }
@@ -69,18 +69,18 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool PMTPulseRecoBase::Integral(const std::vector<uint16_t> *wf,
-				 double &result,
-				 size_t begin,
-				 size_t end) const
+  bool PMTPulseRecoBase::Integral(const std::vector<uint16_t> &wf,
+				  double &result,
+				  size_t begin,
+				  size_t end) const
   //***************************************************************
   {
   
     if(!CheckIndex(wf,begin,end)) return false;
   
-    std::vector<uint16_t>::const_iterator begin_iter(wf->begin());
+    std::vector<uint16_t>::const_iterator begin_iter(wf.begin());
   
-    std::vector<uint16_t>::const_iterator end_iter(wf->begin());
+    std::vector<uint16_t>::const_iterator end_iter(wf.begin());
 
     begin_iter = begin_iter + begin;
 
@@ -92,10 +92,10 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool PMTPulseRecoBase::Derivative(const std::vector<uint16_t> *wf,
-				   std::vector<int32_t> &diff,
-				   size_t begin,
-				   size_t end) const 
+  bool PMTPulseRecoBase::Derivative(const std::vector<uint16_t> &wf,
+				    std::vector<int32_t> &diff,
+				    size_t begin,
+				    size_t end) const 
   //***************************************************************
   {
 
@@ -106,7 +106,7 @@ namespace pmtana{
 
       for(size_t index = begin ; index <= end ; ++index)
       
-	diff.push_back(wf->at(index+1) - wf->at(index));
+	diff.push_back(wf.at(index+1) - wf.at(index));
 
       return true;
     }
@@ -116,14 +116,14 @@ namespace pmtana{
   }
 
   //***************************************************************
-  size_t PMTPulseRecoBase::Max(const std::vector<uint16_t> *wf,
-			      double &result,
-			      size_t begin,
-			      size_t end) const
+  size_t PMTPulseRecoBase::Max(const std::vector<uint16_t> &wf,
+			       double &result,
+			       size_t begin,
+			       size_t end) const
   //***************************************************************
   {
 
-    size_t target_index = wf->size() + 1;
+    size_t target_index = wf.size() + 1;
 
     result = 0;
 
@@ -131,7 +131,7 @@ namespace pmtana{
 
       for(size_t index = begin; index <= end; ++index)
       
-	if( result < wf->at(index)) { target_index = index; result = (double)(wf->at(index)); }
+	if( result < wf.at(index)) { target_index = index; result = (double)(wf.at(index)); }
     
     }
 
@@ -140,14 +140,14 @@ namespace pmtana{
   }
 
   //***************************************************************
-  size_t PMTPulseRecoBase::Min(const std::vector<uint16_t> *wf,
-			      double &result,
-			      size_t begin,
-			      size_t end) const
+  size_t PMTPulseRecoBase::Min(const std::vector<uint16_t> &wf,
+			       double &result,
+			       size_t begin,
+			       size_t end) const
   //***************************************************************
   {
 
-    size_t target_index = wf->size() + 1;
+    size_t target_index = wf.size() + 1;
 
     result = 4096;
 
@@ -155,7 +155,7 @@ namespace pmtana{
 
       for(size_t index = begin; index <= end; ++index)
       
-	if( result > wf->at(index)) { target_index = index; result = (double)(wf->at(index)); }
+	if( result > wf.at(index)) { target_index = index; result = (double)(wf.at(index)); }
     
     }
 

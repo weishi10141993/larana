@@ -180,7 +180,7 @@ namespace opdet{
 	continue;
       }
       
-      PulseRecoMgr.RecoPulse(&(*fifo_ptr));
+      PulseRecoMgr.RecoPulse(*fifo_ptr);
       
       const size_t NPulses = ThreshAlg.GetNPulse();
       for(size_t k=0; k<NPulses; ++k){

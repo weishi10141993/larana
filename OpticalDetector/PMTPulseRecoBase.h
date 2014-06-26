@@ -78,7 +78,7 @@ namespace pmtana
     /** A core method: this executes the algorithm and stores reconstructed parameters
       in the pulse_param struct object.
     */
-    virtual bool RecoPulse(const std::vector<uint16_t> * /* wf */){return true;};
+    virtual bool RecoPulse(const std::vector<uint16_t> & /* wf */){return true;};
 
     /** A getter for the pulse_param struct object. 
       Reconstruction algorithm may have more than one pulse reconstructed from an input waveform.
@@ -121,25 +121,25 @@ namespace pmtana
      A method to integrate an waveform from index "begin" to the "end". The result is filled in "result" reference.
      If the "end" is default (=0), then "end" is set to the last index of the waveform.
     */
-    bool Integral   (const std::vector<uint16_t> *wf, double &result, size_t begin=0, size_t end=0) const;
+    bool Integral   (const std::vector<uint16_t> &wf, double &result, size_t begin=0, size_t end=0) const;
 
     /**
      A method to compute derivative, which is a simple subtraction of previous ADC sample from each sample.
      The result is stored in the input "diff" reference vector which is int32_t type as a derivative could be negative.
     */
-    bool Derivative (const std::vector<uint16_t> *wf, std::vector<int32_t> &diff, size_t begin=0, size_t end=0) const;
+    bool Derivative (const std::vector<uint16_t> &wf, std::vector<int32_t> &diff, size_t begin=0, size_t end=0) const;
 
     /**
      A method to return the maximum value of ADC sample within the index from "begin" to "end".
      If the "end" is default (=0), then "end" is set to the last index of the waveform.
     */
-    size_t Max(const std::vector<uint16_t> *wf, double &result, size_t begin=0, size_t end=0) const;
+    size_t Max(const std::vector<uint16_t> &wf, double &result, size_t begin=0, size_t end=0) const;
 
     /**
      A method to return the minimum value of ADC sample within the index from "begin" to "end".
      If the "end" is default (=0), then "end" is set to the last index of the waveform.
     */
-    size_t Min(const std::vector<uint16_t> *wf, double &result, size_t begin=0, size_t end=0) const;
+    size_t Min(const std::vector<uint16_t> &wf, double &result, size_t begin=0, size_t end=0) const;
 
   };
 
