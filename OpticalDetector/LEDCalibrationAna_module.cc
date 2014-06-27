@@ -10,7 +10,7 @@
 
 // LArSoft includes
 #include "Geometry/Geometry.h"
-#include "OpticalDetectorData/FIFOChannel.h"
+#include "OpticalDetectorData/OpticalRawDigit.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
@@ -254,32 +254,32 @@ namespace opdet {
     art::ServiceHandle<art::TFileService> tfs;
 
     // Create a handle for our vector of pulses
-    art::Handle< std::vector< optdata::FIFOChannel > > FIFOChannelHandle;
+    art::Handle< std::vector< optdata::OpticalRawDigit > > OpticalRawDigitHandle;
 
     // Read in WaveformHandle
-    evt.getByLabel(fInputModule, FIFOChannelHandle);
+    evt.getByLabel(fInputModule, OpticalRawDigitHandle);
 
-    std::map<uint32_t, std::vector<int> > OrgFIFOByChannel;
+    std::map<uint32_t, std::vector<int> > OrgOpDigitByChannel;
     
-    for(size_t i=0; i!=FIFOChannelHandle->size(); ++i)
+    for(size_t i=0; i!=OpticalRawDigitHandle->size(); ++i)
       {
-        OrgFIFOByChannel[ShaperToChannel(FIFOChannelHandle->at(i).ChannelNumber())].push_back(i);
+        OrgOpDigitByChannel[ShaperToChannel(OpticalRawDigitHandle->at(i).ChannelNumber())].push_back(i);
       }
 
     std::vector<uint32_t> FrameNumbersForTrig;
     std::vector<uint32_t> TimeSlicesForTrig;
     
-    for(size_t i=0; i!=OrgFIFOByChannel[fTriggerChannel].size(); ++i)
+    for(size_t i=0; i!=OrgOpDigitByChannel[fTriggerChannel].size(); ++i)
       {
-	FrameNumbersForTrig.push_back(FIFOChannelHandle->at(OrgFIFOByChannel[ fTriggerChannel][i] ).Frame());
-	TimeSlicesForTrig.push_back(FIFOChannelHandle->at(OrgFIFOByChannel[ fTriggerChannel][i] ).TimeSlice());
+	FrameNumbersForTrig.push_back(OpticalRawDigitHandle->at(OrgOpDigitByChannel[ fTriggerChannel][i] ).Frame());
+	TimeSlicesForTrig.push_back(OpticalRawDigitHandle->at(OrgOpDigitByChannel[ fTriggerChannel][i] ).TimeSlice());
       }
 
-    for(size_t i=0; i!=FIFOChannelHandle->size(); ++i)
+    for(size_t i=0; i!=OpticalRawDigitHandle->size(); ++i)
       {
-	uint32_t Frame     = FIFOChannelHandle->at(i).Frame();
-        uint32_t TimeSlice = FIFOChannelHandle->at(i).TimeSlice();
-	fShaper   = FIFOChannelHandle->at(i).ChannelNumber();
+	uint32_t Frame     = OpticalRawDigitHandle->at(i).Frame();
+        uint32_t TimeSlice = OpticalRawDigitHandle->at(i).TimeSlice();
+	fShaper   = OpticalRawDigitHandle->at(i).ChannelNumber();
 	fChannel  = ShaperToChannel(fShaper);
 	
 
@@ -292,9 +292,9 @@ namespace opdet {
 		  {
 		    
 		   
-		    const optdata::FIFOChannel* fifo_ptr = &FIFOChannelHandle->at(i);
+		    const optdata::OpticalRawDigit& wf = OpticalRawDigitHandle->at(i);
 
-		    fPulseRecoMgr.RecoPulse(fifo_ptr);
+		    fPulseRecoMgr.RecoPulse(wf);
 		    
 		    size_t NPulses = fThreshAlg.GetNPulse();
 
@@ -304,14 +304,14 @@ namespace opdet {
 		    
 		    for(size_t k=0; k!=NPulses; ++k)
 		      {
-			if(fabs(fMaxTimeMean-fThreshAlg.GetPulse(k)->t_max)<fMaxTimeThresh)
+			if(fabs(fMaxTimeMean-fThreshAlg.GetPulse(k).t_max)<fMaxTimeThresh)
 			  {
 			    
-			    fPeak    = fThreshAlg.GetPulse(k)->peak;
-			    fArea    = fThreshAlg.GetPulse(k)->area;
-			    fTBegin  = fThreshAlg.GetPulse(k)->t_start;
-			    fTEnd    = fThreshAlg.GetPulse(k)->t_end;
-			    fTMax    = fThreshAlg.GetPulse(k)->t_max;
+			    fPeak    = fThreshAlg.GetPulse(k).peak;
+			    fArea    = fThreshAlg.GetPulse(k).area;
+			    fTBegin  = fThreshAlg.GetPulse(k).t_start;
+			    fTEnd    = fThreshAlg.GetPulse(k).t_end;
+			    fTMax    = fThreshAlg.GetPulse(k).t_max;
 			    
 			    fPulseTree->Fill();
 			    
@@ -319,11 +319,11 @@ namespace opdet {
 			  }
 			else if(fMakeNonCoincTree)
 			  {
-			    fPeak    = fThreshAlg.GetPulse(k)->peak;
-			    fArea    = fThreshAlg.GetPulse(k)->area;
-			    fTBegin  = fThreshAlg.GetPulse(k)->t_start;
-			    fTEnd    = fThreshAlg.GetPulse(k)->t_end;
-			    fTMax    = fThreshAlg.GetPulse(k)->t_max;
+			    fPeak    = fThreshAlg.GetPulse(k).peak;
+			    fArea    = fThreshAlg.GetPulse(k).area;
+			    fTBegin  = fThreshAlg.GetPulse(k).t_start;
+			    fTEnd    = fThreshAlg.GetPulse(k).t_end;
+			    fTMax    = fThreshAlg.GetPulse(k).t_max;
 			    
 			    fPulseTreeNonCoinc->Fill();
 			  }

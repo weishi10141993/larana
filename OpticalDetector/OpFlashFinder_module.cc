@@ -10,13 +10,14 @@
 // LArSoft includes
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
-#include "OpticalDetectorData/FIFOChannel.h"
+#include "OpticalDetectorData/OpticalRawDigit.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
 #include "Utilities/AssociationUtil.h"
+#include "Utilities/TimeService.h"
 #include "OpFlashAlg.h"
 
 // Framework includes
@@ -98,7 +99,6 @@ namespace opdet {
 #endif 
 
 #include "TriggerAlgo/TriggerAlgoMicroBoone.h"
-#include "OpticalDetector/OpDigiProperties.h"
 
 namespace opdet {
 
@@ -178,41 +178,27 @@ namespace opdet {
     //  at the end of processing
     std::vector<std::vector<int> > AssocList;
 
-    // Temporary - needs to be gotten from somewhere
-    //  and not hard coded
-    art::ServiceHandle<trigger::TriggerAlgoMicroBoone> trig_mod;
-    art::ServiceHandle<opdet::OpDigiProperties> opdigi;
-
-
     std::vector<const sim::BeamGateInfo*> beamGateArray;
     try { evt.getView(fGenModule, beamGateArray); }
     catch ( art::Exception const& err ){ 
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
-    // Find out when the trigger happened 
-    unsigned int   TrigFrame = 2;
-    double TrigTime = 0;
-    GetTriggerTime(beamGateArray,
-		   opdigi->TimeBegin(),
-		   opdigi->SampleFreq(),
-		   trig_mod->FrameSizeTrigger(),
-		   TrigFrame, TrigTime);
-    
-
     // Get the pulses from the event
-    art::Handle< std::vector< optdata::FIFOChannel > > FIFOChannelHandle;
-    evt.getByLabel(fInputModule, FIFOChannelHandle);
-    std::vector<optdata::FIFOChannel> const& FIFOChannelVector(*FIFOChannelHandle);
+    art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
+    evt.getByLabel(fInputModule, wfHandle);
+    std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
 
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
 
-    RunFlashFinder(FIFOChannelVector,
+    art::ServiceHandle<util::TimeService> ts_ptr;
+    util::TimeService const& ts(*ts_ptr);
+
+    RunFlashFinder(WaveformVector,
 		   *HitPtr,
 		   *FlashPtr,
 		   AssocList,
-		   trig_mod->FrameSizeTrigger(),
 		   fBinWidth,
 		   fPulseRecoMgr,
 		   fThreshAlg,
@@ -221,9 +207,7 @@ namespace opdet {
 		   fHitThreshold,
 		   fFlashThreshold,
 		   fWidthTolerance,
-		   TrigFrame,
-		   TrigTime,
-		   opdigi->SampleFreq(),
+		   ts,
 		   fSPESize,
 		   fTrigCoinc);
 
