@@ -11,7 +11,7 @@
 #include <functional>
 #include "Simulation/BeamGateInfo.h"
 #include "OpticalDetectorData/OpticalTypes.h"
-#include "OpticalDetectorData/FIFOChannel.h"
+#include "OpticalDetectorData/OpticalRawDigit.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "OpticalDetector/PMTPulseRecoBase.h"
@@ -22,7 +22,7 @@
 
 namespace opdet{
 
-  void RunFlashFinder(std::vector<optdata::FIFOChannel> const&,
+  void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const&,
 		      std::vector<recob::OpHit>&,
 		      std::vector<recob::OpFlash>&,
 		      std::vector< std::vector<int> >&,
@@ -39,7 +39,7 @@ namespace opdet{
 		      float const&);
   
   void ProcessFrame(unsigned short,
-		    std::vector<const optdata::FIFOChannel*> const&,
+		    std::vector<const optdata::OpticalRawDigit*> const&,
 		    std::vector<recob::OpHit>&,
 		    std::vector<recob::OpFlash>&,
 		    std::vector< std::vector<int> >&,

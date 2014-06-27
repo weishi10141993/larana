@@ -10,7 +10,7 @@
 // LArSoft includes
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
-#include "OpticalDetectorData/FIFOChannel.h"
+#include "OpticalDetectorData/OpticalRawDigit.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
@@ -178,13 +178,6 @@ namespace opdet {
     //  at the end of processing
     std::vector<std::vector<int> > AssocList;
 
-    // Temporary - needs to be gotten from somewhere
-    //  and not hard coded
-    art::ServiceHandle<trigger::TriggerAlgoMicroBoone> trig_mod;
-
-    art::ServiceHandle<util::TimeService> ts_sptr;
-    util::TimeService const& ts = *ts_sptr;
-
     std::vector<const sim::BeamGateInfo*> beamGateArray;
     try { evt.getView(fGenModule, beamGateArray); }
     catch ( art::Exception const& err ){ 
@@ -192,14 +185,17 @@ namespace opdet {
     }
 
     // Get the pulses from the event
-    art::Handle< std::vector< optdata::FIFOChannel > > FIFOChannelHandle;
-    evt.getByLabel(fInputModule, FIFOChannelHandle);
-    std::vector<optdata::FIFOChannel> const& FIFOChannelVector(*FIFOChannelHandle);
+    art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
+    evt.getByLabel(fInputModule, wfHandle);
+    std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
 
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
 
-    RunFlashFinder(FIFOChannelVector,
+    art::ServiceHandle<util::TimeService> ts_ptr;
+    util::TimeService const& ts(*ts_ptr);
+
+    RunFlashFinder(WaveformVector,
 		   *HitPtr,
 		   *FlashPtr,
 		   AssocList,

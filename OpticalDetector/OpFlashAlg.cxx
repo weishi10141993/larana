@@ -20,7 +20,7 @@
 namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
-  void RunFlashFinder(std::vector<optdata::FIFOChannel> const& FIFOChannelVector,
+  void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const& OpticalRawDigitVector,
 		      std::vector<recob::OpHit>& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      std::vector< std::vector<int> >& AssocList,
@@ -37,13 +37,13 @@ namespace opdet{
 		      float const& TrigCoinc)
   {
     
-    std::map<unsigned short, std::vector<const optdata::FIFOChannel*> > FIFOChanByFrame;
-    for(auto const& fifochannel : FIFOChannelVector)
-      FIFOChanByFrame[fifochannel.Frame()].push_back(&fifochannel);
+    std::map<unsigned short, std::vector<const optdata::OpticalRawDigit*> > OpDigitChanByFrame;
+    for(auto const& opdigitchannel : OpticalRawDigitVector)
+      OpDigitChanByFrame[opdigitchannel.Frame()].push_back(&opdigitchannel);
     
-    for(auto fifoframe : FIFOChanByFrame)
-      ProcessFrame(fifoframe.first,
-		   fifoframe.second,
+    for(auto wfframe : OpDigitChanByFrame)
+      ProcessFrame(wfframe.first,
+		   wfframe.second,
 		   HitVector,
 		   FlashVector,
 		   AssocList,
@@ -84,7 +84,7 @@ namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
   void ProcessFrame(unsigned short Frame,
-		    std::vector<const optdata::FIFOChannel*> const& FIFOChannelFramePtrVector,
+		    std::vector<const optdata::OpticalRawDigit*> const& OpticalRawDigitFramePtrVector,
 		    std::vector<recob::OpHit>& HitVector,
 		    std::vector<recob::OpFlash>& FlashVector,
 		    std::vector< std::vector<int> >& AssocList,
@@ -120,10 +120,10 @@ namespace opdet{
     const size_t NHits_prev = HitVector.size();
     unsigned int NOpChannels = geom.NOpChannels();
 
-    for(auto const& fifo_ptr : FIFOChannelFramePtrVector){
+    for(auto const& wf_ptr : OpticalRawDigitFramePtrVector){
 
-      const int Channel = ChannelMap.at((int)fifo_ptr->ChannelNumber());
-      const uint32_t TimeSlice = fifo_ptr->TimeSlice();
+      const int Channel = ChannelMap.at((int)wf_ptr->ChannelNumber());
+      const uint32_t TimeSlice = wf_ptr->TimeSlice();
 
       if( Channel<0 || Channel > int(NOpChannels) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
@@ -135,7 +135,7 @@ namespace opdet{
 	continue;
       }
       
-      PulseRecoMgr.RecoPulse(*fifo_ptr);
+      PulseRecoMgr.RecoPulse(*wf_ptr);
       
       const size_t NPulses = ThreshAlg.GetNPulse();
       for(size_t k=0; k<NPulses; ++k){
