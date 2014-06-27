@@ -18,20 +18,14 @@
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
 #include "Geometry/Geometry.h"
+#include "Utilities/TimeService.h"
 
 namespace opdet{
-
-  void GetTriggerTime(std::vector<const sim::BeamGateInfo*> const&,
-		      double const&,
-		      double const&,
-		      optdata::TimeSlice_t const&,
-		      unsigned int&, double&);
 
   void RunFlashFinder(std::vector<optdata::FIFOChannel> const&,
 		      std::vector<recob::OpHit>&,
 		      std::vector<recob::OpFlash>&,
 		      std::vector< std::vector<int> >&,
-		      optdata::TimeSlice_t const&,
 		      int const&,
 		      pmtana::PulseRecoManager const&,
 		      pmtana::AlgoThreshold const&,
@@ -40,9 +34,7 @@ namespace opdet{
 		      float const&,
 		      float const&,
 		      float const&,
-		      unsigned int const&,
-		      double const&,
-		      double const&,
+		      util::TimeService const&,
 		      std::vector<double> const&,
 		      float const&);
   
@@ -51,7 +43,6 @@ namespace opdet{
 		    std::vector<recob::OpHit>&,
 		    std::vector<recob::OpFlash>&,
 		    std::vector< std::vector<int> >&,
-		    optdata::TimeSlice_t const&,
 		    int const&,
 		    pmtana::PulseRecoManager const&,
 		    pmtana::AlgoThreshold const&,
@@ -60,9 +51,7 @@ namespace opdet{
 		    float const&,
 		    float const&,
 		    float const&,
-		    unsigned int const&,
-		    double const&,
-		    double const&,
+		    util::TimeService const&,
 		    std::vector<double> const&,
 		    float const&);
 
@@ -70,10 +59,8 @@ namespace opdet{
 		     int const&,
 		     uint32_t const&,
 		     unsigned short const&,
-		     const pmtana::pulse_param*,
-		     optdata::TimeSlice_t const&,
-		     double const&,
-		     double const&,
+		     pmtana::pulse_param const&,
+		     util::TimeService const&,
 		     double const&,
 		     std::vector<recob::OpHit>&);
 
@@ -151,10 +138,9 @@ namespace opdet{
   void ConstructFlash(std::vector<int> const& HitsPerFlashVec,
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
-		      uint32_t const& TimeSlicesPerFrame,
 		      geo::Geometry const& geom,
-		      unsigned int const& TrigFrame,
-		      unsigned short const& Frame,
+		      unsigned int const TrigFrame,
+		      unsigned short const Frame,
 		      float const& TrigCoinc);
 
   void AddHitContribution( recob::OpHit const& currentHit,

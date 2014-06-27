@@ -304,14 +304,14 @@ namespace opdet {
 		    
 		    for(size_t k=0; k!=NPulses; ++k)
 		      {
-			if(fabs(fMaxTimeMean-fThreshAlg.GetPulse(k)->t_max)<fMaxTimeThresh)
+			if(fabs(fMaxTimeMean-fThreshAlg.GetPulse(k).t_max)<fMaxTimeThresh)
 			  {
 			    
-			    fPeak    = fThreshAlg.GetPulse(k)->peak;
-			    fArea    = fThreshAlg.GetPulse(k)->area;
-			    fTBegin  = fThreshAlg.GetPulse(k)->t_start;
-			    fTEnd    = fThreshAlg.GetPulse(k)->t_end;
-			    fTMax    = fThreshAlg.GetPulse(k)->t_max;
+			    fPeak    = fThreshAlg.GetPulse(k).peak;
+			    fArea    = fThreshAlg.GetPulse(k).area;
+			    fTBegin  = fThreshAlg.GetPulse(k).t_start;
+			    fTEnd    = fThreshAlg.GetPulse(k).t_end;
+			    fTMax    = fThreshAlg.GetPulse(k).t_max;
 			    
 			    fPulseTree->Fill();
 			    
@@ -319,11 +319,11 @@ namespace opdet {
 			  }
 			else if(fMakeNonCoincTree)
 			  {
-			    fPeak    = fThreshAlg.GetPulse(k)->peak;
-			    fArea    = fThreshAlg.GetPulse(k)->area;
-			    fTBegin  = fThreshAlg.GetPulse(k)->t_start;
-			    fTEnd    = fThreshAlg.GetPulse(k)->t_end;
-			    fTMax    = fThreshAlg.GetPulse(k)->t_max;
+			    fPeak    = fThreshAlg.GetPulse(k).peak;
+			    fArea    = fThreshAlg.GetPulse(k).area;
+			    fTBegin  = fThreshAlg.GetPulse(k).t_start;
+			    fTEnd    = fThreshAlg.GetPulse(k).t_end;
+			    fTMax    = fThreshAlg.GetPulse(k).t_max;
 			    
 			    fPulseTreeNonCoinc->Fill();
 			  }

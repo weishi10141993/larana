@@ -17,6 +17,7 @@
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
 #include "Utilities/AssociationUtil.h"
+#include "Utilities/TimeService.h"
 #include "OpFlashAlg.h"
 
 // Framework includes
@@ -98,7 +99,6 @@ namespace opdet {
 #endif 
 
 #include "TriggerAlgo/TriggerAlgoMicroBoone.h"
-#include "OpticalDetector/OpDigiProperties.h"
 
 namespace opdet {
 
@@ -181,24 +181,15 @@ namespace opdet {
     // Temporary - needs to be gotten from somewhere
     //  and not hard coded
     art::ServiceHandle<trigger::TriggerAlgoMicroBoone> trig_mod;
-    art::ServiceHandle<opdet::OpDigiProperties> opdigi;
 
+    art::ServiceHandle<util::TimeService> ts_sptr;
+    util::TimeService const& ts = *ts_sptr;
 
     std::vector<const sim::BeamGateInfo*> beamGateArray;
     try { evt.getView(fGenModule, beamGateArray); }
     catch ( art::Exception const& err ){ 
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
-
-    // Find out when the trigger happened 
-    unsigned int   TrigFrame = 2;
-    double TrigTime = 0;
-    GetTriggerTime(beamGateArray,
-		   opdigi->TimeBegin(),
-		   opdigi->SampleFreq(),
-		   trig_mod->FrameSizeTrigger(),
-		   TrigFrame, TrigTime);
-    
 
     // Get the pulses from the event
     art::Handle< std::vector< optdata::FIFOChannel > > FIFOChannelHandle;
@@ -212,7 +203,6 @@ namespace opdet {
 		   *HitPtr,
 		   *FlashPtr,
 		   AssocList,
-		   trig_mod->FrameSizeTrigger(),
 		   fBinWidth,
 		   fPulseRecoMgr,
 		   fThreshAlg,
@@ -221,9 +211,7 @@ namespace opdet {
 		   fHitThreshold,
 		   fFlashThreshold,
 		   fWidthTolerance,
-		   TrigFrame,
-		   TrigTime,
-		   opdigi->SampleFreq(),
+		   ts,
 		   fSPESize,
 		   fTrigCoinc);
 

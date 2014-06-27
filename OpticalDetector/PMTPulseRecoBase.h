@@ -84,7 +84,7 @@ namespace pmtana
       Reconstruction algorithm may have more than one pulse reconstructed from an input waveform.
       Note you must, accordingly, provide an index key to specify which pulse_param object to be retrieved.
     */
-    const pulse_param* GetPulse(size_t index=0) const;
+    const pulse_param& GetPulse(size_t index=0) const;
 
     /// A getter for the number of reconstructed pulses from the input waveform
     size_t GetNPulse() const {return _pulse_v.size();};

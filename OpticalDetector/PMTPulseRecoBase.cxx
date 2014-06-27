@@ -58,13 +58,21 @@ namespace pmtana{
   }
 
   //***************************************************************
-  const pulse_param* PMTPulseRecoBase::GetPulse(size_t index) const
+  const pulse_param& PMTPulseRecoBase::GetPulse(size_t index) const
   //***************************************************************
   {
 
-    if(index >= _pulse_v.size()) return 0;
+    if(index >= _pulse_v.size()) {
+      
+      std::cerr << "\033[93m"
+		<< "Invalid pulse index: " << index
+		<< "\033[00m"
+		<< std::endl;
 
-    else return &(_pulse_v.at(index));
+      throw std::exception();
+    }
+
+    else return _pulse_v.at(index);
 
   }
 
