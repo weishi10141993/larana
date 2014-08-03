@@ -913,7 +913,6 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
     }
     catch(...){
       mf::LogWarning("Calorimetry::GetPitch") <<"Fitter failed";
-      delete xs;
       xyz3d[0] = vx[0];
     }
     delete xs;
@@ -934,7 +933,6 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
     }
     catch(...){
       mf::LogWarning("Calorimetry::GetPitch") <<"Fitter failed";
-      delete ys;
       xyz3d[1] = vy[0];
     }
     delete ys;
@@ -955,7 +953,6 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
     }
     catch(...){
       mf::LogWarning("Calorimetry::GetPitch") <<"Fitter failed";
-      delete zs;
       xyz3d[2] = vz[0];
     }
     delete zs;
