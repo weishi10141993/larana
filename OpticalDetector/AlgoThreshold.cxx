@@ -37,7 +37,7 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool AlgoThreshold::RecoPulse(const std::vector<uint16_t> *wf)
+  bool AlgoThreshold::RecoPulse(const std::vector<uint16_t> &wf)
   //***************************************************************
   {
     bool fire = false;
@@ -50,9 +50,11 @@ namespace pmtana{
 
     Reset();
 
-    for(auto value : *wf){
+    for(auto const &value : wf){
     
-      if( !fire && ((double)value) > threshold ){
+      //std::cout << "Threshold=" << threshold << ", value=" << value << ", counter=" << counter << std::endl;
+
+      if( !fire && ((double)value) >= threshold ){
 
 	// Found a new pulse
 
@@ -75,6 +77,9 @@ namespace pmtana{
 	_pulse.reset_param();
 
       }
+
+
+      //std::cout << "\tFire=" << fire << std::endl;
 
       if(fire){
 

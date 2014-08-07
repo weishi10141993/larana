@@ -164,7 +164,7 @@ namespace pmtana {
 
       const optdata::FIFOChannel* fifo_ptr(pmtArray.at(i));
 
-      _preco_man.RecoPulse(fifo_ptr);
+      _preco_man.RecoPulse(*fifo_ptr);
 
       //
       // here I add code to store reco-ed pulse w/ channel number

@@ -1,7 +1,7 @@
 #include "pidalgorithms.fcl"
 BEGIN_PROLOG
 
-argoneut_chi2pid:
+standard_chi2pid:
 {
  module_type:            "Chi2ParticleID"
  TrackModuleLabel:       "spacepts"

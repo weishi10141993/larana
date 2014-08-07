@@ -1,6 +1,6 @@
 #include "particleid.fcl"
 BEGIN_PROLOG
 
-argoneut_chi2pid: @local::standard_chi2pid
+microboone_chi2pid:  @local::standard_chi2pid
 
 END_PROLOG

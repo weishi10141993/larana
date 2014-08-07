@@ -10,8 +10,12 @@ microboone_calorimetryalgmc:	@local::standard_calorimetryalgmc
 #New constants derived using muon MC - T. Yang 11/27/13
 #microboone_calorimetryalgmc.CalAmpConstants: [ 3.641e-3, 3.613e-3, 7.198e-3 ] # Temporarily leaving all
 #New constats derived using muon MC, MC Challenge S2013.10.21; based on analysis of minimum ionizing muons - A. Schukraft 03/03/14
-microboone_calorimetryalgmc.CalAmpConstants: [ 2.677e-3, 2.804e-3, 5.716e-3 ]
-
+#microboone_calorimetryalgmc.CalAmpConstants: [ 2.677e-3, 2.804e-3, 5.716e-3 ]
+#Pulse height constants for MCC5. - A. Schukraft 08/06/14
+microboone_calorimetryalgmc.CalAmpConstants: [ 9.573e-4, 6.868e-4, 1.382e-3 ]
+#Area constants based on MCC4. - A. Schukraft 07/21/14
+#microboone_calorimetryalgmc.CalAreaConstants: [ 1.2093e-2, 1.2831e-2, 2.934e-2 ]
+microboone_calorimetryalgmc.CalAreaConstants: [ 7.488e-3, 5.110e-3, 1.008e-2 ]
 
 microboone_calodata:                  @local::standard_calodata
 microboone_calodata.CaloAlg:          @local::microboone_calorimetryalgdata

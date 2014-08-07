@@ -40,7 +40,7 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool AlgoFixedWindow::RecoPulse(const std::vector<uint16_t> *wf)
+  bool AlgoFixedWindow::RecoPulse(const std::vector<uint16_t> &wf)
   //***************************************************************
   {
     this->Reset();
@@ -49,7 +49,7 @@ namespace pmtana{
 
     if(!_index_end)
 
-      _pulse_v[0].t_end = (double)(wf->size() - 1);
+      _pulse_v[0].t_end = (double)(wf.size() - 1);
 
     else
 
