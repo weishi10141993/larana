@@ -559,40 +559,38 @@ void calo::Calorimetry::produce(art::Event& evt)
           fResRng[isp] = fResRng[isp-1] + spdelta[isp];
         }
       }
-      mf::LogVerbatim CaloPrtTrk("CaloPrtTrk");
     
-      CaloPrtTrk << "Calorimetry Run/Evt: "
+      LOG_DEBUG("CaloPrtTrk") << "Calorimetry Run/Evt: "
 		 << frun   << " / " 
 		 << fevent << " Track #"
 		 << trkIter << " Plane #"
 		 << ipl;
       switch (containment) {
       case 0:
-	CaloPrtTrk << ", contained.";
+	LOG_DEBUG("CaloPrtTrk") << ", contained.";
 	break;
       case 1:
-	CaloPrtTrk << ", escaping.";
+	LOG_DEBUG("CaloPrtTrk") << ", escaping.";
 	break;
       case 2:
-	CaloPrtTrk << ", entering.";
+	LOG_DEBUG("CaloPrtTrk") << ", entering.";
 	break;
       case 3:
-	CaloPrtTrk << ", passing.";
+	LOG_DEBUG("CaloPrtTrk") << ", passing.";
 	break;
       default:
-	CaloPrtTrk << ", ??";
+	LOG_DEBUG("CaloPrtTrk") << ", ??";
       }
       if(TrackStops) {
 	if(GoingDS) {
-	  CaloPrtTrk <<" Going downstream";
+	  LOG_DEBUG("CaloPrtTrk") <<" Going downstream";
 	} 
 	else {
-	  CaloPrtTrk <<" Going upstream";
+	  LOG_DEBUG("CaloPrtTrk") <<" Going upstream";
 	}
       }
-      CaloPrtTrk<<"\n";
-      mf::LogVerbatim CaloPrtHit("CaloPrtHit");
-      CaloPrtHit << " pt wire  time  ResRng    MIPs   pitch   dE/dx    Ai\n";
+      LOG_DEBUG("CaloPrtTrk")<<"\n";
+      LOG_DEBUG("CaloPrtHit") << " pt wire  time  ResRng    MIPs   pitch   dE/dx    Ai\n";
 
       if (ipl==0){
 	fnspsIND = fnsps;
@@ -633,7 +631,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	    PIDA += Ai;
 	  }
 	}
-	CaloPrtHit << std::setw(4) << i
+	LOG_DEBUG("CaloPrtHit") << std::setw(4) << i
 		   <<std::setw(4)  << fwire[i]
 		   << std::setw(6) << (int)ftime[i]
 		   << std::setiosflags(std::ios::fixed | std::ios::showpoint)
@@ -653,7 +651,7 @@ void calo::Calorimetry::produce(art::Event& evt)
       else {
 	PIDA = -1;
       }
-      CaloPrtTrk << "Plane # "<< ipl
+      LOG_DEBUG("CaloPrtTrk") << "Plane # "<< ipl
 		 << "TrkPitch= "
 		 << std::setprecision(2) << fTrkPitch 
 		 << " nhits= "        << fnsps
@@ -673,7 +671,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	cstat = hits[ipl][0]->WireID().Cryostat;
 	channel = geom->PlaneWireToChannel(plane,iw,tpc,cstat);
 	if (chanFilt.BadChannel(channel)){
-	  mf::LogVerbatim("Calorimetry") << "Found dead wire at Plane = " << plane 
+	  LOG_DEBUG("Calorimetry") << "Found dead wire at Plane = " << plane 
 					 << " Wire =" << iw;
 	  unsigned int closestwire = 0;
 	  unsigned int endwire = 0;
@@ -802,7 +800,7 @@ void calo::Calorimetry::ReadCaloTree(){
 
   ftree->Scan("run:event:TrkPitchI:TrkPitchC:XStart:nhits3D:nhitsIND:nhitsCOL");
   int nentries=(int)ftree->GetEntries();
-  mf::LogVerbatim("Calorimetry") << "nentries  " << nentries;
+  LOG_DEBUG("Calorimetry") << "nentries  " << nentries;
 
   std::vector<double> *MIPsCOL = 0;
   TBranch *bMIPsCOL = 0;
@@ -812,18 +810,18 @@ void calo::Calorimetry::ReadCaloTree(){
   TBranch *bMIPsIND = 0;
   ftree->SetBranchAddress("MIPsIND",&MIPsIND,&bMIPsIND);
   for (int i = 0; i < nentries; ++i) {
-    mf::LogVerbatim("Calorimetry") << " entry " << i;
+    LOG_DEBUG("Calorimetry") << " entry " << i;
     long int tentry = ftree->LoadTree(i);
 
     bMIPsCOL->GetEntry(tentry);
-    mf::LogVerbatim("Calorimetry") << "# of hits COLL " << MIPsCOL->size();
+    LOG_DEBUG("Calorimetry") << "# of hits COLL " << MIPsCOL->size();
     for (size_t j = 0; j < MIPsCOL->size(); ++j) {
-      mf::LogVerbatim("Calorimetry") << " Coll " << MIPsCOL->at(j);
+      LOG_DEBUG("Calorimetry") << " Coll " << MIPsCOL->at(j);
     }
     bMIPsIND->GetEntry(tentry);
-    mf::LogVerbatim("Calorimetry") << "# of hits IND " << MIPsIND->size();
+    LOG_DEBUG("Calorimetry") << "# of hits IND " << MIPsIND->size();
     for (size_t j = 0; j < MIPsIND->size(); ++j) {
-      mf::LogVerbatim("Calorimetry") << " Ind " << MIPsIND->at(j);
+      LOG_DEBUG("Calorimetry") << " Ind " << MIPsIND->at(j);
     }
   }
 }
