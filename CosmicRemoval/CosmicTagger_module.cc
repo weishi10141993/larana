@@ -56,7 +56,7 @@ class TTree;
 class TH1;
 
 
-namespace trkf {
+namespace cosmic {
   class CosmicTagger;
   class SpacePoint;
   class Track;
@@ -64,7 +64,7 @@ namespace trkf {
 
 
 
-class trkf::CosmicTagger : public art::EDProducer {
+class cosmic::CosmicTagger : public art::EDProducer {
 public:
   explicit CosmicTagger(fhicl::ParameterSet const & p);
   virtual ~CosmicTagger();
@@ -164,7 +164,7 @@ std::vector<float> all_x, all_y, all_z;
 
 
 
-trkf::CosmicTagger::CosmicTagger(fhicl::ParameterSet const & p)
+cosmic::CosmicTagger::CosmicTagger(fhicl::ParameterSet const & p)
 // :
 // Initialize member data here.
 {
@@ -186,11 +186,11 @@ trkf::CosmicTagger::CosmicTagger(fhicl::ParameterSet const & p)
 
 }
 
-trkf::CosmicTagger::~CosmicTagger() {
+cosmic::CosmicTagger::~CosmicTagger() {
   // Clean up dynamic memory and other resources here.
 }
 
-void trkf::CosmicTagger::produce(art::Event & e) {
+void cosmic::CosmicTagger::produce(art::Event & e) {
   // Implementation of required member function here.
 
 
@@ -667,7 +667,7 @@ void trkf::CosmicTagger::produce(art::Event & e) {
 
 
 
-void trkf::CosmicTagger::doTrackClusterCheck( std::vector< art::Ptr< recob::Cluster> > ClusterVect, 
+void cosmic::CosmicTagger::doTrackClusterCheck( std::vector< art::Ptr< recob::Cluster> > ClusterVect, 
 					      std::vector<double> &t1Times, std::vector<double> &t2Times, 
 					      std::vector<int> &fail  ) {
   // Let's have this return the earliest and latest t0 times
@@ -707,7 +707,7 @@ void trkf::CosmicTagger::doTrackClusterCheck( std::vector< art::Ptr< recob::Clus
 
 
 
-void trkf::CosmicTagger::doSomeSpacePointStuff(art::FindManyP<recob::SpacePoint> sptsSpill , int iTrack, int &face1, int &face2) {
+void cosmic::CosmicTagger::doSomeSpacePointStuff(art::FindManyP<recob::SpacePoint> sptsSpill , int iTrack, int &face1, int &face2) {
 
 
   std::vector<art::Ptr<recob::SpacePoint> > spts = sptsSpill.at(iTrack);
@@ -858,7 +858,7 @@ void trkf::CosmicTagger::doSomeSpacePointStuff(art::FindManyP<recob::SpacePoint>
 
 
 
-void trkf::CosmicTagger::beginJob() {
+void cosmic::CosmicTagger::beginJob() {
 
 //   art::ServiceHandle<art::TFileService> tfs;
 //   art::ServiceHandle<geo::Geometry> geo;
@@ -898,10 +898,10 @@ void trkf::CosmicTagger::beginJob() {
 
 }
 
-void trkf::CosmicTagger::reconfigure(fhicl::ParameterSet const & p) {
+void cosmic::CosmicTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
   
-  ////////  fSptalg                = new trkf::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
+  ////////  fSptalg                = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
 
 
   art::ServiceHandle<util::DetectorProperties> detp;
@@ -929,9 +929,7 @@ void trkf::CosmicTagger::reconfigure(fhicl::ParameterSet const & p) {
 
   art::ServiceHandle<util::LArProperties> larp;
   art::ServiceHandle<geo::Geometry> geo;
-  double eField = larp->Efield();
-  double temp = larp->Temperature();
-  double driftVelocity = larp->DriftVelocity( eField, temp ); // cm/us
+  const double driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
 
   std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
@@ -941,8 +939,8 @@ void trkf::CosmicTagger::reconfigure(fhicl::ParameterSet const & p) {
 
 }
 
-void trkf::CosmicTagger::endJob() {
+void cosmic::CosmicTagger::endJob() {
   // Implementation of optional member function here.
 }
 
-DEFINE_ART_MODULE(trkf::CosmicTagger)
+DEFINE_ART_MODULE(cosmic::CosmicTagger)

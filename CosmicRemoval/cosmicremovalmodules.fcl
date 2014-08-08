@@ -10,17 +10,6 @@ standard_cosmictagger:
     SpillVetoCounter: 2
     dTLimit: 8
     dWLimit: 8
-}
-
-microboone_cosmictagger:
-{
-    module_type: "CosmicTagger"
-    SpacePointAlg:       @local::standard_spacepointalg
-    TPCBoundaryLimit: 15
-    SpillDistance: 12
-    SpillVetoCounter: 2
-    dTLimit: 8
-    dWLimit: 8
     TrackModuleLabel: "track" #"beziertracker"
     ClusterModuleLabel: "cluster" #"dbcluster"
     DoTrackCheck: 1 # 0
@@ -28,6 +17,8 @@ microboone_cosmictagger:
     ClustersAssociatedToTracks: 1 # make this 1 when tracks are associated to clusters
     TrackAssocToClusterModuleLabel: "track"
 }
+
+microboone_cosmictagger:  @local::standard_cosmictagger
 
 microboone_cosmicremovalana:
 {
