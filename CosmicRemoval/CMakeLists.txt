@@ -6,19 +6,35 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 # Add top level include
 include_directories ( ${PROJECT_SOURCE_DIR} )
 art_make(BASENAME_ONLY
-	MODULE_LIBRARIES
-	BackTracker_service
-        RecoBase
-	AnalysisBase	
-	${ART_FRAMEWORK_CORE}
-	${ART_FRAMEWORK_PRINCIPAL}
-	${ART_FRAMEWORK_SERVICES_REGISTRY}
-	${ART_FRAMEWORK_SERVICES_OPTIONAL}
-	${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-	${ART_UTILITIES}
-	${ROOT_BASIC_LIB_LIST}
-	)
-
+	MODULE_LIBRARIES  BackTracker_service
+	RecoAlg
+			    Simulation
+			    RecoObjects
+			    RecoBase
+			    Geometry
+			    Geometry_service
+			    AnalysisAlg
+			    AnalysisBase
+			    Utilities
+			    ${MAGNETICFIELD_SERVICE}
+			    ${SIMULATIONBASE}
+			    ${ART_FRAMEWORK_CORE}
+			    ${ART_FRAMEWORK_PRINCIPAL}
+			    ${ART_FRAMEWORK_SERVICES_REGISTRY}
+			    ${ART_FRAMEWORK_SERVICES_BASIC}
+			    ${ART_FRAMEWORK_SERVICES_OPTIONAL}
+			    ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+			    ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
+			    ${ART_PERSISTENCY_COMMON}
+			    ${ART_UTILITIES}
+			    ${MF_MESSAGELOGGER}
+			    ${MF_UTILITIES}
+			    ${FHICLCPP}
+			    ${CETLIB}
+			    ${CLHEP}
+			    ${ROOT_BASIC_LIB_LIST}
+			    ${G4_LIB_LIST}
+         )
 # need this here for ctest
 
 # add_subdirectory and other commands will be added below by @mrb gitCheckout@ for each package
