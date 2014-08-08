@@ -90,6 +90,8 @@ void pid::Chi2ParticleID::produce(art::Event & evt)
 
   art::FindManyP<anab::Calorimetry> fmcal(trackListHandle, evt, fCalorimetryModuleLabel);
 
+  if (!fmcal.isValid()) return;
+
   std::unique_ptr< std::vector<anab::ParticleID> > particleidcol(new std::vector<anab::ParticleID>);
   std::unique_ptr< art::Assns<recob::Track, anab::ParticleID> > assn(new art::Assns<recob::Track, anab::ParticleID>);
 
