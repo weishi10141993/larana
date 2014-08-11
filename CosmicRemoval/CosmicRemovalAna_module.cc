@@ -369,7 +369,7 @@ void microboone::CosmicRemovalAna::FillMCInfo( std::vector< art::Ptr<recob::Hit>
     
     art::Ptr<recob::Hit> const& hitptr = hitlist.at(itr);
     sw.Start();
-    std::vector<cheat::TrackIDE> eveIDs = bt->HitToEveID(hitptr);
+    std::vector<sim::TrackIDE> eveIDs = bt->HitToEveID(hitptr);
     sw.Stop(); timeEveID += sw.RealTime();
     
 
