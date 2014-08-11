@@ -52,7 +52,9 @@ standard_cosmictracktagger:
     TrackAssocToClusterModuleLabel: "track"
 }
 
-microboone_cosmictagger:  @local::standard_cosmictagger
+microboone_cosmictagger:         @local::standard_cosmictagger
+microboone_cosmictracktagger:    @local::standard_cosmictracktagger
+microboone_cosmicclustertagger:  @local::standard_cosmicclustertagger
 
 microboone_cosmicremovalana:
 {
