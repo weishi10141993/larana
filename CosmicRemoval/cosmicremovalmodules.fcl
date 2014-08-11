@@ -18,6 +18,40 @@ standard_cosmictagger:
     TrackAssocToClusterModuleLabel: "track"
 }
 
+standard_cosmicclustertagger:
+{
+    module_type: "CosmicClusterTagger"
+    SpacePointAlg:       @local::standard_spacepointalg
+    TPCBoundaryLimit: 15
+    SpillDistance: 12
+    SpillVetoCounter: 2
+    dTLimit: 8
+    dWLimit: 8
+    TrackModuleLabel: "track" #"beziertracker"
+    ClusterModuleLabel: "cluster" #"dbcluster"
+    DoTrackCheck: 1 # 0
+    DoClusterCheck: 1 # 1
+    ClustersAssociatedToTracks: 1 # make this 1 when tracks are associated to clusters
+    TrackAssocToClusterModuleLabel: "track"
+}
+
+standard_cosmictracktagger:
+{
+    module_type: "CosmicTrackTagger"
+    SpacePointAlg:       @local::standard_spacepointalg
+    TPCBoundaryLimit: 15
+    SpillDistance: 12
+    SpillVetoCounter: 2
+    dTLimit: 8
+    dWLimit: 8
+    TrackModuleLabel: "track" #"beziertracker"
+    ClusterModuleLabel: "cluster" #"dbcluster"
+    DoTrackCheck: 1 # 0
+    DoClusterCheck: 1 # 1
+    ClustersAssociatedToTracks: 1 # make this 1 when tracks are associated to clusters
+    TrackAssocToClusterModuleLabel: "track"
+}
+
 microboone_cosmictagger:  @local::standard_cosmictagger
 
 microboone_cosmicremovalana:
