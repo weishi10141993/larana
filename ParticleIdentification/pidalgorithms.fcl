@@ -2,7 +2,7 @@ BEGIN_PROLOG
 
 standard_chi2pidalg:
 {
-    TemplateFile:           "dedxrestemplates.root"
+    TemplateFile:           "dEdxrestemplates.root"
 }
 
 END_PROLOG
