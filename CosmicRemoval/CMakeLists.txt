@@ -15,6 +15,7 @@ art_make(BASENAME_ONLY
 			    Geometry_service
 			    AnalysisAlg
 			    AnalysisBase
+                            LArProperties_service
 			    Utilities
 			    ${MAGNETICFIELD_SERVICE}
 			    ${SIMULATIONBASE}
@@ -35,17 +36,9 @@ art_make(BASENAME_ONLY
 			    ${ROOT_BASIC_LIB_LIST}
 			    ${G4_LIB_LIST}
          )
-# need this here for ctest
 
-# add_subdirectory and other commands will be added below by @mrb gitCheckout@ for each package
-
-# If you add a package by hand, you MUST also add the appropriate package block below
-# Remove the appropriate package block below if you delete a product from your srcs area
 install_headers()
 install_fhicl()
 install_source()
-# DO NOT DELETE cmake_include_dirs
-# larana package block
 
-# DO NOT DELETE cmake_add_subdir
 
