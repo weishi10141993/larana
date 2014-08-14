@@ -11,6 +11,7 @@ art_make(BASENAME_ONLY
 			    Simulation
 			    RecoObjects
 			    RecoBase
+			    MCBase
 			    Geometry
 			    Geometry_service
 			    AnalysisAlg
