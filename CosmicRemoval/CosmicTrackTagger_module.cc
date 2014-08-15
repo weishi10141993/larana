@@ -34,8 +34,6 @@
 
 #include "AnalysisBase/CosmicTag.h"
 
-//#include "SimulationBase/MCTruth.h"
-//#include "SimulationBase/MCParticle.h"
 
 
 #include "RecoAlg/SpacePointAlg.h"
@@ -81,40 +79,25 @@ public:
 
 private:
 
-  // Declare member data here.
 
-  int   fReadOutWindowSize;
-  //  int fNumberTimeSamples;
-  float fSamplingRate;
-
-  // stuff to set in the fcl file
-  float fTotalBoundaryLimit; // 15
-  float f3DSpillDistance;    // 12
-  int   fSpillVetoCtr;       // 2
-  int   fdTLimit;            // 8
-  int   fdWLimit;            // 8
+  //  float fTotalBoundaryLimit; // 15
+  //  float f3DSpillDistance;    // 12
+  //  int   fSpillVetoCtr;       // 2
+  ////  int   fdTLimit;            // 8
+  //int   fdWLimit;            // 8
   std::string fTrackModuleLabel;
-  std::string fTrackAssocToClusterModuleLabel;
-  std::string fClusterModuleLabel;
+  //  std::string fTrackAssocToClusterModuleLabel;
+  //  std::string fClusterModuleLabel;
   //  int fDoTrackCheck;
-  int fDoClusterCheck;
-  int fClusterAssociatedToTracks;
+  //  int fDoClusterCheck;
+  //  int fClusterAssociatedToTracks;
   int fDetectorWidthTicks;
+  float fTPCXBoundary, fTPCYBoundary, fTPCZBoundary;
 
-
-
-
-  std::vector<double> tdDist_window_post, tdDist_window_pre;
-
+  float fDetHalfHeight, fDetWidth, fDetLength;
 
 
 };
-
-
-int nEvent;
-
-std::vector<float> all_x, all_y, all_z; 
-
 
 
 
@@ -145,14 +128,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
   std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > >    assnOutCosmicTagTrack( new art::Assns<recob::Track, anab::CosmicTag>);
 
 
-
-
-
-
   TStopwatch ts;
-
-
-
 
 
   art::Handle<std::vector<recob::Track> > Trk_h;
@@ -162,53 +138,20 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 
 
 
-  
-
-
-  tdDist_window_post.clear();
-  tdDist_window_pre .clear();
-
-  for( int hh=0; hh<3; hh++ ) {
-    tdDist_window_post.push_back(-999);
-    tdDist_window_pre .push_back(-999);
-  }
-
-
-
-
-
-  art::ServiceHandle<geo::Geometry> geo;
-
-
-
-
-
-
-
   /////////////////////////////////
   // LOOPING OVER INSPILL TRACKS
   /////////////////////////////////
   
-  // RESURRECT THIS -- HAVE IT IGNORE CLUSTERS
-  // THIS IS TO HANDLE THE KALMAN STUFF THAT DOESN'T ASSOCIATE TO CLUSTERS
-
 
     art::FindManyP<recob::Hit>        hitsSpill   (Trk_h, e, fTrackModuleLabel);
     //    art::FindManyP<recob::Cluster>    ClusterSpill(Trk_h, e, fTrackModuleLabel);
 
     for( unsigned int iTrack=0; iTrack<Trk_h->size(); iTrack++ ) {
 
-      //      art::ServiceHandle<geo::Geometry> geo;
-      int origin      = -1;
       int isCosmic    =  0;
 
-
-
-
-      art::Ptr<recob::Track>              tTrack       = TrkVec.at(iTrack);
+      art::Ptr<recob::Track>              tTrack  = TrkVec.at(iTrack);
       std::vector<art::Ptr<recob::Hit> >  HitVec  = hitsSpill.at(iTrack);
-
-
 
     
 
@@ -261,7 +204,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       float tick1 =  9999;
       float tick2 = -9999;
       
-      for (unsigned int p=0; p< HitVec.size(); p++) {
+      for ( unsigned int p = 0; p < HitVec.size(); p++) {
 	if( HitVec[p]->StartTime() < tick1 ) tick1 =  HitVec[p]->StartTime();
 	if( HitVec[p]->StartTime() > tick2 ) tick2 =  HitVec[p]->StartTime();
       }
@@ -273,14 +216,10 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       if(tick1 < fDetectorWidthTicks || tick2 > 2*fDetectorWidthTicks ) {
 	isCosmic = 1;
       }
-      if(isCosmic == 4) {
-	std::cerr << "I don't know what's going on here. The ticks are " << tick1 << " " << tick2 << std::endl;
-	//	for( unsigned int mm=0;mm<t1Times.size(); mm++ ) std::cerr << t1Times.at(mm) << ", "<< t2Times.at(mm) <<std::endl;
-      }
-
-
-      
-      
+      // if(isCosmic == 4) {
+      // 	std::cerr << "I don't know what's going on here. The ticks are " << tick1 << " " << tick2 << std::endl;
+      // 	//	for( unsigned int mm=0;mm<t1Times.size(); mm++ ) std::cerr << t1Times.at(mm) << ", "<< t2Times.at(mm) <<std::endl;
+      // }
 
 
     
@@ -288,30 +227,23 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       // Now check Y & Z boundaries:
       /////////////////////////////////
       int nBd = 0;
-      float bndDist = 5;
       if(isCosmic==0 ) {
-	if(fabs(trackEndPt1_Y - geo->DetHalfHeight())<bndDist ) nBd++;
-	if(fabs(trackEndPt2_Y + geo->DetHalfHeight())<bndDist ) nBd++;
-	if(fabs(trackEndPt1_Z - geo->DetLength())<bndDist || fabs(trackEndPt2_Z - geo->DetLength())<bndDist ) nBd++;
-	if(fabs(trackEndPt1_Z )<bndDist || fabs(trackEndPt2_Z )<bndDist ) nBd++;
+	if(fabs(trackEndPt1_Y - fDetHalfHeight) < fTPCYBoundary ) nBd++;
+	if(fabs(trackEndPt2_Y + fDetHalfHeight) < fTPCYBoundary ) nBd++;
+	if(fabs(trackEndPt1_Z - fDetLength)<fTPCZBoundary || fabs(trackEndPt2_Z - fDetLength) < fTPCZBoundary ) nBd++;
+	if(fabs(trackEndPt1_Z )< fTPCZBoundary || fabs(trackEndPt2_Z )< fTPCZBoundary ) nBd++;
 	if( nBd>1 ) isCosmic = 2;
       }
 
-
-
-      
-      
       
       std::vector<float> endPt1;
+      std::vector<float> endPt2;
       endPt1.push_back( trackEndPt1_X );
       endPt1.push_back( trackEndPt1_Y );
       endPt1.push_back( trackEndPt1_Z );
-      std::vector<float> endPt2;
       endPt2.push_back( trackEndPt2_X );
       endPt2.push_back( trackEndPt2_Y );
       endPt2.push_back( trackEndPt2_Z );
-      
-      
 
       float cosmicScore = isCosmic > 0 ? 1 : 0;
 
@@ -321,15 +253,15 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       if( isCosmic==0 ) {
 	anab::CosmicTag cctt = anab::CosmicTag(endPt1, endPt2, 0, isCosmic );
 	int nXBd =0;
-	float xBnd1 = -9999; //cctt.getXInteraction(endPt1[0], 2.0*geo->DetHalfWidth(), fReadOutWindowSize, trackTime, std::floor(tick1) );
-	float xBnd2 = -9999; //cctt.getXInteraction(endPt1[0], 2.0*geo->DetHalfWidth(), fReadOutWindowSize, trackTime, std::floor(tick2) );
-	if(xBnd1 < bndDist || xBnd2 < bndDist) nXBd++;
-	if( ( 2.*geo->DetHalfWidth() - xBnd1 < bndDist ) || ( 2.*geo->DetHalfWidth() - xBnd1 < bndDist ) ) nXBd++;
+	float xBnd1 = -9999; //cctt.getXInteraction(endPt1[0], 2.0*fDetWidth, fReadOutWindowSize, trackTime, std::floor(tick1) );
+	float xBnd2 = -9999; //cctt.getXInteraction(endPt1[0], 2.0*fDetWidth, fReadOutWindowSize, trackTime, std::floor(tick2) );
+	if(xBnd1 < fTPCXBoundary || xBnd2 < fTPCXBoundary) nXBd++;
+	if( ( fDetWidth - xBnd1 < fTPCXBoundary ) || ( fDetWidth - xBnd1 < fTPCXBoundary ) ) nXBd++;
        	if(  nXBd+nBd>1 && 0 ) isCosmic = 3; // THIS ISN'T SETUP YET -- NEED A HANDLE TO TIME INFO
 	if( nBd >0 ) {isCosmic=3; cosmicScore = 0.5;}
       }
 
-      std::cerr << "Cosmic Score, isCosmic: " << cosmicScore << " " << isCosmic << std::endl;
+      //std::cerr << "Cosmic Score, isCosmic: " << cosmicScore << " " << isCosmic << std::endl;
       cosmicTagTrackVector->push_back( anab::CosmicTag(endPt1,
  						       endPt2,
  						       cosmicScore,
@@ -338,24 +270,14 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 
 
     
-      mf::LogInfo("CosmicTrackTagger Results") << "The IsCosmic value is "<< isCosmic << " origin: " << origin
-					  << trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
-					  << trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z;
+//mf::LogInfo("CosmicTrackTagger Results") << "The IsCosmic value is "<< isCosmic << " origin: " << origin
+//					  << trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
+//					  << trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z;
       
  
 
 
       //outTracksForTags->push_back( *tTrack );
-
-      
-
-//       bool makeAssn = false;
-//       for (unsigned int c=0; c<ClusterVect.size(); c++ ) {
-// 	art::Ptr<recob::Cluster> tCluster = ClusterVect.at(c);
-// 	outClusters->push_back( *tCluster );
-// 	std::cerr<< "------------------------------------ did it make the cosmictag cluster vect assn? " << makeAssn << std::endl;       
-//       }
-      
 
 
       util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrack, *assnOutCosmicTagTrack );
@@ -402,25 +324,22 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
 
 
   art::ServiceHandle<util::DetectorProperties> detp;
-
-
-  fSamplingRate = detp->SamplingRate();
-  fTotalBoundaryLimit = p.get<float>("TPCBoundaryLimit", 15);
-  f3DSpillDistance    = p.get<float>("SpillDistance",12); 
-
-  fSpillVetoCtr = p.get<int>("SpillVetoCounter", 2);
-  fdTLimit      = p.get<int>("dTLimit",8);
-  fdWLimit      = p.get<int>("dWLimit",8);
-
-  fClusterModuleLabel = p.get< std::string >("ClusterModuleLabel", "cluster");
-  fTrackAssocToClusterModuleLabel =p.get< std::string >("TrackAssocToClusterModuleLabel", "track");
-  fTrackModuleLabel   = p.get< std::string >("TrackModuleLabel", "track");
-
-  fDoClusterCheck = p.get< int >("DoClusterCheck", 1);
-  fClusterAssociatedToTracks = p.get< int >("ClustersAssociatedToTracks",1);
-
   art::ServiceHandle<util::LArProperties> larp;
   art::ServiceHandle<geo::Geometry> geo;
+
+  fDetHalfHeight = geo->DetHalfHeight();
+  fDetWidth      = 2.*geo->DetHalfWidth();
+  fDetLength     = geo->DetLength();
+
+  float fSamplingRate = detp->SamplingRate();
+
+  fTrackModuleLabel = p.get< std::string >("TrackModuleLabel", "track");
+
+  fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
+  fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
+  fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
+
+
   const double driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
 
   //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
