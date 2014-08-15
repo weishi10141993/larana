@@ -62,6 +62,7 @@ module_type:              "CosmicRemovalAna"
 GenieGenModuleLabel:      "generator"
 #GenieGenModuleLabel:      "nugenerator"
 MCModuleLabel:            "largeant"
+HitCompareCut:            4
 HitsModuleLabel:          "gaushit"
 MCHitsModuleLabel:        "mchit"
 ClusterModuleLabel:       "fuzzycluster"
