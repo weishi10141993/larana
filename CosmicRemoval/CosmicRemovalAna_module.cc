@@ -345,15 +345,6 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
     }
   }
   std::cout << "Out of a total of " << hitOrigins.size() << " there were " << ndifferences << " differences." << std::endl;
-
-  sw.Start();
-
-  art::FindManyP<recob::Track> tracks_per_hit(hitlist, evt, fTrackModuleLabel);
-  art::FindManyP<recob::Cluster> clusters_per_hit(hitlist, evt, fClusterModuleLabel);
-
-  sw.Stop();
-  times.push_back( std::make_pair("GrabAssociations",sw.RealTime()) );
-  float ga = sw.RealTime();
   sw.Start();
 
   art::Handle< std::vector<recob::Track> > trackListHandle;
@@ -385,6 +376,15 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   sw.Stop();
   times.push_back( std::make_pair("GrabAssociationsNew",sw.RealTime()) );
   float ga_new = sw.RealTime();
+
+  sw.Start();
+
+  art::FindManyP<recob::Track> tracks_per_hit(hitlist, evt, fTrackModuleLabel);
+  art::FindManyP<recob::Cluster> clusters_per_hit(hitlist, evt, fClusterModuleLabel);
+
+  sw.Stop();
+  times.push_back( std::make_pair("GrabAssociations",sw.RealTime()) );
+  float ga = sw.RealTime();
 
   ndifferences=0;
   for(size_t hitlist_iter=0; hitlist_iter<tracks_per_hit_new.size(); hitlist_iter++){
