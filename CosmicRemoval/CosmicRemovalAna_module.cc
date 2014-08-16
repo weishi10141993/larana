@@ -297,14 +297,14 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   art::Handle< art::Assns<recob::Hit,recob::Track> > assnHitTrackHandle;
   evt.getByLabel(fTrackModuleLabel,assnHitTrackHandle);
   std::vector< std::vector<size_t> > 
-    track_indices_per_hit = util::GetAssociationVectorManyI(assnHitTrackHandle,
-							    hitListHandle);
+    track_indices_per_hit = util::GetAssociatedVectorManyI(assnHitTrackHandle,
+							   hitListHandle);
 
   art::Handle< art::Assns<recob::Hit,recob::Cluster> > assnHitClusterHandle;
   evt.getByLabel(fClusterModuleLabel,assnHitClusterHandle);
   std::vector< std::vector<size_t> > 
-    cluster_indices_per_hit = util::GetAssociationVectorManyI(assnHitClusterHandle,
-							      hitListHandle);
+    cluster_indices_per_hit = util::GetAssociatedVectorManyI(assnHitClusterHandle,
+							     hitListHandle);
 
   sw.Stop();
   times.push_back( std::make_pair("GrabAssociations",sw.RealTime()) );
