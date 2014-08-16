@@ -21,35 +21,39 @@ standard_cosmictagger:
 standard_cosmicclustertagger:
 {
     module_type: "CosmicClusterTagger"
-    SpacePointAlg:       @local::standard_spacepointalg
-    TPCBoundaryLimit: 15
-    SpillDistance: 12
-    SpillVetoCounter: 2
-    dTLimit: 8
-    dWLimit: 8
-    TrackModuleLabel: "track" #"beziertracker"
+#    SpacePointAlg:       @local::standard_spacepointalg
+#    TPCBoundaryLimit: 15
+#    SpillDistance: 12
+#    SpillVetoCounter: 2
+#    dTLimit: 8
+#    dWLimit: 8
+#    TrackModuleLabel: "track" #"beziertracker"
     ClusterModuleLabel: "cluster" #"dbcluster"
-    DoTrackCheck: 1 # 0
-    DoClusterCheck: 1 # 1
-    ClustersAssociatedToTracks: 1 # make this 1 when tracks are associated to clusters
-    TrackAssocToClusterModuleLabel: "track"
+#    DoTrackCheck: 1 # 0
+#    DoClusterCheck: 1 # 1
+#    ClustersAssociatedToTracks: 1 # make this 1 when tracks are associated to clusters
+#    TrackAssocToClusterModuleLabel: "track"
+    TickLimit: 0
 }
 
 standard_cosmictracktagger:
 {
     module_type: "CosmicTrackTagger"
-    SpacePointAlg:       @local::standard_spacepointalg
-    TPCBoundaryLimit: 15
-    SpillDistance: 12
-    SpillVetoCounter: 2
-    dTLimit: 8
-    dWLimit: 8
+#    SpacePointAlg:       @local::standard_spacepointalg
+#    TPCBoundaryLimit: 15
+    TPCXBoundary: 5
+    TPCYBoundary: 5
+    TPCZBoundary: 5
+#    SpillDistance: 12
+#    SpillVetoCounter: 2
+#    dTLimit: 8
+#    dWLimit: 8
     TrackModuleLabel: "track" #"beziertracker"
-    ClusterModuleLabel: "cluster" #"dbcluster"
-    DoTrackCheck: 1 # 0
-    DoClusterCheck: 1 # 1
-    ClustersAssociatedToTracks: 1 # make this 1 when tracks are associated to clusters
-    TrackAssocToClusterModuleLabel: "track"
+#    ClusterModuleLabel: "cluster" #"dbcluster"
+#    DoTrackCheck: 1 # 0
+#    DoClusterCheck: 1 # 1
+#    ClustersAssociatedToTracks: 1 # make this 1 when tracks are associated to clusters
+#    TrackAssocToClusterModuleLabel: "track"
 }
 
 microboone_cosmictagger:         @local::standard_cosmictagger
