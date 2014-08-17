@@ -115,6 +115,7 @@ bool cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float>
 							      const recob::OpFlash* flashPointer)
 {
   float hypothesis_integral=0;
+  float flash_integral=0;
   unsigned int cumulativeChannels=0;
   for(size_t pmt_i=0; pmt_i<lightHypothesis.size(); pmt_i++){
 
@@ -128,9 +129,10 @@ bool cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float>
     if(cumulativeChannels >= fCumulativeChannelCut) return false;
 
     hypothesis_integral += lightHypothesis[pmt_i];
+    flash_integral += flashPointer->PE(pmt_i);
   }
 
-  if( (hypothesis_integral - flashPointer->TotalPE())/std::sqrt(hypothesis_integral) 
+  if( (hypothesis_integral - flash_integral)/std::sqrt(hypothesis_integral) 
       > fIntegralCut) return false;
 
   return true;
