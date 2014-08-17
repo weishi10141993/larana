@@ -10,6 +10,7 @@
  * Input:       recob::OpFlash, recob::Track
  * Output:      anab::CosmicTag (and Assn<anab::CosmicTag,recob::Track>) 
 */
+#include <iostream>
 
 #include "fhiclcpp/ParameterSet.h"
 
@@ -29,6 +30,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p);
   void reconfigure(fhicl::ParameterSet const& p);
 
+  //how to run the algorithm
   void RunCompatibilityCheck(std::vector<recob::OpFlash> const&,
 			     std::vector<recob::Track> const&,
 			     std::vector<anab::CosmicTag>&,
@@ -39,6 +41,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
  private:
 
   const unsigned int COSMIC_TYPE;
+  const bool DEBUG_FLAG;
 
   float fMIPYield;
   float fQE;
@@ -49,12 +52,28 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   unsigned int fCumulativeChannelCut;
   float fIntegralCut;
 
+  typedef enum CompatibilityResultType{
+    kCompatible = 0,
+    kSingleChannelCut,
+    kCumulativeChannelCut,
+    kIntegralCut
+  } CompatibilityResultType;
+
+  //core functions
   std::vector<float> GetMIPHypotheses(recob::Track const& track, 
 				      geo::Geometry const& geom,
 				      phot::PhotonVisibilityService const& pvs,
 				      float XOffset=0);
-  bool CheckCompatibility(std::vector<float> const& lightHypothesis, 
-			  const recob::OpFlash* flashPointer);
+  CompatibilityResultType CheckCompatibility(std::vector<float> const& lightHypothesis, 
+					     const recob::OpFlash* flashPointer);
+
+  //debugging functions
+  void PrintTrackProperties(recob::Track const&, std::ostream* output=&std::cout);
+  void PrintFlashProperties(recob::OpFlash const&, std::ostream* output=&std::cout);
+  void PrintHypothesisFlashComparison(std::vector<float> const&,
+				      const recob::OpFlash*,
+				      CompatibilityResultType,
+				      std::ostream* output=&std::cout);
 
 };
 
