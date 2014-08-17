@@ -6,13 +6,32 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 # Add top level include
 include_directories ( ${PROJECT_SOURCE_DIR} )
 art_make(BASENAME_ONLY
-	MODULE_LIBRARIES  BackTracker_service
-	RecoAlg
+	LIBRARY_NAME CosmicRemoval
+	LIB_LIBRARIES 
+		     RecoBase
+		     AnalysisBase
+		     Geometry
+		     Geometry_service
+		     PhotonVisibilityService_service
+		     LArProperties_service
+		     Utilities
+		     ${MF_MESSAGELOGGER}
+		     ${MF_UTILITIES}
+		     ${FHICLCPP}
+		     ${CETLIB}
+		     ${CLHEP}
+		     ${ROOT_BASIC_LIB_LIST}
+		     ${G4_LIB_LIST}
+	MODULE_LIBRARIES  
+			    CosmicRemoval
+			    BackTracker_service
+			    RecoAlg
 			    Simulation
 			    RecoObjects
 			    RecoBase
 			    Geometry
 			    Geometry_service
+			    PhotonVisibilityService_service
 			    AnalysisAlg
 			    AnalysisBase
                             LArProperties_service

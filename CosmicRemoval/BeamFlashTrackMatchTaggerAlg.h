@@ -1,0 +1,80 @@
+#ifndef BEAMFLASHTRACKMATCHTAGGERALG_H
+#define BEAMFLASHTRACKMATCHTAGGERALG_H
+/*!
+ * Title:   Beam Flash<-->Track Match Algorithim Class
+ * Author:  Wes Ketchum (wketchum@lanl.gov), based on code from Ben Jones
+ *
+ * Description: Algorithm that compares all tracks to the flash during the 
+ *              beam gate, and determines if that track is consistent with
+ *              having produced that flash.
+ * Input:       recob::OpFlash, recob::Track
+ * Output:      anab::CosmicTag (and Assn<anab::CosmicTag,recob::Track>) 
+*/
+#include <iostream>
+
+#include "fhiclcpp/ParameterSet.h"
+
+#include "RecoBase/OpFlash.h"
+#include "RecoBase/Track.h"
+#include "AnalysisBase/CosmicTag.h"
+
+#include "Geometry/Geometry.h"
+#include "PhotonPropagation/PhotonVisibilityService.h"
+
+namespace cosmic{
+  class BeamFlashTrackMatchTaggerAlg;
+}
+
+class cosmic::BeamFlashTrackMatchTaggerAlg{
+ public:
+  BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p);
+  void reconfigure(fhicl::ParameterSet const& p);
+
+  //how to run the algorithm
+  void RunCompatibilityCheck(std::vector<recob::OpFlash> const&,
+			     std::vector<recob::Track> const&,
+			     std::vector<anab::CosmicTag>&,
+			     std::vector<size_t>&,
+			     geo::Geometry const&,
+			     phot::PhotonVisibilityService const&);
+
+ private:
+
+  const unsigned int COSMIC_TYPE;
+  const bool DEBUG_FLAG;
+
+  float fMIPYield;
+  float fQE;
+  float fMIPdQdx;
+  float fPromptFrac;
+  float fSingleChannelCut;
+  float fCumulativeChannelThreshold;
+  unsigned int fCumulativeChannelCut;
+  float fIntegralCut;
+
+  typedef enum CompatibilityResultType{
+    kCompatible = 0,
+    kSingleChannelCut,
+    kCumulativeChannelCut,
+    kIntegralCut
+  } CompatibilityResultType;
+
+  //core functions
+  std::vector<float> GetMIPHypotheses(recob::Track const& track, 
+				      geo::Geometry const& geom,
+				      phot::PhotonVisibilityService const& pvs,
+				      float XOffset=0);
+  CompatibilityResultType CheckCompatibility(std::vector<float> const& lightHypothesis, 
+					     const recob::OpFlash* flashPointer);
+
+  //debugging functions
+  void PrintTrackProperties(recob::Track const&, std::ostream* output=&std::cout);
+  void PrintFlashProperties(recob::OpFlash const&, std::ostream* output=&std::cout);
+  void PrintHypothesisFlashComparison(std::vector<float> const&,
+				      const recob::OpFlash*,
+				      CompatibilityResultType,
+				      std::ostream* output=&std::cout);
+
+};
+
+#endif
