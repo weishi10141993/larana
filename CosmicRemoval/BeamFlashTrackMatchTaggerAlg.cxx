@@ -46,7 +46,13 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
   }
 
   for(size_t track_i=0; track_i<trackVector.size(); track_i++){
+
     recob::Track const& track(trackVector[track_i]);
+
+    TVector3 const& pt_begin = track.LocationAtPoint(0);
+    TVector3 const& pt_end = track.LocationAtPoint(track.NumberTrajectoryPoints()-1);
+    if(!InDriftWindow(pt_begin.x(),pt_end.x(),geom)) continue;
+
     std::vector<float> lightHypothesis = GetMIPHypotheses(track,geom,pvs);
 
     bool compatible=false;
@@ -62,8 +68,6 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
 
     float cosmicScore=1.;
     if(compatible) cosmicScore=0.;
-    TVector3 const& pt_begin = track.LocationAtPoint(0);
-    TVector3 const& pt_end = track.LocationAtPoint(track.NumberTrajectoryPoints()-1);
     std::vector<float> xyz_begin = { (float)pt_begin.x(), (float)pt_begin.y(), (float)pt_begin.z()};
     std::vector<float> xyz_end = {(float)pt_end.x(), (float)pt_end.y(), (float)pt_end.z()};
 
@@ -73,7 +77,11 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
 
 }
 
-// Repackage the shape of the flashes
+bool cosmic::BeamFlashTrackMatchTaggerAlg::InDriftWindow(double start_x, double end_x, geo::Geometry const& geom){
+  if(start_x < 0. || end_x < 0.) return false;
+  if(start_x > 2*geom.DetHalfWidth() || end_x > 2*geom.DetHalfWidth()) return false;
+  return true;
+}
 
 // Get a hypothesis for the light collected for a bezier track
 std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob::Track const& track, 
@@ -102,9 +110,13 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob:
 
     //get the visibility vector
     const std::vector<float>* PointVisibility = pvs.GetAllVisibilities(xyz_segment);
+    
+    //check vector size, as it may be zero if given a y/z outside some range
+    if(PointVisibility->size()!=geom.NOpDet()) continue;
+
     for(size_t opdet_i=0; opdet_i<geom.NOpDet(); opdet_i++)
       lightHypothesis[opdet_i] += PointVisibility->at(opdet_i)*LightAmount;
-    
+
   }
 
   return lightHypothesis;
@@ -128,6 +140,8 @@ cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> cons
   unsigned int cumulativeChannels=0;
   for(size_t pmt_i=0; pmt_i<lightHypothesis.size(); pmt_i++){
 
+    flash_integral += flashPointer->PE(pmt_i);
+
     if(lightHypothesis[pmt_i] < std::numeric_limits<float>::epsilon() ) continue;
 
     float diff_scaled = (lightHypothesis[pmt_i] - flashPointer->PE(pmt_i))/std::sqrt(lightHypothesis[pmt_i]);
@@ -138,7 +152,6 @@ cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> cons
     if(cumulativeChannels >= fCumulativeChannelCut) return CompatibilityResultType::kCumulativeChannelCut;
 
     hypothesis_integral += lightHypothesis[pmt_i];
-    flash_integral += flashPointer->PE(pmt_i);
   }
 
   if( (hypothesis_integral - flash_integral)/std::sqrt(hypothesis_integral) 
@@ -193,6 +206,8 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintHypothesisFlashComparison(std::v
   float flash_integral=0;
   for(size_t pmt_i=0; pmt_i<lightHypothesis.size(); pmt_i++){
 
+    flash_integral += flashPointer->PE(pmt_i);
+
     *output << "\n\t pmt_i=" << pmt_i << ", (hypothesis,flash)=(" 
 	   << lightHypothesis[pmt_i] << "," << flashPointer->PE(pmt_i) << ")";
 
@@ -201,7 +216,6 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintHypothesisFlashComparison(std::v
     *output << "  difference=" << (lightHypothesis[pmt_i] - flashPointer->PE(pmt_i))/std::sqrt(lightHypothesis[pmt_i]);
 
     hypothesis_integral += lightHypothesis[pmt_i];
-    flash_integral += flashPointer->PE(pmt_i);
   }
 
   *output << "\n\t TOTAL (hypothesis,flash)=(" 

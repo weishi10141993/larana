@@ -41,9 +41,9 @@ standard_beamflashtrackmatchtaggeralg:
     MIPdQdx:    2.1
     PromptFrac: 2.5
 
-    SingleChannelCut:           4.0
-    CumulativeChannelThreshold: 2.0
-    CumulativeChannelCut:       3
+    SingleChannelCut:           5.0
+    CumulativeChannelThreshold: 3.0
+    CumulativeChannelCut:       4
     IntegralCut:                4.0
 }
 

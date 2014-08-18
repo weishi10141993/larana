@@ -111,6 +111,7 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
 			     cosmicTagVector, assnTrackTagVector,
 			     geom, pvs);
 
+
   //Make the associations for ART
   for(size_t assn_iter=0; assn_iter<assnTrackTagVector.size(); assn_iter++){
     art::Ptr<recob::Track> trk_ptr(trackHandle,assnTrackTagVector[assn_iter]);
