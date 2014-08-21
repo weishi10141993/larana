@@ -33,9 +33,6 @@
 #include "RecoBase/Track.h"
 
 #include "AnalysisBase/CosmicTag.h"
-
-
-
 #include "RecoAlg/SpacePointAlg.h"
 #include "Utilities/AssociationUtil.h"
 #include "Utilities/DetectorProperties.h"
@@ -48,18 +45,14 @@
 #include "TH1.h"
 #include "TStopwatch.h"
 
-
-
 class TTree;
 class TH1;
-
 
 namespace cosmic {
   class CosmicTrackTagger;
   class SpacePoint;
   class Track;
 }
-
 
 
 class cosmic::CosmicTrackTagger : public art::EDProducer {
@@ -74,11 +67,10 @@ public:
   void endJob() override;
 
 
-
-
-
 private:
 
+  // Length of reconstructed track, trajectory by trajectory.
+  double length(art::Ptr<recob::Track> track);
 
   //  float fTotalBoundaryLimit; // 15
   //  float f3DSpillDistance;    // 12
@@ -93,28 +85,19 @@ private:
   //  int fClusterAssociatedToTracks;
   int fDetectorWidthTicks;
   float fTPCXBoundary, fTPCYBoundary, fTPCZBoundary;
-
   float fDetHalfHeight, fDetWidth, fDetLength;
-
-
 };
-
 
 
 cosmic::CosmicTrackTagger::CosmicTrackTagger(fhicl::ParameterSet const & p)
 // :
 // Initialize member data here.
 {
-
   this->reconfigure(p);
 
   // Call appropriate Produces<>() functions here.
-
   produces< std::vector<anab::CosmicTag> >();
   produces< art::Assns<anab::CosmicTag, recob::Track> >();
-
-
-
 }
 
 cosmic::CosmicTrackTagger::~CosmicTrackTagger() {
@@ -127,22 +110,17 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
   std::unique_ptr< std::vector< anab::CosmicTag > > cosmicTagTrackVector( new std::vector<anab::CosmicTag> );
   std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > >    assnOutCosmicTagTrack( new art::Assns<recob::Track, anab::CosmicTag>);
 
-
   TStopwatch ts;
-
 
   art::Handle<std::vector<recob::Track> > Trk_h;
   e.getByLabel( fTrackModuleLabel, Trk_h );
   std::vector<art::Ptr<recob::Track> > TrkVec;
   art::fill_ptr_vector(TrkVec, Trk_h);
 
-
-
   /////////////////////////////////
   // LOOPING OVER INSPILL TRACKS
   /////////////////////////////////
   
-
     art::FindManyP<recob::Hit>        hitsSpill   (Trk_h, e, fTrackModuleLabel);
     //    art::FindManyP<recob::Cluster>    ClusterSpill(Trk_h, e, fTrackModuleLabel);
 
@@ -153,12 +131,9 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       art::Ptr<recob::Track>              tTrack  = TrkVec.at(iTrack);
       std::vector<art::Ptr<recob::Hit> >  HitVec  = hitsSpill.at(iTrack);
 
-    
-
       // A BETTER WAY OF FINDING END POINTS:
       TVector3 tVector1 = tTrack->Vertex();
       TVector3 tVector2 = tTrack->End();
-
 
       float trackEndPt1_X = tVector1[0]; 
       float trackEndPt1_Y = tVector1[1]; 
@@ -178,10 +153,6 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 	continue; // I don't want to deal with these "tracks"
       }
 
-
-
-
-
       //////////////////////////////////////////////////////////////////////
       //Let's check Cluster connections to pre & post spill planes first
 
@@ -195,7 +166,6 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 //      if( count( fail.begin(), fail.end(), 1 ) > 0 ) {
 //	isCosmic = 4;
 //      }
-
 
 
       /////////////////////////////////////
@@ -222,7 +192,6 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       // }
 
 
-    
       /////////////////////////////////
       // Now check Y & Z boundaries:
       /////////////////////////////////
@@ -235,7 +204,6 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 	if( nBd>1 ) isCosmic = 2;
       }
 
-      
       std::vector<float> endPt1;
       std::vector<float> endPt2;
       endPt1.push_back( trackEndPt1_X );
@@ -268,61 +236,103 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
  						       isCosmic
 						       ) );
 
-
-    
-//mf::LogInfo("CosmicTrackTagger Results") << "The IsCosmic value is "<< isCosmic << " origin: " << origin
-//					  << trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
-//					  << trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z;
+     //mf::LogInfo("CosmicTrackTagger Results") << "The IsCosmic value is "<< isCosmic << " origin: " << origin
+     //					  << trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
+     //					  << trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z;
       
- 
-
-
       //outTracksForTags->push_back( *tTrack );
-
 
       util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrack, *assnOutCosmicTagTrack );
       //util::CreateAssn(*this, e, *cosmicTagTrackVector, HitVec, *assnOutCosmicTagHit);
-
-
     }
     // END OF LOOPING OVER INSPILL TRACKS
 
 
-
-
-
-
-  //  e.put( std::move(outTracksForTags) );
-
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //////TAGGING DELTA RAYS (and other stub) ASSOCIATED TO A ALREADY TAGGED COSMIC TRACK//////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    float         dE=0, dS=0, temp=0, IScore=0;
+    unsigned int  IndexE = 0, iTrk1=0, iTrk=0;
+    int           IType=0;
+        
+    for(iTrk=0; iTrk<Trk_h->size(); iTrk++ ){
+      art::Ptr<recob::Track> tTrk  = TrkVec.at(iTrk);
+      if ((*cosmicTagTrackVector)[iTrk].CosmicScore()==0){
+	TVector3 tStart = tTrk->Vertex();
+        TVector3 tEnd   = tTrk->End();
+	unsigned int l=0;
+	for(iTrk1=0; iTrk1<Trk_h->size(); iTrk1++ ){
+	  art::Ptr<recob::Track> tTrk1  = TrkVec.at(iTrk1);
+	  float getScore = (*cosmicTagTrackVector)[iTrk1].CosmicScore();
+          if (getScore == 1 || getScore == 0.5){
+	    int getType = (*cosmicTagTrackVector)[iTrk1].CosmicType();	  
+	    TVector3 tStart1 = tTrk1->Vertex();
+	    TVector3 tEnd1   = tTrk1->End();
+	    TVector3 NumE    = (tEnd-tStart1).Cross(tEnd-tEnd1);
+	    TVector3 DenE    = tEnd1-tStart1;
+	    dE = NumE.Mag()/DenE.Mag();
+	    if (l==0){
+	      temp = dE;
+	      IndexE = iTrk1;
+	      IScore = getScore;
+	      IType  = getType;
+	    }
+	    if (dE<temp){
+	      temp = dE;
+	      IndexE = iTrk1;
+	      IScore = getScore;
+	      IType  = getType;
+	    }
+	    l++;
+	  }
+        }//End Trk1 loop
+	art::Ptr<recob::Track> tTrkI = TrkVec.at(IndexE);	  
+        TVector3 tStartI = tTrkI->Vertex();
+	TVector3 tEndI   = tTrkI->End();
+	TVector3 NumS    = (tStart-tStartI).Cross(tStart-tEndI);
+	TVector3 DenS    = tEndI-tStartI;
+	dS = NumS.Mag()/DenS.Mag();
+	if (((dS<5 && temp<5) || (dS<temp && dS<5)) && (length(tTrk)<60)){
+	  (*cosmicTagTrackVector)[iTrk].fCosmicScore = IScore;
+	  (*cosmicTagTrackVector)[iTrk].fCosmicType  = IType;						       
+          util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrk, *assnOutCosmicTagTrack, iTrk);
+       }	  
+    }//end cosmicScore==0 loop
+ }//end iTrk loop	  
+ 
+  // e.put( std::move(outTracksForTags) );
   e.put( std::move(cosmicTagTrackVector) );
   e.put( std::move(assnOutCosmicTagTrack) );
 
-
-
-
   TrkVec.clear();
-
-
 
 } // end of produce
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-void cosmic::CosmicTrackTagger::beginJob() {
-
-
-
+// Length of reconstructed track, trajectory by trajectory.
+double cosmic::CosmicTrackTagger::length(art::Ptr<recob::Track> track){
+  double result = 0.;
+  TVector3 disp = track->LocationAtPoint(0);
+  int n = track->NumberTrajectoryPoints();
+  for(int i = 1; i < n; ++i) {
+    const TVector3& pos = track->LocationAtPoint(i);
+    disp -= pos;
+    result += disp.Mag();
+    disp = pos;
+  }
+  return result;
 }
+
+
+void cosmic::CosmicTrackTagger::beginJob(){
+}
+
 
 void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
   
-  ////////  fSptalg                = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-
-
+  ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
   art::ServiceHandle<util::DetectorProperties> detp;
   art::ServiceHandle<util::LArProperties> larp;
   art::ServiceHandle<geo::Geometry> geo;
@@ -339,15 +349,10 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
   fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
 
-
   const double driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
 
   //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
-
-
-
-
 }
 
 void cosmic::CosmicTrackTagger::endJob() {
