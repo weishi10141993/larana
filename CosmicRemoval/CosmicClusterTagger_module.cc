@@ -130,7 +130,8 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
 
   for( unsigned int iCluster = 0; iCluster < Cluster_h->size(); iCluster++ ) {
 
-    int isCosmic = 0;
+    float cosmicScore = 0;
+    anab::CosmicTagID_t tag_id = anab::CosmicTagID_t::kUnknown;
 
     art::Ptr<recob::Cluster> tCluster = ClusterVec.at(iCluster);
     art::Ptr<recob::Track> tTrack;
@@ -153,10 +154,10 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
        failClusterTickCheck = true;
      }
      
-     if(failClusterTickCheck) isCosmic = 4;
-     
-     float cosmicScore = isCosmic > 0 ? 1 : 0;
-     if(isCosmic == 3 ) cosmicScore = 0.5;
+     if(failClusterTickCheck) {
+       cosmicScore=1.;
+       tag_id = anab::CosmicTagID_t::kOutsideDrift_Partial;
+     }
 
      if( endPt1.size()<1 ) {
        for(int s=0; s<3; s++ ) {
@@ -168,11 +169,10 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
      
      // Making stuff to save!
      //std::cerr << "Cosmic Score, isCosmic, t0, t1: " << cosmicScore << " " << isCosmic << " t's: " << t0 << " " << t1 << " | " << fReadOutWindowSize<< " | " << fDetectorWidthTicks << std::endl;
-     cosmicTagClusterVector->push_back( anab::CosmicTag(endPt1,
-							endPt2,
-							cosmicScore,
-							isCosmic
-							) );
+     cosmicTagClusterVector->emplace_back( endPt1,
+					   endPt2,
+					   cosmicScore,
+					   tag_id);
      
      util::CreateAssn(*this, e, *cosmicTagClusterVector, tCluster, *assnOutCosmicTagCluster );
      

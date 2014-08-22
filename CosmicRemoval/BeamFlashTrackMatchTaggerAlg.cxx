@@ -14,8 +14,8 @@
 #include "TVector3.h"
 
 cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p) 
-  : COSMIC_TYPE_FLASHMATCH(10),
-    COSMIC_TYPE_OUTSIDEDRIFT(1),
+  : COSMIC_TYPE_FLASHMATCH(anab::CosmicTagID_t::kFlash_BeamIncompatible),
+    COSMIC_TYPE_OUTSIDEDRIFT(anab::CosmicTagID_t::kOutsideDrift_Partial),
     DEBUG_FLAG(p.get<bool>("RunDebugMode",false))
 {
   this->reconfigure(p);
