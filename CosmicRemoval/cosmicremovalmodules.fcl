@@ -41,10 +41,14 @@ standard_beamflashtrackmatchtaggeralg:
     MIPdQdx:    2.1
     PromptFrac: 2.5
 
-    SingleChannelCut:           5.0
+    SingleChannelCut:           50.0
     CumulativeChannelThreshold: 3.0
     CumulativeChannelCut:       4
     IntegralCut:                4.0
+    MinTrackLength:             0.0
+    
+    MakeOutsideDriftTags: false
+    NormalizeHypothesisToFlash: true
 }
 
 standard_beamflashtrackmatchtagger:

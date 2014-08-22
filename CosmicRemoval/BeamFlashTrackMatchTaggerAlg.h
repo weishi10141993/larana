@@ -40,9 +40,11 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 
  private:
 
-  const unsigned int COSMIC_TYPE;
+  const unsigned int COSMIC_TYPE_FLASHMATCH;
+  const unsigned int COSMIC_TYPE_OUTSIDEDRIFT;
   const bool DEBUG_FLAG;
 
+  float fMinTrackLength;
   float fMIPYield;
   float fQE;
   float fMIPdQdx;
@@ -51,6 +53,9 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   float fCumulativeChannelThreshold;
   unsigned int fCumulativeChannelCut;
   float fIntegralCut;
+
+  bool fMakeOutsideDriftTags;
+  bool fNormalizeHypothesisToFlash;
 
   typedef enum CompatibilityResultType{
     kCompatible = 0,
