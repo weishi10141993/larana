@@ -87,7 +87,6 @@ namespace microboone {
     
     void FillMCInfo( std::vector<recob::Hit> const& hitlist,
 		     std::vector<hit_origin_t> & hitOrigins,
-		     double & time,
 		     std::vector<sim::MCHitCollection> const& mchitCollectionVector,
 		     std::map<int,const simb::MCTruth* > const& trackIDToTruthMap);
 
@@ -96,16 +95,14 @@ namespace microboone {
 		       float const& charge,
 		       std::vector<size_t> const& track_indices_this_hit,
 		       std::vector< std::vector< const anab::CosmicTag* > > const& tags_per_cluster,
-		       std::vector<bool> & hitsAccounted_per_tag,
-		       double & time);
+		       std::vector<bool> & hitsAccounted_per_tag);
     
     void FillClusterInfo(size_t const& hit_iter,
 			 hit_origin_t const& origin,
 			 float const& charge,
 			 std::vector<size_t> const& cluster_indices_this_hit,
 			 std::vector< std::vector< const anab::CosmicTag* > > const& tags_per_cluster,
-			 std::vector<bool> & hitsAccounted_per_tag,
-			 double & time);
+			 std::vector<bool> & hitsAccounted_per_tag);
     
     std::vector<float> cTaggedCharge_Cosmic;
     std::vector<float> cTaggedCharge_NonCosmic;
@@ -304,8 +301,6 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
     float charge = hitVector[hit_iter].Charge();
     hit_origin_t origin = hitOrigins[hit_iter];
 
-    sw_inner.Start();
-
     if(track_indices_per_hit[hit_iter].size()!=0)
       FillTrackInfo(hit_iter,
 		    origin,
@@ -488,7 +483,6 @@ void microboone::CosmicRemovalAna::FillClusterInfo(size_t const& hit_iter,
   
   for(unsigned int nCT = 0; nCT < fCosmicTagAssocLabel.size(); nCT++){//<---This loops over the vector of cosmicTags in stored in the event
     if(hitsAccounted_per_tag[nCT]) continue;
-    sw.Start();
 
     for(auto const& cluster_index : cluster_indices_this_hit){
       if(!tags_per_cluster[cluster_index][nCT]) continue;
