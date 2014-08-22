@@ -45,6 +45,8 @@ standard_beamflashtrackmatchtaggeralg:
     CumulativeChannelThreshold: 3.0
     CumulativeChannelCut:       4
     IntegralCut:                4.0
+
+    MakeOutsideDriftTags: false
 }
 
 standard_beamflashtrackmatchtagger:

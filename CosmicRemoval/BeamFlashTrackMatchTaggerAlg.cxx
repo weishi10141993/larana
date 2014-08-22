@@ -14,7 +14,8 @@
 #include "TVector3.h"
 
 cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p) 
-  : COSMIC_TYPE(10),
+  : COSMIC_TYPE_FLASHMATCH(10),
+    COSMIC_TYPE_OUTSIDEDRIFT(1),
     DEBUG_FLAG(p.get<bool>("RunDebugMode",false))
 {
   this->reconfigure(p);
@@ -30,6 +31,8 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const
   fCumulativeChannelThreshold = p.get<float>("CumulativeChannelThreshold");
   fCumulativeChannelCut       = p.get<unsigned int>("CumulativeChannelCut");
   fIntegralCut                = p.get<float>("IntegralCut");
+  
+  fMakeOutsideDriftTags = p.get<bool>("MakeOutsideDriftTags",false);
 }
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<recob::OpFlash> const& flashVector,
@@ -49,12 +52,25 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
 
     recob::Track const& track(trackVector[track_i]);
 
+    //get the begin and end points of this track
     TVector3 const& pt_begin = track.LocationAtPoint(0);
     TVector3 const& pt_end = track.LocationAtPoint(track.NumberTrajectoryPoints()-1);
-    if(!InDriftWindow(pt_begin.x(),pt_end.x(),geom)) continue;
+    std::vector<float> xyz_begin = { (float)pt_begin.x(), (float)pt_begin.y(), (float)pt_begin.z()};
+    std::vector<float> xyz_end = {(float)pt_end.x(), (float)pt_end.y(), (float)pt_end.z()};
 
+    //check if this track is outside the drift window, and if it is continue
+    if(!InDriftWindow(pt_begin.x(),pt_end.x(),geom)) {
+      if(fMakeOutsideDriftTags){
+	cosmicTagVector.emplace_back(xyz_begin,xyz_end,1.,COSMIC_TYPE_OUTSIDEDRIFT);
+	assnTrackTagVector.push_back(track_i);
+      }
+      continue;
+    }
+
+    //get light hypothesis for track
     std::vector<float> lightHypothesis = GetMIPHypotheses(track,geom,pvs);
 
+    //check compatibility with beam flash
     bool compatible=false;
     for(const recob::OpFlash* flashPointer : flashesOnBeamTime){
       CompatibilityResultType result = CheckCompatibility(lightHypothesis,flashPointer);
@@ -66,12 +82,10 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
       }
     }
 
+    //make tag
     float cosmicScore=1.;
     if(compatible) cosmicScore=0.;
-    std::vector<float> xyz_begin = { (float)pt_begin.x(), (float)pt_begin.y(), (float)pt_begin.z()};
-    std::vector<float> xyz_end = {(float)pt_end.x(), (float)pt_end.y(), (float)pt_end.z()};
-
-    cosmicTagVector.emplace_back(xyz_begin,xyz_end,cosmicScore,COSMIC_TYPE);
+    cosmicTagVector.emplace_back(xyz_begin,xyz_end,cosmicScore,COSMIC_TYPE_FLASHMATCH);
     assnTrackTagVector.push_back(track_i);
   }
 
