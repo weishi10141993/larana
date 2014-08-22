@@ -65,8 +65,10 @@ microboone_cosmicremovalana:
 module_type:              "CosmicRemovalAna"
 GenieGenModuleLabel:      "generator"
 #GenieGenModuleLabel:      "nugenerator"
-LArGeantModuleLabel:      "largeant"
+MCModuleLabel:            "largeant"
+HitCompareCut:            4
 HitsModuleLabel:          "gaushit"
+MCHitsModuleLabel:        "mchit"
 ClusterModuleLabel:       "fuzzycluster"
 TrackModuleLabel:         "beziertracker"
 CosmicTagAssocLabel:      ["cosmictagger" ]
