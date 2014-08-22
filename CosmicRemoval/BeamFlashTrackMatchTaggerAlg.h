@@ -40,8 +40,8 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 
  private:
 
-  const unsigned int COSMIC_TYPE_FLASHMATCH;
-  const unsigned int COSMIC_TYPE_OUTSIDEDRIFT;
+  const anab::CosmicTagID_t COSMIC_TYPE_FLASHMATCH;
+  const anab::CosmicTagID_t COSMIC_TYPE_OUTSIDEDRIFT;
   const bool DEBUG_FLAG;
 
   float fMinTrackLength;

@@ -304,7 +304,7 @@ namespace opdet {
       BTracks.at(itrack)->GetTrackPoint(1,xyz_end); //load in ending point
       std::vector<float> endPt2 = { (float)xyz_end[0], (float)xyz_end[1], (float)xyz_end[2] };
 
-      CosmicTagVector.emplace_back(endPt1,endPt2,cosmic_score,10); //use 10 as type for now for flash-track matching
+      CosmicTagVector.emplace_back(endPt1,endPt2,cosmic_score,anab::CosmicTagID_t::kFlash_BeamIncompatible);
       util::CreateAssn(*this, evt, *(CosmicTagPtr.get()), Tracks.at(itrack), *(assn_track.get()), itrack); 
 
     }
