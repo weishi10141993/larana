@@ -202,6 +202,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 	if(fabs(trackEndPt1_Z - fDetLength)<fTPCZBoundary || fabs(trackEndPt2_Z - fDetLength) < fTPCZBoundary ) nBd++;
 	if(fabs(trackEndPt1_Z )< fTPCZBoundary || fabs(trackEndPt2_Z )< fTPCZBoundary ) nBd++;
 	if( nBd>1 ) isCosmic = 2;
+	else if(nBd==1) isCosmic = 3 ;
       }
 
       std::vector<float> endPt1;
@@ -214,6 +215,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       endPt2.push_back( trackEndPt2_Z );
 
       float cosmicScore = isCosmic > 0 ? 1 : 0;
+      if( isCosmic==3 ) cosmicScore = 0.5;
 
       //////////////////////////////
       // Now check for X boundary
