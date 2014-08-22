@@ -369,16 +369,15 @@ void microboone::CosmicRemovalAna::FillMCInfo( std::vector<recob::Hit> const& hi
 					       std::map<int,const simb::MCTruth* > const& trackIdToTruthMap){
 
   art::ServiceHandle<util::TimeService> ts;
+
   for(size_t itr=0; itr<hitlist.size(); itr++){
-    
+
     recob::Hit const& this_hit = hitlist[itr];
     
     std::vector<int> trackIDs;
     std::vector<double> energy;    
 
     for( auto const& mchit : mchitCollectionVector[this_hit.Channel()] ){
-      if(ts->TPCTDC2Tick(mchit.PeakTime()) > this_hit.PeakTime()+fHitCompareCut) break;
-      
       if( std::abs(ts->TPCTDC2Tick(mchit.PeakTime()) - this_hit.PeakTime()) < fHitCompareCut){
 	trackIDs.push_back(mchit.PartTrackId());
 	energy.push_back(mchit.PartEnergy());
@@ -396,7 +395,9 @@ void microboone::CosmicRemovalAna::FillMCInfo( std::vector<recob::Hit> const& hi
     float non_cosmic_energy=0;
 
     for(size_t iter=0; iter<trackIDs.size(); iter++){ 
-      int origin = trackIdToTruthMap.at(std::abs(trackIDs[iter]))->Origin();  
+      auto map_element = trackIdToTruthMap.find(std::abs(trackIDs[iter]));
+      if(map_element==trackIdToTruthMap.end()) continue;
+      int origin = map_element->second->Origin();  
       if(origin == simb::kBeamNeutrino)
 	non_cosmic_energy += energy[iter];
       else
