@@ -248,7 +248,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       //util::CreateAssn(*this, e, *cosmicTagTrackVector, HitVec, *assnOutCosmicTagHit);
     }
     // END OF LOOPING OVER INSPILL TRACKS
-
+    
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //////TAGGING DELTA RAYS (and other stub) ASSOCIATED TO A ALREADY TAGGED COSMIC TRACK//////////
@@ -296,11 +296,16 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 	dS = NumS.Mag()/DenS.Mag();
 	if (((dS<5 && temp<5) || (dS<temp && dS<5)) && (length(tTrk)<60)){
 	  (*cosmicTagTrackVector)[iTrk].fCosmicScore = IScore;
-	  (*cosmicTagTrackVector)[iTrk].fCosmicType  = IType;						       
-          util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrk, *assnOutCosmicTagTrack, iTrk);
+	  (*cosmicTagTrackVector)[iTrk].fCosmicType  = IType;	
+          //util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrk, *assnOutCosmicTagTrack, iTrk);
        }	  
     }//end cosmicScore==0 loop
  }//end iTrk loop	  
+ 
+ /*std::cout<<"\n"<<Trk_h->size()<<"\t"<<(*cosmicTagTrackVector).size();
+   for(unsigned int f=0;f<Trk_h->size();f++){
+   	std::cout<<"\n\t"<<f<<"\t"<<(*cosmicTagTrackVector)[f].CosmicScore()<<"\t"<<(*cosmicTagTrackVector)[f].CosmicType();
+   }*/
  
   // e.put( std::move(outTracksForTags) );
   e.put( std::move(cosmicTagTrackVector) );
