@@ -74,6 +74,7 @@ cosmic::BeamFlashTrackMatchTagger::BeamFlashTrackMatchTagger(fhicl::ParameterSet
 {
   produces< std::vector<anab::CosmicTag> >();
   produces< art::Assns<recob::Track, anab::CosmicTag> >();
+  if(fMakeHitTagAssns) produces< art::Assns<recob::Hit, anab::CosmicTag> >();
 }
 
 void cosmic::BeamFlashTrackMatchTagger::reconfigure(fhicl::ParameterSet const& p){
