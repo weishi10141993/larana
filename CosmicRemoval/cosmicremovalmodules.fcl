@@ -51,12 +51,19 @@ standard_beamflashtrackmatchtaggeralg:
     NormalizeHypothesisToFlash: true
 }
 
+standard_hittagassociatoralg:
+{
+}
 standard_beamflashtrackmatchtagger:
 {
     module_type:                  "BeamFlashTrackMatchTagger"
     BeamFlashTrackMatchAlgParams: @local::standard_beamflashtrackmatchtaggeralg
     TrackModuleLabel:             "track"
     FlashModuleLabel:             "opflash"
+
+    HitTagAssociatorAlgParams: @local::standard_beamflashtrackmatchtaggeralg
+    MakeHitTagAssns:           true
+    HitModuleLabel:            "gaushit"
 }
 
 microboone_cosmictagger:               @local::standard_cosmictagger

@@ -51,6 +51,10 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
     flashesOnBeamTime.push_back(&flash);
   }
 
+  //make sure this association vector is initialized properly
+  assnTrackTagVector.resize(trackVector.size(),std::numeric_limits<size_t>::max());
+  cosmicTagVector.reserve(trackVector.size());
+
   for(size_t track_i=0; track_i<trackVector.size(); track_i++){
 
     recob::Track const& track(trackVector[track_i]);
@@ -91,7 +95,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
     float cosmicScore=1.;
     if(compatible) cosmicScore=0.;
     cosmicTagVector.emplace_back(xyz_begin,xyz_end,cosmicScore,COSMIC_TYPE_FLASHMATCH);
-    assnTrackTagVector.push_back(track_i);
+    assnTrackTagVector[track_i]=cosmicTagVector.size();
   }
 
 }
