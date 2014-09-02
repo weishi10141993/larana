@@ -26,16 +26,17 @@ lbnefd_simphotoncounter:
 }
 
 lbnefd_tracktimeassoc:   @local::standard_tracktimeassoc
-lbnefd_opflashnew:       @local::standard_opflashnew
+lbnefd_opflash:          @local::standard_opflash
 
 lbnefd_opdigiana:        @local::standard_opdigiana
 lbnefd_opflashana:       @local::standard_opflashana
 
 
+lbne35t_simphotoncounter: @local::standard_simphotoncounter
 
 lbne35t_opdigi:           @local::standard_opdigi
 lbne35t_tracktimeassoc:   @local::standard_tracktimeassoc
-lbne35t_opflashnew:       @local::standard_opflashnew
+lbne35t_opflash:          @local::standard_opflash
 
 lbne35t_opdigiana:        @local::standard_opdigiana
 lbne35t_opflashana:       @local::standard_opflashana
