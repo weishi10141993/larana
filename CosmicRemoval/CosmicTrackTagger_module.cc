@@ -107,8 +107,8 @@ cosmic::CosmicTrackTagger::~CosmicTrackTagger() {
 void cosmic::CosmicTrackTagger::produce(art::Event & e) {
   // Implementation of required member function here.
 
-  std::unique_ptr< std::vector< anab::CosmicTag > > cosmicTagTrackVector( new std::vector<anab::CosmicTag> );
-  std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > >    assnOutCosmicTagTrack( new art::Assns<recob::Track, anab::CosmicTag>);
+  std::unique_ptr< std::vector< anab::CosmicTag > >              cosmicTagTrackVector( new std::vector<anab::CosmicTag> );
+  std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > >  assnOutCosmicTagTrack( new art::Assns<recob::Track, anab::CosmicTag>);
 
   TStopwatch ts;
 
@@ -188,10 +188,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 	isCosmic = 1;
 	tag_id = anab::CosmicTagID_t::kOutsideDrift_Partial;
       }
-      // if(isCosmic == 4) {
-      // 	std::cerr << "I don't know what's going on here. The ticks are " << tick1 << " " << tick2 << std::endl;
-      // 	//	for( unsigned int mm=0;mm<t1Times.size(); mm++ ) std::cerr << t1Times.at(mm) << ", "<< t2Times.at(mm) <<std::endl;
-      // }
+
 
 
       /////////////////////////////////
@@ -199,8 +196,9 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       /////////////////////////////////
       int nBdY = 0, nBdZ=0;
       if(isCosmic==0 ) {
-	if(fabs(trackEndPt1_Y - fDetHalfHeight) < fTPCYBoundary ) nBdY++;
-	if(fabs(trackEndPt2_Y + fDetHalfHeight) < fTPCYBoundary ) nBdY++;
+
+	if( fabs(fDetHalfHeight - trackEndPt1_Y) < fTPCYBoundary || fabs( trackEndPt1_Y + fDetHalfHeight )< fTPCYBoundary ) nBdY++;
+	if( fabs(fDetHalfHeight - trackEndPt2_Y) < fTPCYBoundary || fabs( trackEndPt2_Y + fDetHalfHeight )< fTPCYBoundary ) nBdY++;
 	if(fabs(trackEndPt1_Z - fDetLength)<fTPCZBoundary || fabs(trackEndPt2_Z - fDetLength) < fTPCZBoundary ) nBdZ++;
 	if(fabs(trackEndPt1_Z )< fTPCZBoundary || fabs(trackEndPt2_Z )< fTPCZBoundary ) nBdZ++;
 	if( (nBdY+nBdZ)>1 ) {
@@ -228,8 +226,17 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       float cosmicScore = isCosmic > 0 ? 1 : 0;
       if( isCosmic==3 ) cosmicScore = 0.5;
 
+
+      ///////////////////////////////////////////////////////
+      // Doing a very basic check on X boundaries
+      // this gets the types of tracks that go through both X boundaries of the detector
+      if( fabs( trackEndPt1_X - trackEndPt2_X ) > fDetWidth-fTPCXBoundary ) {
+	cosmicScore = 1 ;
+	isCosmic = 4;
+	tag_id = anab::CosmicTagID_t::kGeometry_XX;
+      }
+
       /*
-      // THIS ISN'T BEING DONE YET!!!!!!!!!!!
       //////////////////////////////
       // Now check for X boundary
       //////////////////////////////
@@ -245,15 +252,14 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       }
       */
 
-      //std::cerr << "Cosmic Score, isCosmic: " << cosmicScore << " " << isCosmic << std::endl;
       cosmicTagTrackVector->emplace_back( endPt1,
 					  endPt2,
 					  cosmicScore,
 					  tag_id);
 
-     //mf::LogInfo("CosmicTrackTagger Results") << "The IsCosmic value is "<< isCosmic << " origin: " << origin
-     //					  << trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
-     //					  << trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z;
+//      std::cerr << "The IsCosmic value is "<< isCosmic << " end pts " 
+//		<< trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
+//		<< trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z << std::endl;
       
       //outTracksForTags->push_back( *tTrack );
 
