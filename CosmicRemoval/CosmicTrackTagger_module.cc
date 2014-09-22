@@ -198,7 +198,9 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       if(isCosmic==0 ) {
 
 	if( fabs(fDetHalfHeight - trackEndPt1_Y) < fTPCYBoundary || fabs( trackEndPt1_Y + fDetHalfHeight )< fTPCYBoundary ) nBdY++;
+	else if( fabs(trackEndPt1_Y) > fDetHalfHeight ) nBdY++; // this is because the reconstruction currently has tracks with endpts well outside of the TPC
 	if( fabs(fDetHalfHeight - trackEndPt2_Y) < fTPCYBoundary || fabs( trackEndPt2_Y + fDetHalfHeight )< fTPCYBoundary ) nBdY++;
+	else if( fabs(trackEndPt2_Y) > fDetHalfHeight ) nBdY++; // this is because the reconstruction currently has tracks with endpts well outside of the TPC
 	if(fabs(trackEndPt1_Z - fDetLength)<fTPCZBoundary || fabs(trackEndPt2_Z - fDetLength) < fTPCZBoundary ) nBdZ++;
 	if(fabs(trackEndPt1_Z )< fTPCZBoundary || fabs(trackEndPt2_Z )< fTPCZBoundary ) nBdZ++;
 	if( (nBdY+nBdZ)>1 ) {
@@ -257,9 +259,9 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 					  cosmicScore,
 					  tag_id);
 
-//      std::cerr << "The IsCosmic value is "<< isCosmic << " end pts " 
-//		<< trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
-//		<< trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z << std::endl;
+      std::cerr << "The IsCosmic value is "<< isCosmic << " end pts " 
+		<< trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
+		<< trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z << std::endl;
       
       //outTracksForTags->push_back( *tTrack );
 
