@@ -259,9 +259,9 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 					  cosmicScore,
 					  tag_id);
 
-      std::cerr << "The IsCosmic value is "<< isCosmic << " end pts " 
-		<< trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
-		<< trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z << std::endl;
+//      std::cerr << "The IsCosmic value is "<< isCosmic << " end pts " 
+//		<< trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
+//		<< trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z << std::endl;
       
       //outTracksForTags->push_back( *tTrack );
 
