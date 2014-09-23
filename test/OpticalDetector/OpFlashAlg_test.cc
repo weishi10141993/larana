@@ -135,10 +135,10 @@ BOOST_AUTO_TEST_CASE(FillAccumulator_checkBelowThreshold){
   opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
 			 Binned,Contributors,FlashesInAccumulator);
 
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1);
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , HitIndex );
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1U);
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , (int)HitIndex );
   BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
-  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 0);
+  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 0U);
 
 }
 
@@ -157,10 +157,10 @@ BOOST_AUTO_TEST_CASE(FillAccumulator_checkAboveThreshold){
   opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
 			 Binned,Contributors,FlashesInAccumulator);
 
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1);
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , HitIndex );
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1U);
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , (int)HitIndex );
   BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
-  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 1);
+  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 1U);
 
 }
 
@@ -179,21 +179,21 @@ BOOST_AUTO_TEST_CASE(FillAccumulator_checkMultipleHits){
   opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
 			 Binned,Contributors,FlashesInAccumulator);
 
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1);
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , HitIndex );
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1U);
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , (int)HitIndex );
   BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
-  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 0);
+  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 0U);
 
 
   unsigned int HitIndex2 = 1;
   opdet::FillAccumulator(AccumIndex,HitIndex2,PE,FlashThreshold,
 			 Binned,Contributors,FlashesInAccumulator);
 
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 2);
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , HitIndex );
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(1) , HitIndex2 );
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 2U);
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , (int)HitIndex );
+  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(1) , (int)HitIndex2 );
   BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE*2+PE_base );
-  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 1);
+  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 1U);
 
 }
 
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkNoFlash)
 
   opdet::FillFlashesBySizeMap(FlashesInAccumulator,BinnedPE,1,FlashesBySize);
 
-  BOOST_CHECK_EQUAL( FlashesBySize.size() , 0 );
+  BOOST_CHECK_EQUAL( FlashesBySize.size() , 0U );
 
 }
 
@@ -226,12 +226,12 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkOneFlash)
 
   opdet::FillFlashesBySizeMap(FlashesInAccumulator,BinnedPE,1,FlashesBySize);
 
-  BOOST_CHECK_EQUAL( FlashesBySize.size() , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 1 );
+  BOOST_CHECK_EQUAL( FlashesBySize.size() , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0U );
+  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 1U );
   BOOST_CHECK_EQUAL( FlashesBySize[50][1][0] , 2 );
 
 }
@@ -251,13 +251,13 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkTwoFlashes)
 
   opdet::FillFlashesBySizeMap(FlashesInAccumulator,BinnedPE,1,FlashesBySize);
 
-  BOOST_CHECK_EQUAL( FlashesBySize.size() , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0 );
+  BOOST_CHECK_EQUAL( FlashesBySize.size() , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0U );
 
-  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 2 );
+  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 2U );
   BOOST_CHECK_EQUAL( FlashesBySize[50][1][0] , 2 );
   BOOST_CHECK_EQUAL( FlashesBySize[50][1][1] , 8 );
 
@@ -282,11 +282,11 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkTwoAccumulators)
   opdet::FillFlashesBySizeMap(FlashesInAccumulator1,BinnedPE1,1,FlashesBySize);
   opdet::FillFlashesBySizeMap(FlashesInAccumulator2,BinnedPE2,2,FlashesBySize);
 
-  BOOST_CHECK_EQUAL( FlashesBySize.size() , 2 );
+  BOOST_CHECK_EQUAL( FlashesBySize.size() , 2U );
 
-  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(60) , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0 );
+  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize.count(60) , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0U );
 
   auto map_begin = FlashesBySize.begin();
   BOOST_CHECK_EQUAL( map_begin->first , 60 );
@@ -295,19 +295,19 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkTwoAccumulators)
   map_last--;
   BOOST_CHECK_EQUAL( map_last->first , 50 );
 
-  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 2 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].count(2) , 1 );
+  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 2U );
+  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize[50].count(2) , 1U );
 
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 1 );
+  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 1U );
   BOOST_CHECK_EQUAL( FlashesBySize[50][1][0] , 2 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][2].size() , 1 );
+  BOOST_CHECK_EQUAL( FlashesBySize[50][2].size() , 1U );
   BOOST_CHECK_EQUAL( FlashesBySize[50][2][0] , 8 );
 
-  BOOST_CHECK_EQUAL( FlashesBySize[60].size() , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize[60].count(1) , 1 );
-  BOOST_CHECK_EQUAL( FlashesBySize[60].count(2) , 0 );
-  BOOST_CHECK_EQUAL( FlashesBySize[60][1].size() , 1 );
+  BOOST_CHECK_EQUAL( FlashesBySize[60].size() , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize[60].count(1) , 1U );
+  BOOST_CHECK_EQUAL( FlashesBySize[60].count(2) , 0U );
+  BOOST_CHECK_EQUAL( FlashesBySize[60][1].size() , 1U );
   BOOST_CHECK_EQUAL( FlashesBySize[60][1][0] , 5 );
 }
 
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_EmptyContributors)
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 0);
+  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 0U);
 }
 
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_NoPrevClaimedHits)
@@ -353,7 +353,7 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_NoPrevClaimedHits)
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 2 );
+  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 2U );
   BOOST_CHECK_EQUAL( HitsThisFlash[0] , 1 );
   BOOST_CHECK_EQUAL( HitsThisFlash[1] , 3 );
 }
@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevClaimedHits)
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 1U );
   BOOST_CHECK_EQUAL( HitsThisFlash[0] , 3 );
 }
 
@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevHitsOffset)
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 1U );
   BOOST_CHECK_EQUAL( HitsThisFlash[0] , 13 );
 }
 
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_MultipleContributorVectors)
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 2 );
+  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 2U );
   BOOST_CHECK_EQUAL( HitsThisFlash[0] , 5 );
   BOOST_CHECK_EQUAL( HitsThisFlash[1] , 6 );
 }
@@ -460,7 +460,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_NoHitsThisFlash)
 		   NHits_prev,
 		   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0);
+  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], -1);
 }
 
@@ -487,7 +487,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_BelowFlashThreshold)
 		   NHits_prev,
 		   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0);
+  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], -1);
 }
 
@@ -514,7 +514,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_AboveFlashThreshold)
 		   NHits_prev,
 		   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1);
+  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
   BOOST_CHECK_EQUAL( HitsPerFlash[0][0], 0);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
 }
@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_OneHitThisFlash)
 		   NHits_prev,
 		   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1);
+  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
   BOOST_CHECK_EQUAL( HitsPerFlash[0][0], 0);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[1], -1);
@@ -572,7 +572,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_BelowThreshold)
 		   NHits_prev,
 		   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0);
+  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], -1);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[1], -1);
 }
@@ -601,7 +601,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_AboveThreshold)
 		   NHits_prev,
 		   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1);
+  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
   BOOST_CHECK_EQUAL( HitsPerFlash[0][0], 0);
   BOOST_CHECK_EQUAL( HitsPerFlash[0][1], 1);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
@@ -632,7 +632,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_WithPrevHits)
 		   NHits_prev,
 		   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1);
+  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
   BOOST_CHECK_EQUAL( HitsPerFlash[0][0], 10);
   BOOST_CHECK_EQUAL( HitsPerFlash[0][1], 11);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
@@ -671,8 +671,8 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_AllUsed)
 		     FlashMaxTime,
 		     FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 0 );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , NHits);
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 0U );
+  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , (int)NHits);
   BOOST_CHECK_EQUAL( PEAccumulated , 0 );
   BOOST_CHECK_EQUAL( FlashMaxTime , 0 );
   BOOST_CHECK_EQUAL( FlashMinTime , 0 );
@@ -711,7 +711,7 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_NoneUsed)
 		     FlashMaxTime,
 		     FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1U );
   BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
   BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
   BOOST_CHECK_EQUAL( PEAccumulated , 60 );
@@ -753,7 +753,7 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_FirstUsed)
 		     FlashMaxTime,
 		     FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1U );
   BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 2);
   BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
   BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , true);
@@ -804,7 +804,7 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_UsedHit)
 			FlashMaxTime,
 			FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1U );
   BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
   BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
   BOOST_CHECK_EQUAL( PEAccumulated , 60 );
@@ -854,7 +854,7 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_NewHit)
 			FlashMaxTime,
 			FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 2 );
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 2U );
   BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 2);
   BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
   BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , true);
@@ -905,7 +905,7 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_OutsideWidth)
 			FlashMaxTime,
 			FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1 );
+  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1U );
   BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
   BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
   BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , false);
@@ -929,8 +929,8 @@ BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_AboveThreshold)
 			     FlashThreshold,
 			     HitsUsed );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 1 );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0].size(), 3 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 1U );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0].size(), 3U );
   BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0], 0 );
   BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][1], 1 );
   BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][2], 2 );
@@ -952,8 +952,8 @@ BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_AboveThreshold_OneHit)
 			     FlashThreshold,
 			     HitsUsed );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 1 );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0].size(), 1 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 1U );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0].size(), 1U );
   BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0], 0 );
   BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
 
@@ -973,7 +973,7 @@ BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_BelowThreshold_OneHit)
 			     FlashThreshold,
 			     HitsUsed );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 0 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 0U );
   BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
   BOOST_CHECK_EQUAL( HitsUsed[0] , true);
 
@@ -993,7 +993,7 @@ BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_BelowThreshold_MultipleHits)
 			     FlashThreshold,
 			     HitsUsed );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 0 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 0U );
   BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
   BOOST_CHECK_EQUAL( HitsUsed[0] , true);
   BOOST_CHECK_EQUAL( HitsUsed[1] , false);
@@ -1148,7 +1148,7 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_NoFlashes)
 			       BeginFlash,
 			       MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 0 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 0U );
 
 }
 
@@ -1183,9 +1183,9 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_OneFlash)
 			       BeginFlash,
 			       MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 1 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 1U );
   BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
-  BOOST_CHECK_EQUAL( FlashVector.size() , 1 );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 1U );
   BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
   BOOST_CHECK_EQUAL( FlashVector[0].TimeWidth() , 0.5 );
 
@@ -1236,10 +1236,10 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_TwoIndieFlashes)
 			       BeginFlash,
 			       MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 2 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 2U );
   BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
   BOOST_CHECK_EQUAL( MarkedForRemoval[1] , false );
-  BOOST_CHECK_EQUAL( FlashVector.size() , 2 );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 2U );
   BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
   BOOST_CHECK_EQUAL( FlashVector[1].Time() , 1e6 );
 
@@ -1306,11 +1306,11 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_RemoveOneFlash)
 			       BeginFlash,
 			       MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 3 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 3U );
   BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
   BOOST_CHECK_EQUAL( MarkedForRemoval[1] , true );
   BOOST_CHECK_EQUAL( MarkedForRemoval[2] , false );
-  BOOST_CHECK_EQUAL( FlashVector.size() , 3 );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 3U );
   BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
   BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
   BOOST_CHECK_EQUAL( FlashVector[1].Time() , 1.6 );
@@ -1395,11 +1395,11 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_IgnoreFirstFlash)
 			       BeginFlash,
 			       MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 3 );
+  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 3U );
   BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
   BOOST_CHECK_EQUAL( MarkedForRemoval[1] , true );
   BOOST_CHECK_EQUAL( MarkedForRemoval[2] , false );
-  BOOST_CHECK_EQUAL( FlashVector.size() , 4 );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 4U );
   BOOST_CHECK_EQUAL( FlashVector[0].Time() , -1e6 );
   BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
   BOOST_CHECK_EQUAL( FlashVector[1].Time() , 0 );
@@ -1491,7 +1491,7 @@ BOOST_AUTO_TEST_CASE(RemoveFlashesFromVectors_IgnoreFirstFlash)
 				  BeginFlash,
 				  RefinedHitsPerFlash);
 
-  BOOST_CHECK_EQUAL( FlashVector.size() , 3 );
+  BOOST_CHECK_EQUAL( FlashVector.size() , 3U );
   BOOST_CHECK_EQUAL( FlashVector[0].Time() , -1e6 );
   BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
   BOOST_CHECK_EQUAL( FlashVector[1].Time() , 0 );
@@ -1499,7 +1499,7 @@ BOOST_AUTO_TEST_CASE(RemoveFlashesFromVectors_IgnoreFirstFlash)
   BOOST_CHECK_EQUAL( FlashVector[2].Time() , 1e6 );
   BOOST_CHECK_EQUAL( FlashVector[2].TotalPE() , 100 );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size() , 2 );
+  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size() , 2U );
   BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0] , 0 );
   BOOST_CHECK_EQUAL( RefinedHitsPerFlash[1][0] , 2 );
 
