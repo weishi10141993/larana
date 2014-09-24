@@ -5,6 +5,7 @@
 
 
 #include "art/Framework/Core/EDProducer.h"
+#include "art/Framework/Core/FindManyP.h"
 #include "AnalysisBase/CosmicTag.h"
 #include "RecoAlg/SpacePointAlg.h"
 #include "AnalysisAlg/CalorimetryAlg.h"
