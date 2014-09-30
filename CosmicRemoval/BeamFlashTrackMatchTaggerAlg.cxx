@@ -71,7 +71,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
     if(!InDriftWindow(pt_begin.x(),pt_end.x(),geom)) {
       if(fMakeOutsideDriftTags){
 	cosmicTagVector.emplace_back(xyz_begin,xyz_end,1.,COSMIC_TYPE_OUTSIDEDRIFT);
-	assnTrackTagVector.push_back(track_i);
+	assnTrackTagVector[track_i]=cosmicTagVector.size()-1;
       }
       continue;
     }
