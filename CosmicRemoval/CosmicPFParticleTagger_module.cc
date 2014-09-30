@@ -1,0 +1,363 @@
+////////////////////////////////////////////////////////////////////////
+// Class:       CosmicPFParticleTagger
+// Module Type: producer
+// File:        CosmicPFParticleTagger_module.cc
+//
+// Generated at Wed Sep 17 19:17:00 2014 by Tracy Usher by cloning CosmicTrackTagger
+// from art v1_02_02.
+// artmod -e beginJob -e reconfigure -e endJob producer trkf::CosmicPFParticleTagger
+////////////////////////////////////////////////////////////////////////
+
+#include "art/Framework/Core/EDProducer.h"
+#include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Optional/TFileService.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <vector>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <numeric>
+#include <iterator>
+
+#include "Geometry/Geometry.h"
+#include "Geometry/geo.h"
+
+#include "RecoBase/PFParticle.h"
+#include "RecoBase/SpacePoint.h"
+#include "RecoBase/Hit.h"
+#include "RecoBase/Track.h"
+
+#include "AnalysisBase/CosmicTag.h"
+#include "RecoAlg/SpacePointAlg.h"
+#include "Utilities/AssociationUtil.h"
+#include "Utilities/DetectorProperties.h"
+#include "Utilities/LArProperties.h"
+
+#include "TMatrixD.h"
+#include "TDecompSVD.h"
+#include "TVector3.h"
+#include "TTree.h"
+#include "TH1.h"
+#include "TStopwatch.h"
+
+class TTree;
+class TH1;
+
+namespace cosmic
+{
+    class CosmicPFParticleTagger;
+    class SpacePoint;
+    class Track;
+}
+
+
+class cosmic::CosmicPFParticleTagger : public art::EDProducer
+{
+public:
+    explicit CosmicPFParticleTagger(fhicl::ParameterSet const & p);
+    virtual ~CosmicPFParticleTagger();
+
+    void produce(art::Event & e) override;
+
+    void beginJob() override;
+    void reconfigure(fhicl::ParameterSet const & p) override;
+    void endJob() override;
+
+private:
+    // Length of reconstructed track, trajectory by trajectory.
+    double length(art::Ptr<recob::Track> track);
+  
+    std::string fPFParticleModuleLabel;
+    std::string fTrackModuleLabel;
+    int         fDetectorWidthTicks;
+    float       fTPCXBoundary, fTPCYBoundary, fTPCZBoundary;
+    float       fDetHalfHeight, fDetWidth, fDetLength;
+};
+
+
+cosmic::CosmicPFParticleTagger::CosmicPFParticleTagger(fhicl::ParameterSet const & p)
+// :
+// Initialize member data here.
+{
+    this->reconfigure(p);
+
+    // Call appropriate Produces<>() functions here.
+    produces< std::vector<anab::CosmicTag> >();
+    produces< art::Assns<recob::Track, anab::CosmicTag> >();
+}
+
+cosmic::CosmicPFParticleTagger::~CosmicPFParticleTagger()
+{
+    // Clean up dynamic memory and other resources here.
+}
+
+void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
+{
+    // Implementation of required member function here.
+    std::unique_ptr< std::vector< anab::CosmicTag > > cosmicTagTrackVector( new std::vector<anab::CosmicTag> );
+    std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > >    assnOutCosmicTagTrack( new art::Assns<recob::Track, anab::CosmicTag>);
+
+    // Recover handle for PFParticles
+    art::Handle<std::vector<recob::PFParticle> > pfParticleHandle;
+    evt.getByLabel( fPFParticleModuleLabel, pfParticleHandle);
+    
+    if (!pfParticleHandle.isValid()) return;
+    
+    // Recover the handle for the tracks
+    art::Handle<std::vector<recob::Track> > trackHandle;
+    evt.getByLabel( fTrackModuleLabel, trackHandle);
+    
+    if (!trackHandle.isValid()) return;
+    
+    // Recover handle for track <--> PFParticle associations
+    art::Handle< art::Assns<recob::PFParticle, recob::Track> > pfPartToTrackHandle;
+    evt.getByLabel(fTrackModuleLabel, pfPartToTrackHandle);
+    
+    // Recover the list of associated tracks
+    art::FindManyP<recob::Track> pfPartToTrackAssns(pfParticleHandle, evt, fTrackModuleLabel);
+    
+    // and the hits
+    art::FindManyP<recob::Hit>  hitsSpill(trackHandle, evt, fTrackModuleLabel);
+    
+    // The outer loop is going to be over PFParticles
+    for(size_t pfPartIdx = 0; pfPartIdx != pfParticleHandle->size(); pfPartIdx++)
+    {
+        art::Ptr<recob::PFParticle> pfParticle(pfParticleHandle, pfPartIdx);
+        
+        // Require the PFParticle be a primary
+        if (!pfParticle->IsPrimary()) continue;
+        
+        // Recover the track vector
+        std::vector<art::Ptr<recob::Track> > trackVec = pfPartToTrackAssns.at(pfPartIdx);
+        
+        // Is there a track associated to this PFParticle?
+        if (trackVec.empty()) continue;
+        
+        // Start the tagging process...
+        int                    isCosmic =  0;
+        anab::CosmicTagID_t    tag_id   = anab::CosmicTagID_t::kNotTagged;
+        art::Ptr<recob::Track> track1   = trackVec.front();
+        
+        std::vector<art::Ptr<recob::Hit> > hitVec = hitsSpill.at(track1->ID());
+        
+        // Recover track end points
+        TVector3 vertexPosition  = track1->Vertex();
+        TVector3 vertexDirection = track1->VertexDirection();
+        TVector3 endPosition     = track1->End();
+        
+        // In principle there is one track associated to a PFParticle... but with current
+        // technology it can happen that a PFParticle is broken into multiple tracks. Our
+        // aim here is to find the maximum extents of the tracks that get fit
+        if (trackVec.size() > 1)
+        {
+            for(size_t trackIdx = 1; trackIdx < trackVec.size(); trackIdx++)
+            {
+                art::Ptr<recob::Track> track(trackVec[trackIdx]);
+                
+                TVector3 trackStart = track->Vertex();
+                TVector3 trackEnd   = track->End();
+                
+                // Arc length possibilities for start of track
+                double arcLStartToStart = (trackStart - vertexPosition).Dot(vertexDirection);
+                double arcLStartToEnd   = (trackEnd   - vertexPosition).Dot(vertexDirection);
+                
+                if (arcLStartToStart < 0. || arcLStartToEnd < 0.)
+                {
+                    if (arcLStartToStart < arcLStartToEnd) vertexPosition = trackStart;
+                    else                                   vertexPosition = trackEnd;
+                }
+                
+                // Arc length possibilities for end of track
+                double arcLEndToStart = (trackStart - endPosition).Dot(vertexDirection);
+                double arcLEndToEnd   = (trackEnd   - endPosition).Dot(vertexDirection);
+                
+                if (arcLEndToStart > 0. || arcLEndToEnd > 0.)
+                {
+                    if (arcLEndToStart > arcLEndToEnd) endPosition = trackStart;
+                    else                               endPosition = trackEnd;
+                }
+                
+                // add the hits from this track to the collection
+                hitVec.insert(hitVec.end(), hitsSpill.at(track->ID()).begin(), hitsSpill.at(track->ID()).end());
+            }
+        }
+        
+        float trackEndPt1_X = vertexPosition [0];
+        float trackEndPt1_Y = vertexPosition [1];
+        float trackEndPt1_Z = vertexPosition [2];
+        float trackEndPt2_X = endPosition[0];
+        float trackEndPt2_Y = endPosition[1];
+        float trackEndPt2_Z = endPosition[2];
+        
+        /////////////////////////////////////
+        // Getting first and last ticks
+        /////////////////////////////////////
+        float tick1 =  9999;
+        float tick2 = -9999;
+        
+        for ( unsigned int p = 0; p < hitVec.size(); p++)
+        {
+            if( hitVec[p]->StartTime() < tick1 ) tick1 =  hitVec[p]->StartTime();
+            if( hitVec[p]->StartTime() > tick2 ) tick2 =  hitVec[p]->StartTime();
+        }
+        
+        /////////////////////////////////////////////////////////
+        // Are any of the ticks outside of the ReadOutWindow ?
+        /////////////////////////////////////////////////////////
+        if(tick1 < fDetectorWidthTicks || tick2 > 2*fDetectorWidthTicks )
+        {
+            isCosmic = 1;
+            tag_id = anab::CosmicTagID_t::kOutsideDrift_Partial;
+        }
+        
+        // if(isCosmic == 4) {
+        // 	std::cerr << "I don't know what's going on here. The ticks are " << tick1 << " " << tick2 << std::endl;
+        // 	//	for( unsigned int mm=0;mm<t1Times.size(); mm++ ) std::cerr << t1Times.at(mm) << ", "<< t2Times.at(mm) <<std::endl;
+        // }
+        
+        
+        /////////////////////////////////
+        // Now check Y & Z boundaries:
+        /////////////////////////////////
+        int nBdX(0);
+        int nBdY(0);
+        int nBdZ(0);
+        
+        if(isCosmic==0 )
+        {
+            // In below we check entry and exit points. Note that a special case of a particle entering
+            // and exiting the same surface is considered to be running parallel to the surface and NOT
+            // entering and exiting.
+            
+            // Check x extents - note that uboone coordinaes system has x=0 at edge
+            // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
+            if (fDetWidth - trackEndPt1_X < fTPCXBoundary || fDetWidth - trackEndPt2_X < fTPCXBoundary) nBdX++;
+            if (            trackEndPt1_X < fTPCXBoundary ||             trackEndPt2_X < fTPCXBoundary) nBdX++;
+            
+            // Check y extents (note coordinate system change)
+            // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
+            if (fDetHalfHeight - trackEndPt1_Y < fTPCYBoundary || fDetHalfHeight - trackEndPt2_Y < fTPCYBoundary) nBdY++;  // one end of track exits out top
+            if (fDetHalfHeight + trackEndPt1_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary) nBdY++;  // one end of track exist out bottom
+            
+            // Check z extents
+            // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
+            if (fDetLength - trackEndPt1_Z < fTPCZBoundary || fDetLength - trackEndPt2_Z < fTPCZBoundary ) nBdZ++;
+            if (             trackEndPt1_Z < fTPCZBoundary ||              trackEndPt2_Z < fTPCZBoundary ) nBdZ++;
+
+            // This should check for the case of a track which is both entering and exiting
+            if( (nBdX + nBdY + nBdZ) > 1 && nBdZ != 2)
+            {
+                isCosmic = 2;
+                if      (nBdX > 1)             tag_id = anab::CosmicTagID_t::kGeometry_XX;
+                else if (nBdY > 1)             tag_id = anab::CosmicTagID_t::kGeometry_YY;
+                else if (nBdX > 0 && nBdY > 0) tag_id = anab::CosmicTagID_t::kGeometry_XY;
+                else if (nBdX > 0 && nBdZ > 0) tag_id = anab::CosmicTagID_t::kGeometry_XZ;
+                else                           tag_id = anab::CosmicTagID_t::kGeometry_YZ;
+            }
+            // This is the special case of track which appears to enter/exit z boundaries
+            // This looks for track which enters/exits a boundary but has other end in TPC
+            else if ( nBdZ > 1)
+            {
+                isCosmic = 3;
+                tag_id = anab::CosmicTagID_t::kGeometry_ZZ;
+            }
+            else if ( (nBdX + nBdY + nBdZ) == 1)
+            {
+                isCosmic = 4 ;
+                if      (nBdX == 1) tag_id = anab::CosmicTagID_t::kGeometry_X;
+                else if (nBdY == 1) tag_id = anab::CosmicTagID_t::kGeometry_Y;
+                else if (nBdZ == 1) tag_id = anab::CosmicTagID_t::kGeometry_Z;
+            }
+        }
+        
+        std::vector<float> endPt1;
+        std::vector<float> endPt2;
+        endPt1.push_back( trackEndPt1_X );
+        endPt1.push_back( trackEndPt1_Y );
+        endPt1.push_back( trackEndPt1_Z );
+        endPt2.push_back( trackEndPt2_X );
+        endPt2.push_back( trackEndPt2_Y );
+        endPt2.push_back( trackEndPt2_Z );
+        
+        float cosmicScore = isCosmic > 0 ? 1. : 0.;
+        
+        if      (isCosmic == 3) cosmicScore = 0.4;
+        else if (isCosmic == 4) cosmicScore = 0.5;
+        
+        // Loop through the tracks resulting from this PFParticle and mark them
+        for(const auto& track : trackVec)
+        {
+            cosmicTagTrackVector->emplace_back( endPt1, endPt2, cosmicScore, tag_id);
+        
+            util::CreateAssn(*this, evt, *cosmicTagTrackVector, track, *assnOutCosmicTagTrack );
+        }
+    }
+    
+    // e.put( std::move(outTracksForTags) );
+    evt.put( std::move(cosmicTagTrackVector) );
+    evt.put( std::move(assnOutCosmicTagTrack) );
+
+} // end of produce
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// Length of reconstructed track, trajectory by trajectory.
+double cosmic::CosmicPFParticleTagger::length(art::Ptr<recob::Track> track)
+{
+    double result = 0.;
+    TVector3 disp = track->LocationAtPoint(0);
+    int n = track->NumberTrajectoryPoints();
+    
+    for(int i = 1; i < n; ++i)
+    {
+        const TVector3& pos = track->LocationAtPoint(i);
+        disp -= pos;
+        result += disp.Mag();
+        disp = pos;
+    }
+  
+    return result;
+}
+
+
+void cosmic::CosmicPFParticleTagger::beginJob()
+{
+}
+
+
+void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
+{
+    // Implementation of optional member function here.
+  
+    ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
+    art::ServiceHandle<util::DetectorProperties> detp;
+    art::ServiceHandle<util::LArProperties> larp;
+    art::ServiceHandle<geo::Geometry> geo;
+
+    fDetHalfHeight = geo->DetHalfHeight();
+    fDetWidth      = 2.*geo->DetHalfWidth();
+    fDetLength     = geo->DetLength();
+
+    float fSamplingRate = detp->SamplingRate();
+
+    fPFParticleModuleLabel = p.get<std::string >("PFParticleModuleLabel");
+    fTrackModuleLabel      = p.get< std::string >("TrackModuleLabel", "track");
+
+    fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
+    fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
+    fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
+
+    const double driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
+
+    //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
+    fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
+}
+
+void cosmic::CosmicPFParticleTagger::endJob() {
+  // Implementation of optional member function here.
+}
+
+DEFINE_ART_MODULE(cosmic::CosmicPFParticleTagger)
