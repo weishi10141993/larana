@@ -23,11 +23,7 @@ cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::Parame
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const& p){
   fMinTrackLength = p.get<float>("MinTrackLength");
-
-  fMIPYield   = p.get<float>("MIPYield",24000);
-  fQE         = p.get<float>("QE",0.01);
   fMIPdQdx    = p.get<float>("MIPdQdx",2.1);
-  fPromptFrac = p.get<float>("PromptFrac",0.25);
 
   fSingleChannelCut           = p.get<float>("SingleChannelCut");
   fCumulativeChannelThreshold = p.get<float>("CumulativeChannelThreshold");
@@ -43,7 +39,9 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
 								 std::vector<anab::CosmicTag>& cosmicTagVector,
 								 std::vector<size_t>& assnTrackTagVector,
 								 geo::Geometry const& geom,
-								 phot::PhotonVisibilityService const& pvs){
+								 phot::PhotonVisibilityService const& pvs,
+								 util::LArProperties const& larp,
+								 opdet::OpDigiProperties const& opdigip){
 
   std::vector< const recob::OpFlash* > flashesOnBeamTime;
   for(auto const& flash : flashVector){
@@ -77,7 +75,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
     }
 
     //get light hypothesis for track
-    std::vector<float> lightHypothesis = GetMIPHypotheses(track,geom,pvs);
+    std::vector<float> lightHypothesis = GetMIPHypotheses(track,geom,pvs,larp,opdigip);
 
     //check compatibility with beam flash
     bool compatible=false;
@@ -110,11 +108,12 @@ bool cosmic::BeamFlashTrackMatchTaggerAlg::InDriftWindow(double start_x, double 
 std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob::Track const& track, 
 									  geo::Geometry const& geom,
 									  phot::PhotonVisibilityService const& pvs,
+									  util::LArProperties const& larp,
+									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {
   std::vector<float> lightHypothesis(geom.NOpDet(),0);  
-  const float PromptMIPScintYield = fMIPYield * fQE * fMIPdQdx * fPromptFrac;
-
+  float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
 
   float length_segment=0;
   double xyz_segment[3];

@@ -20,6 +20,8 @@
 
 #include "Geometry/Geometry.h"
 #include "PhotonPropagation/PhotonVisibilityService.h"
+#include "Utilities/LArProperties.h"
+#include "OpticalDetector/OpDigiProperties.h"
 
 namespace cosmic{
   class BeamFlashTrackMatchTaggerAlg;
@@ -36,7 +38,9 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			     std::vector<anab::CosmicTag>&,
 			     std::vector<size_t>&,
 			     geo::Geometry const&,
-			     phot::PhotonVisibilityService const&);
+			     phot::PhotonVisibilityService const&,
+			     util::LArProperties const&,
+			     opdet::OpDigiProperties const&);
 
  private:
 
@@ -45,10 +49,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   const bool DEBUG_FLAG;
 
   float fMinTrackLength;
-  float fMIPYield;
-  float fQE;
   float fMIPdQdx;
-  float fPromptFrac;
   float fSingleChannelCut;
   float fCumulativeChannelThreshold;
   unsigned int fCumulativeChannelCut;
@@ -68,7 +69,10 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   std::vector<float> GetMIPHypotheses(recob::Track const& track, 
 				      geo::Geometry const& geom,
 				      phot::PhotonVisibilityService const& pvs,
+				      util::LArProperties const&,
+				      opdet::OpDigiProperties const&,
 				      float XOffset=0);
+
   CompatibilityResultType CheckCompatibility(std::vector<float> const& lightHypothesis, 
 					     const recob::OpFlash* flashPointer);
 

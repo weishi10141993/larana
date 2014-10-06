@@ -14,6 +14,7 @@ art_make(BASENAME_ONLY
 		     Geometry_service
 		     PhotonVisibilityService_service
 		     LArProperties_service
+		     OpDigiProperties_service
 		     Utilities
 		     ${MF_MESSAGELOGGER}
 		     ${MF_UTILITIES}
@@ -33,6 +34,7 @@ art_make(BASENAME_ONLY
 			    Geometry
 			    Geometry_service
 			    PhotonVisibilityService_service
+		            OpDigiProperties_service
 			    AnalysisAlg
 			    AnalysisBase
                             LArProperties_service

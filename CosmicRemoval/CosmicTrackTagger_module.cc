@@ -198,7 +198,11 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       if(isCosmic==0 ) {
 
 	if( fabs(fDetHalfHeight - trackEndPt1_Y) < fTPCYBoundary || fabs( trackEndPt1_Y + fDetHalfHeight )< fTPCYBoundary ) nBdY++;
+	else if( fabs(trackEndPt1_Y) > fDetHalfHeight ) nBdY++; // this is because the reconstruction currently has tracks with endpts well outside of the TPC
+	
 	if( fabs(fDetHalfHeight - trackEndPt2_Y) < fTPCYBoundary || fabs( trackEndPt2_Y + fDetHalfHeight )< fTPCYBoundary ) nBdY++;
+	else if( fabs(trackEndPt2_Y) > fDetHalfHeight ) nBdY++; // this is because the reconstruction currently has tracks with endpts well outside of the TPC
+
 	if(fabs(trackEndPt1_Z - fDetLength)<fTPCZBoundary || fabs(trackEndPt2_Z - fDetLength) < fTPCZBoundary ) nBdZ++;
 	if(fabs(trackEndPt1_Z )< fTPCZBoundary || fabs(trackEndPt2_Z )< fTPCZBoundary ) nBdZ++;
 	if( (nBdY+nBdZ)>1 ) {
