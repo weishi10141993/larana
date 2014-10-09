@@ -98,6 +98,10 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
   geo::Geometry const& geom(*geomHandle);
   art::ServiceHandle<phot::PhotonVisibilityService> pvsHandle;
   phot::PhotonVisibilityService const& pvs(*pvsHandle);
+  art::ServiceHandle<util::LArProperties> larpHandle;
+  util::LArProperties const& larp(*larpHandle);
+  art::ServiceHandle<opdet::OpDigiProperties> opdigipHandle;
+  opdet::OpDigiProperties const& opdigip(*opdigipHandle);
 
   //Get Flashes from event.
   art::Handle< std::vector<recob::OpFlash> > flashHandle;
@@ -121,7 +125,7 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
   //run the alg!
   fAlg.RunCompatibilityCheck(flashVector, trackVector, 
 			     cosmicTagVector, assnTrackTagVector,
-			     geom, pvs);
+			     geom, pvs, larp, opdigip);
 
 
   //Make the associations for ART

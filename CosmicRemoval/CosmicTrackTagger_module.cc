@@ -210,7 +210,6 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 	    trackEndPt1_Y > fDetHalfHeight ||
 	    trackEndPt2_Y > fDetHalfHeight ) nBdY++;
 	
-
 	if(fabs(trackEndPt1_Z - fDetLength)<fTPCZBoundary || fabs(trackEndPt2_Z - fDetLength) < fTPCZBoundary ) nBdZ++;
 	if(fabs(trackEndPt1_Z )< fTPCZBoundary || fabs(trackEndPt2_Z )< fTPCZBoundary ) nBdZ++;
 	if( (nBdY+nBdZ)>1 ) {
