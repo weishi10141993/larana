@@ -34,6 +34,13 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const
   fNormalizeHypothesisToFlash = p.get<bool>("NormalizeHypothesisToFlash");
 }
 
+void cosmic::BeamFlashTrackMatchTaggerAlg::SetHypothesisComparisonTree(TTree* tree){
+  cTree = tree;
+  cTree->Branch("opV",&cOpDetVector);
+  cTree->Branch("thV",&cTrackHypVector);
+}
+
+
 void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<recob::OpFlash> const& flashVector,
 								 std::vector<recob::Track> const& trackVector,
 								 std::vector<anab::CosmicTag>& cosmicTagVector,

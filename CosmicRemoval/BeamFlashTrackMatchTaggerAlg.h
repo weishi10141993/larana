@@ -23,6 +23,8 @@
 #include "Utilities/LArProperties.h"
 #include "OpticalDetector/OpDigiProperties.h"
 
+#include "TTree.h"
+
 namespace cosmic{
   class BeamFlashTrackMatchTaggerAlg;
 }
@@ -42,6 +44,16 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			     util::LArProperties const&,
 			     opdet::OpDigiProperties const&);
 
+  void SetHypothesisComparisonTree(TTree*);
+
+  void RunHypothesisComparison(std::vector<recob::OpFlash> const&,
+			       std::vector<recob::Track> const&,
+			       TTree &,
+			       geo::Geometry const&,
+			       phot::PhotonVisibilityService const&,
+			       util::LArProperties const&,
+			       opdet::OpDigiProperties const&);
+  
  private:
 
   const anab::CosmicTagID_t COSMIC_TYPE_FLASHMATCH;
@@ -57,6 +69,27 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 
   bool fMakeOutsideDriftTags;
   bool fNormalizeHypothesisToFlash;
+
+  TTree*             cTree;
+  std::vector<float> cOpDetVector;
+  std::vector<float> cTrackHypVector;
+  typedef struct cFlashProperties{
+  cFlashProperties(float pe,float y,float sy,float z,float sz):
+    totalPE(pe),y(y),sigmay(sy),z(z),sigmaz(sz) {}
+    float totalPE;
+    float y;
+    float sigmay;
+    float z;
+    float sigmaz;
+  } cFlashProperties_t;
+  cFlashProperties_t cFlash_p;
+  cFlashProperties_t cTrkHyp_p;
+
+  typedef struct cEventProperties{
+    int run;
+    int event;
+    float chi2;
+  } cEventProperties_t;
 
   typedef enum CompatibilityResultType{
     kCompatible = 0,
