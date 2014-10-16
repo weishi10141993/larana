@@ -29,18 +29,8 @@
 
 namespace cosmic{
   class BeamFlashTrackMatchTaggerAlg;
-  //class TestProperties;
 }
 
-
-class TestProperties : public TObject{
- public:
-  TestProperties(){}
-  virtual ~TestProperties(){}
-  unsigned int run;
-  unsigned int event;
-  ClassDef(TestProperties,1);
-};
 
 class cosmic::BeamFlashTrackMatchTaggerAlg{
  public:
@@ -67,47 +57,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			       phot::PhotonVisibilityService const&,
 			       util::LArProperties const&,
 			       opdet::OpDigiProperties const&);
-  
-  /*
-  class FlashProperties : public TObject{
 
-  public:
-    FlashProperties(){}
-    virtual ~FlashProperties(){}
-  FlashProperties(unsigned int i, float pe,float y,float sy,float z,float sz, std::vector<float> opdet):
-    index(i), totalPE(pe),y(y),sigmay(sy),z(z),sigmaz(sz),opdetVector(opdet) {}
-    unsigned int index;
-    float totalPE;
-    float y;
-    float sigmay;
-    float z;
-    float sigmaz;
-    std::vector<float> opdetVector;
-    ClassDef(FlashProperties,1);
-  };
-
-  class ComparisonProperties : public TObject{
-  public:
-    ComparisonProperties(){}
-    virtual ~ComparisonProperties(){}
-  ComparisonProperties(FlashProperties const& f, FlashProperties const& t, float c):
-    flash(f), trkhyp(t),chi2(c) {}
-    FlashProperties flash;
-    FlashProperties trkhyp;
-    float chi2;
-    ClassDef(ComparisonProperties,1);
-  };
-
-  class EventProperties : public TObject{
-  public:
-    EventProperties(){}
-    virtual ~EventProperties(){}
-    unsigned int run;
-    unsigned int event;
-    std::vector<ComparisonProperties> comps;
-    ClassDef(EventProperties,1);
-  };
-  */
  private:
 
   const anab::CosmicTagID_t COSMIC_TYPE_FLASHMATCH;
@@ -126,8 +76,36 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 
   TTree*             cTree;
   
-  //EventProperties *cEvent_p;
-  TestProperties *cTest_p;
+  typedef struct FlashComparisonProperties{
+    unsigned int run;
+    unsigned int event;
+
+    unsigned int flash_index;
+    float flash_totalPE;
+    float flash_y;
+    float flash_sigmay;
+    float flash_z;
+    float flash_sigmaz;
+
+    unsigned int trkhyp_index;
+    float trkhyp_totalPE;
+    float trkhyp_y;
+    float trkhyp_sigmay;
+    float trkhyp_z;
+    float trkhyp_sigmaz;
+
+    float chi2;
+
+    std::string leaf_structure;
+    FlashComparisonProperties():
+    leaf_structure("run/i:event/i:flash_index/i:flash_totalPE/F:flash_y/F:flash_sigmay/F:flash_z/F:flash_sigmaz/F:trkhyp_index/i:trkhyp_totalPE/F:trkhyp_y/F:trkhyp_sigmay/F:trkhyp_z/F:trkhyp_sigmaz/F:chi2/F"){}
+
+  } FlashComparisonProperties_t;
+
+  FlashComparisonProperties_t cFlashComparison_p;
+  std::vector<float> cOpDetVector_flash;
+  std::vector<float> cOpDetVector_trkhyp;
+
 
   typedef enum CompatibilityResultType{
     kCompatible = 0,
@@ -148,11 +126,13 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 					     const recob::OpFlash* flashPointer);
 
   bool InDriftWindow(double, double, geo::Geometry const&);
-  /*
+  
   void FillFlashProperties(std::vector<float> const& opdetVector,
-			   FlashProperties & flash_p,
+			   float&,
+			   float&, float&,
+			   float&, float&,
 			   geo::Geometry const& geom);
-  */
+  
   //debugging functions
   void PrintTrackProperties(recob::Track const&, std::ostream* output=&std::cout);
   void PrintFlashProperties(recob::OpFlash const&, std::ostream* output=&std::cout);

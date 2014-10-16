@@ -79,6 +79,7 @@ standard_flashhypothesisana:
     BeamFlashTrackMatchAlgParams: @local::standard_beamflashtrackmatchtaggeralg
     TrackModuleLabel:             "track"
     FlashModuleLabel:             "opflash"
+}
 
 standard_crhitremoval:
 {
