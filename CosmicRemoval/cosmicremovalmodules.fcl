@@ -36,10 +36,7 @@ standard_cosmictracktagger:
 
 standard_beamflashtrackmatchtaggeralg:
 {
-    MIPYield:   24000
-    QE:         0.01
     MIPdQdx:    2.1
-    PromptFrac: 2.5
 
     SingleChannelCut:           50.0
     CumulativeChannelThreshold: 3.0
@@ -48,7 +45,7 @@ standard_beamflashtrackmatchtaggeralg:
     MinTrackLength:             0.0
     
     MakeOutsideDriftTags: false
-    NormalizeHypothesisToFlash: true
+    NormalizeHypothesisToFlash: false
 }
 
 standard_hittagassociatoralg:
