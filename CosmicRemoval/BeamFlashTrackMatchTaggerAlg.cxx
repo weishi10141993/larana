@@ -163,7 +163,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
       cFlashComparison_p.flash_z = flash.second->ZCenter();
       cFlashComparison_p.flash_sigmaz = flash.second->ZWidth();
 
-      cFlashComparison_p.chi2 = 0;
+      cFlashComparison_p.chi2 = CalculateChi2(cOpDetVector_flash,cOpDetVector_trkhyp);
 
       cTree->Fill();
     }//end loop over flashes
@@ -294,6 +294,23 @@ cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> cons
 
   return CompatibilityResultType::kCompatible;
 }
+
+
+float cosmic::BeamFlashTrackMatchTaggerAlg::CalculateChi2(std::vector<float> const& light_flash,
+							  std::vector<float> const& light_track){
+
+  float chi2=0;
+  for(size_t pmt_i=0; pmt_i<light_flash.size(); pmt_i++){
+
+    float err = 1;
+    if(light_track[pmt_i] > 1) err = std::sqrt(light_track[pmt_i]);
+
+    chi2 += (light_flash[pmt_i]-light_track[pmt_i])*(light_flash[pmt_i]-light_track[pmt_i]) / err;
+  }
+
+  return chi2;
+}
+							   
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::PrintTrackProperties(recob::Track const& track, std::ostream* output)
 {

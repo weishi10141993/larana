@@ -132,6 +132,8 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			   float&, float&,
 			   float&, float&,
 			   geo::Geometry const& geom);
+
+  float CalculateChi2(std::vector<float> const&,std::vector<float> const&);
   
   //debugging functions
   void PrintTrackProperties(recob::Track const&, std::ostream* output=&std::cout);
