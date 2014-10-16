@@ -37,7 +37,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::SetHypothesisComparisonTree(TTree* tree){
   cTree = tree;
-  cTree->Branch("flashcomparisonproperties",&cFlashComparison_p,cFlashComparison_p.leaf_structure.c_str());
+  cTree->Branch("fcp",&cFlashComparison_p,cFlashComparison_p.leaf_structure.c_str());
   cTree->Branch("opdet_trkhyp",&cOpDetVector_trkhyp);
   cTree->Branch("opdet_flash",&cOpDetVector_flash);
 }

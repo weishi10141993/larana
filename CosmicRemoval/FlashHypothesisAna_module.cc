@@ -72,7 +72,7 @@ void cosmic::FlashHypothesisAna::reconfigure(fhicl::ParameterSet const& p){
 
 void cosmic::FlashHypothesisAna::beginJob(){
   art::ServiceHandle<art::TFileService> tfs;  
-  fAlg.SetHypothesisComparisonTree(tfs->make<TTree>("HypothesisComparisonTree", "HypothesisComparisonTree"));
+  fAlg.SetHypothesisComparisonTree(tfs->make<TTree>("hc_tree", "HypothesisComparisonTree"));
 }
 
 void cosmic::FlashHypothesisAna::analyze(art::Event const& evt)
