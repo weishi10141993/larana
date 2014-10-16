@@ -10,8 +10,13 @@
 */
 
 #include "BeamFlashTrackMatchTaggerAlg.h"
+#include "Geometry/OpDetGeo.h"
 #include <limits>
 #include "TVector3.h"
+
+//ClassImp(cosmic::BeamFlashTrackMatchTaggerAlg::FlashProperties)
+//ClassImp(cosmic::BeamFlashTrackMatchTaggerAlg::ComparisonProperties)
+//ClassImp(cosmic::BeamFlashTrackMatchTaggerAlg::EventProperties)
 
 cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p) 
   : COSMIC_TYPE_FLASHMATCH(anab::CosmicTagID_t::kFlash_BeamIncompatible),
@@ -19,6 +24,8 @@ cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::Parame
     DEBUG_FLAG(p.get<bool>("RunDebugMode",false))
 {
   this->reconfigure(p);
+  //cEvent_p = new EventProperties;
+  cTest_p = new TestProperties;
 }
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const& p){
@@ -36,8 +43,9 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::SetHypothesisComparisonTree(TTree* tree){
   cTree = tree;
-  cTree->Branch("opV",&cOpDetVector);
-  cTree->Branch("thV",&cTrackHypVector);
+  //cTree->Branch("event",cEvent_p->GetName(),&cEvent_p);
+  cTree->Branch("event",cTest_p->GetName(),&cTest_p);
+
 }
 
 
@@ -105,6 +113,93 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
 
 }
 
+//this compares the hypothesis to the flash itself.
+void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int const run,
+								   unsigned int const event,
+								   std::vector<recob::OpFlash> const& flashVector,
+								   std::vector<recob::Track> const& trackVector,
+								   geo::Geometry const& geom,
+								   phot::PhotonVisibilityService const& pvs,
+								   util::LArProperties const& larp,
+								   opdet::OpDigiProperties const& opdigip){
+
+  //cEvent_p->run = run; cEvent_p->event = event;
+
+  std::vector< std::pair<unsigned int, const recob::OpFlash*> > 
+    flashesOnBeamTime;
+  for(unsigned int i=0; i<flashVector.size(); i++){
+    recob::OpFlash const& flash = flashVector[i];
+    if(!flash.OnBeamTime()) continue;
+    flashesOnBeamTime.push_back(std::make_pair(i,&flash));
+  }
+
+  for(size_t track_i=0; track_i<trackVector.size(); track_i++){
+
+    recob::Track const& track(trackVector[track_i]);
+
+    if(track.Length() < fMinTrackLength) continue;
+
+    //get the begin and end points of this track
+    TVector3 const& pt_begin = track.LocationAtPoint(0);
+    TVector3 const& pt_end = track.LocationAtPoint(track.NumberTrajectoryPoints()-1);
+    std::vector<float> xyz_begin = { (float)pt_begin.x(), (float)pt_begin.y(), (float)pt_begin.z()};
+    std::vector<float> xyz_end = {(float)pt_end.x(), (float)pt_end.y(), (float)pt_end.z()};
+
+    //check if this track is outside the drift window, and if it is continue
+    if(!InDriftWindow(pt_begin.x(),pt_end.x(),geom)) continue; 
+
+    //get light hypothesis for track
+    std::vector<float> lightHypothesis = GetMIPHypotheses(track,geom,pvs,larp,opdigip);
+    /*
+    FlashProperties trkhyp;
+    trkhyp.index=track_i;
+    FillFlashProperties(lightHypothesis,trkhyp,geom);
+    
+    for(auto flash : flashesOnBeamTime){
+      std::vector<float> lightReconstructed(geom.NOpDet(),0);  
+      for(size_t i=0; i<lightReconstructed.size(); i++) 
+	lightReconstructed[i] = flash.second->PE(i);
+      FlashProperties freco(flash.first,flash.second->TotalPE(),
+			    flash.second->YCenter(), flash.second->YWidth(),
+			    flash.second->ZCenter(), flash.second->ZWidth(),
+			    lightReconstructed);
+
+      //cEvent_p->comps.emplace_back(freco,trkhyp,0);
+      }//end loop over flashes
+      */
+  }//end loop over tracks
+
+  cTree->Fill();
+
+}
+/*
+void cosmic::BeamFlashTrackMatchTaggerAlg::FillFlashProperties(std::vector<float> const& opdetVector,
+							       FlashProperties & flash_p,
+							       geo::Geometry const& geom){
+  float y=0,sigmay=0,z=0,sigmaz=0,sum=0;
+  double xyz[3];
+  for(unsigned int opdet=0; opdet<opdetVector.size(); opdet++){
+    sum+=opdetVector[opdet];
+    geom.Cryostat(0).OpDet(opdet).GetCenter(xyz);
+    y += opdetVector[opdet]*xyz[1];
+    z += opdetVector[opdet]*xyz[2];
+  }
+
+  y /= sum; z /= sum;
+
+  for(unsigned int opdet=0; opdet<opdetVector.size(); opdet++){
+    geom.Cryostat(0).OpDet(opdet).GetCenter(xyz);
+    sigmay += (opdetVector[opdet]*xyz[1]-y)*(opdetVector[opdet]*xyz[1]-y);
+    sigmaz += (opdetVector[opdet]*xyz[2]-y)*(opdetVector[opdet]*xyz[2]-y);
+  }
+
+  sigmay = std::sqrt(sigmay)/sum; 
+  sigmaz = std::sqrt(sigmaz)/sum; 
+
+  unsigned int index = flash_p.index;
+  flash_p = FlashProperties(index,sum,y,sigmay,z,sigmaz,opdetVector);
+}
+*/
 bool cosmic::BeamFlashTrackMatchTaggerAlg::InDriftWindow(double start_x, double end_x, geo::Geometry const& geom){
   if(start_x < 0. || end_x < 0.) return false;
   if(start_x > 2*geom.DetHalfWidth() || end_x > 2*geom.DetHalfWidth()) return false;
