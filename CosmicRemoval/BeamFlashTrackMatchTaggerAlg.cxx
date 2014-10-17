@@ -12,7 +12,6 @@
 #include "BeamFlashTrackMatchTaggerAlg.h"
 #include "Geometry/OpDetGeo.h"
 #include <limits>
-#include "TVector3.h"
 
 cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p) 
   : COSMIC_TYPE_FLASHMATCH(anab::CosmicTagID_t::kFlash_BeamIncompatible),
@@ -39,7 +38,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const
 void cosmic::BeamFlashTrackMatchTaggerAlg::SetHypothesisComparisonTree(TTree* tree){
   cTree = tree;
   cTree->Branch("fcp",&cFlashComparison_p,cFlashComparison_p.leaf_structure.c_str());
-  cTree->Branch("opdet_trkhyp",&cOpDetVector_trkhyp);
+  cTree->Branch("opdet_hyp",&cOpDetVector_hyp);
   cTree->Branch("opdet_flash",&cOpDetVector_flash);
 }
 
@@ -144,13 +143,13 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
     if(!InDriftWindow(pt_begin.x(),pt_end.x(),geom)) continue; 
 
     //get light hypothesis for track
-    cOpDetVector_trkhyp = GetMIPHypotheses(track,geom,pvs,larp,opdigip);
+    cOpDetVector_hyp = GetMIPHypotheses(track,geom,pvs,larp,opdigip);
 
-    cFlashComparison_p.trkhyp_index = track_i;
-    FillFlashProperties(cOpDetVector_trkhyp,
-			cFlashComparison_p.trkhyp_totalPE,
-			cFlashComparison_p.trkhyp_y,cFlashComparison_p.trkhyp_sigmay,
-			cFlashComparison_p.trkhyp_z,cFlashComparison_p.trkhyp_sigmaz,
+    cFlashComparison_p.hyp_index = track_i;
+    FillFlashProperties(cOpDetVector_hyp,
+			cFlashComparison_p.hyp_totalPE,
+			cFlashComparison_p.hyp_y,cFlashComparison_p.hyp_sigmay,
+			cFlashComparison_p.hyp_z,cFlashComparison_p.hyp_sigmaz,
 			geom);
     
     for(auto flash : flashesOnBeamTime){
@@ -167,7 +166,84 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
       cFlashComparison_p.flash_z = flash.second->ZCenter();
       cFlashComparison_p.flash_sigmaz = flash.second->ZWidth();
 
-      cFlashComparison_p.chi2 = CalculateChi2(cOpDetVector_flash,cOpDetVector_trkhyp);
+      cFlashComparison_p.chi2 = CalculateChi2(cOpDetVector_flash,cOpDetVector_hyp);
+
+      cTree->Fill();
+    }//end loop over flashes
+    
+  }//end loop over tracks
+
+
+}
+
+//this compares the hypothesis to the flash itself.
+void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int const run,
+								   unsigned int const event,
+								   std::vector<recob::OpFlash> const& flashVector,
+								   std::vector<simb::MCParticle> const& mcParticleVector,
+								   geo::Geometry const& geom,
+								   phot::PhotonVisibilityService const& pvs,
+								   util::LArProperties const& larp,
+								   opdet::OpDigiProperties const& opdigip){
+
+  cFlashComparison_p.run = run;
+  cFlashComparison_p.event = event;
+
+  std::vector< std::pair<unsigned int, const recob::OpFlash*> > flashesOnBeamTime;
+  for(unsigned int i=0; i<flashVector.size(); i++){
+    recob::OpFlash const& flash = flashVector[i];
+    if(!flash.OnBeamTime()) continue;
+    flashesOnBeamTime.push_back(std::make_pair(i,&flash));
+  }
+  
+  for(size_t particle_i=0; particle_i<mcParticleVector.size(); particle_i++){
+
+    simb::MCParticle const& particle(mcParticleVector[particle_i]);
+    if(particle.Process().compare("primary")!=0) continue;
+    if(particle.Trajectory().TotalLength() < fMinTrackLength) continue;
+
+    //get the begin and end points of this track
+    size_t start_i=0, end_i=particle.NumberTrajectoryPoints()-1;
+    bool prev_inside=false;
+    for(size_t pt_i=0; pt_i < particle.NumberTrajectoryPoints(); pt_i++){
+      bool inside = InDetector(particle.Position(pt_i).Vect(),geom);
+      if(inside && !prev_inside) start_i = pt_i;
+      if(!inside && prev_inside) { end_i = pt_i-1; break; }
+      prev_inside = inside;
+    }
+    TVector3 const& pt_begin = particle.Position(start_i).Vect();
+    TVector3 const& pt_end = particle.Position(end_i).Vect();
+    std::vector<float> xyz_begin = { (float)pt_begin.x(), (float)pt_begin.y(), (float)pt_begin.z()};
+    std::vector<float> xyz_end = {(float)pt_end.x(), (float)pt_end.y(), (float)pt_end.z()};
+
+    //check if this track is outside the drift window, and if it is continue
+    if(!InDriftWindow(pt_begin.x(),pt_end.x(),geom)) continue; 
+
+    //get light hypothesis for track
+    cOpDetVector_hyp = GetMIPHypotheses(particle.Trajectory(),geom,pvs,larp,opdigip);
+
+    cFlashComparison_p.hyp_index = particle_i;
+    FillFlashProperties(cOpDetVector_hyp,
+			cFlashComparison_p.hyp_totalPE,
+			cFlashComparison_p.hyp_y,cFlashComparison_p.hyp_sigmay,
+			cFlashComparison_p.hyp_z,cFlashComparison_p.hyp_sigmaz,
+			geom);
+    
+    for(auto flash : flashesOnBeamTime){
+      cOpDetVector_flash = std::vector<float>(geom.NOpDet(),0);  
+      cFlashComparison_p.flash_nOpDet = 0;
+      for(size_t i=0; i<cOpDetVector_flash.size(); i++){ 
+	cOpDetVector_flash[i] = flash.second->PE(i);
+	if(flash.second->PE(i) < fMinOpHitPE) cFlashComparison_p.flash_nOpDet++;
+      }
+      cFlashComparison_p.flash_index = flash.first;
+      cFlashComparison_p.flash_totalPE = flash.second->TotalPE();
+      cFlashComparison_p.flash_y = flash.second->YCenter();
+      cFlashComparison_p.flash_sigmay = flash.second->YWidth();
+      cFlashComparison_p.flash_z = flash.second->ZCenter();
+      cFlashComparison_p.flash_sigmaz = flash.second->ZWidth();
+
+      cFlashComparison_p.chi2 = CalculateChi2(cOpDetVector_flash,cOpDetVector_hyp);
 
       cTree->Fill();
     }//end loop over flashes
@@ -204,13 +280,20 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::FillFlashProperties(std::vector<float
 
 }
 
+bool cosmic::BeamFlashTrackMatchTaggerAlg::InDetector(TVector3 const& pt, geo::Geometry const& geom){
+  if(pt.x() < 0 || pt.x() > 2*geom.DetHalfWidth()) return false;
+  if(std::abs(pt.y()) > geom.DetHalfHeight()) return false;
+  if(pt.z() < 0 || pt.z() > geom.DetLength()) return false;
+  return true;
+}
+
 bool cosmic::BeamFlashTrackMatchTaggerAlg::InDriftWindow(double start_x, double end_x, geo::Geometry const& geom){
   if(start_x < 0. || end_x < 0.) return false;
   if(start_x > 2*geom.DetHalfWidth() || end_x > 2*geom.DetHalfWidth()) return false;
   return true;
 }
 
-// Get a hypothesis for the light collected for a bezier track
+// Get a hypothesis for the light collected for a track
 std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob::Track const& track, 
 									  geo::Geometry const& geom,
 									  phot::PhotonVisibilityService const& pvs,
@@ -229,6 +312,55 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob:
     //get the segment we're interested in
     TVector3 const& pt1 = track.LocationAtPoint(pt-1);
     TVector3 const& pt2 = track.LocationAtPoint(pt);    
+    xyz_segment[0] = 0.5*(pt2.x()+pt1.x()) + XOffset;
+    xyz_segment[1] = 0.5*(pt2.y()+pt1.y());
+    xyz_segment[2] = 0.5*(pt2.z()+pt1.z());
+    length_segment = (pt2-pt1).Mag();
+
+    //get the amount of light
+    float LightAmount = PromptMIPScintYield*length_segment;
+
+    //get the visibility vector
+    const std::vector<float>* PointVisibility = pvs.GetAllVisibilities(xyz_segment);
+    
+    //check vector size, as it may be zero if given a y/z outside some range
+    if(PointVisibility->size()!=geom.NOpDet()) continue;
+
+    for(size_t opdet_i=0; opdet_i<geom.NOpDet(); opdet_i++){
+      lightHypothesis[opdet_i] += PointVisibility->at(opdet_i)*LightAmount;
+      totalHypothesisPE += PointVisibility->at(opdet_i)*LightAmount;
+    }
+  }
+
+  if(fNormalizeHypothesisToFlash && totalHypothesisPE > std::numeric_limits<float>::epsilon()){
+    for(size_t opdet_i=0; opdet_i<geom.NOpDet(); opdet_i++)
+      lightHypothesis[opdet_i] /= totalHypothesisPE;
+  }
+
+  return lightHypothesis;
+
+}//end GetMIPHypotheses
+
+
+// Get a hypothesis for the light collected for a particle trajectory
+std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(simb::MCTrajectory const& track, 
+									  geo::Geometry const& geom,
+									  phot::PhotonVisibilityService const& pvs,
+									  util::LArProperties const& larp,
+									  opdet::OpDigiProperties const& opdigip,
+									  float XOffset)
+{
+  std::vector<float> lightHypothesis(geom.NOpDet(),0);  
+  float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
+
+  float length_segment=0;
+  double xyz_segment[3];
+  float totalHypothesisPE=0;
+  for(size_t pt=1; pt<track.size(); pt++){
+    
+    //get the segment we're interested in
+    TVector3 const& pt1 = track.Position(pt-1).Vect();
+    TVector3 const& pt2 = track.Position(pt).Vect();    
     xyz_segment[0] = 0.5*(pt2.x()+pt1.x()) + XOffset;
     xyz_segment[1] = 0.5*(pt2.y()+pt1.y());
     xyz_segment[2] = 0.5*(pt2.z()+pt1.z());

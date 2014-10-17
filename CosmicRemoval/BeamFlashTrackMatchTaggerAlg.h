@@ -18,13 +18,15 @@
 #include "RecoBase/Track.h"
 #include "AnalysisBase/CosmicTag.h"
 
+#include "SimulationBase/MCParticle.h"
+
 #include "Geometry/Geometry.h"
 #include "PhotonPropagation/PhotonVisibilityService.h"
 #include "Utilities/LArProperties.h"
 #include "OpticalDetector/OpDigiProperties.h"
 
 #include "TTree.h"
-#include "TObject.h"
+#include "TVector3.h"
 
 
 namespace cosmic{
@@ -53,6 +55,15 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			       unsigned int const,
 			       std::vector<recob::OpFlash> const&,
 			       std::vector<recob::Track> const&,
+			       geo::Geometry const&,
+			       phot::PhotonVisibilityService const&,
+			       util::LArProperties const&,
+			       opdet::OpDigiProperties const&);
+
+  void RunHypothesisComparison(unsigned int const,
+			       unsigned int const,
+			       std::vector<recob::OpFlash> const&,
+			       std::vector<simb::MCParticle> const&,
 			       geo::Geometry const&,
 			       phot::PhotonVisibilityService const&,
 			       util::LArProperties const&,
@@ -90,24 +101,24 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
     float flash_sigmaz;
     unsigned int flash_nOpDet;
 
-    unsigned int trkhyp_index;
-    float trkhyp_totalPE;
-    float trkhyp_y;
-    float trkhyp_sigmay;
-    float trkhyp_z;
-    float trkhyp_sigmaz;
+    unsigned int hyp_index;
+    float hyp_totalPE;
+    float hyp_y;
+    float hyp_sigmay;
+    float hyp_z;
+    float hyp_sigmaz;
 
     float chi2;
 
     std::string leaf_structure;
     FlashComparisonProperties():
-    leaf_structure("run/i:event/i:flash_index/i:flash_totalPE/F:flash_y/F:flash_sigmay/F:flash_z/F:flash_sigmaz/F:flash_nOpDet/i:trkhyp_index/i:trkhyp_totalPE/F:trkhyp_y/F:trkhyp_sigmay/F:trkhyp_z/F:trkhyp_sigmaz/F:chi2/F"){}
+    leaf_structure("run/i:event/i:flash_index/i:flash_totalPE/F:flash_y/F:flash_sigmay/F:flash_z/F:flash_sigmaz/F:flash_nOpDet/i:hyp_index/i:hyp_totalPE/F:hyp_y/F:hyp_sigmay/F:hyp_z/F:hyp_sigmaz/F:chi2/F"){}
 
   } FlashComparisonProperties_t;
 
   FlashComparisonProperties_t cFlashComparison_p;
   std::vector<float> cOpDetVector_flash;
-  std::vector<float> cOpDetVector_trkhyp;
+  std::vector<float> cOpDetVector_hyp;
 
 
   typedef enum CompatibilityResultType{
@@ -125,9 +136,17 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 				      opdet::OpDigiProperties const&,
 				      float XOffset=0);
 
+  std::vector<float> GetMIPHypotheses(simb::MCTrajectory const& track, 
+				      geo::Geometry const& geom,
+				      phot::PhotonVisibilityService const& pvs,
+				      util::LArProperties const&,
+				      opdet::OpDigiProperties const&,
+				      float XOffset=0);
+
   CompatibilityResultType CheckCompatibility(std::vector<float> const& lightHypothesis, 
 					     const recob::OpFlash* flashPointer);
 
+  bool InDetector(TVector3 const&, geo::Geometry const&);
   bool InDriftWindow(double, double, geo::Geometry const&);
   
   void FillFlashProperties(std::vector<float> const& opdetVector,
@@ -149,10 +168,3 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 };
 
 #endif
-/*
-#ifdef _CINT_
-#pragma link C++ class FlashProperties+
-#pragma link C++ class ComparisonProperties+
-#pragma link C++ class EventProperties+
-#endif
-*/

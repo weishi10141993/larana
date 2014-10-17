@@ -82,6 +82,14 @@ standard_flashhypothesisana:
     FlashModuleLabel:             "opflash"
 }
 
+standard_flashhypothesistruthana:
+{
+    module_type:                  "FlashHypothesisTruthAna"
+    BeamFlashTrackMatchAlgParams: @local::standard_beamflashtrackmatchtaggeralg
+    MCModuleLabel:                "largeant"
+    FlashModuleLabel:             "opflash"
+}
+
 standard_crhitremoval:
 {
   module_type:             "CRHitRemoval"
