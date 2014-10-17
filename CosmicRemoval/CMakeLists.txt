@@ -16,6 +16,7 @@ art_make(BASENAME_ONLY
 		     LArProperties_service
 		     OpDigiProperties_service
 		     Utilities
+		     ${SIMULATIONBASE}
 		     ${MF_MESSAGELOGGER}
 		     ${MF_UTILITIES}
 		     ${FHICLCPP}
