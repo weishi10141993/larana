@@ -302,10 +302,10 @@ float cosmic::BeamFlashTrackMatchTaggerAlg::CalculateChi2(std::vector<float> con
   float chi2=0;
   for(size_t pmt_i=0; pmt_i<light_flash.size(); pmt_i++){
 
-    float err = 1;
-    if(light_track[pmt_i] > 1) err = std::sqrt(light_track[pmt_i]);
+    float err2 = 1;
+    if(light_track[pmt_i] > 1) err2 = light_track[pmt_i];
 
-    chi2 += (light_flash[pmt_i]-light_track[pmt_i])*(light_flash[pmt_i]-light_track[pmt_i]) / err;
+    chi2 += (light_flash[pmt_i]-light_track[pmt_i])*(light_flash[pmt_i]-light_track[pmt_i]) / err2;
   }
 
   return chi2;
