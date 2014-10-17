@@ -53,6 +53,7 @@ standard_beamflashtrackmatchtaggeralg:
     CumulativeChannelCut:       4
     IntegralCut:                4.0
     MinTrackLength:             0.0
+    MinOpDet:                   1.0
     
     MakeOutsideDriftTags: false
     NormalizeHypothesisToFlash: false

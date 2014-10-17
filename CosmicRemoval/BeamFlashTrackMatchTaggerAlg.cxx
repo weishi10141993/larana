@@ -24,7 +24,8 @@ cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::Parame
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const& p){
   fMinTrackLength = p.get<float>("MinTrackLength");
-  fMIPdQdx    = p.get<float>("MIPdQdx",2.1);
+  fMinOpHitPE     = p.get<float>("MinOpHitPE",0.1);
+  fMIPdQdx        = p.get<float>("MIPdQdx",2.1);
 
   fSingleChannelCut           = p.get<float>("SingleChannelCut");
   fCumulativeChannelThreshold = p.get<float>("CumulativeChannelThreshold");
@@ -154,8 +155,11 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
     
     for(auto flash : flashesOnBeamTime){
       cOpDetVector_flash = std::vector<float>(geom.NOpDet(),0);  
-      for(size_t i=0; i<cOpDetVector_flash.size(); i++) 
+      cFlashComparison_p.flash_nOpDet = 0;
+      for(size_t i=0; i<cOpDetVector_flash.size(); i++){ 
 	cOpDetVector_flash[i] = flash.second->PE(i);
+	if(flash.second->PE(i) < fMinOpHitPE) cFlashComparison_p.flash_nOpDet++;
+      }
       cFlashComparison_p.flash_index = flash.first;
       cFlashComparison_p.flash_totalPE = flash.second->TotalPE();
       cFlashComparison_p.flash_y = flash.second->YCenter();
@@ -278,6 +282,9 @@ cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> cons
     flash_integral += flashPointer->PE(pmt_i);
 
     if(lightHypothesis[pmt_i] < std::numeric_limits<float>::epsilon() ) continue;
+    hypothesis_integral += lightHypothesis[pmt_i]*hypothesis_scale;
+
+    if(flashPointer->PE(pmt_i) < fMinOpHitPE) continue;
 
     float diff_scaled = (lightHypothesis[pmt_i]*hypothesis_scale - flashPointer->PE(pmt_i))/std::sqrt(lightHypothesis[pmt_i]*hypothesis_scale);
 
@@ -286,7 +293,6 @@ cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> cons
     if( diff_scaled > fCumulativeChannelThreshold ) cumulativeChannels++;
     if(cumulativeChannels >= fCumulativeChannelCut) return CompatibilityResultType::kCumulativeChannelCut;
 
-    hypothesis_integral += lightHypothesis[pmt_i]*hypothesis_scale;
   }
 
   if( (hypothesis_integral - flash_integral)/std::sqrt(hypothesis_integral) 
@@ -302,10 +308,12 @@ float cosmic::BeamFlashTrackMatchTaggerAlg::CalculateChi2(std::vector<float> con
   float chi2=0;
   for(size_t pmt_i=0; pmt_i<light_flash.size(); pmt_i++){
 
-    float err = 1;
-    if(light_track[pmt_i] > 1) err = std::sqrt(light_track[pmt_i]);
+    if(light_flash[pmt_i] < fMinOpHitPE) continue;
 
-    chi2 += (light_flash[pmt_i]-light_track[pmt_i])*(light_flash[pmt_i]-light_track[pmt_i]) / err;
+    float err2 = 1;
+    if(light_track[pmt_i] > 1) err2 = light_track[pmt_i];
+
+    chi2 += (light_flash[pmt_i]-light_track[pmt_i])*(light_flash[pmt_i]-light_track[pmt_i]) / err2;
   }
 
   return chi2;
