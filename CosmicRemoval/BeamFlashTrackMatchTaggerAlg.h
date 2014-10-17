@@ -65,6 +65,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   const bool DEBUG_FLAG;
 
   float fMinTrackLength;
+  float fMinOpHitPE;
   float fMIPdQdx;
   float fSingleChannelCut;
   float fCumulativeChannelThreshold;
@@ -73,6 +74,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 
   bool fMakeOutsideDriftTags;
   bool fNormalizeHypothesisToFlash;
+
 
   TTree*             cTree;
   
@@ -86,6 +88,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
     float flash_sigmay;
     float flash_z;
     float flash_sigmaz;
+    unsigned int flash_nOpDet;
 
     unsigned int trkhyp_index;
     float trkhyp_totalPE;
@@ -98,7 +101,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 
     std::string leaf_structure;
     FlashComparisonProperties():
-    leaf_structure("run/i:event/i:flash_index/i:flash_totalPE/F:flash_y/F:flash_sigmay/F:flash_z/F:flash_sigmaz/F:trkhyp_index/i:trkhyp_totalPE/F:trkhyp_y/F:trkhyp_sigmay/F:trkhyp_z/F:trkhyp_sigmaz/F:chi2/F"){}
+    leaf_structure("run/i:event/i:flash_index/i:flash_totalPE/F:flash_y/F:flash_sigmay/F:flash_z/F:flash_sigmaz/F:flash_nOpDet/i:trkhyp_index/i:trkhyp_totalPE/F:trkhyp_y/F:trkhyp_sigmay/F:trkhyp_z/F:trkhyp_sigmaz/F:chi2/F"){}
 
   } FlashComparisonProperties_t;
 
