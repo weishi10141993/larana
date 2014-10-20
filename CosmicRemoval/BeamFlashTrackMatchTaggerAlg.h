@@ -78,6 +78,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   float fMinTrackLength;
   float fMinOpHitPE;
   float fMIPdQdx;
+  float fOpDetSaturation;
   float fSingleChannelCut;
   float fCumulativeChannelThreshold;
   unsigned int fCumulativeChannelCut;
@@ -108,11 +109,19 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
     float hyp_z;
     float hyp_sigmaz;
 
+    float trk_startx;
+    float trk_starty;
+    float trk_startz;
+
+    float trk_endx;
+    float trk_endy;
+    float trk_endz;
+
     float chi2;
 
     std::string leaf_structure;
     FlashComparisonProperties():
-    leaf_structure("run/i:event/i:flash_index/i:flash_totalPE/F:flash_y/F:flash_sigmay/F:flash_z/F:flash_sigmaz/F:flash_nOpDet/i:hyp_index/i:hyp_totalPE/F:hyp_y/F:hyp_sigmay/F:hyp_z/F:hyp_sigmaz/F:chi2/F"){}
+    leaf_structure("run/i:event/i:flash_index/i:flash_totalPE/F:flash_y/F:flash_sigmay/F:flash_z/F:flash_sigmaz/F:flash_nOpDet/i:hyp_index/i:hyp_totalPE/F:hyp_y/F:hyp_sigmay/F:hyp_z/F:hyp_sigmaz/F:trk_startx/F:trk_starty/F:trk_startz/F:trk_endx/F:trk_endy/F:trk_endz/F:chi2/F"){}
 
   } FlashComparisonProperties_t;
 
@@ -136,13 +145,28 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 				      opdet::OpDigiProperties const&,
 				      float XOffset=0);
 
-  std::vector<float> GetMIPHypotheses(simb::MCTrajectory const& track, 
+  std::vector<float> GetMIPHypotheses(simb::MCParticle const& particle, 
+				      size_t start_i,
+				      size_t end_i,
 				      geo::Geometry const& geom,
 				      phot::PhotonVisibilityService const& pvs,
 				      util::LArProperties const&,
 				      opdet::OpDigiProperties const&,
 				      float XOffset=0);
 
+  void AddLightFromSegment(TVector3 const& pt1,
+			   TVector3 const& pt2,
+			   std::vector<float> & lightHypothesis,
+			   float & totalHypothesisPE,
+			   geo::Geometry const& geom,
+			   phot::PhotonVisibilityService const& pvs,
+			   float const& PromptMIPScintYield,
+			   float XOffset);
+
+  void NormalizeLightHypothesis(std::vector<float> & lightHypothesis,
+				float const& totalHypothesisPE,
+				geo::Geometry const& geom);
+  
   CompatibilityResultType CheckCompatibility(std::vector<float> const& lightHypothesis, 
 					     const recob::OpFlash* flashPointer);
 

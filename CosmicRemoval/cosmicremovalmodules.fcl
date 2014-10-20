@@ -47,6 +47,7 @@ standard_cosmicpfparticletagger:
 standard_beamflashtrackmatchtaggeralg:
 {
     MIPdQdx:    2.1
+    OpDetSaturation: 200.
 
     SingleChannelCut:           50.0
     CumulativeChannelThreshold: 3.0
