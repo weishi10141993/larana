@@ -1,6 +1,23 @@
 
 art_make( BASENAME_ONLY
+	  LIBRARY_NAME Calorimetry
+	  LIB_LIBRARIES	Filters
+		        RecoBase
+		        Geometry
+		        Geometry_service
+		        RecoAlg
+                        AnalysisBase
+                        LArProperties_service
+                        DetectorProperties_service
+                        Utilities
+                        ${MF_MESSAGELOGGER}
+		        ${MF_UTILITIES}
+		        ${FHICLCPP}
+		        ${CETLIB}
+		        ${CLHEP}
+		        ${ROOT_BASIC_LIB_LIST}
           MODULE_LIBRARIES 
+	  		Calorimetry
                         Filters
                         RecoObjects
                         RecoBase
