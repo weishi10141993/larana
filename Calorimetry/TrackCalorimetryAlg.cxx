@@ -46,7 +46,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
     for(size_t i_plane=0; i_plane<geom.Nplanes(); i_plane++){
 
       ClearInternalVectors();
-      ReserveInternalVectors(hit_indices_per_plan[i_plane].size());
+      ReserveInternalVectors(hit_indices_per_plane[i_plane].size());
 
       //project down the track into wire/tick space for this plane
       std::vector< std::pair<geo::WireID,float> > traj_points_in_plane(track.NumberTrajectoryPoints());
@@ -101,4 +101,6 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 						    dist_projected(hit,geom)));
   
   fXYZVector.push_back(track.LocationAtPoint(traj_iter));
+  //fPitchVector.push_back(track.PitchInView(geom.View(hit.WireID().Plane,traj_iter));
+
 }

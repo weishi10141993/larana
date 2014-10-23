@@ -85,7 +85,7 @@ void calo::TrackCalorimetry::reconfigure(fhicl::ParameterSet const & p)
 void calo::TrackCalorimetry::produce(art::Event & e)
 {
   art::ServiceHandle<geo::Geometry> geomHandle;
-  geo::Geometry const& geom(*geomHandle);
+  geo::Geometry & geom(*geomHandle);
   art::ServiceHandle<util::LArProperties> larpHandle;
   util::LArProperties const& larp(*larpHandle);
   art::ServiceHandle<util::DetectorProperties> detpropHandle;
