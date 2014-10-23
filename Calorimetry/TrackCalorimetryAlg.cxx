@@ -95,12 +95,13 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 					   recob::Track const& track,
 					   std::vector< std::pair<geo::WireID,float> > const& traj_points_in_plane,
 					   geo::Geometry const& geom){
+
   size_t traj_iter = std::distance(traj_points_in_plane.begin(),
 				   std::min_element(traj_points_in_plane.begin(),
 						    traj_points_in_plane.end(),
 						    dist_projected(hit,geom)));
   
   fXYZVector.push_back(track.LocationAtPoint(traj_iter));
-  //fPitchVector.push_back(track.PitchInView(geom.View(hit.WireID().Plane,traj_iter));
+  fPitchVector.push_back(track.PitchInView(geom.View(hit.WireID().Plane),traj_iter));
 
 }
