@@ -44,7 +44,7 @@ class calo::TrackCalorimetryAlg{
 			  std::vector<size_t>&,
 			  geo::Geometry const&,
 			  util::LArProperties const&,
-			  util::DetectorProperties const&);
+			  util::DetectorProperties &);
 
  private:
 

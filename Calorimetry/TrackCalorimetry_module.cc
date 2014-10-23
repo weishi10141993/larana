@@ -89,7 +89,7 @@ void calo::TrackCalorimetry::produce(art::Event & e)
   art::ServiceHandle<util::LArProperties> larpHandle;
   util::LArProperties const& larp(*larpHandle);
   art::ServiceHandle<util::DetectorProperties> detpropHandle;
-  util::DetectorProperties const& detprop(*detpropHandle);
+  util::DetectorProperties & detprop(*detpropHandle);
 
   art::Handle< std::vector<recob::Track> > trackHandle;
   e.getByLabel(fTrackModuleLabel,trackHandle);
