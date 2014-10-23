@@ -23,6 +23,7 @@
 #include "Utilities/DetectorProperties.h"
 
 #include "TTree.h"
+#include "TVector3.h"
 
 namespace calo{
   class TrackCalorimetryAlg;
@@ -47,6 +48,17 @@ class calo::TrackCalorimetryAlg{
 
  private:
 
+  std::vector<float>    fQVector;
+  std::vector<float>    fdQdxVector;
+  std::vector<float>    fdEdxVector;
+  std::vector<float>    fPitchVector;
+  std::vector<TVector3> fXYZVector;
+  void ClearInternalVectors()
+  { fQVector.clear(); fdQdxVector.clear(); fdEdxVector.clear(); fPitchVector.clear(); fXYZVector.clear(); }
+
+  void AnalyzeHit(recob::Hit const&, 
+		  std::vector< std::pair<geo::WireID,float> > const&, 
+		  geo::Geometry const&);
 
 };
 
