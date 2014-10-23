@@ -10,12 +10,14 @@
 #include "TrackCalorimetryAlg.h"
 #include <limits>
 
-calo::TrackCalorimetryAlg::TrackCalorimetryAlg(fhicl::ParameterSet const& p)
+calo::TrackCalorimetryAlg::TrackCalorimetryAlg(fhicl::ParameterSet const& p):
+  caloAlg(p.get<fhicl::ParameterSet>("CalorimetryAlg"))
 {
   this->reconfigure(p);
 }
 
 void calo::TrackCalorimetryAlg::reconfigure(fhicl::ParameterSet const& p){
+  caloAlg.reconfigure(p.get<fhicl::ParameterSet>("CalorimetryAlg"));
 }
 
 void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> const& trackVector,
@@ -103,5 +105,8 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
   
   fXYZVector.push_back(track.LocationAtPoint(traj_iter));
   fPitchVector.push_back(track.PitchInView(geom.View(hit.WireID().Plane),traj_iter));
+  fQVector.push_back(hit.Charge(false));
+  fdQdxVector.push_back(fQVector.back()/fPitchVector.back());
+  fdEdxVector.push_back(caloAlg.dEdx_AREA(hit,fPitchVector.back()));
 
 }

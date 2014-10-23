@@ -22,6 +22,8 @@
 #include "Utilities/LArProperties.h"
 #include "Utilities/DetectorProperties.h"
 
+#include "AnalysisAlg/CalorimetryAlg.h"
+
 #include "TTree.h"
 #include "TVector3.h"
 
@@ -47,6 +49,8 @@ class calo::TrackCalorimetryAlg{
 			  util::DetectorProperties &);
 
  private:
+
+  CalorimetryAlg caloAlg;
 
   std::vector<float>    fQVector;
   std::vector<float>    fdQdxVector;
