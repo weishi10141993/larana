@@ -46,6 +46,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
     for(size_t i_plane=0; i_plane<geom.Nplanes(); i_plane++){
 
       ClearInternalVectors();
+      ReserveInternalVectors(hit_indices_per_plan[i_plane].size());
 
       //project down the track into wire/tick space for this plane
       std::vector< std::pair<geo::WireID,float> > traj_points_in_plane(track.NumberTrajectoryPoints());
@@ -60,6 +61,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
       //now loop through hits
       for(auto const& i_hit : hit_indices_per_plane[i_plane])
 	AnalyzeHit(hitVector[i_hit],
+		   track,
 		   traj_points_in_plane,
 		   geom);
 
@@ -70,7 +72,33 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 }//end ExtractCalorimetry
 
 
+class dist_projected{
+public:
+  dist_projected(recob::Hit const& h, geo::Geometry const& g):
+    hit(h), geom(g){}
+  bool operator() (std::pair<geo::WireID,float> i, std::pair<geo::WireID,float> j)
+  {
+    float dw_i = ((int)(i.first.Wire) - (int)(hit.WireID().Wire))*geom.WirePitch(0,1,i.first.Plane);
+    float dw_j = ((int)(j.first.Wire) - (int)(hit.WireID().Wire))*geom.WirePitch(0,1,j.first.Plane);
+    float dt_i = i.second - hit.PeakTime();
+    float dt_j = j.second - hit.PeakTime();
+
+    return (std::sqrt(dw_i*dw_i + dt_i*dt_i) < std::sqrt(dw_j*dw_j + dt_j*dt_j));
+  }
+private:
+  recob::Hit const& hit;
+  geo::Geometry const& geom;
+
+};
+
 void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
+					   recob::Track const& track,
 					   std::vector< std::pair<geo::WireID,float> > const& traj_points_in_plane,
 					   geo::Geometry const& geom){
+  size_t traj_iter = std::distance(traj_points_in_plane.begin(),
+				   std::min_element(traj_points_in_plane.begin(),
+						    traj_points_in_plane.end(),
+						    dist_projected(hit,geom)));
+  
+  fXYZVector.push_back(track.LocationAtPoint(traj_iter));
 }
