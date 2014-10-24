@@ -37,6 +37,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
   for(size_t i_track=0; i_track<trackVector.size(); i_track++){
 
     recob::Track const& track = trackVector[i_track];
+    std::vector<float> path_length_fraction_vec(CreatePathLengthFractionVector(track));
 
     //sort hits into each plane
     std::vector< std::vector<size_t> > hit_indices_per_plane(geom.Nplanes());
@@ -92,6 +93,20 @@ private:
   geo::Geometry const& geom;
 
 };
+
+std::vector<float> calo::TrackCalorimetryAlg::CreatePathLengthFractionVector(recob::Track const& track){
+
+  std::vector<float> trk_path_length_frac_vec(track.NumberTrajectoryPoints());
+
+  float cumulative_path_length=0;
+  float total_path_length = track.Length();
+  for(size_t i_trj=1; i_trj<track.NumberTrajectoryPoints()-1; i_trj++){    
+    cumulative_path_length+=(track.LocationAtPoint(i_trj)-track.LocationAtPoint(i_trj-1)).Mag();
+    trk_path_length_frac_vec[i_trj]=cumulative_path_length/total_path_length();
+  }
+
+  return trk_path_length_frac_vec;
+}
 
 void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 					   recob::Track const& track,
