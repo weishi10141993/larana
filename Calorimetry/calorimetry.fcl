@@ -50,4 +50,19 @@ standard_beziercalorimetry:
  CaloAlg:           @local::standard_calorimetryalgmc
 }
 
+standard_trackcalorimetryalg:
+{
+ NHitsToDetermineStart:  3
+ CalorimetryAlg:         @local::standard_calorimetryalgmc
+}
+
+standard_trackcalorimetry:
+{
+ module_type:            "TrackCalorimetry"
+ TrackModuleLabel:       "track"
+ HitModuleLabel:         "hit"
+ SpacePointModuleLabel:  "sppt"
+ TrackCalorimetryAlg:    @local::standard_trackcalorimetryalg
+}
+
 END_PROLOG

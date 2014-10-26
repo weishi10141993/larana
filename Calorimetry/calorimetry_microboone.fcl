@@ -36,6 +36,10 @@ microboone_generalcalomc:
 microboone_beziercalorimetry:         @local::standard_beziercalorimetry
 microboone_beziercalorimetry.CaloAlg: @local::microboone_calorimetryalgmc
 
+microboone_trackcalorimetryalg:                @local::standard_trackcalorimetryalg
+microboone_trackcalorimetryalg.CalorimetryAlg: @local::microboone_calorimetryalgmc
 
+microboone_trackcalorimetry:                     @local::standard_trackcalotrimetry
+microboone_trackcalorimetry.TrackCalorimetryAlg: @local::microboone_trackcalorimetryalg
 
 END_PROLOG
