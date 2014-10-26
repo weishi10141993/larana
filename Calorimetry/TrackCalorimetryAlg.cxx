@@ -71,9 +71,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 		   HitPropertiesMultiset,
 		   geom);
 
-      bool is_inverted_track = IsInvertedTrack(HitPropertiesMultiset);
-
-      if(is_inverted_track) std::cout << "Inverted track." << std::endl;
+      MakeCalorimetryObject(HitPropertiesMultiset, track, i_track, caloVector, assnTrackCaloVector);
 
     }//end loop over planes
 
@@ -164,5 +162,66 @@ bool calo::TrackCalorimetryAlg::IsInvertedTrack(HitPropertiesMultiset_t const& h
     }
 
   return (charge_start > charge_end);
+
+}
+
+void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t const& hpm,
+						      recob::Track const& track,
+						      size_t const& i_track,
+						      std::vector<anab::Calorimetry>& caloVector,
+						      std::vector<size_t>& assnTrackCaloVector){
+
+  size_t n_hits = hpm.size();
+  std::vector<double> dEdxVector,dQdxVector,resRangeVector,deadWireVector,pitchVector;
+  std::vector<TVector3> XYZVector;
+
+  dEdxVector.reserve(n_hits);
+  dQdxVector.reserve(n_hits);
+  resRangeVector.reserve(n_hits);
+  deadWireVector.reserve(n_hits);
+  pitchVector.reserve(n_hits);
+  XYZVector.reserve(n_hits);
+
+  double kinetic_energy=0,track_length=track.Length();
+  if(IsInvertedTrack(hpm)){
+
+    for(HitPropertiesMultiset_t::reverse_iterator it_hpm=hpm.rbegin(); 
+	it_hpm!=hpm.rend();
+	it_hpm++)
+      {
+	dEdxVector.push_back((*it_hpm).dEdx);
+	dQdxVector.push_back((*it_hpm).dQdx);
+	resRangeVector.push_back((1-(*it_hpm).path_fraction)*track_length);
+	pitchVector.push_back((*it_hpm).pitch);
+	XYZVector.push_back((*it_hpm).xyz);
+	kinetic_energy += dEdxVector.back()*pitchVector.back();
+      }
+        
+  }
+  else{
+
+    for(HitPropertiesMultiset_t::iterator it_hpm=hpm.begin(); 
+	it_hpm!=hpm.end();
+	it_hpm++)
+      {
+	dEdxVector.push_back((*it_hpm).dEdx);
+	dQdxVector.push_back((*it_hpm).dQdx);
+	resRangeVector.push_back((*it_hpm).path_fraction*track_length);
+	pitchVector.push_back((*it_hpm).pitch);
+	XYZVector.push_back((*it_hpm).xyz);
+	kinetic_energy += dEdxVector.back()*pitchVector.back();
+      }
+
+  }
+
+  caloVector.emplace_back(kinetic_energy,
+			  dEdxVector,
+			  dQdxVector,
+			  resRangeVector,
+			  deadWireVector,
+			  track_length,
+			  pitchVector,
+			  XYZVector);
+  assnTrackCaloVector.emplace_back(i_track);
 
 }

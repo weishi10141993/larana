@@ -84,6 +84,12 @@ class calo::TrackCalorimetryAlg{
 
   bool IsInvertedTrack(HitPropertiesMultiset_t const&);
 
+  void MakeCalorimetryObject(HitPropertiesMultiset_t const& hpm,
+			     recob::Track const& track,
+			     size_t const& i_track,
+			     std::vector<anab::Calorimetry>& caloVector,
+			     std::vector<size_t>& assnTrackCaloVector);
+
 };
 
 #endif
