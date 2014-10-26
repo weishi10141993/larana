@@ -18,6 +18,7 @@ calo::TrackCalorimetryAlg::TrackCalorimetryAlg(fhicl::ParameterSet const& p):
 
 void calo::TrackCalorimetryAlg::reconfigure(fhicl::ParameterSet const& p){
   caloAlg.reconfigure(p.get<fhicl::ParameterSet>("CalorimetryAlg"));
+  fNHitsToDetermineStart = p.get<unsigned int>("NHitsToDetermineStart",3);
 }
 
 void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> const& trackVector,
@@ -60,14 +61,19 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 						       tick);
       }
       
-
+      HitPropertiesMultiset_t HitPropertiesMultiset;
       //now loop through hits
       for(auto const& i_hit : hit_indices_per_plane[i_plane])
 	AnalyzeHit(hitVector[i_hit],
 		   track,
 		   traj_points_in_plane,
 		   path_length_fraction_vec,
+		   HitPropertiesMultiset,
 		   geom);
+
+      bool is_inverted_track = IsInvertedTrack(HitPropertiesMultiset);
+
+      if(is_inverted_track) std::cout << "Inverted track." << std::endl;
 
     }//end loop over planes
 
@@ -113,19 +119,50 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 					   recob::Track const& track,
 					   std::vector< std::pair<geo::WireID,float> > const& traj_points_in_plane,
 					   std::vector<float> const& path_length_fraction_vec,
+					   HitPropertiesMultiset_t & HitPropertiesMultiset,
 					   geo::Geometry const& geom){
+  HitPropertiesMultiset.clear();
 
   size_t traj_iter = std::distance(traj_points_in_plane.begin(),
 				   std::min_element(traj_points_in_plane.begin(),
 						    traj_points_in_plane.end(),
 						    dist_projected(hit,geom)));
   float pitch = track.PitchInView(geom.View(hit.WireID().Plane),traj_iter);
-  fHitPropertiesMultiset.emplace(hit.Charge(false),
-				 hit.Charge(false)/pitch,
-				 caloAlg.dEdx_AREA(hit,pitch),
-				 pitch,
-				 track.LocationAtPoint(traj_iter),
-				 path_length_fraction_vec[traj_iter]);
+  HitPropertiesMultiset.emplace(hit.Charge(false),
+				hit.Charge(false)/pitch,
+				caloAlg.dEdx_AREA(hit,pitch),
+				pitch,
+				track.LocationAtPoint(traj_iter),
+				path_length_fraction_vec[traj_iter]);
   
+
+}
+
+bool calo::TrackCalorimetryAlg::IsInvertedTrack(HitPropertiesMultiset_t const& hpm){
+
+  if(hpm.size() <= fNHitsToDetermineStart) return false;
+  
+  float charge_start=0,charge_end=0;
+  unsigned int counter=0;
+  for(HitPropertiesMultiset_t::iterator it_hpm=hpm.begin(); 
+      it_hpm!=hpm.end();
+      it_hpm++)
+    {
+      charge_start += (*it_hpm).charge;
+      counter++;
+      if(counter==fNHitsToDetermineStart) break;
+    }
+
+  counter=0;
+  for(HitPropertiesMultiset_t::reverse_iterator it_hpm=hpm.rbegin(); 
+      it_hpm!=hpm.rend();
+      it_hpm++)
+    {
+      charge_end += (*it_hpm).charge;
+      counter++;
+      if(counter==fNHitsToDetermineStart) break;
+    }
+
+  return (charge_start > charge_end);
 
 }

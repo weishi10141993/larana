@@ -52,6 +52,7 @@ class calo::TrackCalorimetryAlg{
  private:
 
   CalorimetryAlg caloAlg;
+  unsigned int   fNHitsToDetermineStart;
 
   struct HitProperties{
   HitProperties(float q, float dqdx, float dedx, float p, TVector3 pos, float pf):
@@ -67,12 +68,10 @@ class calo::TrackCalorimetryAlg{
     bool operator() (HitProperties const& i, HitProperties const& j) { return i.path_fraction < j.path_fraction; }
   };
 
-  std::multiset<HitProperties,HitPropertySorter> fHitPropertiesMultiset;
+  typedef std::multiset<HitProperties,HitPropertySorter> HitPropertiesMultiset_t;
 
-  void ClearInternalVectors() { fHitPropertiesMultiset.clear(); }
+  void ClearInternalVectors() {}
   void ReserveInternalVectors(size_t s) {}
-
-
 
   std::vector<float> CreatePathLengthFractionVector(recob::Track const& track);
 
@@ -80,7 +79,10 @@ class calo::TrackCalorimetryAlg{
 		  recob::Track const&,
 		  std::vector< std::pair<geo::WireID,float> > const&, 
 		  std::vector<float> const&,
+		  HitPropertiesMultiset_t &,
 		  geo::Geometry const&);
+
+  bool IsInvertedTrack(HitPropertiesMultiset_t const&);
 
 };
 
