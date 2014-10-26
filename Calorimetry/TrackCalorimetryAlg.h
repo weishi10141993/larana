@@ -24,6 +24,7 @@
 
 #include "AnalysisAlg/CalorimetryAlg.h"
 
+#include <set>
 #include "TTree.h"
 #include "TVector3.h"
 
@@ -52,18 +53,25 @@ class calo::TrackCalorimetryAlg{
 
   CalorimetryAlg caloAlg;
 
-  std::vector<float>    fQVector;
-  std::vector<float>    fdQdxVector;
-  std::vector<float>    fdEdxVector;
-  std::vector<float>    fPitchVector;
-  std::vector<TVector3> fXYZVector;
-  std::vector<float>    fPathFracVector;
+  struct HitProperties{
+  HitProperties(float q, float dqdx, float dedx, float p, TVector3 pos, float pf):
+    charge(q), dQdx(dqdx), dEdx(dedx), pitch(p), xyz(pos), path_fraction(pf) {}
+    float charge;
+    float dQdx;
+    float dEdx;
+    float pitch;
+    TVector3 xyz;
+    float path_fraction;
+  };
+  struct HitPropertySorter{
+    bool operator() (HitProperties const& i, HitProperties const& j) { return i.path_fraction < j.path_fraction; }
+  };
 
-  void ClearInternalVectors()
-  { fQVector.clear(); fdQdxVector.clear(); fdEdxVector.clear(); fPitchVector.clear(); fXYZVector.clear(); }
-  void ReserveInternalVectors(size_t s)
-  { fQVector.reserve(s); fdQdxVector.reserve(s); fdEdxVector.reserve(s); 
-    fPitchVector.reserve(s); fXYZVector.reserve(s); }
+  std::multiset<HitProperties,HitPropertySorter> fHitPropertiesMultiset;
+
+  void ClearInternalVectors() { fHitPropertiesMultiset.clear(); }
+  void ReserveInternalVectors(size_t s) {}
+
 
 
   std::vector<float> CreatePathLengthFractionVector(recob::Track const& track);

@@ -119,12 +119,13 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 				   std::min_element(traj_points_in_plane.begin(),
 						    traj_points_in_plane.end(),
 						    dist_projected(hit,geom)));
+  float pitch = track.PitchInView(geom.View(hit.WireID().Plane),traj_iter);
+  fHitPropertiesMultiset.emplace(hit.Charge(false),
+				 hit.Charge(false)/pitch,
+				 caloAlg.dEdx_AREA(hit,pitch),
+				 pitch,
+				 track.LocationAtPoint(traj_iter),
+				 path_length_fraction_vec[traj_iter]);
   
-  fXYZVector.push_back(track.LocationAtPoint(traj_iter));
-  fPitchVector.push_back(track.PitchInView(geom.View(hit.WireID().Plane),traj_iter));
-  fQVector.push_back(hit.Charge(false));
-  fdQdxVector.push_back(fQVector.back()/fPitchVector.back());
-  fdEdxVector.push_back(caloAlg.dEdx_AREA(hit,fPitchVector.back()));
-  fPathFracVector.push_back(path_length_fraction_vec[traj_iter]);
 
 }
