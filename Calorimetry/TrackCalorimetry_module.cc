@@ -55,7 +55,6 @@ private:
 
   std::string    fTrackModuleLabel;
   std::string    fHitModuleLabel;
-  std::string    fSpacePointModuleLabel;
 
   TrackCalorimetryAlg fTrackCaloAlg;
 
@@ -64,7 +63,6 @@ private:
 calo::TrackCalorimetry::TrackCalorimetry(fhicl::ParameterSet const & p):
   fTrackModuleLabel(p.get<std::string>("TrackModuleLabel")),
   fHitModuleLabel(p.get<std::string>("HitModuleLabel")),
-  fSpacePointModuleLabel(p.get<std::string>("SpacePointModuleLabel")),
   fTrackCaloAlg(p.get<fhicl::ParameterSet>("TrackCalorimetryAlg"))
 {
   this->reconfigure(p);
@@ -77,7 +75,6 @@ void calo::TrackCalorimetry::reconfigure(fhicl::ParameterSet const & p)
 {
   fTrackModuleLabel = p.get<std::string>("TrackModuleLabel");
   fHitModuleLabel = p.get<std::string>("HitModuleLabel");
-  fSpacePointModuleLabel = p.get<std::string>("SpacePointModuleLabel");
 
   fTrackCaloAlg.reconfigure(p.get<fhicl::ParameterSet>("TrackCalorimetryAlg"));
 }
@@ -95,9 +92,6 @@ void calo::TrackCalorimetry::produce(art::Event & e)
   e.getByLabel(fTrackModuleLabel,trackHandle);
   std::vector<recob::Track> const& trackVector(*trackHandle);
   
-  //look for dead wires
-  const filter::ChannelFilter chanFilt;
-
   //Get Hits from event.
   art::Handle< std::vector<recob::Hit> > hitHandle;
   e.getByLabel(fHitModuleLabel, hitHandle);
@@ -110,18 +104,6 @@ void calo::TrackCalorimetry::produce(art::Event & e)
     hit_indices_per_track = util::GetAssociatedVectorManyI(assnTrackHitHandle,
 							   trackHandle);
 
-  //Get Hits from event.
-  art::Handle< std::vector<recob::SpacePoint> > spptHandle;
-  e.getByLabel(fSpacePointModuleLabel, spptHandle);
-  std::vector<recob::SpacePoint> const& spptVector(*spptHandle);
-  
-  //Get track<-->spptt associations
-  art::Handle< art::Assns<recob::Track,recob::SpacePoint> > assnTrackSpptHandle;
-  e.getByLabel(fTrackModuleLabel,assnTrackHitHandle);
-  std::vector< std::vector<size_t> > 
-    sppt_indices_per_track = util::GetAssociatedVectorManyI(assnTrackSpptHandle,
-							    trackHandle);
-
   //Make the container for the calo product to put onto the event.
   std::unique_ptr< std::vector<anab::Calorimetry> > caloPtr(new std::vector<anab::Calorimetry>);
   std::vector<anab::Calorimetry> & caloVector(*caloPtr);
@@ -133,8 +115,6 @@ void calo::TrackCalorimetry::produce(art::Event & e)
 
   fTrackCaloAlg.ExtractCalorimetry(trackVector,
 				   hitVector,hit_indices_per_track,
-				   spptVector,sppt_indices_per_track,
-				   chanFilt,
 				   caloVector,assnTrackCaloVector,
 				   geom, larp, detprop);
 

@@ -13,9 +13,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include "RecoBase/Hit.h"
-#include "RecoBase/SpacePoint.h"
 #include "RecoBase/Track.h"
-#include "Filters/ChannelFilter.h"
 #include "AnalysisBase/Calorimetry.h"
 
 #include "Geometry/Geometry.h"
@@ -40,9 +38,6 @@ class calo::TrackCalorimetryAlg{
   void ExtractCalorimetry(std::vector<recob::Track> const&,
 			  std::vector<recob::Hit> const&,
 			  std::vector< std::vector<size_t> > const&,
-			  std::vector<recob::SpacePoint> const&,
-			  std::vector< std::vector<size_t> > const&,
-			  filter::ChannelFilter const&,
 			  std::vector<anab::Calorimetry>&,
 			  std::vector<size_t>&,
 			  geo::Geometry const&,
