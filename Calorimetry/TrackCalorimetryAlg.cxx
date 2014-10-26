@@ -66,6 +66,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 	AnalyzeHit(hitVector[i_hit],
 		   track,
 		   traj_points_in_plane,
+		   path_length_fraction_vec,
 		   geom);
 
     }//end loop over planes
@@ -99,10 +100,10 @@ std::vector<float> calo::TrackCalorimetryAlg::CreatePathLengthFractionVector(rec
   std::vector<float> trk_path_length_frac_vec(track.NumberTrajectoryPoints());
 
   float cumulative_path_length=0;
-  float total_path_length = track.Length();
+  const float total_path_length = track.Length();
   for(size_t i_trj=1; i_trj<track.NumberTrajectoryPoints()-1; i_trj++){    
     cumulative_path_length+=(track.LocationAtPoint(i_trj)-track.LocationAtPoint(i_trj-1)).Mag();
-    trk_path_length_frac_vec[i_trj]=cumulative_path_length/total_path_length();
+    trk_path_length_frac_vec[i_trj]=cumulative_path_length/total_path_length;
   }
 
   return trk_path_length_frac_vec;
@@ -111,6 +112,7 @@ std::vector<float> calo::TrackCalorimetryAlg::CreatePathLengthFractionVector(rec
 void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 					   recob::Track const& track,
 					   std::vector< std::pair<geo::WireID,float> > const& traj_points_in_plane,
+					   std::vector<float> const& path_length_fraction_vec,
 					   geo::Geometry const& geom){
 
   size_t traj_iter = std::distance(traj_points_in_plane.begin(),
@@ -123,5 +125,6 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
   fQVector.push_back(hit.Charge(false));
   fdQdxVector.push_back(fQVector.back()/fPitchVector.back());
   fdEdxVector.push_back(caloAlg.dEdx_AREA(hit,fPitchVector.back()));
+  fPathFracVector.push_back(path_length_fraction_vec[traj_iter]);
 
 }

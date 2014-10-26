@@ -57,6 +57,8 @@ class calo::TrackCalorimetryAlg{
   std::vector<float>    fdEdxVector;
   std::vector<float>    fPitchVector;
   std::vector<TVector3> fXYZVector;
+  std::vector<float>    fPathFracVector;
+
   void ClearInternalVectors()
   { fQVector.clear(); fdQdxVector.clear(); fdEdxVector.clear(); fPitchVector.clear(); fXYZVector.clear(); }
   void ReserveInternalVectors(size_t s)
@@ -64,9 +66,12 @@ class calo::TrackCalorimetryAlg{
     fPitchVector.reserve(s); fXYZVector.reserve(s); }
 
 
+  std::vector<float> CreatePathLengthFractionVector(recob::Track const& track);
+
   void AnalyzeHit(recob::Hit const&,
 		  recob::Track const&,
 		  std::vector< std::pair<geo::WireID,float> > const&, 
+		  std::vector<float> const&,
 		  geo::Geometry const&);
 
 };
