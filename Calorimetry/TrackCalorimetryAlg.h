@@ -58,6 +58,15 @@ class calo::TrackCalorimetryAlg{
     float pitch;
     TVector3 xyz;
     float path_fraction;
+    void Print() const
+    { 
+      std::cout << "\tCharge " << charge
+		<< "  dQdx " << dQdx 
+		<< "  dEdx " << dEdx
+		<< "  pitch " << pitch
+		<< "  (x,y,z) (" << xyz.X() << "," << xyz.Y() << "," << xyz.Z() << ")"
+		<< " path_fraction " << path_fraction << std::endl;
+    }
   };
   struct HitPropertySorter{
     bool operator() (HitProperties const& i, HitProperties const& j) { return i.path_fraction < j.path_fraction; }
@@ -84,6 +93,8 @@ class calo::TrackCalorimetryAlg{
 			     size_t const& i_track,
 			     std::vector<anab::Calorimetry>& caloVector,
 			     std::vector<size_t>& assnTrackCaloVector);
+
+  void PrintHitPropertiesMultiset(HitPropertiesMultiset_t const& hpm);
 
 };
 

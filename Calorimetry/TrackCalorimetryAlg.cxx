@@ -68,6 +68,8 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 		   HitPropertiesMultiset,
 		   geom);
 
+
+      PrintHitPropertiesMultiset(HitPropertiesMultiset);
       MakeCalorimetryObject(HitPropertiesMultiset, track, i_track, caloVector, assnTrackCaloVector);
 
     }//end loop over planes
@@ -220,5 +222,14 @@ void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t co
 			  pitchVector,
 			  XYZVector);
   assnTrackCaloVector.emplace_back(i_track);
+
+}
+
+void calo::TrackCalorimetryAlg::PrintHitPropertiesMultiset(HitPropertiesMultiset_t const& hpm){
+
+  for(auto const& hit : hpm)
+    hit.Print();
+
+  std::cout << "Inverted? " << IsInvertedTrack(hpm) << std::endl;
 
 }
