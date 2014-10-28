@@ -50,8 +50,9 @@ class calo::TrackCalorimetryAlg{
   unsigned int   fNHitsToDetermineStart;
 
   struct HitProperties{
-  HitProperties(float q, float dqdx, float dedx, float p, TVector3 pos, float pf):
-    charge(q), dQdx(dqdx), dEdx(dedx), pitch(p), xyz(pos), path_fraction(pf) {}
+    HitProperties(){}
+    HitProperties(float q, float dqdx, float dedx, float p, TVector3 pos, float pf):
+      charge(q), dQdx(dqdx), dEdx(dedx), pitch(p), xyz(pos), path_fraction(pf) {}
     float charge;
     float dQdx;
     float dEdx;
@@ -73,6 +74,7 @@ class calo::TrackCalorimetryAlg{
   };
 
   typedef std::multiset<HitProperties,HitPropertySorter> HitPropertiesMultiset_t;
+  //typedef std::multimap<float,HitProperties> HitPropertiesMultiset_t;
 
   void ClearInternalVectors() {}
   void ReserveInternalVectors(size_t s) {}

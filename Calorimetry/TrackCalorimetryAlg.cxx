@@ -118,21 +118,22 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 					   std::vector<float> const& path_length_fraction_vec,
 					   HitPropertiesMultiset_t & HitPropertiesMultiset,
 					   geo::Geometry const& geom){
-  HitPropertiesMultiset.clear();
-
   size_t traj_iter = std::distance(traj_points_in_plane.begin(),
 				   std::min_element(traj_points_in_plane.begin(),
 						    traj_points_in_plane.end(),
 						    dist_projected(hit,geom)));
   float pitch = track.PitchInView(geom.View(hit.WireID().Plane),traj_iter);
+
+  std::cout << "Traj_iter " << traj_iter << " and pitch " << pitch 
+	    << " path_length_frac " << path_length_fraction_vec[traj_iter] << std::endl;
+
+  
   HitPropertiesMultiset.emplace(hit.Charge(false),
 				hit.Charge(false)/pitch,
 				caloAlg.dEdx_AREA(hit,pitch),
 				pitch,
 				track.LocationAtPoint(traj_iter),
 				path_length_fraction_vec[traj_iter]);
-  
-
 }
 
 bool calo::TrackCalorimetryAlg::IsInvertedTrack(HitPropertiesMultiset_t const& hpm){
@@ -161,7 +162,6 @@ bool calo::TrackCalorimetryAlg::IsInvertedTrack(HitPropertiesMultiset_t const& h
     }
 
   return (charge_start > charge_end);
-
 }
 
 void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t const& hpm,
@@ -169,7 +169,6 @@ void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t co
 						      size_t const& i_track,
 						      std::vector<anab::Calorimetry>& caloVector,
 						      std::vector<size_t>& assnTrackCaloVector){
-
   size_t n_hits = hpm.size();
   std::vector<double> dEdxVector,dQdxVector,resRangeVector,deadWireVector,pitchVector;
   std::vector<TVector3> XYZVector;
@@ -222,7 +221,6 @@ void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t co
 			  pitchVector,
 			  XYZVector);
   assnTrackCaloVector.emplace_back(i_track);
-
 }
 
 void calo::TrackCalorimetryAlg::PrintHitPropertiesMultiset(HitPropertiesMultiset_t const& hpm){
