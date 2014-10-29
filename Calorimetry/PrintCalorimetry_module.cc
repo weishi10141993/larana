@@ -13,10 +13,13 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Core/FindMany.h"
 #include "art/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "RecoBase/Track.h"
+#include "AnalysisBase/Calorimetry.h"
 
 namespace calo{
   class PrintCalorimetry;
@@ -50,18 +53,39 @@ private:
 
 calo::PrintCalorimetry::PrintCalorimetry(fhicl::ParameterSet const & p)
   :
-  EDAnalyzer(p)  // ,
- // More initializers here.
+  EDAnalyzer(p),
+  fTrackModuleLabel(p.get<std::string>("TrackModuleLabel")),
+  fCaloModuleLabels(p.get< std::vector<std::string> >("CaloModuleLabels"))
 {}
 
 void calo::PrintCalorimetry::analyze(art::Event const & e)
 {
-  // Implementation of required member function here.
+  art::Handle<recob::Track> trackHandle;
+  e.getByLabel(fTrackModuleLabel,trackHandle);
+
+  std::vector< art::FindMany<anab::Calorimetry> > caloAssnVector(fCaloModuleLabels.size());
+
+  for(size_t i_cm=0; i_cm<fCaloModuleLabels.size(); i_cm++)
+    caloAssnVector[i_cm] = art::FindMany<anab::Calorimetry>(trackHandle,e,fCaloModuleLabels[i_cm]);
+
+  for(size_t i_trk=0; i_trk<trackHandle->size(); i_trk++){
+    std::cout << "(Run,Event,Track) = (" << e.run() << "," << e.event() << "," << i_trk << ")" << std::endl;
+    std::cout << "-------------------" << std::endl;
+
+    for(size_t i_cm=0; i_cm<caloAssnVector.size(); i_cm++){
+      std::cout << "Calorimetry module " << i_cm << std::endl;
+      if(caloAssnVector[i_cm].size()>0) 
+	std::cout << caloAssnVector[i_cm].at(0) << std::endl;
+    }
+    
+  }
+
 }
 
 void calo::PrintCalorimetry::reconfigure(fhicl::ParameterSet const & p)
 {
-  // Implementation of optional member function here.
+  fTrackModuleLabel = p.get<std::string>("TrackModuleLabel");
+  fCaloModuleLabels = p.get< std::vector<std::string> >("CaloModuleLabels");
 }
 
 DEFINE_ART_MODULE(calo::PrintCalorimetry)
