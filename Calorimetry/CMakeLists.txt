@@ -6,6 +6,7 @@ art_make( BASENAME_ONLY
 		        Geometry
 		        Geometry_service
 		        RecoAlg
+                        AnalysisAlg
                         AnalysisBase
                         LArProperties_service
                         DetectorProperties_service
