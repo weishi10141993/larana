@@ -179,13 +179,13 @@ void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t co
   double kinetic_energy=0,track_length=track.Length();
   if(IsInvertedTrack(hpm)){
 
-    for(HitPropertiesMultiset_t::reverse_iterator it_hpm=hpm.rbegin(); 
-	it_hpm!=hpm.rend();
+    for(HitPropertiesMultiset_t::iterator it_hpm=hpm.begin(); 
+	it_hpm!=hpm.end();
 	it_hpm++)
       {
 	dEdxVector.push_back((*it_hpm).dEdx);
 	dQdxVector.push_back((*it_hpm).dQdx);
-	resRangeVector.push_back((1-(*it_hpm).path_fraction)*track_length);
+	resRangeVector.push_back((*it_hpm).path_fraction*track_length);
 	pitchVector.push_back((*it_hpm).pitch);
 	XYZVector.push_back((*it_hpm).xyz);
 	kinetic_energy += dEdxVector.back()*pitchVector.back();
@@ -194,13 +194,13 @@ void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t co
   }
   else{
 
-    for(HitPropertiesMultiset_t::iterator it_hpm=hpm.begin(); 
-	it_hpm!=hpm.end();
+    for(HitPropertiesMultiset_t::reverse_iterator it_hpm=hpm.rbegin(); 
+	it_hpm!=hpm.rend();
 	it_hpm++)
       {
 	dEdxVector.push_back((*it_hpm).dEdx);
 	dQdxVector.push_back((*it_hpm).dQdx);
-	resRangeVector.push_back((*it_hpm).path_fraction*track_length);
+	resRangeVector.push_back((1-(*it_hpm).path_fraction)*track_length);
 	pitchVector.push_back((*it_hpm).pitch);
 	XYZVector.push_back((*it_hpm).xyz);
 	kinetic_energy += dEdxVector.back()*pitchVector.back();
