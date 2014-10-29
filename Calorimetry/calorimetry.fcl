@@ -65,4 +65,11 @@ standard_trackcalorimetry:
  TrackCalorimetryAlg:    @local::standard_trackcalorimetryalg
 }
 
+standard_printcalorimetry:
+{
+  module_type:       "PrintCalorimetry"
+  TrackModuleLabel:  "track"
+  CaloModuleLabels:  [ "calo" ]
+}
+
 END_PROLOG

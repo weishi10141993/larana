@@ -13,7 +13,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Core/FindMany.h"
+#include "art/Framework/Core/FindManyP.h"
 #include "art/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -60,13 +60,13 @@ calo::PrintCalorimetry::PrintCalorimetry(fhicl::ParameterSet const & p)
 
 void calo::PrintCalorimetry::analyze(art::Event const & e)
 {
-  art::Handle<recob::Track> trackHandle;
+  art::Handle< std::vector<recob::Track> > trackHandle;
   e.getByLabel(fTrackModuleLabel,trackHandle);
 
-  std::vector< art::FindMany<anab::Calorimetry> > caloAssnVector(fCaloModuleLabels.size());
+  std::vector< art::FindManyP<anab::Calorimetry> > caloAssnVector;//(fCaloModuleLabels.size());
 
   for(size_t i_cm=0; i_cm<fCaloModuleLabels.size(); i_cm++)
-    caloAssnVector[i_cm] = art::FindMany<anab::Calorimetry>(trackHandle,e,fCaloModuleLabels[i_cm]);
+    caloAssnVector.emplace_back(trackHandle,e,fCaloModuleLabels[i_cm]);
 
   for(size_t i_trk=0; i_trk<trackHandle->size(); i_trk++){
     std::cout << "(Run,Event,Track) = (" << e.run() << "," << e.event() << "," << i_trk << ")" << std::endl;
@@ -74,8 +74,8 @@ void calo::PrintCalorimetry::analyze(art::Event const & e)
 
     for(size_t i_cm=0; i_cm<caloAssnVector.size(); i_cm++){
       std::cout << "Calorimetry module " << i_cm << std::endl;
-      if(caloAssnVector[i_cm].size()>0) 
-	std::cout << caloAssnVector[i_cm].at(0) << std::endl;
+      if(caloAssnVector[i_cm].at(i_trk).size()>0) 
+	std::cout << *(caloAssnVector[i_cm].at(i_trk).at(0)) << std::endl;
     }
     
   }

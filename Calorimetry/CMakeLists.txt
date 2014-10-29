@@ -1,4 +1,4 @@
-
+include_directories ( ${PROJECT_SOURCE_DIR} )
 art_make( BASENAME_ONLY
 	  LIBRARY_NAME Calorimetry
 	  LIB_LIBRARIES	Filters
