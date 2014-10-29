@@ -39,9 +39,8 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 
     //sort hits into each plane
     std::vector< std::vector<size_t> > hit_indices_per_plane(geom.Nplanes());
-    for(size_t i_plane=0; i_plane<geom.Nplanes(); i_plane++)
-      for(auto const& i_hit : hit_indices_per_track[i_track])
-	hit_indices_per_plane[hitVector[i_hit].WireID().Plane].push_back(i_hit);
+    for(auto const& i_hit : hit_indices_per_track[i_track])
+      hit_indices_per_plane[hitVector[i_hit].WireID().Plane].push_back(i_hit);
     
     //loop over the planes
     for(size_t i_plane=0; i_plane<geom.Nplanes(); i_plane++){
@@ -69,7 +68,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 		   geom);
 
 
-      PrintHitPropertiesMultiset(HitPropertiesMultiset);
+      //PrintHitPropertiesMultiset(HitPropertiesMultiset);
       MakeCalorimetryObject(HitPropertiesMultiset, track, i_track, caloVector, assnTrackCaloVector);
 
     }//end loop over planes
@@ -104,7 +103,7 @@ std::vector<float> calo::TrackCalorimetryAlg::CreatePathLengthFractionVector(rec
 
   float cumulative_path_length=0;
   const float total_path_length = track.Length();
-  for(size_t i_trj=1; i_trj<track.NumberTrajectoryPoints()-1; i_trj++){    
+  for(size_t i_trj=1; i_trj<track.NumberTrajectoryPoints(); i_trj++){    
     cumulative_path_length+=(track.LocationAtPoint(i_trj)-track.LocationAtPoint(i_trj-1)).Mag();
     trk_path_length_frac_vec[i_trj]=cumulative_path_length/total_path_length;
   }
@@ -118,16 +117,13 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 					   std::vector<float> const& path_length_fraction_vec,
 					   HitPropertiesMultiset_t & HitPropertiesMultiset,
 					   geo::Geometry const& geom){
+
   size_t traj_iter = std::distance(traj_points_in_plane.begin(),
 				   std::min_element(traj_points_in_plane.begin(),
 						    traj_points_in_plane.end(),
 						    dist_projected(hit,geom)));
   float pitch = track.PitchInView(geom.View(hit.WireID().Plane),traj_iter);
 
-  std::cout << "Traj_iter " << traj_iter << " and pitch " << pitch 
-	    << " path_length_frac " << path_length_fraction_vec[traj_iter] << std::endl;
-
-  
   HitPropertiesMultiset.emplace(hit.Charge(false),
 				hit.Charge(false)/pitch,
 				caloAlg.dEdx_AREA(hit,pitch),
