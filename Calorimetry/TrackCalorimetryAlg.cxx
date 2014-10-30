@@ -69,7 +69,8 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 
 
       //PrintHitPropertiesMultiset(HitPropertiesMultiset);
-      MakeCalorimetryObject(HitPropertiesMultiset, track, i_track, caloVector, assnTrackCaloVector);
+      geo::PlaneID planeID(0,0,i_plane);
+      MakeCalorimetryObject(HitPropertiesMultiset, track, i_track, caloVector, assnTrackCaloVector, planeID);
 
     }//end loop over planes
 
@@ -164,7 +165,8 @@ void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t co
 						      recob::Track const& track,
 						      size_t const& i_track,
 						      std::vector<anab::Calorimetry>& caloVector,
-						      std::vector<size_t>& assnTrackCaloVector){
+						      std::vector<size_t>& assnTrackCaloVector,
+						      geo::PlaneID const& planeID){
   size_t n_hits = hpm.size();
   std::vector<double> dEdxVector,dQdxVector,resRangeVector,deadWireVector,pitchVector;
   std::vector<TVector3> XYZVector;
@@ -215,7 +217,8 @@ void calo::TrackCalorimetryAlg::MakeCalorimetryObject(HitPropertiesMultiset_t co
 			  deadWireVector,
 			  track_length,
 			  pitchVector,
-			  XYZVector);
+			  XYZVector,
+			  planeID);
   assnTrackCaloVector.emplace_back(i_track);
 }
 

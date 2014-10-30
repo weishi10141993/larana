@@ -370,6 +370,8 @@ void calo::Calorimetry::produce(art::Event& evt)
 
     for (size_t ipl = 0; ipl < nplanes; ++ipl){//loop over all wire planes
 
+      geo::PlaneID planeID(cstat,tpc,ipl);
+
       fwire.clear();
       ftime.clear();
       fstime.clear();
@@ -530,7 +532,8 @@ void calo::Calorimetry::produce(art::Event& evt)
 						    deadwire,
 						    util::kBogusD,
 						    fpitch,
-						    fXYZ));
+						    fXYZ,
+						    planeID));
 	util::CreateAssn(*this, evt, *calorimetrycol, tracklist[trkIter], *assn);
 	continue;
       }
@@ -725,7 +728,8 @@ void calo::Calorimetry::produce(art::Event& evt)
 						  deadwire,
 						  Trk_Length,
 						  fpitch,
-						  fXYZ));
+						  fXYZ,
+						  planeID));
       util::CreateAssn(*this, evt, *calorimetrycol, tracklist[trkIter], *assn);
       
     }//end looping over planes

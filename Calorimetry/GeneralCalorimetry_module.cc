@@ -164,13 +164,15 @@ void calo::GeneralCalorimetry::produce(art::Event& evt)
 	std::cout<<vresRange.back()<<" "<<vdQdx.back()<<" "<<vdEdx.back()<<std::endl;
       }
       
+      geo::PlaneID planeID(0,0,fCollectionPlane);
       calorimetrycol->push_back(anab::Calorimetry(kineticEnergy,
 						  vdEdx,
 						  vdQdx,
 						  vresRange,
 						  deadwire,
 						  trk->Length(),
-						  viewPitch));
+						  viewPitch,
+						  planeID));
       
       util::CreateAssn(*this, evt, *calorimetrycol, trk, *assn);
       

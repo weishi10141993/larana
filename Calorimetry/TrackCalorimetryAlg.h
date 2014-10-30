@@ -94,7 +94,8 @@ class calo::TrackCalorimetryAlg{
 			     recob::Track const& track,
 			     size_t const& i_track,
 			     std::vector<anab::Calorimetry>& caloVector,
-			     std::vector<size_t>& assnTrackCaloVector);
+			     std::vector<size_t>& assnTrackCaloVector,
+			     geo::PlaneID const& planeID);
 
   void PrintHitPropertiesMultiset(HitPropertiesMultiset_t const& hpm);
 
