@@ -119,10 +119,10 @@ void calo::TrackCalorimetry::produce(art::Event & e)
 				   geom, larp, detprop);
 
   //Make the associations for ART
-  for(size_t track_iter=0; track_iter<assnTrackCaloVector.size(); track_iter++){
-    if(assnTrackCaloVector[track_iter]==std::numeric_limits<size_t>::max()) continue;
-    art::Ptr<recob::Track> trk_ptr(trackHandle,track_iter);
-    util::CreateAssn(*this, e, caloVector, trk_ptr, *assnTrackCaloPtr, assnTrackCaloVector[track_iter]); 
+  for(size_t calo_iter=0; calo_iter<assnTrackCaloVector.size(); calo_iter++){
+    if(assnTrackCaloVector[calo_iter]==std::numeric_limits<size_t>::max()) continue;
+    art::Ptr<recob::Track> trk_ptr(trackHandle,assnTrackCaloVector[calo_iter]);
+    util::CreateAssn(*this, e, caloVector, trk_ptr, *assnTrackCaloPtr, calo_iter); 
   }
 
   e.put(std::move(caloPtr));

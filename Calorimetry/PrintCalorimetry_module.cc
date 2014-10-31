@@ -74,8 +74,8 @@ void calo::PrintCalorimetry::analyze(art::Event const & e)
 
     for(size_t i_cm=0; i_cm<caloAssnVector.size(); i_cm++){
       std::cout << "Calorimetry module " << i_cm << std::endl;
-      if(caloAssnVector[i_cm].at(i_trk).size()>0) 
-	std::cout << *(caloAssnVector[i_cm].at(i_trk).at(0)) << std::endl;
+      for(auto const& caloptr : caloAssnVector[i_cm].at(i_trk)) 
+	std::cout << *caloptr << std::endl;
     }
     
   }
