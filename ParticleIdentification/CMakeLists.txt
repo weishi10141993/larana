@@ -1,5 +1,15 @@
 
 art_make( BASENAME_ONLY
+	  LIBRARY_NAME PID
+	  LIB_LIBRARIES
+                        AnalysisBase
+                        Utilities
+                        ${MF_MESSAGELOGGER}
+		        ${MF_UTILITIES}
+		        ${FHICLCPP}
+		        ${CETLIB}
+		        ${CLHEP}
+		        ${ROOT_BASIC_LIB_LIST}
           MODULE_LIBRARIES 
                         RecoBase
                         Geometry
