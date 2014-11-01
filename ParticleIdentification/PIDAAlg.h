@@ -34,6 +34,7 @@ class pid::PIDAAlg{
   const float fPIDA_BOGUS;
 
   float fExponentConstant;
+  float fMinResRange;
   float fMaxResRange;
 
   std::vector<float> fpida_values;

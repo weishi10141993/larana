@@ -14,6 +14,7 @@
 
 void pid::PIDAAlg::reconfigure(fhicl::ParameterSet const& p){
   fExponentConstant = p.get<float>("ExponentConstant",0.42);
+  fMinResRange      = p.get<float>("MinResRange",0);
   fMaxResRange      = p.get<float>("MaxResRange",30);
   fpida_mean = fPIDA_BOGUS;
   fpida_sigma = fPIDA_BOGUS;
@@ -56,7 +57,7 @@ void pid::PIDAAlg::RunPIDAAlg(std::vector<double> const& resRange,
   fpida_values.reserve( resRange.size() );
 
   for(size_t i_r=0; i_r<resRange.size(); i_r++){
-    if(resRange[i_r] > fMaxResRange) continue;
+    if(resRange[i_r]>fMaxResRange || resRange[i_r]<fMinResRange) continue;
     fpida_values.push_back(dEdx[i_r]*std::pow(resRange[i_r],fExponentConstant));
   }
 
