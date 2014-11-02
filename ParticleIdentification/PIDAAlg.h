@@ -11,6 +11,26 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "AnalysisBase/Calorimetry.h"
 
+namespace util{
+  class NormalDistribution;
+}
+
+class util::NormalDistribution{
+
+ public:
+  NormalDistribution() {}
+  NormalDistribution(float,float);
+
+  float getValue(float);
+
+ private:
+  float fStepSize;
+  float fMaxSigma;
+  std::vector<float> fValues;
+  
+
+};
+
 namespace pid{
   class PIDAAlg;
 }
@@ -18,7 +38,7 @@ namespace pid{
 class pid::PIDAAlg{
  public:
  PIDAAlg(fhicl::ParameterSet const& p):
-  fPIDA_BOGUS(-9999) 
+  fPIDA_BOGUS(-9999)
     { this->reconfigure(p); }
 
   void reconfigure(fhicl::ParameterSet const& p);
@@ -26,8 +46,11 @@ class pid::PIDAAlg{
   void RunPIDAAlg(std::vector<double> const&, std::vector<double> const&);
   void RunPIDAAlg(anab::Calorimetry const&);
   void RunPIDAAlg(anab::Calorimetry const&, float&, float&);
+
   float getPIDAMean();
   float getPIDASigma();
+
+  void setExponentConstant(float const& ex) { fExponentConstant = ex; }
 
  private:
 
@@ -38,11 +61,16 @@ class pid::PIDAAlg{
   float fMaxResRange;
 
   std::vector<float> fpida_values;
+  std::vector<float> fpida_errors;
   float fpida_mean;
   float fpida_sigma;
 
   void calculatePIDAMean();
   void calculatePIDASigma();
+
+  void ClearInternalData();
+
+  util::NormalDistribution fnormalDist;
 
 };
 
