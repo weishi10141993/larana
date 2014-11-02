@@ -50,6 +50,9 @@ class pid::PIDAAlg{
   float getPIDAMean();
   float getPIDASigma();
 
+  float getPIDAKDEMostProbable();
+  float getPIDAKDEFullWidthHalfMax();
+
   void setExponentConstant(float const& ex) { fExponentConstant = ex; }
 
  private:
@@ -59,6 +62,10 @@ class pid::PIDAAlg{
   float fExponentConstant;
   float fMinResRange;
   float fMaxResRange;
+  float fMaxPIDAValue;
+  float fKDEEvalMaxSigma;
+  float fKDEEvalStepSize;
+  float fKDEDefaultBandwidth;
 
   std::vector<float> fpida_values;
   std::vector<float> fpida_errors;
@@ -69,6 +76,13 @@ class pid::PIDAAlg{
   void calculatePIDASigma();
 
   void ClearInternalData();
+
+  void createKDE();
+  void calculatePIDAKDEMostProbable();
+  void calculatePIDAKDEFullWidthHalfMax();
+  std::vector<float> fkde_distribution;
+  float fpida_kde_mp;
+  float fpida_kde_fwhm;
 
   util::NormalDistribution fnormalDist;
 
