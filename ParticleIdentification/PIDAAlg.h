@@ -53,6 +53,8 @@ class pid::PIDAAlg{
   float getPIDAKDEMostProbable();
   float getPIDAKDEFullWidthHalfMax();
 
+  void PrintPIDAValues();
+
   void setExponentConstant(float const& ex) { fExponentConstant = ex; }
 
  private:

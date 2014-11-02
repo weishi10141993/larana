@@ -197,6 +197,11 @@ void pid::PIDAAlg::calculatePIDAKDEFullWidthHalfMax(){
 
 }
 
+void pid::PIDAAlg::PrintPIDAValues(){
+  for(size_t i_pida=0; i_pida<fpida_values.size(); i_pida++)
+    std::cout << "\tPIDA --- " << i_pida << "\t" << fpida_values[i_pida] << std::endl;
+}
+
 util::NormalDistribution::NormalDistribution(float max_sigma, float step_size){
 
   if(step_size==0)

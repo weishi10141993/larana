@@ -43,8 +43,8 @@ public:
 
 private:
 
-  std::vector<std::string> fCaloModuleLabels;
-  PIDAAlg                  fPIDAAlg;
+  std::string fCaloModuleLabel;
+  PIDAAlg     fPIDAAlg;
 
 };
 
@@ -52,17 +52,29 @@ private:
 pid::PIDAAnalyzer::PIDAAnalyzer(fhicl::ParameterSet const & p)
   :
   EDAnalyzer(p),
-  fCaloModuleLabels(p.get< std::vector<std::string> >("CaloModuleLabels")),
+  fCaloModuleLabel(p.get<std::string>("CaloModuleLabel")),
   fPIDAAlg(p.get<fhicl::ParameterSet>("PIDAAlg"))
 {}
 
 void pid::PIDAAnalyzer::analyze(art::Event const & e)
 {
+  art::Handle< std::vector<anab::Calorimetry> > caloHandle;
+  e.getByLabel(fCaloModuleLabel,caloHandle);
+  std::vector<anab::Calorimetry> const& caloVector(*caloHandle);
+
+  for(auto const& calo : caloVector){
+    std::cout << calo << std::endl;
+    fPIDAAlg.RunPIDAAlg(calo);
+
+    std::cout << "PIDA: " << fPIDAAlg.getPIDAMean() << " " << fPIDAAlg.getPIDASigma() << std::endl;
+    fPIDAAlg.PrintPIDAValues();
+  }
+
 }
 
 void pid::PIDAAnalyzer::reconfigure(fhicl::ParameterSet const & p)
 {
-  fCaloModuleLabels = p.get< std::vector<std::string> >("CaloModuleLabels");
+  fCaloModuleLabel = p.get<std::string>("CaloModuleLabel");
   fPIDAAlg.reconfigure(p.get<fhicl::ParameterSet>("PIDAAlg"));
 }
 
