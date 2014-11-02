@@ -1,6 +1,6 @@
-
+include_directories ( ${PROJECT_SOURCE_DIR} )
 art_make( BASENAME_ONLY
-	  LIBRARY_NAME PID
+	  LIBRARY_NAME ParticleIdentification
 	  LIB_LIBRARIES
                         AnalysisBase
                         Utilities
@@ -11,6 +11,7 @@ art_make( BASENAME_ONLY
 		        ${CLHEP}
 		        ${ROOT_BASIC_LIB_LIST}
           MODULE_LIBRARIES 
+	  		ParticleIdentification
                         RecoBase
                         Geometry
                         Geometry_service
