@@ -16,6 +16,7 @@
 #include "art/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "art/Framework/Services/Optional/TFileService.h"
 
 #include "PIDAAlg.h"
 
@@ -35,11 +36,10 @@ public:
   PIDAAnalyzer & operator = (PIDAAnalyzer const &) = delete;
   PIDAAnalyzer & operator = (PIDAAnalyzer &&) = delete;
 
-  // Required functions.
   void analyze(art::Event const & e) override;
 
-  // Selected optional functions.
   void reconfigure(fhicl::ParameterSet const & p) override;
+  void beginJob() override;
 
 private:
 
@@ -56,18 +56,30 @@ pid::PIDAAnalyzer::PIDAAnalyzer(fhicl::ParameterSet const & p)
   fPIDAAlg(p.get<fhicl::ParameterSet>("PIDAAlg"))
 {}
 
+void pid::PIDAAnalyzer::beginJob(){
+  art::ServiceHandle<art::TFileService> tfs;
+  fPIDAAlg.SetPIDATree(tfs->make<TTree>("pida","PIDAPropertiesTree"),
+		       tfs->make<TH1F>("hvals","PIDA Distribution",100,0,30),
+		       tfs->make<TH1F>("hkde","PIDA KDE Distribution",100,0,30));
+		      
+}
+
 void pid::PIDAAnalyzer::analyze(art::Event const & e)
 {
   art::Handle< std::vector<anab::Calorimetry> > caloHandle;
   e.getByLabel(fCaloModuleLabel,caloHandle);
   std::vector<anab::Calorimetry> const& caloVector(*caloHandle);
 
-  for(auto const& calo : caloVector){
-    std::cout << calo << std::endl;
-    fPIDAAlg.RunPIDAAlg(calo);
+  for(size_t i_calo=0; i_calo<caloVector.size(); i_calo++){
+    fPIDAAlg.FillPIDATree(e.run(),e.event(),i_calo,caloVector[i_calo]);
+    //std::cout << calo << std::endl;
+    //fPIDAAlg.RunPIDAAlg(calo);
 
-    std::cout << "PIDA: " << fPIDAAlg.getPIDAMean() << " " << fPIDAAlg.getPIDASigma() << std::endl;
-    fPIDAAlg.PrintPIDAValues();
+    //std::cout << "PIDA: " << fPIDAAlg.getPIDAMean() << " " << fPIDAAlg.getPIDASigma() << std::endl;
+    //fPIDAAlg.PrintPIDAValues();
+
+    //std::cout << "PIDA, KDE: " << fPIDAAlg.getPIDAKDEMostProbable() << std::endl;
+
   }
 
 }

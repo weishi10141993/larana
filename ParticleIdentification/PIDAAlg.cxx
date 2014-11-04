@@ -24,6 +24,10 @@ void pid::PIDAAlg::reconfigure(fhicl::ParameterSet const& p){
 
   fnormalDist = util::NormalDistribution(fKDEEvalMaxSigma,fKDEEvalStepSize);
 
+  fPIDAHistNbins = p.get<unsigned int>("PIDAHistNbins",100);
+  fPIDAHistMin   = p.get<float>("PIDAHistMin",0.0);
+  fPIDAHistMax   = p.get<float>("PIDAHistMin",30.0);
+
   ClearInternalData();
 }
 
@@ -36,6 +40,24 @@ void pid::PIDAAlg::ClearInternalData(){
   fpida_kde_mp = fPIDA_BOGUS;
   fpida_kde_fwhm = fPIDA_BOGUS;
   fkde_distribution.clear();
+
+  if(hPIDAvalues) hPIDAvalues->Reset();
+  if(hPIDAKDE)    hPIDAKDE->Reset();
+}
+
+void pid::PIDAAlg::SetPIDATree(TTree *tree, TH1F* hist_vals, TH1F* hist_kde){
+  fPIDATree = tree;
+  hPIDAvalues = hist_vals;
+  hPIDAKDE = hist_kde;
+
+  hPIDAvalues->SetNameTitle("hPIDAvalues","PIDA Distribution");
+  hPIDAvalues->SetBins(fPIDAHistNbins,fPIDAHistMin,fPIDAHistMax);
+  hPIDAKDE->SetNameTitle("hPIDAKDE","PIDA KDE-smoothed Distribution");
+  hPIDAKDE->SetBins(fPIDAHistNbins,fPIDAHistMin,fPIDAHistMax);
+
+  fPIDATree->Branch("pida",&fPIDAProperties,fPIDAProperties.leaf_structure.c_str());
+  fPIDATree->Branch("hpida_vals","TH1F",hPIDAvalues);
+  fPIDATree->Branch("hpida_kde","TH1F",hPIDAKDE);
 }
 
 float pid::PIDAAlg::getPIDAMean(){
@@ -92,11 +114,23 @@ void pid::PIDAAlg::RunPIDAAlg(std::vector<double> const& resRange,
   for(size_t i_r=0; i_r<resRange.size(); i_r++){
     if(resRange[i_r]>fMaxResRange || resRange[i_r]<fMinResRange) continue;
     float val = dEdx[i_r]*std::pow(resRange[i_r],fExponentConstant);
-    if(val > fMaxPIDAValue)
+    if(val < fMaxPIDAValue)
       fpida_values.push_back(val);
     //fpida_errors.push_back(0);
   }
 
+  if(fpida_values.size()==0)
+    fpida_values.push_back(-99);
+
+}
+
+void pid::PIDAAlg::FillPIDATree(unsigned int run, 
+				unsigned int event, 
+				unsigned int calo_index, 
+				anab::Calorimetry const& calo){
+  RunPIDAAlg(calo);
+  createKDE();
+  FillPIDAProperties(run,event,calo_index,calo.PlaneID().Plane);
 }
 
 void pid::PIDAAlg::calculatePIDAMean(){
@@ -141,17 +175,17 @@ void pid::PIDAAlg::createKDE(){
 
   const auto min_pida_iterator = std::min_element(fpida_values.begin(),fpida_values.end());
   const size_t min_pida_location = std::distance(fpida_values.begin(),min_pida_iterator);
-  const float min_pida_value = fpida_values[min_pida_location] - fKDEEvalMaxSigma*fpida_errors[min_pida_location];
+  fkde_dist_min = fpida_values[min_pida_location] - fKDEEvalMaxSigma*fpida_errors[min_pida_location];
 
   const auto max_pida_iterator = std::max_element(fpida_values.begin(),fpida_values.end());
   const size_t max_pida_location = std::distance(fpida_values.begin(),max_pida_iterator);
-  const float max_pida_value = fpida_values[max_pida_location] + fKDEEvalMaxSigma*fpida_errors[max_pida_location];
+  fkde_dist_max = fpida_values[max_pida_location] + fKDEEvalMaxSigma*fpida_errors[max_pida_location];
 
-  const size_t kde_dist_size = (size_t)( (max_pida_value - min_pida_value)/fKDEEvalStepSize ) + 1;
+  const size_t kde_dist_size = (size_t)( (fkde_dist_max - fkde_dist_min)/fKDEEvalStepSize ) + 1;
   fkde_distribution.resize(kde_dist_size);
   float kde_max=0;
   for(size_t i_step=0; i_step<kde_dist_size; i_step++){
-    float pida_val = min_pida_value + i_step*fKDEEvalStepSize;
+    float pida_val = fkde_dist_min + i_step*fKDEEvalStepSize;
     fkde_distribution[i_step]=0;
 
     for(size_t i_pida=0; i_pida<fpida_values.size(); i_pida++)
@@ -197,6 +231,33 @@ void pid::PIDAAlg::calculatePIDAKDEFullWidthHalfMax(){
 
 }
 
+void pid::PIDAAlg::FillPIDAProperties(unsigned int run,
+				      unsigned int event,
+				      unsigned int calo_index,
+				      unsigned int planeid){
+  fPIDAProperties.run = run;
+  fPIDAProperties.event = event;
+  fPIDAProperties.calo_index = calo_index;
+  fPIDAProperties.planeid = planeid;
+
+  calculatePIDASigma();
+  calculatePIDAKDEFullWidthHalfMax();
+  fPIDAProperties.pida_mean = fpida_mean;
+  fPIDAProperties.pida_sigma = fpida_sigma;
+  fPIDAProperties.pida_kde_mp = fpida_kde_mp;
+  fPIDAProperties.pida_kde_fwhm = fpida_kde_fwhm;
+
+  hPIDAvalues->Reset();
+  hPIDAKDE->Reset();
+  for(auto const& val: fpida_values)
+    hPIDAvalues->Fill(val);
+  for(size_t i_step=0; i_step<fkde_distribution.size(); i_step++)
+    hPIDAKDE->AddBinContent(hPIDAKDE->FindBin(i_step*fKDEEvalStepSize+fkde_dist_min),
+			    fkde_distribution[i_step]);
+  
+  fPIDATree->Fill();
+}
+
 void pid::PIDAAlg::PrintPIDAValues(){
   for(size_t i_pida=0; i_pida<fpida_values.size(); i_pida++)
     std::cout << "\tPIDA --- " << i_pida << "\t" << fpida_values[i_pida] << std::endl;
@@ -213,7 +274,7 @@ util::NormalDistribution::NormalDistribution(float max_sigma, float step_size){
   const float AMPLITUDE = 1. / std::sqrt(2*M_PI);
 
   for(size_t i_step=0; i_step<vector_size; i_step++){
-    float diff = i_step*step_size - 1.;
+    float diff = i_step*step_size;
     fValues[i_step] = AMPLITUDE * std::exp(-0.5*diff*diff);
   }
 

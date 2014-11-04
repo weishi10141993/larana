@@ -13,7 +13,7 @@ standard_pidaalg:
   MaxPIDAValue:     50.0
 
   KDEEvalMaxSigma:      3.0
-  KDEEvalStepSize:      0.1
+  KDEEvalStepSize:      0.01
   KDEDefaultBandwitdth: -1
 }
 

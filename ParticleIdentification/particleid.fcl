@@ -9,7 +9,7 @@ standard_chi2pid:
  Chi2PIDAlg:             @local::standard_chi2pidalg
 }
 
-standard_pidaanalyser:
+standard_pidaanalyzer:
 {
   module_type:      "PIDAAnalyzer"
   CaloModuleLabel:  "calo"

@@ -11,6 +11,9 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "AnalysisBase/Calorimetry.h"
 
+#include "TTree.h"
+#include "TH1F.h"
+
 namespace util{
   class NormalDistribution;
 }
@@ -57,6 +60,9 @@ class pid::PIDAAlg{
 
   void setExponentConstant(float const& ex) { fExponentConstant = ex; }
 
+  void SetPIDATree(TTree*,TH1F*,TH1F*);
+  void FillPIDATree(unsigned int, unsigned int, unsigned int, anab::Calorimetry const&);
+
  private:
 
   const float fPIDA_BOGUS;
@@ -86,7 +92,37 @@ class pid::PIDAAlg{
   float fpida_kde_mp;
   float fpida_kde_fwhm;
 
+  float fkde_dist_min;
+  float fkde_dist_max;
+  
   util::NormalDistribution fnormalDist;
+
+
+  TTree*             fPIDATree;
+  TH1F*              hPIDAvalues;
+  TH1F*              hPIDAKDE;
+  unsigned int       fPIDAHistNbins;
+  float              fPIDAHistMin;
+  float              fPIDAHistMax;  
+  typedef struct PIDAProperties{
+    unsigned int run;
+    unsigned int event;
+    unsigned int calo_index;
+    unsigned int planeid;
+
+    unsigned int n_pid_pts;
+    float pida_mean;
+    float pida_sigma;
+    float pida_kde_mp;
+    float pida_kde_fwhm;
+
+    std::string leaf_structure;
+    PIDAProperties():
+    leaf_structure("run/i:event/i:calo_index/i:planeid/i:n_pid_pts/i:pida_mean/F:pida_sigma/F:pida_kde_mp/F:pida_kde_fwhm/F"){}
+
+  } PIDAProperties_t;
+  PIDAProperties_t fPIDAProperties;
+  void FillPIDAProperties(unsigned int, unsigned int, unsigned int, unsigned int);
 
 };
 
