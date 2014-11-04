@@ -5,4 +5,16 @@ standard_chi2pidalg:
     TemplateFile:           "dEdxrestemplates.root"
 }
 
+standard_pidaalg:
+{
+  ExponentConstant: 0.42
+  MinResRange:      0.00
+  MaxResRange:      30.0
+  MaxPIDAValue:     50.0
+
+  KDEEvalMaxSigma:      3.0
+  KDEEvalStepSize:      0.1
+  KDEDefaultBandwitdth: -1
+}
+
 END_PROLOG

@@ -2,5 +2,6 @@
 BEGIN_PROLOG
 
 microboone_chi2pid:  @local::standard_chi2pid
+mcroboone_pidaanalyzer: @local::standard_pidaanalyzer
 
 END_PROLOG
