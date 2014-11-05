@@ -40,9 +40,6 @@ void pid::PIDAAlg::ClearInternalData(){
   fpida_kde_mp = fPIDA_BOGUS;
   fpida_kde_fwhm = fPIDA_BOGUS;
   fkde_distribution.clear();
-
-  if(hPIDAvalues) hPIDAvalues->Reset();
-  if(hPIDAKDE)    hPIDAKDE->Reset();
 }
 
 void pid::PIDAAlg::SetPIDATree(TTree *tree, TH1F* hist_vals, TH1F* hist_kde){
