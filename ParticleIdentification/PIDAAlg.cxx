@@ -167,7 +167,8 @@ void pid::PIDAAlg::createKDE(){
   if(fpida_errors.size()==0){
     if(fKDEDefaultBandwidth<=0) {
       calculatePIDASigma();
-      fpida_errors = std::vector<float>(fpida_values.size(),fpida_sigma);
+      float bandwidth = fpida_sigma*1.06*std::pow((float)(fpida_values.size()),-0.2);
+      fpida_errors = std::vector<float>(fpida_values.size(),bandwidth);
     }
     else
       fpida_errors = std::vector<float>(fpida_values.size(),fKDEDefaultBandwidth);
@@ -189,7 +190,7 @@ void pid::PIDAAlg::createKDE(){
     fkde_distribution[i_step]=0;
 
     for(size_t i_pida=0; i_pida<fpida_values.size(); i_pida++)
-      fkde_distribution[i_step] += fnormalDist.getValue( (fpida_values[i_pida]-pida_val)/fpida_errors[i_pida] );
+      fkde_distribution[i_step] += fnormalDist.getValue((fpida_values[i_pida]-pida_val)/fpida_errors[i_pida])/fpida_errors[i_pida];
 
     if(fkde_distribution[i_step]>kde_max){
       kde_max = fkde_distribution[i_step];
@@ -273,10 +274,15 @@ util::NormalDistribution::NormalDistribution(float max_sigma, float step_size){
 
   const float AMPLITUDE = 1. / std::sqrt(2*M_PI);
 
+  float integral=0;
   for(size_t i_step=0; i_step<vector_size; i_step++){
     float diff = i_step*step_size;
     fValues[i_step] = AMPLITUDE * std::exp(-0.5*diff*diff);
+    integral+= fValues[i_step];
   }
+
+  for(size_t i_step=0; i_step<vector_size; i_step++)
+    fValues[i_step] /= (integral*2);
 
   fStepSize = step_size;
   fMaxSigma = fStepSize * vector_size;
