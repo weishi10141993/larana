@@ -109,6 +109,8 @@ class pid::PIDAAlg{
     unsigned int event;
     unsigned int calo_index;
     unsigned int planeid;
+    float        trk_range;
+    float        calo_KE;
 
     unsigned int n_pid_pts;
     float pida_mean;
@@ -118,11 +120,11 @@ class pid::PIDAAlg{
 
     std::string leaf_structure;
     PIDAProperties():
-    leaf_structure("run/i:event/i:calo_index/i:planeid/i:n_pid_pts/i:pida_mean/F:pida_sigma/F:pida_kde_mp/F:pida_kde_fwhm/F"){}
+    leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_pid_pts/i:pida_mean/F:pida_sigma/F:pida_kde_mp/F:pida_kde_fwhm/F"){}
 
   } PIDAProperties_t;
   PIDAProperties_t fPIDAProperties;
-  void FillPIDAProperties(unsigned int, unsigned int, unsigned int, unsigned int);
+  void FillPIDAProperties(unsigned int, unsigned int, unsigned int, anab::Calorimetry const&);
 
 };
 

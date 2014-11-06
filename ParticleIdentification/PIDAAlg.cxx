@@ -127,7 +127,7 @@ void pid::PIDAAlg::FillPIDATree(unsigned int run,
 				anab::Calorimetry const& calo){
   RunPIDAAlg(calo);
   createKDE();
-  FillPIDAProperties(run,event,calo_index,calo.PlaneID().Plane);
+  FillPIDAProperties(run,event,calo_index,calo);
 }
 
 void pid::PIDAAlg::calculatePIDAMean(){
@@ -232,14 +232,19 @@ void pid::PIDAAlg::calculatePIDAKDEFullWidthHalfMax(){
 void pid::PIDAAlg::FillPIDAProperties(unsigned int run,
 				      unsigned int event,
 				      unsigned int calo_index,
-				      unsigned int planeid){
+				      anab::Calorimetry const& calo){
+
   fPIDAProperties.run = run;
   fPIDAProperties.event = event;
   fPIDAProperties.calo_index = calo_index;
-  fPIDAProperties.planeid = planeid;
+  fPIDAProperties.planeid = calo.PlaneID().Plane;
+  fPIDAProperties.trk_range = calo.Range();
+  fPIDAProperties.calo_KE = calo.KineticEnergy();
+  
 
   calculatePIDASigma();
   calculatePIDAKDEFullWidthHalfMax();
+  fPIDAProperties.n_pid_pts = fpida_values.size();
   fPIDAProperties.pida_mean = fpida_mean;
   fPIDAProperties.pida_sigma = fpida_sigma;
   fPIDAProperties.pida_kde_mp = fpida_kde_mp;
