@@ -58,9 +58,17 @@ pid::PIDAAnalyzer::PIDAAnalyzer(fhicl::ParameterSet const & p)
 
 void pid::PIDAAnalyzer::beginJob(){
   art::ServiceHandle<art::TFileService> tfs;
+
+  std::vector<TH1F*> kde_hists;
+  for(size_t i_b=0; i_b<fPIDAAlg.getNKDEBandwidths(); i_b++){
+    std::stringstream hname;
+    hname << "hkde_" << i_b;
+    kde_hists.push_back(tfs->make<TH1F>(hname.str().c_str(),"PIDA KDE Distribution",100,0,30));
+  }
+
   fPIDAAlg.SetPIDATree(tfs->make<TTree>("pida","PIDAPropertiesTree"),
 		       tfs->make<TH1F>("hvals","PIDA Distribution",100,0,30),
-		       tfs->make<TH1F>("hkde","PIDA KDE Distribution",100,0,30));
+		       kde_hists);
 		      
 }
 
@@ -72,14 +80,6 @@ void pid::PIDAAnalyzer::analyze(art::Event const & e)
 
   for(size_t i_calo=0; i_calo<caloVector.size(); i_calo++){
     fPIDAAlg.FillPIDATree(e.run(),e.event(),i_calo,caloVector[i_calo]);
-    //std::cout << calo << std::endl;
-    //fPIDAAlg.RunPIDAAlg(calo);
-
-    //std::cout << "PIDA: " << fPIDAAlg.getPIDAMean() << " " << fPIDAAlg.getPIDASigma() << std::endl;
-    //fPIDAAlg.PrintPIDAValues();
-
-    //std::cout << "PIDA, KDE: " << fPIDAAlg.getPIDAKDEMostProbable() << std::endl;
-
   }
 
 }

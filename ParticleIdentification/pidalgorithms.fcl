@@ -12,9 +12,9 @@ standard_pidaalg:
   MaxResRange:      30.0
   MaxPIDAValue:     50.0
 
-  KDEEvalMaxSigma:      3.0
-  KDEEvalStepSize:      0.01
-  KDEDefaultBandwidth: -1
+  KDEEvalMaxSigma:  3.0
+  KDEEvalStepSize:  0.01
+  KDEBandwidths:    [ -1, 0.5, 1, 2, 3, 5 ]
 }
 
 END_PROLOG
