@@ -70,7 +70,10 @@ void pid::PIDAAlg::SetPIDATree(TTree *tree, TH1F* hist_vals, std::vector<TH1F*> 
   }
 
   fPIDATree->Branch("pida",&fPIDAProperties,fPIDAProperties.leaf_structure.c_str());
-  fPIDATree->Branch("hpida_vals","TH1F",hPIDAvalues);
+  fPIDATree->Branch("n_bandwidths",&(fPIDAProperties.n_bandwidths),"n_bandwidths/i");
+  fPIDATree->Branch("kde_bandwidth",fPIDAProperties.kde_bandwidth,"kde_bandwidth[n_bandwidths]/F");
+  fPIDATree->Branch("kde_mp",fPIDAProperties.kde_mp,"kde_mp[n_bandwidths]/F");
+  fPIDATree->Branch("kde_fwhm",fPIDAProperties.kde_fwhm,"kde_fwhm[n_bandwidths]/F");
   for(size_t i_hist=0; i_hist<hist_kde.size(); i_hist++){  
     std::stringstream bname;
     bname << "hpida_kde_" << i_hist;

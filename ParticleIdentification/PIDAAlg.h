@@ -117,17 +117,18 @@ class pid::PIDAAlg{
     float        trk_range;
     float        calo_KE;
 
-    unsigned int n_bandwidths;
-    float kde_bandwidth[MAX_BANDWIDTHS];
     unsigned int n_pid_pts;
     float mean;
     float sigma;
+
+    unsigned int n_bandwidths;
+    float kde_bandwidth[MAX_BANDWIDTHS];
     float kde_mp[MAX_BANDWIDTHS];
     float kde_fwhm[MAX_BANDWIDTHS];
 
     std::string leaf_structure;
     PIDAProperties():
-    leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_bandwidths/i:kde_bandwidth[n_bandwidths]/F:n_pid_pts/i:mean/F:sigma/F:kde_mp[n_bandwidths]/F:kde_fwhm[n_bandwidths]/F"){}
+    leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_pid_pts/i:mean/F:sigma/F"){}
 
   } PIDAProperties_t;
   PIDAProperties_t fPIDAProperties;
