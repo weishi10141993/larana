@@ -8,6 +8,7 @@
 */
 
 #include <iostream>
+#include <sstream>
 #include <cmath>
 
 #include "PIDAAlg.h"
@@ -20,13 +21,13 @@ void pid::PIDAAlg::reconfigure(fhicl::ParameterSet const& p){
 
   fKDEEvalMaxSigma      = p.get<float>("KDEEvalMaxSigma",3);
   fKDEEvalStepSize      = p.get<float>("KDEEvalStepSize",0.01);
-  fKDEDefaultBandwidth  = p.get<float>("KDEDefaultBandwidth",-1);
+  fKDEBandwidths        = p.get< std::vector<float> >("KDEBandwidths");
 
   fnormalDist = util::NormalDistribution(fKDEEvalMaxSigma,fKDEEvalStepSize);
 
   fPIDAHistNbins = p.get<unsigned int>("PIDAHistNbins",100);
   fPIDAHistMin   = p.get<float>("PIDAHistMin",0.0);
-  fPIDAHistMax   = p.get<float>("PIDAHistMin",30.0);
+  fPIDAHistMax   = p.get<float>("PIDAHistMax",50.0);
 
   ClearInternalData();
 }
@@ -37,24 +38,45 @@ void pid::PIDAAlg::ClearInternalData(){
   fpida_values.clear();
   fpida_errors.clear();
 
-  fpida_kde_mp = fPIDA_BOGUS;
-  fpida_kde_fwhm = fPIDA_BOGUS;
-  fkde_distribution.clear();
+  fpida_kde_mp = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
+  fpida_kde_fwhm = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
+  fkde_distribution = std::vector< std::vector<float> >(fKDEBandwidths.size());
+  fkde_dist_min = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
+  fkde_dist_max = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
 }
 
-void pid::PIDAAlg::SetPIDATree(TTree *tree, TH1F* hist_vals, TH1F* hist_kde){
-  fPIDATree = tree;
-  hPIDAvalues = hist_vals;
-  hPIDAKDE = hist_kde;
+void pid::PIDAAlg::SetPIDATree(TTree *tree, TH1F* hist_vals, std::vector<TH1F*> hist_kde){
 
+  if(hist_kde.size()>MAX_BANDWIDTHS)
+    throw "Error: input histograms larger than max allowed bandwidths.";
+  if(hist_kde.size()!=fKDEBandwidths.size())
+    throw "Error: input histograms do not have same size as bandwidths.";
+
+  fPIDATree = tree;
+
+  hPIDAvalues = hist_vals;
   hPIDAvalues->SetNameTitle("hPIDAvalues","PIDA Distribution");
   hPIDAvalues->SetBins(fPIDAHistNbins,fPIDAHistMin,fPIDAHistMax);
-  hPIDAKDE->SetNameTitle("hPIDAKDE","PIDA KDE-smoothed Distribution");
-  hPIDAKDE->SetBins(fPIDAHistNbins,fPIDAHistMin,fPIDAHistMax);
+
+  for(size_t i_hist=0; i_hist<hist_kde.size(); i_hist++){
+    hPIDAKDE[i_hist] = hist_kde[i_hist];
+
+    std::stringstream hname,htitle;
+    hname << "hPIDAKDE_" << i_hist;
+    htitle << "PIDA KDE-smoothed Distribution, Bandwidth=" << fKDEBandwidths.at(i_hist);
+
+    hPIDAKDE[i_hist]->SetNameTitle(hname.str().c_str(),htitle.str().c_str());
+    hPIDAKDE[i_hist]->SetBins(fPIDAHistNbins,fPIDAHistMin,fPIDAHistMax);
+  }
 
   fPIDATree->Branch("pida",&fPIDAProperties,fPIDAProperties.leaf_structure.c_str());
   fPIDATree->Branch("hpida_vals","TH1F",hPIDAvalues);
-  fPIDATree->Branch("hpida_kde","TH1F",hPIDAKDE);
+  for(size_t i_hist=0; i_hist<hist_kde.size(); i_hist++){  
+    std::stringstream bname;
+    bname << "hpida_kde_" << i_hist;
+    fPIDATree->Branch(bname.str().c_str(),"TH1F",hPIDAKDE[i_hist]);
+  }
+
 }
 
 float pid::PIDAAlg::getPIDAMean(){
@@ -71,18 +93,18 @@ float pid::PIDAAlg::getPIDASigma(){
   return fpida_sigma;
 }
 
-float pid::PIDAAlg::getPIDAKDEMostProbable(){
-  if(fpida_kde_mp==fPIDA_BOGUS)
-    calculatePIDAKDEMostProbable();
+float pid::PIDAAlg::getPIDAKDEMostProbable(const size_t i_b){
+  if(fpida_kde_mp[i_b]==fPIDA_BOGUS)
+    createKDE(i_b);
 
-  return fpida_kde_mp;
+  return fpida_kde_mp[i_b];
 }
 
-float pid::PIDAAlg::getPIDAKDEFullWidthHalfMax(){
-  if(fpida_kde_fwhm==fPIDA_BOGUS)
-    calculatePIDAKDEFullWidthHalfMax();
-
-  return fpida_kde_fwhm;
+float pid::PIDAAlg::getPIDAKDEFullWidthHalfMax(const size_t i_b){
+  if(fpida_kde_fwhm[i_b]==fPIDA_BOGUS)
+    createKDE(i_b);
+  
+  return fpida_kde_fwhm[i_b];
 }
 
 void pid::PIDAAlg::RunPIDAAlg(anab::Calorimetry const& calo){
@@ -126,7 +148,6 @@ void pid::PIDAAlg::FillPIDATree(unsigned int run,
 				unsigned int calo_index, 
 				anab::Calorimetry const& calo){
   RunPIDAAlg(calo);
-  createKDE();
   FillPIDAProperties(run,event,calo_index,calo);
 }
 
@@ -154,79 +175,67 @@ void pid::PIDAAlg::calculatePIDASigma(){
   fpida_sigma = std::sqrt(fpida_sigma)/fpida_values.size();
 }
 
-void pid::PIDAAlg::createKDE(){
+void pid::PIDAAlg::createKDE(const size_t i_b){
 
   if(fpida_values.size()==0)
     throw "pid::PIDAAlg --- PIDA Values not filled!";
 
-  if( fkde_distribution.size()!=0 ) return;
+  if( fkde_distribution[i_b].size()!=0 ) return;
 
-  if(fpida_errors.size()==0){
-    if(fKDEDefaultBandwidth<=0) {
-      calculatePIDASigma();
-      float bandwidth = fpida_sigma*1.06*std::pow((float)(fpida_values.size()),-0.2);
-      fpida_errors = std::vector<float>(fpida_values.size(),bandwidth);
-    }
-    else
-      fpida_errors = std::vector<float>(fpida_values.size(),fKDEDefaultBandwidth);
+  if(fKDEBandwidths[i_b]<=0) {
+    calculatePIDASigma();
+    float bandwidth = fpida_sigma*1.06*std::pow((float)(fpida_values.size()),-0.2);
+    fpida_errors = std::vector<float>(fpida_values.size(),bandwidth);
   }
+  else
+    fpida_errors = std::vector<float>(fpida_values.size(),fKDEBandwidths[i_b]);
 
   const auto min_pida_iterator = std::min_element(fpida_values.begin(),fpida_values.end());
   const size_t min_pida_location = std::distance(fpida_values.begin(),min_pida_iterator);
-  fkde_dist_min = fpida_values[min_pida_location] - fKDEEvalMaxSigma*fpida_errors[min_pida_location];
+  fkde_dist_min[i_b] = fpida_values[min_pida_location] - fKDEEvalMaxSigma*fpida_errors[min_pida_location];
 
   const auto max_pida_iterator = std::max_element(fpida_values.begin(),fpida_values.end());
   const size_t max_pida_location = std::distance(fpida_values.begin(),max_pida_iterator);
-  fkde_dist_max = fpida_values[max_pida_location] + fKDEEvalMaxSigma*fpida_errors[max_pida_location];
+  fkde_dist_max[i_b] = fpida_values[max_pida_location] + fKDEEvalMaxSigma*fpida_errors[max_pida_location];
 
-  const size_t kde_dist_size = (size_t)( (fkde_dist_max - fkde_dist_min)/fKDEEvalStepSize ) + 1;
-  fkde_distribution.resize(kde_dist_size);
+  //make the kde distribution, and get the max value
+  const size_t kde_dist_size = (size_t)( (fkde_dist_max[i_b] - fkde_dist_min[i_b])/fKDEEvalStepSize ) + 1;
+  fkde_distribution[i_b].resize(kde_dist_size);
   float kde_max=0;
+  size_t step_max=0;
   for(size_t i_step=0; i_step<kde_dist_size; i_step++){
-    float pida_val = fkde_dist_min + i_step*fKDEEvalStepSize;
-    fkde_distribution[i_step]=0;
+    float pida_val = fkde_dist_min[i_b] + i_step*fKDEEvalStepSize;
+    fkde_distribution[i_b][i_step]=0;
 
     for(size_t i_pida=0; i_pida<fpida_values.size(); i_pida++)
-      fkde_distribution[i_step] += fnormalDist.getValue((fpida_values[i_pida]-pida_val)/fpida_errors[i_pida])/fpida_errors[i_pida];
+      fkde_distribution[i_b][i_step] += fnormalDist.getValue((fpida_values[i_pida]-pida_val)/fpida_errors[i_pida])/fpida_errors[i_pida];
 
-    if(fkde_distribution[i_step]>kde_max){
-      kde_max = fkde_distribution[i_step];
-      fpida_kde_mp = pida_val;
+    if(fkde_distribution[i_b][i_step]>kde_max){
+      kde_max = fkde_distribution[i_b][i_step];
+      step_max = i_step;
+      fpida_kde_mp[i_b] = pida_val;
     }
   }
-  
-}
 
-void pid::PIDAAlg::calculatePIDAKDEMostProbable(){
-  if(fkde_distribution.size()==0) createKDE();
-}
-
-void pid::PIDAAlg::calculatePIDAKDEFullWidthHalfMax(){
-  if(fkde_distribution.size()==0) createKDE();
-
-  float half_max = 0.5*fpida_kde_mp;
-  const auto max_kde_iterator = std::max_element(fkde_distribution.begin(), fkde_distribution.end());
-
+  //now get fwhm
+  float half_max = 0.5*fpida_kde_mp[i_b];
   float low_width=0;
-  for(std::vector<float>::iterator iter=max_kde_iterator;
-      iter!=fkde_distribution.begin();
-      iter--)
-    {
-      if(*iter < half_max) break;
-      low_width += fKDEEvalStepSize;
-    }
-
+  for(size_t i_step=step_max; i_step>0; i_step--){
+    if(fkde_distribution[i_b][i_step] < half_max) break;
+    low_width += fKDEEvalStepSize;
+  }
   float high_width=0;
-  for(std::vector<float>::iterator iter=max_kde_iterator;
-      iter!=fkde_distribution.end();
-      iter++)
-    {
-      if(*iter < half_max) break;
-      high_width += fKDEEvalStepSize;
-    }
+  for(size_t i_step=step_max; i_step<kde_dist_size; i_step++){
+    if(fkde_distribution[i_b][i_step] < half_max) break;
+    high_width += fKDEEvalStepSize;
+  }
+  fpida_kde_fwhm[i_b] = low_width+high_width;  
 
-  fpida_kde_fwhm = low_width+high_width;  
+}
 
+void pid::PIDAAlg::createKDEs(){
+  for(size_t i_b=0; i_b < fKDEBandwidths.size(); i_b++)
+    createKDE(i_b);
 }
 
 void pid::PIDAAlg::FillPIDAProperties(unsigned int run,
@@ -240,24 +249,33 @@ void pid::PIDAAlg::FillPIDAProperties(unsigned int run,
   fPIDAProperties.planeid = calo.PlaneID().Plane;
   fPIDAProperties.trk_range = calo.Range();
   fPIDAProperties.calo_KE = calo.KineticEnergy();
-  
 
+  fPIDAProperties.n_bandwidths = fKDEBandwidths.size();
+  for(size_t i_b=0; i_b<fPIDAProperties.n_bandwidths; i_b++)
+    fPIDAProperties.kde_bandwidth[i_b] = fKDEBandwidths[i_b];
+  
   calculatePIDASigma();
-  calculatePIDAKDEFullWidthHalfMax();
+  createKDEs();
   fPIDAProperties.n_pid_pts = fpida_values.size();
-  fPIDAProperties.pida_mean = fpida_mean;
-  fPIDAProperties.pida_sigma = fpida_sigma;
-  fPIDAProperties.pida_kde_mp = fpida_kde_mp;
-  fPIDAProperties.pida_kde_fwhm = fpida_kde_fwhm;
+  fPIDAProperties.mean = fpida_mean;
+  fPIDAProperties.sigma = fpida_sigma;
+  
+  for(size_t i_b=0; i_b<fPIDAProperties.n_bandwidths; i_b++){
+    fPIDAProperties.kde_mp[i_b] = fpida_kde_mp[i_b];
+    fPIDAProperties.kde_fwhm[i_b] = fpida_kde_fwhm[i_b];
+  }
 
   hPIDAvalues->Reset();
-  hPIDAKDE->Reset();
   for(auto const& val: fpida_values)
     hPIDAvalues->Fill(val);
-  for(size_t i_step=0; i_step<fkde_distribution.size(); i_step++)
-    hPIDAKDE->AddBinContent(hPIDAKDE->FindBin(i_step*fKDEEvalStepSize+fkde_dist_min),
-			    fkde_distribution[i_step]);
-  
+
+  for(size_t i_b=0; i_b<fPIDAProperties.n_bandwidths; i_b++){
+    hPIDAKDE[i_b]->Reset();
+    for(size_t i_step=0; i_step<fkde_distribution[i_b].size(); i_step++)
+      hPIDAKDE[i_b]->AddBinContent(hPIDAKDE[i_b]->FindBin(i_step*fKDEEvalStepSize+fkde_dist_min[i_b]),
+				   fkde_distribution[i_b][i_step]);
+  }
+
   fPIDATree->Fill();
 }
 

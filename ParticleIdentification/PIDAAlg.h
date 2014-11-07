@@ -38,6 +38,8 @@ namespace pid{
   class PIDAAlg;
 }
 
+const unsigned int MAX_BANDWIDTHS=100;
+
 class pid::PIDAAlg{
  public:
  PIDAAlg(fhicl::ParameterSet const& p):
@@ -53,14 +55,16 @@ class pid::PIDAAlg{
   float getPIDAMean();
   float getPIDASigma();
 
-  float getPIDAKDEMostProbable();
-  float getPIDAKDEFullWidthHalfMax();
+  size_t getNKDEBandwidths() { return fKDEBandwidths.size(); }
+  float getKDEBandwidth(const size_t i_b) { return fKDEBandwidths.at(i_b); }
+  float getPIDAKDEMostProbable(const size_t);
+  float getPIDAKDEFullWidthHalfMax(const size_t);
 
   void PrintPIDAValues();
 
   void setExponentConstant(float const& ex) { fExponentConstant = ex; }
 
-  void SetPIDATree(TTree*,TH1F*,TH1F*);
+  void SetPIDATree(TTree*,TH1F*,std::vector<TH1F*>);
   void FillPIDATree(unsigned int, unsigned int, unsigned int, anab::Calorimetry const&);
 
  private:
@@ -73,7 +77,7 @@ class pid::PIDAAlg{
   float fMaxPIDAValue;
   float fKDEEvalMaxSigma;
   float fKDEEvalStepSize;
-  float fKDEDefaultBandwidth;
+  std::vector<float> fKDEBandwidths;
 
   std::vector<float> fpida_values;
   std::vector<float> fpida_errors;
@@ -85,25 +89,26 @@ class pid::PIDAAlg{
 
   void ClearInternalData();
 
-  void createKDE();
+  void createKDEs();
+  void createKDE(const size_t);
   void calculatePIDAKDEMostProbable();
   void calculatePIDAKDEFullWidthHalfMax();
-  std::vector<float> fkde_distribution;
-  float fpida_kde_mp;
-  float fpida_kde_fwhm;
+  std::vector<float> fpida_kde_mp;
+  std::vector<float> fpida_kde_fwhm;
 
-  float fkde_dist_min;
-  float fkde_dist_max;
+  //this is only for making a histogram later ...
+  std::vector< std::vector<float> > fkde_distribution;
+  std::vector<float> fkde_dist_min;
+  std::vector<float> fkde_dist_max;
   
   util::NormalDistribution fnormalDist;
 
-
-  TTree*             fPIDATree;
-  TH1F*              hPIDAvalues;
-  TH1F*              hPIDAKDE;
-  unsigned int       fPIDAHistNbins;
-  float              fPIDAHistMin;
-  float              fPIDAHistMax;  
+  TTree*         fPIDATree;
+  TH1F*          hPIDAvalues;
+  TH1F*          hPIDAKDE[MAX_BANDWIDTHS];
+  unsigned int   fPIDAHistNbins;
+  float          fPIDAHistMin;
+  float          fPIDAHistMax;  
   typedef struct PIDAProperties{
     unsigned int run;
     unsigned int event;
@@ -112,15 +117,17 @@ class pid::PIDAAlg{
     float        trk_range;
     float        calo_KE;
 
+    unsigned int n_bandwidths;
+    float kde_bandwidth[MAX_BANDWIDTHS];
     unsigned int n_pid_pts;
-    float pida_mean;
-    float pida_sigma;
-    float pida_kde_mp;
-    float pida_kde_fwhm;
+    float mean;
+    float sigma;
+    float kde_mp[MAX_BANDWIDTHS];
+    float kde_fwhm[MAX_BANDWIDTHS];
 
     std::string leaf_structure;
     PIDAProperties():
-    leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_pid_pts/i:pida_mean/F:pida_sigma/F:pida_kde_mp/F:pida_kde_fwhm/F"){}
+    leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_bandwidths/i:kde_bandwidth[n_bandwidths]/F:n_pid_pts/i:mean/F:sigma/F:kde_mp[n_bandwidths]/F:kde_fwhm[n_bandwidths]/F"){}
 
   } PIDAProperties_t;
   PIDAProperties_t fPIDAProperties;
