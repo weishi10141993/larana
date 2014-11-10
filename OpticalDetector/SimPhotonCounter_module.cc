@@ -348,15 +348,16 @@ namespace opdet {
     
     if((*photonHandle).size()>0)
       {
-	    //Reset Counters
-        fCountOpDetAll=0;
-        fCountOpDetDetected=0;
         
         for ( auto const& photon : (*photonHandle) )
         {
           //Get data from HitCollection entry
           fOpChannel=photon.OpChannel;
           std::map<int, int> PhotonsMap = photon.DetectedPhotons;
+
+          //Reset Counters
+          fCountOpDetAll=0;
+          fCountOpDetDetected=0;
 
 	    if(fVerbosity > 3)
 	      {
