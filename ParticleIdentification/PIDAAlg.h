@@ -83,9 +83,12 @@ class pid::PIDAAlg{
   std::vector<float> fpida_errors;
   float fpida_mean;
   float fpida_sigma;
+  float fpida_integral_dedx;
+  float fpida_integral_pida;
 
   void calculatePIDAMean();
   void calculatePIDASigma();
+  void calculatePIDAIntegral(std::map<double,double> const&);
 
   void ClearInternalData();
 
@@ -121,6 +124,8 @@ class pid::PIDAAlg{
     unsigned int n_pid_pts;
     float mean;
     float sigma;
+    float integral_dedx;
+    float integral_pida;
 
     unsigned int n_bandwidths;
     float kde_bandwidth[MAX_BANDWIDTHS];
@@ -129,7 +134,7 @@ class pid::PIDAAlg{
 
     std::string leaf_structure;
     PIDAProperties():
-    leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_pid_pts/i:mean/F:sigma/F"){}
+    leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_pid_pts/i:mean/F:sigma/F:integral_dedx/F:integral_pida/F"){}
 
   } PIDAProperties_t;
   PIDAProperties_t fPIDAProperties;

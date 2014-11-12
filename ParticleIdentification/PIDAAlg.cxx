@@ -35,6 +35,8 @@ void pid::PIDAAlg::reconfigure(fhicl::ParameterSet const& p){
 void pid::PIDAAlg::ClearInternalData(){
   fpida_mean = fPIDA_BOGUS;
   fpida_sigma = fPIDA_BOGUS;
+  fpida_integral_dedx = fPIDA_BOGUS;
+  fpida_integral_pida = fPIDA_BOGUS;
   fpida_values.clear();
   fpida_errors.clear();
 
@@ -135,13 +137,22 @@ void pid::PIDAAlg::RunPIDAAlg(std::vector<double> const& resRange,
   fpida_values.reserve( resRange.size() );
   fpida_errors.reserve( resRange.size() );
 
+  std::map<double,double> range_dEdx_map;
+
   for(size_t i_r=0; i_r<resRange.size(); i_r++){
     if(resRange[i_r]>fMaxResRange || resRange[i_r]<fMinResRange) continue;
+
+    range_dEdx_map[ resRange[i_r] ] = dEdx[i_r];
+    
     float val = dEdx[i_r]*std::pow(resRange[i_r],fExponentConstant);
-    if(val < fMaxPIDAValue)
+    if(val < fMaxPIDAValue){
       fpida_values.push_back(val);
-    //fpida_errors.push_back(0);
+      //fpida_errors.push_back(0);
+    }
+    
   }
+
+  calculatePIDAIntegral(range_dEdx_map);
 
   if(fpida_values.size()==0)
     fpida_values.push_back(-99);
@@ -178,6 +189,24 @@ void pid::PIDAAlg::calculatePIDASigma(){
     fpida_sigma += (fpida_mean-val)*(fpida_mean-val);
 
   fpida_sigma = std::sqrt(fpida_sigma)/fpida_values.size();
+}
+
+void pid::PIDAAlg::calculatePIDAIntegral(std::map<double,double> const& range_dEdx_map){
+  
+  if(range_dEdx_map.size()<2) return;
+
+  fpida_integral_dedx = 0;
+  
+  for( std::map<double,double>::const_iterator map_iter = range_dEdx_map.begin();
+       map_iter != std::prev(range_dEdx_map.end());
+       map_iter++)
+    {
+      double range_width = std::next(map_iter)->first - map_iter->first;
+      fpida_integral_dedx +=  range_width*( std::next(map_iter)->second + 0.5*(map_iter->second-std::next(map_iter)->second));
+    }
+
+  fpida_integral_pida = fpida_integral_dedx * (1-fExponentConstant) * 
+    std::pow( (std::prev(range_dEdx_map.end())->first - range_dEdx_map.begin()->first),(fExponentConstant-1) );
 }
 
 void pid::PIDAAlg::createKDE(const size_t i_b){
@@ -265,6 +294,9 @@ void pid::PIDAAlg::FillPIDAProperties(unsigned int run,
   fPIDAProperties.n_pid_pts = fpida_values.size();
   fPIDAProperties.mean = fpida_mean;
   fPIDAProperties.sigma = fpida_sigma;
+
+  fPIDAProperties.integral_dedx = fpida_integral_dedx;
+  fPIDAProperties.integral_pida = fpida_integral_pida;
   
   createKDEs();
   for(size_t i_b=0; i_b<fPIDAProperties.n_bandwidths; i_b++){
