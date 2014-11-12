@@ -76,3 +76,5 @@ art_make( BASENAME_ONLY
 install_headers()
 install_fhicl()
 install_source()
+install_fw( LIST sensl_1.dat toyWaveform.txt
+            SUBDIRNAME OpticalDetector )
