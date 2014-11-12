@@ -38,11 +38,12 @@ void pid::PIDAAlg::ClearInternalData(){
   fpida_values.clear();
   fpida_errors.clear();
 
-  fpida_kde_mp = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
-  fpida_kde_fwhm = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
+  fpida_kde_mp      = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
+  fpida_kde_fwhm    = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
+  fpida_kde_b       = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
   fkde_distribution = std::vector< std::vector<float> >(fKDEBandwidths.size());
-  fkde_dist_min = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
-  fkde_dist_max = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
+  fkde_dist_min     = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
+  fkde_dist_max     = std::vector<float>(fKDEBandwidths.size(),fPIDA_BOGUS);
 }
 
 void pid::PIDAAlg::SetPIDATree(TTree *tree, TH1F* hist_vals, std::vector<TH1F*> hist_kde){
@@ -70,6 +71,7 @@ void pid::PIDAAlg::SetPIDATree(TTree *tree, TH1F* hist_vals, std::vector<TH1F*> 
   }
 
   fPIDATree->Branch("pida",&fPIDAProperties,fPIDAProperties.leaf_structure.c_str());
+  fPIDATree->Branch("hpida_vals","TH1F",hPIDAvalues);
   fPIDATree->Branch("n_bandwidths",&(fPIDAProperties.n_bandwidths),"n_bandwidths/i");
   fPIDATree->Branch("kde_bandwidth",fPIDAProperties.kde_bandwidth,"kde_bandwidth[n_bandwidths]/F");
   fPIDATree->Branch("kde_mp",fPIDAProperties.kde_mp,"kde_mp[n_bandwidths]/F");
@@ -183,15 +185,18 @@ void pid::PIDAAlg::createKDE(const size_t i_b){
   if(fpida_values.size()==0)
     throw "pid::PIDAAlg --- PIDA Values not filled!";
 
-  if( fkde_distribution[i_b].size()!=0 ) return;
+  //if( fkde_distribution[i_b].size()!=0 ) return;
 
   if(fKDEBandwidths[i_b]<=0) {
     calculatePIDASigma();
     float bandwidth = fpida_sigma*1.06*std::pow((float)(fpida_values.size()),-0.2);
     fpida_errors = std::vector<float>(fpida_values.size(),bandwidth);
+    fpida_kde_b[i_b] = bandwidth;
   }
-  else
+  else{
     fpida_errors = std::vector<float>(fpida_values.size(),fKDEBandwidths[i_b]);
+    fpida_kde_b[i_b] = fKDEBandwidths[i_b];
+  }
 
   const auto min_pida_iterator = std::min_element(fpida_values.begin(),fpida_values.end());
   const size_t min_pida_location = std::distance(fpida_values.begin(),min_pida_iterator);
@@ -255,17 +260,17 @@ void pid::PIDAAlg::FillPIDAProperties(unsigned int run,
 
   fPIDAProperties.n_bandwidths = fKDEBandwidths.size();
   for(size_t i_b=0; i_b<fPIDAProperties.n_bandwidths; i_b++)
-    fPIDAProperties.kde_bandwidth[i_b] = fKDEBandwidths[i_b];
   
   calculatePIDASigma();
-  createKDEs();
   fPIDAProperties.n_pid_pts = fpida_values.size();
   fPIDAProperties.mean = fpida_mean;
   fPIDAProperties.sigma = fpida_sigma;
   
+  createKDEs();
   for(size_t i_b=0; i_b<fPIDAProperties.n_bandwidths; i_b++){
-    fPIDAProperties.kde_mp[i_b] = fpida_kde_mp[i_b];
-    fPIDAProperties.kde_fwhm[i_b] = fpida_kde_fwhm[i_b];
+    fPIDAProperties.kde_mp[i_b]        = fpida_kde_mp[i_b];
+    fPIDAProperties.kde_fwhm[i_b]      = fpida_kde_fwhm[i_b];
+    fPIDAProperties.kde_bandwidth[i_b] = fpida_kde_b[i_b];
   }
 
   hPIDAvalues->Reset();

@@ -95,6 +95,7 @@ class pid::PIDAAlg{
   void calculatePIDAKDEFullWidthHalfMax();
   std::vector<float> fpida_kde_mp;
   std::vector<float> fpida_kde_fwhm;
+  std::vector<float> fpida_kde_b;
 
   //this is only for making a histogram later ...
   std::vector< std::vector<float> > fkde_distribution;
