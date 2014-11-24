@@ -72,7 +72,9 @@ void cosmic::FlashHypothesisAna::reconfigure(fhicl::ParameterSet const& p){
 
 void cosmic::FlashHypothesisAna::beginJob(){
   art::ServiceHandle<art::TFileService> tfs;  
-  fAlg.SetHypothesisComparisonTree(tfs->make<TTree>("hc_tree", "HypothesisComparisonTree"));
+  fAlg.SetHypothesisComparisonTree(tfs->make<TTree>("hc_tree", "HypothesisComparisonTree"),
+				   tfs->make<TH1F>("opdet_hist_flash","Optical Detector Occupancy, Flash",30,0,30),
+				   tfs->make<TH1F>("opdet_hist_hyp","Optical Detector Occupancy, Hyp",30,0,30));
 }
 
 void cosmic::FlashHypothesisAna::analyze(art::Event const& evt)
