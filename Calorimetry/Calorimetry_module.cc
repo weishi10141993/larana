@@ -81,14 +81,11 @@ namespace calo {
 
   private:
         
-    double LifetimeCorrection(float time);
-    double BirksCorrection(double dQdx_e);
     void   ReadCaloTree();
 
     bool BeginsOnBoundary(art::Ptr<recob::Track> lar_track);
     bool EndsOnBoundary(art::Ptr<recob::Track> lar_track);
 
-    //void GetPitch(art::Ptr<recob::Hit> hit, art::FindManyP<recob::SpacePoint> fmspts, art::Event& evt, double *xyz3d, double &pitch);
     void GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> trkx, std::vector<double> trky, std::vector<double> trkz, std::vector<double> trkw, std::vector<double> trkx0, double *xyz3d, double &pitch);
 
     std::string fTrackModuleLabel;
@@ -99,19 +96,6 @@ namespace calo {
 	
 	
     TTree *ftree;
-    TH1F *fdQdx_Coll;
-    TH1F *fdEdx_Coll;
-    TH2F *fbirk;
-    TH2F *fdEdx_Coll_vsXZangle;
-    TH2F *fdEdx_vs_ResRange;
-    TH2F *fdEdx_vs_ResRange_ent;
-    TH2F *fdEdx_vs_ResRange_cont;
-    TH2F *fdEdx_vs_ResRange_pass;
-    TH2F *fdEdx_vs_ResRange_esc;
-    TH2F *fdEdx_vs_ResRange_thr;
-    TH1F *fKinetic_En;
-    TH2F *fKinetic_En_vs_Range;
- 
     int frun;           //Run 
     int fevent;         //Event
     int fntrack;        //track number
@@ -200,29 +184,6 @@ void calo::Calorimetry::beginJob()
   // get access to the TFile service
   art::ServiceHandle<art::TFileService> tfs;
 
-
-  fdQdx_Coll = tfs->make<TH1F>("dQdx_Coll","dQ/dx Coll (ADC/cm)",200,0.,200.);
-  fdEdx_Coll = tfs->make<TH1F>("dEdx_Coll","dEdx Coll (MeV/cm)",1000,0.,10.); 
-  fbirk = tfs->make<TH2F>("Birk_Coll_correction","Birk Coll MeV/cm-v-e/cm",100,0.0,5.0e5,20,0.0,50.0);
-  fdEdx_Coll_vsXZangle = tfs->make<TH2F>("dEdx_Coll_vsXZ Angle","dEdx Coll vs. XZ Angle",
-					 1000, 0.0, 10.0, 200, -1.0*TMath::Pi(), TMath::Pi());
-  fdEdx_vs_ResRange = tfs->make<TH2F>("dEdx_vs_ResRange","dEdx vs. Residual Range ",
-				      500, 0.0, 100.0, 200, 0.0, 40.0);
-  // dE/dx vs residual range plots for entering, contained, passing and 
-  // escaping tracks (even if only for entering and contained tracks
-  // the stopping point is know and the actual residual range can be calculated!) 
-  fdEdx_vs_ResRange_ent  = tfs->make<TH2F>("dEdx_vs_ResRange_ent", "dEdx vs. Residual Range entering tracks",
-					   500, 0.0, 100.0, 200, 0.0, 40.0);
-  fdEdx_vs_ResRange_cont = tfs->make<TH2F>("dEdx_vs_ResRange_cont", "dEdx vs. Residual  Range contained tracks",
-					   500, 0.0, 100.0, 200, 0.0, 40.0);
-  fdEdx_vs_ResRange_pass = tfs->make<TH2F>("dEdx_vs_ResRange_pass", "dEdx vs. Residual Range passing tracks",
-					   500, 0.0, 100.0, 200, 0.0, 40.0);
-  fdEdx_vs_ResRange_esc  = tfs->make<TH2F>("dEdx_vs_ResRange_esc", "dEdx vs. Residual Range escaping tracks",
-					   500, 0.0, 100.0, 200, 0.0, 40.0);
-  fKinetic_En = tfs->make<TH1F>("Kinetic_En","Kinetic Energy Deposited in LAr (MeV)",500,0.,500.);
-  fKinetic_En_vs_Range = tfs->make<TH2F>("Kinetic_En_vs_Range","Kinetic Energy Deposited in LAr (MeV)vs tot. range",
-					 500, 0.0, 100.0, 200, 0., 500.);
-
   /// ROOT tree for Calorimetry 
   if(fMakeTree) {
     ftree = tfs->make<TTree>("CaloTree","CaloTree");
@@ -276,14 +237,6 @@ void calo::Calorimetry::produce(art::Event& evt)
   if (evt.getByLabel(fTrackModuleLabel,trackListHandle))
     art::fill_ptr_vector(tracklist, trackListHandle);
   
-  //  art::Handle< std::vector<recob::Hit> > hitListHandle;
-  //  std::vector<art::Ptr<recob::Hit> > hitlist;
-  //  if (evt.getByLabel(fHitsModuleLabel,hitListHandle))
-  //    art::fill_ptr_vector(hitlist, hitListHandle);
-
-  // Electronic calibration factor to convert from ADC to electrons
-  //double fElectronsToADC = detprop->ElectronsToADC();
-
   // Get Geometry
   art::ServiceHandle<geo::Geometry> geom;
 
@@ -308,14 +261,12 @@ void calo::Calorimetry::produce(art::Event& evt)
   std::unique_ptr< std::vector<anab::Calorimetry> > calorimetrycol(new std::vector<anab::Calorimetry>);
   std::unique_ptr< art::Assns<recob::Track, anab::Calorimetry> > assn(new art::Assns<recob::Track, anab::Calorimetry>);
 
-  art::FindManyP<recob::SpacePoint> fmsp(trackListHandle, evt, fTrackModuleLabel);
+  //art::FindManyP<recob::SpacePoint> fmsp(trackListHandle, evt, fTrackModuleLabel);
   art::FindManyP<recob::Hit>        fmht(trackListHandle, evt, fTrackModuleLabel);
 
   for(size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter){   
 
-
-    // dE/dx vs Residual Range plot
-    fnhits3D = fmsp.at(trkIter).size();
+    //fnhits3D = fmsp.at(trkIter).size();
     std::vector<double> larStart;
     std::vector<double> larEnd;
     //put xyz coordinates at begin/end of track into vectors(?)
@@ -351,21 +302,13 @@ void calo::Calorimetry::produce(art::Event& evt)
     unsigned int wire    = 0;   //hit wire number 
     unsigned int plane   = 0;  //hit plane number
 
-
-//    try{
-//      fTrkPitchI = tracklist[trkIter]->PitchInView(geo::kU);
-//    }
-//    catch( cet::exception &e){
-//      mf::LogWarning("Calorimetry") << "caught exception " << e << "\n setting pitch (I) to 0.";
-//      fTrkPitchI = 0.;
-//    }
-
     //get hits in each plane
 
     std::vector< art::Ptr<recob::Hit> > allHits = fmht.at(trkIter);
-    std::vector< std::vector< art::Ptr<recob::Hit> > > hits(nplanes);
+    std::vector< std::vector<unsigned int> > hits(nplanes);
+    art::FindManyP<recob::SpacePoint> fmspts(allHits, evt, fSpacePointModuleLabel);
     for (size_t ah = 0; ah< allHits.size(); ++ah){
-      hits[allHits[ah]->WireID().Plane].push_back(allHits[ah]);
+      hits[allHits[ah]->WireID().Plane].push_back(ah);
     }
 
     for (size_t ipl = 0; ipl < nplanes; ++ipl){//loop over all wire planes
@@ -390,9 +333,6 @@ void calo::Calorimetry::produce(art::Event& evt)
       std::vector<double> vdQdx;
       std::vector<double> deadwire; //residual range for dead wires
     
-      //std::vector<int>    vhitindexC;
-      //Get spacepoints associated with the hits
-      art::FindManyP<recob::SpacePoint> fmspts(hits[ipl], evt, fSpacePointModuleLabel);
       //range of wire signals
       unsigned int wire0 = 100000;
       unsigned int wire1 = 0;
@@ -430,49 +370,37 @@ void calo::Calorimetry::produce(art::Event& evt)
       std::vector<double> trkz;
       std::vector<double> trkw;
       std::vector<double> trkx0;
-      for (size_t i = 0; i<fmspts.size(); ++i){
-	
-	std::vector< art::Ptr<recob::SpacePoint> > sptv = fmspts.at(i);
-	
-	//Get hits associated with spacepts
-	art::FindManyP<recob::Hit> fmhits(sptv, evt, fSpacePointModuleLabel);
-	
+      for (size_t i = 0; i<hits[ipl].size(); ++i){
+	//Get space points associated with the hit
+	std::vector< art::Ptr<recob::SpacePoint> > sptv = fmspts.at(hits[ipl][i]);
 	for (size_t j = 0; j < sptv.size(); ++j){
 	  
-	  std::vector< art::Ptr<recob::Hit> > hitv = fmhits.at(j);
-	  
-	  for (size_t k = 0; k < hitv.size(); ++k){
-	    
-	    if (hitv[k]->WireID().Plane != ipl) continue;
-
-	    double t = hitv[k]->PeakTime();
-	    double x = detprop->ConvertTicksToX(t, hitv[k]->WireID().Plane, hitv[k]->WireID().TPC, hitv[k]->WireID().Cryostat);
-	    double w = hitv[k]->WireID().Wire;
-	    trkx.push_back(sptv[j]->XYZ()[0]);
-	    trky.push_back(sptv[j]->XYZ()[1]);
-	    trkz.push_back(sptv[j]->XYZ()[2]);
-	    trkw.push_back(w);
+	  double t = allHits[hits[ipl][i]]->PeakTime();
+	  double x = detprop->ConvertTicksToX(t, allHits[hits[ipl][i]]->WireID().Plane, allHits[hits[ipl][i]]->WireID().TPC, allHits[hits[ipl][i]]->WireID().Cryostat);
+	  double w = allHits[hits[ipl][i]]->WireID().Wire;
+	  trkx.push_back(sptv[j]->XYZ()[0]);
+	  trky.push_back(sptv[j]->XYZ()[1]);
+	  trkz.push_back(sptv[j]->XYZ()[2]);
+	  trkw.push_back(w);
 	    trkx0.push_back(x);
-	  }
 	}
       }
       for (size_t ihit = 0; ihit < hits[ipl].size(); ++ihit){//loop over all hits on each wire plane
 
 	//std::cout<<ihit<<std::endl;
 
-	wire = hits[ipl][ihit]->WireID().Wire;
-	time = hits[ipl][ihit]->PeakTime() ;
-	stime = hits[ipl][ihit]->StartTime() ;
-	etime = hits[ipl][ihit]->EndTime();            
+	wire = allHits[hits[ipl][ihit]]->WireID().Wire;
+	time = allHits[hits[ipl][ihit]]->PeakTime() ;
+	stime = allHits[hits[ipl][ihit]]->StartTime() ;
+	etime = allHits[hits[ipl][ihit]]->EndTime();            
 	
-	double charge = hits[ipl][ihit]->Charge(true);
-	if (fUseArea) charge = hits[ipl][ihit]->Charge(false);
+	double charge = allHits[hits[ipl][ihit]]->Charge(true);
+	if (fUseArea) charge = allHits[hits[ipl][ihit]]->Charge(false);
 	//get 3d coordinate and track pitch for the current hit
 	//not all hits are associated with space points, the method uses neighboring spacepts to interpolate
 	double xyz3d[3];
 	double pitch;
-	GetPitch(hits[ipl][ihit], trkx, trky, trkz, trkw, trkx0, xyz3d, pitch);
-	//GetPitch(hits[ipl][ihit], fmspts, evt, xyz3d, pitch);
+	GetPitch(allHits[hits[ipl][ihit]], trkx, trky, trkz, trkw, trkx0, xyz3d, pitch);
 
 	if (xyz3d[2]<-100) continue; //hit not on track
 	if (pitch<=0) pitch = fTrkPitch;
@@ -499,18 +427,14 @@ void calo::Calorimetry::produce(art::Event& evt)
 
 	double MIPs = charge;
 	double dQdx = MIPs/pitch;
-	// \todo fElectronsToADC should have the value saved in CalorimetryAlg
-	//double dQdx_e = dQdx/fElectronsToADC;  // Conversion from ADC/cm to e/cm
 	double dEdx = 0;
-	if (fUseArea) dEdx = caloAlg.dEdx_AREA(hits[ipl][ihit], pitch);
-	else dEdx = caloAlg.dEdx_AMP(hits[ipl][ihit], pitch);
+	if (fUseArea) dEdx = caloAlg.dEdx_AREA(allHits[hits[ipl][ihit]], pitch);
+	else dEdx = caloAlg.dEdx_AMP(allHits[hits[ipl][ihit]], pitch);
 
 	Kin_En = Kin_En + dEdx * pitch;	
 
-	//std::cout<<dEdx<<" "<<pitch<<" "<<Kin_En<<std::endl;
-
-	if (hits[ipl][ihit]->WireID().Wire < wire0) wire0 = hits[ipl][ihit]->WireID().Wire;
-	if (hits[ipl][ihit]->WireID().Wire > wire1) wire1 = hits[ipl][ihit]->WireID().Wire;
+	if (allHits[hits[ipl][ihit]]->WireID().Wire < wire0) wire0 = allHits[hits[ipl][ihit]]->WireID().Wire;
+	if (allHits[hits[ipl][ihit]]->WireID().Wire > wire1) wire1 = allHits[hits[ipl][ihit]]->WireID().Wire;
 
 	fMIPs.push_back(MIPs);
 	fdEdx.push_back(dEdx);
@@ -670,9 +594,9 @@ void calo::Calorimetry::produce(art::Event& evt)
       
       // look for dead wires
       for (unsigned int iw = wire0; iw<wire1+1; ++iw){
-	plane = hits[ipl][0]->WireID().Plane;
-	tpc   = hits[ipl][0]->WireID().TPC;
-	cstat = hits[ipl][0]->WireID().Cryostat;
+	plane = allHits[hits[ipl][0]]->WireID().Plane;
+	tpc   = allHits[hits[ipl][0]]->WireID().TPC;
+	cstat = allHits[hits[ipl][0]]->WireID().Cryostat;
 	channel = geom->PlaneWireToChannel(plane,iw,tpc,cstat);
 	if (chanFilt.BadChannel(channel)){
 	  LOG_DEBUG("Calorimetry") << "Found dead wire at Plane = " << plane 
@@ -687,10 +611,10 @@ void calo::Calorimetry::produce(art::Event& evt)
 	    //	for(art::PtrVector<recob::Hit>::const_iterator hitIter = hitsV.begin(); 
 	    //	    hitIter != hitsV.end();  
 	    //	    ++hitCtr, hitIter++){
-	    channel = hits[ipl][ihit]->Wire()->RawDigit()->Channel();
+	    channel = allHits[hits[ipl][ihit]]->Wire()->RawDigit()->Channel();
 	    if (chanFilt.BadChannel(channel)) continue;
 	    // grab the space points associated with this hit
-	    std::vector< art::Ptr<recob::SpacePoint> > sppv = fmspts.at(ihit);
+	    std::vector< art::Ptr<recob::SpacePoint> > sppv = fmspts.at(hits[ipl][ihit]);
 	    if(sppv.size() < 1) continue;
 	    // only use the first space point in the collection, really each hit should
 	    // only map to 1 space point
@@ -702,12 +626,12 @@ void calo::Calorimetry::produce(art::Event& evt)
 	      (larEnd[2]-xyz[2])*(larEnd[2]-xyz[2]);
 	    if (dis1) dis1 = std::sqrt(dis1);
 	    if (dis1 < mindis){
-	      endwire = hits[ipl][ihit]->WireID().Wire;
+	      endwire = allHits[hits[ipl][ihit]]->WireID().Wire;
 	      mindis = dis1;
 	    }
 	    if (std::abs(wire-iw) < dwire){
-	      closestwire = hits[ipl][ihit]->WireID().Wire;
-	      dwire = abs(hits[ipl][ihit]->WireID().Wire-iw);
+	      closestwire = allHits[hits[ipl][ihit]]->WireID().Wire;
+	      dwire = abs(allHits[hits[ipl][ihit]]->WireID().Wire-iw);
 	      goodresrange = dis1;
 	    }
 	  }
@@ -739,26 +663,6 @@ void calo::Calorimetry::produce(art::Event& evt)
   evt.put(std::move(assn));
 
   return;
-}
-
-//------------------------------------------------------------------------------------//
-double calo::Calorimetry::LifetimeCorrection(float time){
-
-  float t = time;
-
-  art::ServiceHandle<util::LArProperties> LArProp;
-  art::ServiceHandle<util::DetectorProperties> detprop;
-
-  double timetick = detprop->SamplingRate()*1.e-3;    //time sample in microsec
-  double presamplings = detprop->TriggerOffset();
-
-  t -= presamplings;
-  time = t * timetick;  //  (in microsec)
-
-  double tau = LArProp->ElectronLifetime();
-
-  double correction = exp(time/tau);
-  return correction;
 }
 
 //--------------------------------------------------
@@ -972,10 +876,6 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
     pitch = -1;
     return;
   }
-//  std::cout<<xyz3d[0]<<" "<<xyz3d[1]<<" "<<xyz3d[2]<<std::endl;
-//  double dcos0[3];
-//  double dcos1[3];
-//  track->Direction(dcos0,dcos1);
   pitch = -1;
   if (kx*kx+ky*ky+kz*kz){
     double tot = sqrt(kx*kx+ky*ky+kz*kz);
@@ -983,18 +883,12 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
     ky /= tot;
     kz /= tot;
     //get pitch
-    //for(unsigned int i = 0; i < geom->Nplanes(); ++i){
-    //if(geom->Plane(i).View() == hit->View()){
     double wirePitch = geom->WirePitch(0,1,hit->WireID().Plane);
     double angleToVert = geom->Plane(hit->WireID().Plane).Wire(0).ThetaZ(false) - 0.5*TMath::Pi();
     double cosgamma = TMath::Abs(TMath::Sin(angleToVert)*ky+TMath::Cos(angleToVert)*kz);
     if (cosgamma>0) pitch = wirePitch/cosgamma;   
-    //std::cout<<kx<<" "<<ky<<" "<<kz<<" pitch = "<<pitch<<std::endl;
-	//} // end if the correct view
-	//} // end loop over planes
 
   }
-  //std::cout<<kx<<" "<<ky<<" "<<kz<<" "<<dcos0[0]<<" "<<dcos0[1]<<" "<<dcos0[2]<<std::endl;  
 
 }
 
