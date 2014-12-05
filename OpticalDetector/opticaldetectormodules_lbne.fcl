@@ -40,7 +40,7 @@ lbne35t_opflash:          @local::standard_opflash
 
 lbne35t_opdigiana:        @local::standard_opdigiana
 lbne35t_opflashana:       @local::standard_opflashana
-
+lbne35t_opdigiana.MakeUnipolarHist: false
 
 
 END_PROLOG
