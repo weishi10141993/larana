@@ -169,9 +169,6 @@ standard_simphotoncounter:
   MakeDetectedPhotonsTree: true
   MakeOpDetsTree:          true
   MakeOpDetEventsTree:     true
-  QuantumEfficiency:       1
-  WavelengthCutLow:        0 
-  WavelengthCutHigh:       10000
 }
 
 
