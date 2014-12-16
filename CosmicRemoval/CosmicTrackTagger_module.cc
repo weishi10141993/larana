@@ -144,30 +144,32 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       float trackEndPt2_Y = tVector2[1]; 
       float trackEndPt2_Z = tVector2[2]; 
 
-      if(trackEndPt1_X != trackEndPt1_X ) {
+
+      if( trackEndPt1_X != trackEndPt1_X ||
+	  trackEndPt1_Y != trackEndPt1_Y ||
+	  trackEndPt1_Z != trackEndPt1_Z ||
+	  trackEndPt2_X != trackEndPt2_X ||
+	  trackEndPt2_Y != trackEndPt2_Y ||
+	  trackEndPt2_Z != trackEndPt2_Z ) {
 	std::cerr << "!!! FOUND A PROBLEM... the length is: " << tTrack->Length() << 
 	  " np: " << tTrack->NumberTrajectoryPoints() << " id: " << tTrack->ID() << " " << tTrack << std::endl;
-	for( size_t hh=0; hh<tTrack->NumberTrajectoryPoints(); hh++) {
-	  std::cerr << hh << " " << tTrack->LocationAtPoint(hh)[0] << ", " <<
-	    tTrack->LocationAtPoint(hh)[1] << ", " <<
-	    tTrack->LocationAtPoint(hh)[2] << std::endl;
-	}
+	//for( size_t hh=0; hh<tTrack->NumberTrajectoryPoints(); hh++) {
+	//  std::cerr << hh << " " << tTrack->LocationAtPoint(hh)[0] << ", " <<
+	//    tTrack->LocationAtPoint(hh)[1] << ", " <<
+	//    tTrack->LocationAtPoint(hh)[2] << std::endl;
+	//}
+	std::vector<float> tempPt1, tempPt2;
+	tempPt1.push_back(-999);	
+	tempPt1.push_back(-999);
+	tempPt1.push_back(-999);
+	tempPt2.push_back(-999);
+	tempPt2.push_back(-999);
+	tempPt2.push_back(-999);
+	cosmicTagTrackVector->emplace_back( tempPt1, tempPt2, -999, tag_id);
+	util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrack, *assnOutCosmicTagTrack );
 	continue; // I don't want to deal with these "tracks"
       }
 
-      //////////////////////////////////////////////////////////////////////
-      //Let's check Cluster connections to pre & post spill planes first
-
-//      // THIS REQUIRES THAT WE CHECK THE CLUSTERS WITHIN THIS TRACK LOOP
-//      // SO DO SOMETHING LIKE:
-//      std::vector <double> t1Times, t2Times;
-//      std::vector <int> fail;
-//      if(fDoClusterCheck) doTrackClusterCheck( ClusterVect, t1Times, t2Times, fail );
-//
-//
-//      if( count( fail.begin(), fail.end(), 1 ) > 0 ) {
-//	isCosmic = 4;
-//      }
 
 
       /////////////////////////////////////
@@ -196,7 +198,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       // Now check Y & Z boundaries:
       /////////////////////////////////
       int nBdY = 0, nBdZ=0;
-      if(isCosmic==0 ) {
+      if( isCosmic == 0 ) {
 
 	// Checking lower side of TPC
 	if( fabs( fDetHalfHeight + trackEndPt1_Y ) < fTPCYBoundary ||  
