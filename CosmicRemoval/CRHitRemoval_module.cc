@@ -399,8 +399,12 @@ void CRHitRemoval::produce(art::Event & evt)
         // Now make the new list of output hits
         for (const auto& hit : originalHits)
         {
+            LOG_WARNING("CRHitRemoval")
+              << "This module has experiment-specific information hard-coded!";
+            // ... and yes, I want it printed this annoyingly
+            
             // Kludge to remove out of time hits
-            if (hit->StartTime() > 6400 || hit->EndTime() < 3200) continue;
+            if (hit->PeakTimeMinusRMS() > 6400 || hit->PeakTimePlusRMS() < 3200) continue;
             
             outputHits->emplace_back(*hit);
         }

@@ -179,8 +179,8 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
       float tick2 = -9999;
       
       for ( unsigned int p = 0; p < HitVec.size(); p++) {
-	if( HitVec[p]->StartTime() < tick1 ) tick1 =  HitVec[p]->StartTime();
-	if( HitVec[p]->StartTime() > tick2 ) tick2 =  HitVec[p]->StartTime();
+	if( HitVec[p]->PeakTimeMinusRMS() < tick1 ) tick1 =  HitVec[p]->PeakTimeMinusRMS();
+	if( HitVec[p]->PeakTimeMinusRMS() > tick2 ) tick2 =  HitVec[p]->PeakTimeMinusRMS();
       }
       
 
