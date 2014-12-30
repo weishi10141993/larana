@@ -68,6 +68,7 @@ namespace opdet {
 
     // The parameters we'll read from the .fcl file.
     std::string fInputModule;              // Input tag for OpDet collection
+    std::string fInstanceName;             // Input tag for OpDet collection
     float fSampleFreq;                     // in MHz
     float fTimeBegin;                      // in us
     float fTimeEnd;                        // in us
@@ -102,6 +103,7 @@ namespace opdet {
 
     // Indicate that the Input Module comes from .fcl
     fInputModule = pset.get<std::string>("InputModule");
+    fInstanceName = pset.get<std::string>("InstanceName");
     fZeroSupThresh = pset.get<double>("ZeroSupThresh") * fSPEAmp;
 
     fMakeBipolarHist    = pset.get<bool>("MakeBipolarHist");
@@ -133,7 +135,7 @@ namespace opdet {
     
 
     // Read in WaveformHandle
-    evt.getByLabel(fInputModule, WaveformHandle);
+    evt.getByLabel(fInputModule, fInstanceName, WaveformHandle);
 
     // Access ART's TFileService, which will handle creating and writing
     // histograms for us.

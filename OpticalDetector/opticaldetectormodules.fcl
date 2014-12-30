@@ -178,7 +178,8 @@ standard_simphotoncounter:
 standard_opdigiana:
 {
   module_type:            "OpDigiAna"
-  InputModule:            "opdigi"  
+  InputModule:            "opdigi"
+  InstanceName:           "" 
   ZeroSupThresh:           0.5
 
   MakeBipolarHist:         true

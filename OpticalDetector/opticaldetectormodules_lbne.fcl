@@ -42,5 +42,9 @@ lbne35t_opdigiana:        @local::standard_opdigiana
 lbne35t_opflashana:       @local::standard_opflashana
 lbne35t_opdigiana.MakeUnipolarHist: false
 
+lbne35t_opdigiana_data:   @local::lbne35t_opdigiana
+lbne35t_opdigiana_data.InputModule: ssptooffline
+lbne35t_opdigiana_data.InstanceName: offlinePhoton
+
 
 END_PROLOG
