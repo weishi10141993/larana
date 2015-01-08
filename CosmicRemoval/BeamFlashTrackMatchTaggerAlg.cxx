@@ -387,6 +387,9 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob:
   float totalHypothesisPE=0;
   const float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
 
+  //get QE from ubChannelConfig, which gives per tube, so goes in AddLightFromSegment
+  //VisibleEnergySeparation(step);
+  
   for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++)    
     AddLightFromSegment(track.LocationAtPoint(pt-1),track.LocationAtPoint(pt),
 			lightHypothesis,totalHypothesisPE,
