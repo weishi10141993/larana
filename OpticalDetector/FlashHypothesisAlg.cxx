@@ -9,18 +9,6 @@
 
 #include "FlashHypothesisAlg.h"
 
-void opdet::FlashHypothesis::Normalize(float const& totalPE_target){
-
-  if( GetTotalPEs() < std::numeric_limits<float>::epsilon() ) return;
-
-  const float PE_ratio = totalPE_target/GetTotalPEs();
-  for(size_t i_opdet=0; i_opdet<_NPEs_Vector.size(); i_opdet++){
-    _NPEs_Vector[i_opdet] *= PE_ratio;
-    _NPEs_ErrorVector[i_opdet] = std::sqrt(_NPEs_Vector[i_opdet]);
-  }
-
-}
-
 opdet::FlashHypothesisCollection::FlashHypothesisCollection(recob::Track const& track, 
 							    std::vector<float> dEdxVector,
 							    geo::Geometry const& geom,
