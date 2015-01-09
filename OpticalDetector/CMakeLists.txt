@@ -8,6 +8,7 @@ art_make( BASENAME_ONLY
                         RecoBase
                         Geometry
                         Geometry_service
+                        PhotonVisibilityService_service
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
