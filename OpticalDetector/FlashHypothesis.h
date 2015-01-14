@@ -7,10 +7,11 @@
 
 #include <iostream>
 #include <numeric>
-
+#include <vector>
+#include <cmath>
+#include <limits>
 
 namespace opdet{
-
 
 class FlashHypothesis{
 
@@ -36,13 +37,17 @@ class FlashHypothesis{
   void SetHypothesis( size_t i_opdet, float pe ) { _NPEs_Vector.at(i_opdet)=pe; }
   void SetHypothesisError( size_t i_opdet, float err ) { _NPEs_ErrorVector.at(i_opdet) = err; }
 
-  void SetHypothesisAndError( size_t i_opdet, float pe )
-  {  SetHypothesis(i_opdet,pe); SetHypothesisError(i_opdet,std::sqrt(pe)); }
+  void SetHypothesisAndError( size_t i_opdet, float pe , float err=-999 )
+  {  
+    SetHypothesis(i_opdet,pe); 
+    if(err>0) SetHypothesisError(i_opdet,err); 
+    else SetHypothesisError(i_opdet,std::sqrt(pe)); 
+  }
 
   float GetTotalPEs() const
   { return std::accumulate(_NPEs_Vector.begin(),_NPEs_Vector.end(),0.0); }
   float GetTotalPEsError() const
-  { return std::sqrt( std::inner_product(_NPEs_ErrorVector.begin(),_NPEs_Vector.end(),_NPEs_Vector.begin(),0.0) ); }
+  { return std::sqrt( std::inner_product(_NPEs_ErrorVector.begin(),_NPEs_ErrorVector.end(),_NPEs_ErrorVector.begin(),0.0) ); }
 
   size_t GetVectorSize() const { return _NPEs_Vector.size(); }
   
