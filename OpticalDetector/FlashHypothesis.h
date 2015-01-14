@@ -10,6 +10,7 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <stdexcept>
 
 namespace opdet{
 
@@ -24,13 +25,29 @@ class FlashHypothesis{
    _NPEs_Vector(vector),_NPEs_ErrorVector(vector_error)
   {
     if( vector.size()!=vector_error.size())
-      throw "ERROR in FlashHypothesisConstructor: Vector sizes not equal";
+      throw std::runtime_error("ERROR in FlashHypothesisConstructor: Vector sizes not equal");
   }
 
   std::vector<float> const& GetHypothesisVector() const { return _NPEs_Vector; }
   std::vector<float> const& GetHypothesisErrorVector() const { return _NPEs_ErrorVector; }
-  void SetHypothesisVector( std::vector<float> v ) { _NPEs_Vector=v; }
-  void SetHypothesisErrorVector( std::vector<float> v ) { _NPEs_ErrorVector = v; }
+  void SetHypothesisVector( std::vector<float> v ) { _NPEs_Vector=v; _NPEs_ErrorVector.resize(v.size()); }
+  void SetHypothesisErrorVector( std::vector<float> v ) { _NPEs_ErrorVector = v; _NPEs_Vector.resize(v.size()); }
+  void SetHypothesisVectorAndErrorVector( std::vector<float> v , std::vector<float> err=std::vector<float>(0)) 
+  { 
+    if(err.size()!=0 && err.size()!=v.size())
+      throw std::runtime_error("ERROR in FlashHypothesisVectorSetter: Vector sizes not equal");
+
+    _NPEs_Vector = v;
+    if(err.size()==0){
+      _NPEs_Vector = v; 
+      _NPEs_ErrorVector.resize(v.size()); 
+      for(size_t i=0; i<_NPEs_Vector.size(); i++)
+	_NPEs_ErrorVector[i] = std::sqrt(_NPEs_Vector[i]);
+    }
+    else
+      _NPEs_ErrorVector = err;
+
+  }
 
   float const& GetHypothesis(size_t i_opdet) const { return _NPEs_Vector.at(i_opdet); }
   float const& GetHypothesisError(size_t i_opdet) const { return _NPEs_ErrorVector.at(i_opdet); }
@@ -66,7 +83,7 @@ class FlashHypothesis{
   FlashHypothesis operator+(const FlashHypothesis& fh){
 
     if( _NPEs_Vector.size() != fh.GetVectorSize() )
-      throw "ERROR in FlashHypothesisAddition: Cannot add hypothesis of different size";
+      throw std::runtime_error("ERROR in FlashHypothesisAddition: Cannot add hypothesis of different size");
     
     FlashHypothesis flashhyp(_NPEs_Vector.size());
     for(size_t i=0; i<_NPEs_Vector.size(); i++){
