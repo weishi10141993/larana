@@ -21,11 +21,9 @@ class FlashHypothesis{
   FlashHypothesis(size_t s):
    _NPEs_Vector(std::vector<float>(s,0.0)),_NPEs_ErrorVector(std::vector<float>(s,0.0)){}
   FlashHypothesis(std::vector<float> const& vector,
-		 std::vector<float> const& vector_error):
-   _NPEs_Vector(vector),_NPEs_ErrorVector(vector_error)
+		  std::vector<float> const& vector_error=std::vector<float>())
   {
-    if( vector.size()!=vector_error.size())
-      throw std::runtime_error("ERROR in FlashHypothesisConstructor: Vector sizes not equal");
+    SetHypothesisVectorAndErrorVector(vector,vector_error);
   }
 
   std::vector<float> const& GetHypothesisVector() const { return _NPEs_Vector; }
