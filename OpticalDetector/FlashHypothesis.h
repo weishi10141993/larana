@@ -1,3 +1,6 @@
+#ifndef FLASHHYPOTHESIS_H
+#define FLASHHYPOTHESIS_H
+
 /*!
  * Title:   FlashHypothesis Class
  * Author:  Wes Ketchum (wketchum@lanl.gov)
@@ -99,3 +102,5 @@ class FlashHypothesis{
 };
 
 }
+
+#endif
