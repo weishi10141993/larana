@@ -88,19 +88,17 @@ void opdet::FlashHypothesisCollection::Normalize(float const& totalPE_target, ut
 
 }
 
-void opdet::FlashHypothesisAlg::CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
-								 float dEdx,
-								 geo::Geometry const& geom,
-								 phot::PhotonVisibilityService const& pvs,
-								 util::LArProperties const& larp,
-								 opdet::OpDigiProperties const& opdigip,
-								 float XOffset,
-								 FlashHypothesis &prompt_flash_hyp,
-								 FlashHypothesis &late_flash_hyp)
+opdet::FlashHypothesisCollection
+opdet::FlashHypothesisAlg::CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
+							    float dEdx,
+							    geo::Geometry const& geom,
+							    phot::PhotonVisibilityService const& pvs,
+							    util::LArProperties const& larp,
+							    opdet::OpDigiProperties const& opdigip,
+							    float XOffset)
 {
-  prompt_flash_hyp = FlashHypothesis(geom.NOpDet());
-  late_flash_hyp = FlashHypothesis(geom.NOpDet());
-
+  FlashHypothesis prompt_hyp = FlashHypothesis(geom.NOpDet());
+  
   std::vector<double> xyz_segment(_calc.SegmentMidpoint(pt1,pt2,XOffset));
   
   //get the visibility vector
@@ -108,17 +106,19 @@ void opdet::FlashHypothesisAlg::CreateFlashHypothesesFromSegment(TVector3 const&
   
   //check vector size, as it may be zero if given a y/z outside some range
   if(PointVisibility->size()!=geom.NOpDet()) return;
-
+  
   //klugey ... right now, set a qe_vector that gives constant qe across all opdets
   std::vector<float> qe_vector(geom.NOpDet(),opdigip.QE());
-  _calc.FillFlashHypotheses(larp.ScintYield(),
-			    larp.ScientYieldRatio(),
+  _calc.FillFlashHypotheses(larp.ScintYield()*larp.ScientYieldRatio(),
 			    dEdx,
 			    pt1,pt2,
 			    qe_vector,
 			    *PointVisibility,
-			    prompt_flash_hyp,
-			    late_flash_hyp);
+			    prompt_hyp);
+  
+  FlashHypothesisCollection fhc;
+  fhc.SetPromptHypAndPromptFrac(prompt_hyp,larp.ScientYieldRatio());
+  return fhc;
 }
 
 void opdet::FlashHypothesisAlg::AddFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
@@ -128,17 +128,9 @@ void opdet::FlashHypothesisAlg::AddFlashHypothesesFromSegment(TVector3 const& pt
 							      util::LArProperties const& larp,
 							      opdet::OpDigiProperties const& opdigip,
 							      float XOffset,
-							      FlashHypothesis &prompt_flash_hyp,
-							      FlashHypothesis &late_flash_hyp)
+							      FlashHypothesisCollection &hyp_collection)
 {
-  FlashHypothesis this_segment_prompt(geom.NOpDet());
-  FlashHypothesis this_segment_late(geom.NOpDet());
-  
-  CreateFlashHypothesesFromSegment(pt1,pt2,dEdx,
-				   geom,pvs,larp,opdigip,XOffset,
-				   this_segment_prompt,this_segment_late);
-
-  prompt_flash_hyp = prompt_flash_hyp + this_segment_prompt;
-  late_flash_hyp = late_flash_hyp + this_segment_late;
-  
+  FlashHypothesisCollection fhc =
+    CreateFlashHypothesesFromSegment(pt1,pt2,dEdx,geom,pvs,larp,opdigip,XOffset);
+  hyp_collection = hyp_collection + fhc;
 }

@@ -63,6 +63,12 @@ void opdet::FlashHypothesisCollection::SetPromptHypAndPromptFraction(const Flash
   _total_hyp = _prompt_hyp + _late_hyp;
 }
 
+void opdet::FlashHypothesisCollection::Normalize(float totalPE_target){  
+  _prompt_hyp.Normalize(totalPE_target*_prompt_frac);
+  _late_hyp.Normalize(totalPE_target*(1.-_prompt_frac));
+  UpdateTotalHyp();
+}
+
 void opdet::FlashHypothesisCollection::CheckFrac(float f)
 {
   if ( std::abs(f-0.0) < std::numeric_limits<float>::epsilon() ||

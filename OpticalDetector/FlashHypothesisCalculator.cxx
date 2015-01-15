@@ -12,33 +12,23 @@ std::vector<double> opdet::FlashHypothesisCalculator::SegmentMidpoint(TVector3 c
   return xyz_segment;
 }
 
-void opdet::FlashHypothesisCalculator::FillFlashHypotheses(const float& yield,
-							   const float& prompt_frac,
+void opdet::FlashHypothesisCalculator::FillFlashHypothesis(const float& yield,
 							   const float& dEdx,
 							   const TVector3& pt1,
 							   const TVector3& pt2,
 							   const std::vector<float>& qe_vector,
 							   const std::vector<float>& vis_vector,
-							   FlashHypothesis& prompt_hyp,
-							   FlashHypothesis& late_hyp)
+							   FlashHypothesis& hyp)
 {
 
-  if(qe_vector.size()!=prompt_hyp.GetVectorSize() ||
-     vis_vector.size()!=prompt_hyp.GetVectorSize() || 
-     late_hyp.GetVectorSize()!=prompt_hyp.GetVectorSize())
+  if(qe_vector.size()!=hyp.GetVectorSize() ||
+     vis_vector.size()!=hyp.GetVectorSize())
     throw std::runtime_error("ERROR in FlashHypothesisCalculator: vector sizes not equal!");
 
-  if(prompt_frac<0 || prompt_frac>1)
-    throw std::runtime_error("ERROR in FlashHypothesisCalculator: prompt fraction not between zero and 1.");
-
   const float total_yield = yield*dEdx*(pt2-pt1).Mag();
-  const float prompt_yield = total_yield*prompt_frac;
-  const float late_yield = total_yield-prompt_yield;
 
-  for(size_t i_chan=0; i_chan<prompt_hyp.GetVectorSize(); i_chan++){
-    prompt_hyp.SetHypothesisAndError(i_chan,prompt_yield*vis_vector[i_chan]*qe_vector[i_chan]);
-    late_hyp.SetHypothesisAndError(i_chan,late_yield*vis_vector[i_chan]*qe_vector[i_chan]);
-  }
+  for(size_t i_chan=0; i_chan<hyp.GetVectorSize(); i_chan++)
+    hyp.SetHypothesisAndError(i_chan,total_yield*vis_vector[i_chan]*qe_vector[i_chan]);
 
 }
 

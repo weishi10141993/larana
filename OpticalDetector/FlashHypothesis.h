@@ -84,15 +84,32 @@ namespace opdet{
     void SetTotalHypAndPromptFraction(const FlashHypothesis& total,float frac);
     void SetPromptHypAndPromptFraction(const FlashHypothesis& prompt, float frac);
           
-    float GetPromptFraction() { return _prompt_frac; }
-    float GetLateFraction()   { return 1.-_prompt_frac; }
+    size_t GetVectorSize() const { return _prompt_hyp.GetVectorSize(); }
 
-    const FlashHypothesis& GetPromptHypothesis() { return _prompt_hyp; }
-    const FlashHypothesis& GetLateHypothesis() { return _late_hyp; }
-    const FlashHypothesis& GetTotalHypothesis() { return _total_hyp; }
+    float GetPromptFraction() const { return _prompt_frac; }
+    float GetLateFraction()   const { return 1.-_prompt_frac; }
+
+    const FlashHypothesis& GetPromptHypothesis() const { return _prompt_hyp; }
+    const FlashHypothesis& GetLateHypothesis() const { return _late_hyp; }
+    const FlashHypothesis& GetTotalHypothesis() const { return _total_hyp; }
     
+    void Normalize(float totalPEs);
+
     void Print();
     
+    FlashHypothesisCollection operator+(const FlashHypothesisCollection& fhc){
+      
+      if( this->GetVectorSize() != fhc.GetVectorSize() )
+	throw std::runtime_error("ERROR in FlashHypothesisCollectionAddition: Cannot add hypothesis of different size");
+
+      FlashHypothesis ph = this->GetPromptHypothesis();
+      ph = ph + fhc.GetPromptHypothesis();
+      FlashHypothesis lh = this->GetLateHypothesis();
+      lh = lh + fhc.GetLateHypothesis();
+      
+      return (FlashHypothesisCollection(ph,lh));
+    }
+
   private:
     FlashHypothesis _prompt_hyp;
     FlashHypothesis _late_hyp;
