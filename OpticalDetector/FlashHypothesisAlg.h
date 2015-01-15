@@ -68,15 +68,6 @@ namespace opdet{
 							       opdet::OpDigiProperties const& opdigip,
 							       float XOffset);
     
-    void AddFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
-				       float dEdx,
-				       geo::Geometry const& geom,
-				       phot::PhotonVisibilityService const& pvs,
-				       util::LArProperties const& larp,
-				       opdet::OpDigiProperties const& opdigip,
-				       float XOffset,
-				       FlashHypothesisCollection &hyp_collection);
-    
     FlashHypothesisCalculator _calc;
     
   };

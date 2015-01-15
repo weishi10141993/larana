@@ -21,19 +21,15 @@ opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(recob::Track const& trac
   if(track.NumberTrajectoryPoints() != dEdxVector.size())
     throw "ERROR in FlashHypothesisAlg: dEdx vector size not same as track size.";
 
-  _fhc.Initialize(geom.NOpDet());
+  FlashHypothesisCollection fhc(geom.NOpDet());
   for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++)
-    _alg.AddFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
-				       track.LocationAtPoint(pt),
-				       dEdxVector[pt],
-				       geom,pvs,larp,opdigip,XOffset,
-				       _fhc._prompt_hypothesis,
-				       _fhc._late_hypothesis);
-
-  _total_hypothesis = _prompt_hypothesis+_late_hypothesis;
-  
+    fhc = fhc + _alg.CreateFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
+						      track.LocationAtPoint(pt),
+						      dEdxVector[pt],
+						      geom,pvs,larp,opdigip,XOffset);
 }
 
+opdet::FlashHypothesisCollection 
 opdet::FlashHypothesisCollection::FlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
 							    std::vector<float> dEdxVector,
 							    geo::Geometry const& geom,
@@ -45,47 +41,25 @@ opdet::FlashHypothesisCollection::FlashHypothesisCollection(std::vector<TVector3
   if(trajVector.size() != dEdxVector.size())
     throw "ERROR in FlashHypothesisCollection: dEdx vector size not same as track size.";
 
-  Initialize(geom.NOpDet());
+  FlashHypothesisCollection fhc(geom.NOpDet());
   for(size_t pt=1; pt<trajVector.size(); pt++)
-    _alg.AddFlashHypothesesFromSegment(trajVector[pt-1],
-				       trajVector[pt],
-				       dEdxVector[pt],
-				       geom,pvs,larp,opdigip,XOffset,
-				       _prompt_hypothesis,
-				       _late_hypothesis);
+    fhc = fhc + _alg.CreateFlashHypothesesFromSegment(trajVector[pt-1],
+						      trajVector[pt],
+						      dEdxVector[pt],
+						      geom,pvs,larp,opdigip,XOffset);
 
-  _total_hypothesis = _prompt_hypothesis+_late_hypothesis;
-  
 }
 
-opdet::FlashHypothesisCollection::FlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
-							    float dEdx,
-							    geo::Geometry const& geom,
-							    phot::PhotonVisibilityService const& pvs,
-							    util::LArProperties const& larp,
-							    opdet::OpDigiProperties const& opdigip,
-							    float XOffset)
+opdet::FlashHypothesisCollection 
+opdet::FlashHypothesisCollection::GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
+							       float dEdx,
+							       geo::Geometry const& geom,
+							       phot::PhotonVisibilityService const& pvs,
+							       util::LArProperties const& larp,
+							       opdet::OpDigiProperties const& opdigip,
+							       float XOffset)
 {
-  _alg.CreateFlashHypothesesFromSegment(pt1,
-					pt2,
-					dEdx,
-					geom,pvs,larp,opdigip,XOffset,
-					_prompt_hypothesis,
-					_late_hypothesis);
-  _total_hypothesis = _prompt_hypothesis+_late_hypothesis;
-}
-
-void opdet::FlashHypothesisCollection::Normalize(float const& totalPE_target, util::LArProperties const& larp)
-{
-  if( GetTotalPEs() < std::numeric_limits<float>::epsilon() ) return;
-
-  const float promptPE_target = totalPE_target * larp.ScintYieldRatio();
-  const float latePE_target = totalPE_target * (1.-larp.ScintYieldRatio());
-
-  _prompt_hypothesis.Normalize(promptPE_target);
-  _late_hypothesis.Normalize(latePE_target);  
-  _total_hypothesis = _prompt_hypothesis + _late_hypothesis;
-
+  return _alg.CreateFlashHypothesesFromSegment(pt1,pt2,dEdx,geom,pvs,larp,opdigip,XOffset);
 }
 
 opdet::FlashHypothesisCollection
@@ -119,18 +93,4 @@ opdet::FlashHypothesisAlg::CreateFlashHypothesesFromSegment(TVector3 const& pt1,
   FlashHypothesisCollection fhc;
   fhc.SetPromptHypAndPromptFrac(prompt_hyp,larp.ScientYieldRatio());
   return fhc;
-}
-
-void opdet::FlashHypothesisAlg::AddFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
-							      float dEdx,
-							      geo::Geometry const& geom,
-							      phot::PhotonVisibilityService const& pvs,
-							      util::LArProperties const& larp,
-							      opdet::OpDigiProperties const& opdigip,
-							      float XOffset,
-							      FlashHypothesisCollection &hyp_collection)
-{
-  FlashHypothesisCollection fhc =
-    CreateFlashHypothesesFromSegment(pt1,pt2,dEdx,geom,pvs,larp,opdigip,XOffset);
-  hyp_collection = hyp_collection + fhc;
 }

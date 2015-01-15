@@ -76,6 +76,8 @@ namespace opdet{
   public:
 
     FlashHypothesisCollection(){}
+    FlashHypothesisCollection(size_t s)
+      { _prompt_hyp=FlashHypothesis(s); _late_hyp=FlashHypothesis(s); UpdateTotalHyp(); }
     FlashHypothesisCollection(const FlashHypothesis& prompt, const FlashHypothesis& late)
       { SetPromptAndLateHyp(prompt,late); }
     
