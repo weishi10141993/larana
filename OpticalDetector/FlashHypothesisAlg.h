@@ -26,6 +26,7 @@
 #include "TVector3.h"
 
 #include "FlashHypothesis.h"
+#include "FlashHypothesisCalculator.h"
 
 namespace opdet{
 
@@ -35,6 +36,31 @@ class FlashHypothesisAlg{
  public:
   FlashHypothesisAlg() {}
 
+  FlashHypothesisCollection GetFlashHypothesisCollection(recob::Track const& track, 
+							 std::vector<float> dEdxVector,
+							 geo::Geometry const& geom,
+							 phot::PhotonVisibilityService const& pvs,
+							 util::LArProperties const& larp,
+							 opdet::OpDigiProperties const& opdigip,
+							 float XOffset=0);
+  
+  FlashHypothesisCollection GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
+							 std::vector<float> dEdxVector,
+							 geo::Geometry const& geom,
+							 phot::PhotonVisibilityService const& pvs,
+							 util::LArProperties const& larp,
+							 opdet::OpDigiProperties const& opdigip,
+							 float XOffset=0);
+  
+  FlashHypothesisCollection GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
+							 float dEdx,
+							 geo::Geometry const& geom,
+							 phot::PhotonVisibilityService const& pvs,
+							 util::LArProperties const& larp,
+							 opdet::OpDigiProperties const& opdigip,
+							 float XOffset=0);
+
+ private: 
   void CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
 					float dEdx,
 					geo::Geometry const& geom,
@@ -55,38 +81,14 @@ class FlashHypothesisAlg{
 				     FlashHypothesis &prompt_flash_hyp,
 				     FlashHypothesis &late_flash_hyp);
   
-  private:
-    
+  FlashHypothesisCalculator _calc;
+  
 };
 
  class FlashHypothesisCollection{
   
  public:
-  
-  FlashHypothesisCollection(recob::Track const& track, 
-			    std::vector<float> dEdxVector,
-			    geo::Geometry const& geom,
-			    phot::PhotonVisibilityService const& pvs,
-			    util::LArProperties const& larp,
-			    opdet::OpDigiProperties const& opdigip,
-			    float XOffset=0);
-  
-  FlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
-			    std::vector<float> dEdxVector,
-			    geo::Geometry const& geom,
-			    phot::PhotonVisibilityService const& pvs,
-			    util::LArProperties const& larp,
-			    opdet::OpDigiProperties const& opdigip,
-			    float XOffset=0);
-  
-  FlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
-			    float dEdx,
-			    geo::Geometry const& geom,
-			    phot::PhotonVisibilityService const& pvs,
-			    util::LArProperties const& larp,
-			    opdet::OpDigiProperties const& opdigip,
-			    float XOffset=0);
-  
+
  FlashHypothesisCollection(FlashHypothesis const& prompt,
 			   FlashHypothesis const& late):
   _prompt_hypothesis(prompt), _late_hypothesis(late)
