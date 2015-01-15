@@ -1,11 +1,19 @@
 
 # OpFlashFinder_module.cc is not built - it seems specific to uboone
 
+art_make_library( LIBRARY_NAME FlashHypothesis
+		  	     SOURCE FlashHypothesis.cxx
+		                           FlashHypothesisCalculator.cxx
+			     LIBRARIES
+			                             ${ROOT_BASIC_LIB_LIST}
+)
+
 art_make( BASENAME_ONLY
-          # EXCLUDE OpFlashFinder_module.cc
+          EXCLUDE FlashHypothesis.cxx FlashHypothesisCalculator.cxx
           LIBRARY_NAME OpticalDetector
           LIB_LIBRARIES 
-                        RecoBase
+	  		FlashHypothesis
+	  		RecoBase
                         Geometry
                         Geometry_service
                         PhotonVisibilityService_service
