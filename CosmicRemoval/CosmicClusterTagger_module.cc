@@ -15,12 +15,11 @@
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <string>
 #include <vector>
-#include <iostream>
-#include <cmath>
-#include <algorithm>
-#include <numeric>
-#include <iterator>
+#include <memory> // std::unique_ptr<>
+#include <utility> // std::pair<>, std::move()
+#include <algorithm> // std::minmax() ...
 
 #include "Geometry/Geometry.h"
 #include "Geometry/geo.h"
@@ -144,9 +143,10 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
      bool failClusterTickCheck = false;
      
      //int timeLimit = 0;//5;
-     
-     double t0 = tCluster->StartPos()[1] < tCluster->EndPos()[1] ? tCluster->StartPos()[1] : tCluster->EndPos()[1];
-     double t1 = tCluster->StartPos()[1] > tCluster->EndPos()[1] ? tCluster->StartPos()[1] : tCluster->EndPos()[1]; 
+     const std::pair<double, double> t_minmax
+       = std::minmax(tCluster->StartTick(), tCluster->EndTick());
+     double t0 = t_minmax.first; // minimum
+     double t1 = t_minmax.second; // maximum
      if( t0+fTickLimit < fDetectorWidthTicks ) { // This is into the pre-spill window
        failClusterTickCheck = true;
      }
