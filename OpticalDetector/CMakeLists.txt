@@ -8,12 +8,20 @@ art_make_library( LIBRARY_NAME FlashHypothesis
 			                             ${ROOT_BASIC_LIB_LIST}
 )
 
+art_make_library( LIBRARY_NAME SimPhotonCounter
+		  	     SOURCE SimPhotonCounter.cxx
+			     LIBRARIES
+					FlashHypothesis
+			                ${ROOT_BASIC_LIB_LIST}
+)
+
 art_make( BASENAME_ONLY
-          EXCLUDE FlashHypothesis.cxx FlashHypothesisCalculator.cxx
+          EXCLUDE FlashHypothesis.cxx FlashHypothesisCalculator.cxx SimPhotonCounter.cxx
           LIBRARY_NAME OpticalDetector
           LIB_LIBRARIES 
 	  		FlashHypothesis
-	  		RecoBase
+			SimPhotonCounter
+			RecoBase
                         Geometry
                         Geometry_service
                         PhotonVisibilityService_service
