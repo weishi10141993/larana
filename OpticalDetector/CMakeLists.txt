@@ -11,7 +11,6 @@ art_make_library( LIBRARY_NAME FlashHypothesis
 art_make_library( LIBRARY_NAME SimPhotonCounter
 		  	     SOURCE SimPhotonCounter.cxx
 			     LIBRARIES
-					FlashHypothesis
 			                ${ROOT_BASIC_LIB_LIST}
 )
 

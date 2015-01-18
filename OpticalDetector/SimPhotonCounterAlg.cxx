@@ -76,11 +76,6 @@ void opdet::SimPhotonCounterAlg::ClearCounters()
     counter.ClearVectors();
 }
 
-opdet::FlashHypothesisCollection opdet::SimPhotonCounterAlg::GetFlashHypothesisCollection(size_t i)
-{
-  return fCounters.at(i).GetFlashHypothesisCollection();
-}
-
 std::vector<float> const& opdet::SimPhotonCounterAlg::PromptPhotonVector(size_t i)
 {
   return fCounters.at(i).PromptPhotonVector();

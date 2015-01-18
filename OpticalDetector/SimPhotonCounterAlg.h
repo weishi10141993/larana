@@ -31,7 +31,6 @@ namespace opdet{
 
     void ClearCounters();
 
-    FlashHypothesisCollection GetFlashHypothesisCollection(size_t);
     std::vector<float> const& PromptPhotonVector(size_t);
     std::vector<float> const& LatePhotonVector(size_t);
     
