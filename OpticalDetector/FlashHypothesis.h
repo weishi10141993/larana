@@ -48,6 +48,11 @@ namespace opdet{
     
     void Normalize(float const& totalPE_target);
 
+    float CompareByError(const std::vector<float>& comp,
+			 std::vector<float>& result_vec);
+    float CompareByFraction(const std::vector<float>& comp,
+			    std::vector<float>& result_vec);
+    
     void Print();
     
     FlashHypothesis operator+(const FlashHypothesis& fh){

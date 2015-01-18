@@ -86,13 +86,6 @@ void opdet::SimPhotonCounter::ClearVectors()
   }
 }
 
-opdet::FlashHypothesisCollection opdet::SimPhotonCounter::GetFlashHypothesisCollection()
-{
-  std::vector<float> zero_error(GetVectorSize(),0.0);
-  return FlashHypothesisCollection(FlashHypothesis(_photonVector_prompt,zero_error),
-				   FlashHypothesis(_photonVector_late,zero_error));
-}
-
 void opdet::SimPhotonCounter::Print()
 {
   std::cout << "Vector size: " << GetVectorSize() << std::endl;

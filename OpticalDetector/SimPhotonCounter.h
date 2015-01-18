@@ -10,7 +10,6 @@
 */
 
 #include "Simulation/SimPhotons.h"
-#include "FlashHypothesis.h"
 
 namespace opdet{
 
@@ -53,9 +52,7 @@ namespace opdet{
     const std::vector<float>& LatePhotonVector() { return _photonVector_late; }
     float PromptPhotonVector(size_t i) { return _photonVector_prompt.at(i); }
     float LatePhotonVector(size_t i) { return _photonVector_late.at(i); }
-    
-    FlashHypothesisCollection GetFlashHypothesisCollection();
-    
+        
     void Print();
     
   private:
