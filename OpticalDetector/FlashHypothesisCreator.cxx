@@ -1,25 +1,25 @@
 /*!
- * Title:   FlashHypothesis Algorithim Class
+ * Title:   FlashHypothesis Creator Class
  * Author:  Wes Ketchum (wketchum@lanl.gov)
  *
- * Description: Algorithm that produces a flash hypothesis for a trajectory.
+ * Description: Class that produces a flash hypothesis for a trajectory.
  * Input:       Trajectory (std::vector<TVector3> objects)
  * Output:      FlashHypotheses
 */
 
-#include "FlashHypothesisAlg.h"
+#include "FlashHypothesisCreator.h"
 
 opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(recob::Track const& track, 
-							std::vector<float> const& dEdxVector,
-							geo::Geometry const& geom,
-							phot::PhotonVisibilityService const& pvs,
-							util::LArProperties const& larp,
-							opdet::OpDigiProperties const& opdigip,
-							float XOffset)
+opdet::FlashHypothesisCreator::FlashHypothesisCollection(recob::Track const& track, 
+							 std::vector<float> const& dEdxVector,
+							 geo::Geometry const& geom,
+							 phot::PhotonVisibilityService const& pvs,
+							 util::LArProperties const& larp,
+							 opdet::OpDigiProperties const& opdigip,
+							 float XOffset)
 {
   if(track.NumberTrajectoryPoints() != dEdxVector.size())
-    throw "ERROR in FlashHypothesisAlg: dEdx vector size not same as track size.";
+    throw "ERROR in FlashHypothesisCreator: dEdx vector size not same as track size.";
 
   FlashHypothesisCollection fhc(geom.NOpDet());
   for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++)
@@ -31,13 +31,13 @@ opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(recob::Track const& trac
 }
 
 opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
-							std::vector<float> const& dEdxVector,
-							geo::Geometry const& geom,
-							phot::PhotonVisibilityService const& pvs,
-							util::LArProperties const& larp,
-							opdet::OpDigiProperties const& opdigip,
-							float XOffset)
+opdet::FlashHypothesisCreator::FlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
+							 std::vector<float> const& dEdxVector,
+							 geo::Geometry const& geom,
+							 phot::PhotonVisibilityService const& pvs,
+							 util::LArProperties const& larp,
+							 opdet::OpDigiProperties const& opdigip,
+							 float XOffset)
 {
   if(trajVector.size() != dEdxVector.size())
     throw "ERROR in FlashHypothesisCollection: dEdx vector size not same as track size.";
@@ -53,19 +53,19 @@ opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(std::vector<TVector3> co
 }
 
 opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
-							float const& dEdx,
-							geo::Geometry const& geom,
-							phot::PhotonVisibilityService const& pvs,
-							util::LArProperties const& larp,
-							opdet::OpDigiProperties const& opdigip,
-							float XOffset)
+opdet::FlashHypothesisCreator::FlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
+							 float const& dEdx,
+							 geo::Geometry const& geom,
+							 phot::PhotonVisibilityService const& pvs,
+							 util::LArProperties const& larp,
+							 opdet::OpDigiProperties const& opdigip,
+							 float XOffset)
 {
   return CreateFlashHypothesesFromSegment(pt1,pt2,dEdx,geom,pvs,larp,opdigip,XOffset);
 }
 
 opdet::FlashHypothesisCollection
-opdet::FlashHypothesisAlg::CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
+opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
 							    float const& dEdx,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
