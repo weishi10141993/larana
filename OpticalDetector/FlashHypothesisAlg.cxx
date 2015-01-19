@@ -11,7 +11,7 @@
 
 opdet::FlashHypothesisCollection 
 opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(recob::Track const& track, 
-							std::vector<float> dEdxVector,
+							std::vector<float> const& dEdxVector,
 							geo::Geometry const& geom,
 							phot::PhotonVisibilityService const& pvs,
 							util::LArProperties const& larp,
@@ -32,7 +32,7 @@ opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(recob::Track const& trac
 
 opdet::FlashHypothesisCollection 
 opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
-							std::vector<float> dEdxVector,
+							std::vector<float> const& dEdxVector,
 							geo::Geometry const& geom,
 							phot::PhotonVisibilityService const& pvs,
 							util::LArProperties const& larp,
@@ -54,7 +54,7 @@ opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(std::vector<TVector3> co
 
 opdet::FlashHypothesisCollection 
 opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
-							float dEdx,
+							float const& dEdx,
 							geo::Geometry const& geom,
 							phot::PhotonVisibilityService const& pvs,
 							util::LArProperties const& larp,
@@ -66,7 +66,7 @@ opdet::FlashHypothesisAlg::GetFlashHypothesisCollection(TVector3 const& pt1, TVe
 
 opdet::FlashHypothesisCollection
 opdet::FlashHypothesisAlg::CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
-							    float dEdx,
+							    float const& dEdx,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
 							    util::LArProperties const& larp,

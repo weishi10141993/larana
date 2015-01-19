@@ -10,7 +10,6 @@
 */
 
 #include "SimPhotonCounter.h"
-#include "FlashHypothesis.h"
 
 #include "fhiclcpp/ParameterSet.h"
 
