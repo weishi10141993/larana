@@ -10,9 +10,18 @@
 
 #include "FlashHypothesisAnaAlg.h"
 
-void opdet::FlashHypothesisAnaAlg::SetOutputTree(TTree* tree)
+void opdet::FlashHypothesisAnaAlg::SetOutputTree(TTree* tree,
+						 TH1F* hh_p, TH1F* hh_pe,
+						 TH1F* hh_l, TH1F* hh_le,
+						 TH1F* hh_t, TH1F* hh_te,
+						 TH1F* hs_p, TH1F* hs_l,
+						 TH1F* hc_p, TH1F* hc_l,
+						 geo::Geometry const& geom)
 {
   fTree = tree;
+  int n_opdets = geom.NOpDet();
+  hhyp_prompt = hh_p; hhyp_prompt_err = hh_pe
+  hh_p->SetNameTitle(
 }
 
 void opdet::FlashHypothesisAnaAlg::FillAnaTree(std::vector<TVector3> const& trajVector, 
@@ -45,4 +54,18 @@ void opdet::FlashHypothesisAnaAlg::FillAnaTree(std::vector<TVector3> const& traj
 								      resultVec_LateCompare);
   FillComparisonInfo(resultVec_PromptCompare,result_PromptCompare,
 		     resultVec_LateCompare,result_LateCompare);
+}
+
+void opdet::FlashHypothesisAnaAlg::FillFlashHypothesis(FlashHypothesisCollection const& fhc)
+{
+}
+
+void opdet::FlashHypothesisAnaAlg::FillSimPhotonCounter(std::vector<float> const& promptVec,
+							std::vector<float> const& lateVec)
+{
+}
+
+void opdet::FlashHypothesisAnaAlg::FillComparisonInfo(std::vector<float> const& promptVec, float const& promptTotal
+						      std::vector<float> const& lateVec, float const& lateTotal)
+{
 }

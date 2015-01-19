@@ -34,71 +34,7 @@ void opdet::FlashHypothesis::Normalize(float const& totalPE_target){
     _NPEs_Vector[i_opdet] *= PE_ratio;
     _NPEs_ErrorVector[i_opdet] = std::sqrt(_NPEs_Vector[i_opdet]);
   }
-    
-}
-
-float opdet::FlashHypothesis::CompareByError(const std::vector<float>& compare_vector,
-					     std::vector<float>& result_vector)
-{
-  if(compare_vector.size()!=GetVectorSize())
-    throw std::runtime_error("ERROR in FlashHypothesis Compare: Mismatching vector sizes.");
-
-  result_vector.resize(GetVectorSize());
-
-  float result_total = 0;
-  for(size_t i=0; i<GetVectorSize(); i++){
-    result_total += compare_vector[i];
-    float diff = _NPEs_Vector[i]-compare_vector[i];
-    if( std::abs(diff)<std::numeric_limits<float>::epsilon())
-      result_vector[i]=0;
-    else if(_NPEs_ErrorVector[i] < std::numeric_limits<float>::epsilon())
-      result_vector[i] = diff / std::numeric_limits<float>::epsilon();
-    else
-      result_vector[i] = diff / _NPEs_ErrorVector[i];
-  }
-
-  float total_error = GetTotalPEsError();
-  float total_diff = GetTotalPEs() - result_total;
-  if( std::abs(total_diff) < std::numeric_limits<float>::epsilon() )
-    result_total = 0;
-  else if( total_error < std::numeric_limits<float>::epsilon() )
-    result_total = total_diff / std::numeric_limits<float>::epsilon();
-  else
-    result_total = total_diff / total_error;
-
-  return result_total;
-}
-
-float opdet::FlashHypothesis::CompareByFraction(const std::vector<float>& compare_vector,
-						std::vector<float>& result_vector)
-{
-  if(compare_vector.size()!=GetVectorSize())
-    throw std::runtime_error("ERROR in FlashHypothesis Compare: Mismatching vector sizes.");
   
-  result_vector.resize(GetVectorSize());
-  
-  float total_comp = 0;
-  for(size_t i=0; i<GetVectorSize(); i++){
-    total_comp += compare_vector[i];
-    float diff = _NPEs_Vector[i]-compare_vector[i];
-    if( std::abs(diff)<std::numeric_limits<float>::epsilon())
-      result_vector[i]=0;
-    else if(compare_vector[i] < std::numeric_limits<float>::epsilon())
-      result_vector[i] = diff / std::numeric_limits<float>::epsilon();
-    else
-      result_vector[i] = diff / compare_vector[i];
-  }
-
-  float result_total=0.0;
-  float total_diff = GetTotalPEs() - total_comp;
-  if( std::abs(total_diff) < std::numeric_limits<float>::epsilon() )
-    result_total = 0;
-  else if( total_comp < std::numeric_limits<float>::epsilon() )
-    result_total = total_diff / std::numeric_limits<float>::epsilon();
-  else
-    result_total = total_diff / total_comp;
-
-  return result_total;
 }
 
 void opdet::FlashHypothesis::Print()

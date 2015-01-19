@@ -10,6 +10,7 @@
 */
 
 #include "Simulation/SimPhotons.h"
+#include <numeric>
 
 namespace opdet{
 
@@ -48,11 +49,16 @@ namespace opdet{
     void AddSimPhotons(const sim::SimPhotons& photons);
 
     void ClearVectors();
-    const std::vector<float>& PromptPhotonVector() { return _photonVector_prompt; }
-    const std::vector<float>& LatePhotonVector() { return _photonVector_late; }
+    const std::vector<float>& PromptPhotonVector() const { return _photonVector_prompt; }
+    const std::vector<float>& LatePhotonVector() const { return _photonVector_late; }
     float PromptPhotonVector(size_t i) { return _photonVector_prompt.at(i); }
     float LatePhotonVector(size_t i) { return _photonVector_late.at(i); }
-        
+
+    float PromptPhotonTotal() const
+    { return std::accumulate(_photonVector_prompt.begin(),_photonVector_prompt.end(),0.0); }
+    float LatePhotonTotal() const
+    { return std::accumulate(_photonVector_late.begin(),_photonVector_late.end(),0.0); }
+    
     void Print();
     
   private:
