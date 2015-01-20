@@ -12,8 +12,15 @@
 */
 
 #include "fhiclcpp/ParameterSet.h"
+
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
+#include "PhotonPropagation/PhotonVisibilityService.h"
+#include "Utilities/LArProperties.h"
+#include "OpticalDetector/OpDigiProperties.h"
+
+#include "Simulation/SimPhotons.h"
+#include "MCBase/MCTrack.h"
 
 #include "FlashHypothesis.h"
 #include "FlashHypothesisCreator.h"
@@ -21,6 +28,7 @@
 #include "FlashHypothesisComparison.h"
 
 #include "TTree.h"
+#include "TH1F.h"
 
 namespace opdet{
 
@@ -29,6 +37,7 @@ namespace opdet{
   public:
   FlashHypothesisAnaAlg(fhicl::ParameterSet const& p):
     fCounterIndex(p.get<unsigned int>("SimPhotonCounterIndex",0)),
+      fdEdx(p.get<float>("dEdx"),2.1),
       fXOffset(p.get<float>("HypothesisXOffset",0.0)),
       fSPCAlg(p.get<fhicl::ParameterSet>("SimPhotonCounterAlgParams")) {}
     
@@ -42,8 +51,7 @@ namespace opdet{
     
     void RunComparison(const unsigned int run,
 		       const unsigned int event,
-		       std::vector<TVector3> const& trajVector, 
-		       std::vector<float> const& dEdxVector,
+		       std::vector<sim::MCTrack> const&, 
 		       sim::SimPhotonsCollection const&,
 		       geo::Geometry const& geom,
 		       opdet::OpDigiProperties const& opdigip,
@@ -54,6 +62,7 @@ namespace opdet{
   private:
 
     unsigned int        fCounterIndex;
+    float               fdEdx;
     float               fXOffset;
 
     FlashHypothesisCreator    fFHCreator;

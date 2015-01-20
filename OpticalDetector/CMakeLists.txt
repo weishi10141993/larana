@@ -27,6 +27,7 @@ art_make( BASENAME_ONLY
 	  		FlashHypothesis
 			SimPhotonCounter
 			RecoBase
+			MCBase
                         Geometry
                         Geometry_service
                         PhotonVisibilityService_service

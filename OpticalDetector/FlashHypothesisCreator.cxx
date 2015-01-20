@@ -18,15 +18,60 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
-  if(track.NumberTrajectoryPoints() != dEdxVector.size())
-    throw "ERROR in FlashHypothesisCreator: dEdx vector size not same as track size.";
+  bool interpolate_dEdx=false;
+  if(track.NumberTrajectoryPoints() == dEdxVector.size())
+    interpolaote_dEdx=true;
+  else if(track.NumberTrajectoryPoints() == dEdxVector.size()-1)
+    interpolate_dEdx=false;
+  else
+    throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with track size.";
 
   FlashHypothesisCollection fhc(geom.NOpDet());
-  for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++)
-    fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
-						 track.LocationAtPoint(pt),
-						 dEdxVector[pt],
-						 geom,pvs,larp,opdigip,XOffset);
+  for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++){
+    if(interpolate_dEdx)
+      fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
+						   track.LocationAtPoint(pt),
+						   0.5*(dEdxVector[pt]+dEdxVector[pt-1]),
+						   geom,pvs,larp,opdigip,XOffset);
+    else
+      fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
+						   track.LocationAtPoint(pt),
+						   dEdxVector[pt],
+						   geom,pvs,larp,opdigip,XOffset);
+  }
+  return fhc;
+}
+
+opdet::FlashHypothesisCollection 
+opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& mctrack, 
+							    std::vector<float> const& dEdxVector,
+							    geo::Geometry const& geom,
+							    phot::PhotonVisibilityService const& pvs,
+							    util::LArProperties const& larp,
+							    opdet::OpDigiProperties const& opdigip,
+							    float XOffset)
+{
+  bool interpolate_dEdx=false;
+  if(mctrack.size() == dEdxVector.size())
+    interpolaote_dEdx=true;
+  else if(mctrack.size() == dEdxVector.size()-1)
+    interpolate_dEdx=false;
+  else
+    throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with mctrack size.";
+
+  FlashHypothesisCollection fhc(geom.NOpDet());
+  for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++){
+    if(interpolate_dEdx)
+      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack.at(pt-1).Position(),
+						   mctrack.at(pt).Position(),
+						   0.5*(dEdxVector[pt]+dEdxVector[pt-1]),
+						   geom,pvs,larp,opdigip,XOffset);
+    else
+      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack.at(pt-1).Position(),
+						   mctrack.at(pt).Position(),
+						   dEdxVector[pt],
+						   geom,pvs,larp,opdigip,XOffset);
+  }
   return fhc;
 }
 
@@ -39,16 +84,27 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
-  if(trajVector.size() != dEdxVector.size())
-    throw "ERROR in FlashHypothesisCollection: dEdx vector size not same as track size.";
+  bool interpolate_dEdx=false;
+  if(trajVector.size() == dEdxVector.size())
+    interpolaote_dEdx=true;
+  else if(trajVector.size() == dEdxVector.size()-1)
+    interpolate_dEdx=false;
+  else
+    throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with trajVector size.";
 
   FlashHypothesisCollection fhc(geom.NOpDet());
-  for(size_t pt=1; pt<trajVector.size(); pt++)
-    fhc = fhc + CreateFlashHypothesesFromSegment(trajVector[pt-1],
-						 trajVector[pt],
-						 dEdxVector[pt],
-						 geom,pvs,larp,opdigip,XOffset);
-
+  for(size_t pt=1; pt<trajVector.size(); pt++){
+    if(interpolate_dEdx)
+      fhc = fhc + CreateFlashHypothesesFromSegment(trajVector[pt-1],
+						   trajVector[pt],
+						   0.5*(dEdxVector[pt]+dEdxVector[pt-1]),
+						   geom,pvs,larp,opdigip,XOffset);
+    else
+      fhc = fhc + CreateFlashHypothesesFromSegment(trajVector[pt-1],
+						   trajVector[pt],
+						   dEdxVector[pt],
+						   geom,pvs,larp,opdigip,XOffset);
+  }
   return fhc;
 }
 

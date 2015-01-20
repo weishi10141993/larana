@@ -16,7 +16,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include "RecoBase/Track.h"
-#include "SimulationBase/MCParticle.h"
+#include "MCBase/MCTrach.h"
 
 #include "Geometry/Geometry.h"
 #include "PhotonPropagation/PhotonVisibilityService.h"
@@ -43,6 +43,14 @@ namespace opdet{
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
     
+    FlashHypothesisCollection GetFlashHypothesisCollection(sim::MCTrack const& mctrack, 
+							   std::vector<float> const& dEdxVector,
+							   geo::Geometry const& geom,
+							   phot::PhotonVisibilityService const& pvs,
+							   util::LArProperties const& larp,
+							   opdet::OpDigiProperties const& opdigip,
+							   float XOffset=0);
+
     FlashHypothesisCollection GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
 							   std::vector<float> const& dEdxVector,
 							   geo::Geometry const& geom,
