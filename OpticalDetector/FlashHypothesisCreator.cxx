@@ -20,7 +20,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
 {
   bool interpolate_dEdx=false;
   if(track.NumberTrajectoryPoints() == dEdxVector.size())
-    interpolaote_dEdx=true;
+    interpolate_dEdx=true;
   else if(track.NumberTrajectoryPoints() == dEdxVector.size()-1)
     interpolate_dEdx=false;
   else
@@ -53,7 +53,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
 {
   bool interpolate_dEdx=false;
   if(mctrack.size() == dEdxVector.size())
-    interpolaote_dEdx=true;
+    interpolate_dEdx=true;
   else if(mctrack.size() == dEdxVector.size()-1)
     interpolate_dEdx=false;
   else
@@ -62,13 +62,13 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
   FlashHypothesisCollection fhc(geom.NOpDet());
   for(size_t pt=1; pt<mctrack.size(); pt++){
     if(interpolate_dEdx)
-      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack[pt-1].Position(),
-						   mctrack[pt].Position(),
+      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack[pt-1].Position().Vect(),
+						   mctrack[pt].Position().Vect(),
 						   0.5*(dEdxVector[pt]+dEdxVector[pt-1]),
 						   geom,pvs,larp,opdigip,XOffset);
     else
-      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack[pt-1].Position(),
-						   mctrack[pt].Position(),
+      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack[pt-1].Position().Vect(),
+						   mctrack[pt].Position().Vect(),
 						   dEdxVector[pt],
 						   geom,pvs,larp,opdigip,XOffset);
   }
@@ -86,7 +86,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3
 {
   bool interpolate_dEdx=false;
   if(trajVector.size() == dEdxVector.size())
-    interpolaote_dEdx=true;
+    interpolate_dEdx=true;
   else if(trajVector.size() == dEdxVector.size()-1)
     interpolate_dEdx=false;
   else

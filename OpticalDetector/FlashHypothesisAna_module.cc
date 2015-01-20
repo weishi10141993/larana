@@ -47,7 +47,7 @@ namespace opdet{
     
   private:
     
-    std::string fMCParticleLabel;
+    std::string fMCTrackLabel;
     std::string fMCSimPhotonCollectionLabel;
     
     FlashHypothesisAnaAlg fAlg;
@@ -58,7 +58,7 @@ namespace opdet{
   FlashHypothesisAna::FlashHypothesisAna(fhicl::ParameterSet const & p)
     :
     EDAnalyzer(p),
-    fMCParticleLabel(p.get<std::string>("MCParticleLabel")),
+    fMCTrackLabel(p.get<std::string>("MCTrackLabel")),
     fMCSimPhotonCollectionLabel(p.get<std::string>("MCSimPhotonCollectionLabel")),
     fAlg(p.get<fhicl::ParameterSet>("FlashHypothesisAnaAlgParams"))
   {}
@@ -78,7 +78,7 @@ namespace opdet{
 			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),
 			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),
 			  geo);
-    fAlg.SetOpDetPositions(geo);
+    fAlg.FillOpDetPositions(geo);
   }
 
 }

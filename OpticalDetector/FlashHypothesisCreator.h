@@ -16,7 +16,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include "RecoBase/Track.h"
-#include "MCBase/MCTrach.h"
+#include "MCBase/MCTrack.h"
 
 #include "Geometry/Geometry.h"
 #include "PhotonPropagation/PhotonVisibilityService.h"

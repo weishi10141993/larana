@@ -55,6 +55,7 @@ art_make( BASENAME_ONLY
                         Filters
                         RecoObjects
                         RecoBase
+			MCBase
                         RecoAlg
                         Geometry
                         Geometry_service

@@ -37,7 +37,7 @@ namespace opdet{
   public:
   FlashHypothesisAnaAlg(fhicl::ParameterSet const& p):
     fCounterIndex(p.get<unsigned int>("SimPhotonCounterIndex",0)),
-      fdEdx(p.get<float>("dEdx"),2.1),
+      fdEdx(p.get<float>("dEdx",2.1)),
       fXOffset(p.get<float>("HypothesisXOffset",0.0)),
       fSPCAlg(p.get<fhicl::ParameterSet>("SimPhotonCounterAlgParams")) {}
     
