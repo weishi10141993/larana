@@ -9,12 +9,15 @@
  */
 
 #include "FlashHypothesisComparison.h"
+#include <algorithm>
+#include <functional>
 #include "TTree.h"
 #include "TH1F.h"
 
 void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
 							TH1F* h_h_p, TH1F* h_s_p, TH1F* h_c_p,
 							TH1F* h_h_l, TH1F* h_s_l, TH1F* h_c_l,
+							TH1F* h_h_t, TH1F* h_s_t, TH1F* h_c_t,
 							const unsigned int n_opdet)
 {
   fTree = tree;
@@ -90,6 +93,40 @@ void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
   fTree->Branch("hHypHist_l",&fHypHist_l);
   fTree->Branch("hSimHist_l",&fSimHist_l);
   fTree->Branch("hCompareHist_l",&fCompareHist_l);
+
+  fHypHist_t = h_h_t;
+  fSimHist_t = h_s_t;
+  fCompareHist_t = h_c_t;
+
+  fHypHist_t->SetBins(n_opdet,-0.5,(float)n_opdet - 0.5);
+  fSimHist_t->SetBins(n_opdet,-0.5,(float)n_opdet - 0.5);
+  fCompareHist_t->SetBins(n_opdet,-0.5,(float)n_opdet - 0.5);
+
+  fHypHist_t->SetNameTitle("hHypHist_t","Hypothesis (Total);Opdet;PEs");
+  fSimHist_t->SetNameTitle("hSimHist_t","SimPhoton (Total);Opdet;PEs");
+  fCompareHist_t->SetNameTitle("hCompareHist_t","Comparison (Hyp - Sim) (Total);Opdet;PEs");
+  
+  fTree->Branch("hyp_PEs_t",&fHypPEs_t,"hyp_PEs_t/F");
+  fTree->Branch("hyp_PEsError_t",&fHypPEsError_t,"hyp_PEsError_t/F");
+  fTree->Branch("sim_PEs_t",&fSimPEs_t,"sim_PEs_t/F");
+
+  fTree->Branch("hyp_Y_t",&fHypY_t,"hyp_Y_t/F");
+  fTree->Branch("sim_Y_t",&fSimY_t,"sim_Y_t/F");
+
+  fTree->Branch("hyp_RMSY_t",&fHypRMSY_t,"hyp_RMSY_t/F");
+  fTree->Branch("sim_RMSY_t",&fSimRMSY_t,"sim_RMSY_t/F");
+
+  fTree->Branch("hyp_Z_t",&fHypZ_t,"hyp_Z_t/F");
+  fTree->Branch("sim_Z_t",&fSimZ_t,"sim_Z_t/F");
+
+  fTree->Branch("hyp_RMSZ_t",&fHypRMSZ_t,"hyp_RMSZ_t/F");
+  fTree->Branch("sim_RMSZ_t",&fSimRMSZ_t,"sim_RMSZ_t/F");
+
+  fTree->Branch("comp_total_t",&fCompare_t,"comp_total_t/F");
+
+  fTree->Branch("hHypHist_t",&fHypHist_t);
+  fTree->Branch("hSimHist_t",&fSimHist_t);
+  fTree->Branch("hCompareHist_t",&fCompareHist_t);
 }
 
 void opdet::FlashHypothesisComparison::RunComparison(const unsigned int run,
@@ -127,13 +164,21 @@ void opdet::FlashHypothesisComparison::FillFlashHypothesisInfo(const FlashHypoth
   for(size_t i=0; i<fhc.GetVectorSize(); i++)
     fHypHist_p->SetBinContent(i+1,fhc.GetPromptHypothesis().GetHypothesis(i));
   
-  fHypPEs_l = fhc.GetPromptHypothesis().GetTotalPEs();
-  fHypPEsError_l = fhc.GetPromptHypothesis().GetTotalPEsError();
-  fUtil.GetPosition(fhc.GetPromptHypothesis().GetHypothesisVector(),posY,fHypY_l,fHypRMSY_l);
-  fUtil.GetPosition(fhc.GetPromptHypothesis().GetHypothesisVector(),posZ,fHypZ_l,fHypRMSZ_l);
+  fHypPEs_l = fhc.GetLateHypothesis().GetTotalPEs();
+  fHypPEsError_l = fhc.GetLateHypothesis().GetTotalPEsError();
+  fUtil.GetPosition(fhc.GetLateHypothesis().GetHypothesisVector(),posY,fHypY_l,fHypRMSY_l);
+  fUtil.GetPosition(fhc.GetLateHypothesis().GetHypothesisVector(),posZ,fHypZ_l,fHypRMSZ_l);
 
   for(size_t i=0; i<fhc.GetVectorSize(); i++)
     fHypHist_l->SetBinContent(i+1,fhc.GetLateHypothesis().GetHypothesis(i));
+
+  fHypPEs_t = fhc.GetTotalHypothesis().GetTotalPEs();
+  fHypPEsError_t = fhc.GetTotalHypothesis().GetTotalPEsError();
+  fUtil.GetPosition(fhc.GetTotalHypothesis().GetHypothesisVector(),posY,fHypY_t,fHypRMSY_t);
+  fUtil.GetPosition(fhc.GetTotalHypothesis().GetHypothesisVector(),posZ,fHypZ_t,fHypRMSZ_t);
+
+  for(size_t i=0; i<fhc.GetVectorSize(); i++)
+    fHypHist_t->SetBinContent(i+1,fhc.GetLateHypothesis().GetHypothesis(i));
 }
 
 void opdet::FlashHypothesisComparison::FillSimPhotonCounterInfo(const SimPhotonCounter& spc,
@@ -153,18 +198,36 @@ void opdet::FlashHypothesisComparison::FillSimPhotonCounterInfo(const SimPhotonC
 
   for(size_t i=0; i<spc.LatePhotonVector().size(); i++)
     fSimHist_l->SetBinContent(i+1,spc.LatePhotonVector()[i]);
+
+  std::vector<float> totalPhotonVector(spc.GetVectorSize());
+  std::transform(spc.PromptPhotonVector().begin(),spc.PromptPhotonVector().end(),
+		 spc.LatePhotonVector().begin(),
+		 totalPhotonVector.begin(),
+		 std::plus<float>());
+  fSimPEs_t = fSimPEs_p+fSimPEs_l;
+  fUtil.GetPosition(totalPhotonVector,posY,fSimY_t,fSimRMSY_t);
+  fUtil.GetPosition(totalPhotonVector,posZ,fSimZ_t,fSimRMSZ_t);
+  
 }
 
 void opdet::FlashHypothesisComparison::FillComparisonInfo(const FlashHypothesisCollection& fhc,
 							  const SimPhotonCounter& spc)
 {
-  std::vector<float> result_p,result_l;
+  std::vector<float> result_p,result_l,result_t;
   fCompare_p = fUtil.CompareByError(fhc.GetPromptHypothesis(),spc.PromptPhotonVector(),result_p);
   fCompare_l = fUtil.CompareByError(fhc.GetLateHypothesis(),spc.LatePhotonVector(),result_l);
+
+  std::vector<float> totalPhotonVector(spc.GetVectorSize());
+  std::transform(spc.PromptPhotonVector().begin(),spc.PromptPhotonVector().end(),
+		 spc.LatePhotonVector().begin(),
+		 totalPhotonVector.begin(),
+		 std::plus<float>());
+  fCompare_t = fUtil.CompareByError(fhc.GetTotalHypothesis(),totalPhotonVector,result_t);
 
   for(size_t i=0; i<result_p.size(); i++){
     fCompareHist_p->SetBinContent(i+1,result_p[i]);
     fCompareHist_l->SetBinContent(i+1,result_l[i]);
+    fCompareHist_t->SetBinContent(i+1,result_t[i]);
   }
   
 }

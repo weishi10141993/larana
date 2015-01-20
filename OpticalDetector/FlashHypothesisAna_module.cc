@@ -101,6 +101,7 @@ namespace opdet{
     fAlg.SetOutputObjects(tfs->make<TTree>(),
 			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),
 			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),
+			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),
 			  geo);
     fAlg.FillOpDetPositions(geo);
   }

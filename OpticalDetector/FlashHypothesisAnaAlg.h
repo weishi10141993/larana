@@ -45,6 +45,7 @@ namespace opdet{
     void SetOutputObjects(TTree*,
 			  TH1F*,TH1F*,TH1F*,
 			  TH1F*,TH1F*,TH1F*,
+			  TH1F*,TH1F*,TH1F*,
 			  geo::Geometry const&);
 
     void FillOpDetPositions(geo::Geometry const&);

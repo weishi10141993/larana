@@ -28,6 +28,7 @@ namespace opdet{
     void SetOutputObjects(TTree*,
 			  TH1F*,TH1F*,TH1F*,
 			  TH1F*,TH1F*,TH1F*,
+			  TH1F*,TH1F*,TH1F*,
 			  const unsigned int);
 
     void RunComparison(const unsigned int,
@@ -60,6 +61,9 @@ namespace opdet{
     TH1F* fHypHist_l;
     TH1F* fSimHist_l;
     TH1F* fCompareHist_l;
+    TH1F* fHypHist_t;
+    TH1F* fSimHist_t;
+    TH1F* fCompareHist_t;
 
     unsigned int fRun;
     unsigned int fEvent;
@@ -89,6 +93,19 @@ namespace opdet{
     float fHypRMSZ_l;
     float fSimRMSZ_l;
     float fCompare_l;
+
+    float fHypPEs_t;
+    float fHypPEsError_t;
+    float fSimPEs_t;    
+    float fHypY_t;
+    float fSimY_t;    
+    float fHypRMSY_t;
+    float fSimRMSY_t;    
+    float fHypZ_t;
+    float fSimZ_t;
+    float fHypRMSZ_t;
+    float fSimRMSZ_t;
+    float fCompare_t;
   };
   
 }

@@ -13,11 +13,13 @@
 void opdet::FlashHypothesisAnaAlg::SetOutputObjects(TTree *tree,
 						    TH1F* h_h_p, TH1F* h_s_p, TH1F* h_c_p,
 						    TH1F* h_h_l, TH1F* h_s_l, TH1F* h_c_l,
+						    TH1F* h_h_t, TH1F* h_s_t, TH1F* h_c_t,
 						    geo::Geometry const& geom)
 {
   fFHCompare.SetOutputObjects(tree,
 			      h_h_p,h_s_p,h_c_p,
 			      h_h_l,h_s_l,h_c_l,
+			      h_h_t,h_s_t,h_c_t,
 			      geom.NOpDet());
 }
 
