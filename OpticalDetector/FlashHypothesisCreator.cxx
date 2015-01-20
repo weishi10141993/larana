@@ -60,15 +60,15 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
     throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with mctrack size.";
 
   FlashHypothesisCollection fhc(geom.NOpDet());
-  for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++){
+  for(size_t pt=1; pt<mctrack.size(); pt++){
     if(interpolate_dEdx)
-      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack.at(pt-1).Position(),
-						   mctrack.at(pt).Position(),
+      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack[pt-1].Position(),
+						   mctrack[pt].Position(),
 						   0.5*(dEdxVector[pt]+dEdxVector[pt-1]),
 						   geom,pvs,larp,opdigip,XOffset);
     else
-      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack.at(pt-1).Position(),
-						   mctrack.at(pt).Position(),
+      fhc = fhc + CreateFlashHypothesesFromSegment(mctrack[pt-1].Position(),
+						   mctrack[pt].Position(),
 						   dEdxVector[pt],
 						   geom,pvs,larp,opdigip,XOffset);
   }
