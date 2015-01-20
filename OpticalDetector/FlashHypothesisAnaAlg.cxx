@@ -10,62 +10,53 @@
 
 #include "FlashHypothesisAnaAlg.h"
 
-void opdet::FlashHypothesisAnaAlg::SetOutputTree(TTree* tree,
-						 TH1F* hh_p, TH1F* hh_pe,
-						 TH1F* hh_l, TH1F* hh_le,
-						 TH1F* hh_t, TH1F* hh_te,
-						 TH1F* hs_p, TH1F* hs_l,
-						 TH1F* hc_p, TH1F* hc_l,
-						 geo::Geometry const& geom)
+void opdet::FlashHypothesisAnaAlg::SetOutputObjects(TTree *tree,
+						    TH1F* h_h_p, TH1F* h_s_p, TH1F* h_c_p,
+						    TH1F* h_h_l, TH1F* h_s_l, TH1F* h_c_l,
+						    geo::Geometry const& geom)
 {
-  fTree = tree;
-  int n_opdets = geom.NOpDet();
-  hhyp_prompt = hh_p; hhyp_prompt_err = hh_pe
-  hh_p->SetNameTitle(
+  fFHCompare.SetOutputObjects(tree,
+			      h_h_p,h_s_p,h_c_p,
+			      h_h_l,h_s_l,h_c_l,
+			      geom.NOpDet());
 }
 
-void opdet::FlashHypothesisAnaAlg::FillAnaTree(std::vector<TVector3> const& trajVector, 
-					       std::vector<float> const& dEdxVector,
-					       sim::SimPhotonsCollection const& simPhotonCol,
-					       geo::Geometry const& geom,
-					       opdet::OpDigiProperties const& opdigip,
-					       phot::PhotonVisibilityService const& pvs,
-					       util::LArProperties const& larp,
-					       float XOffset=0)
+void opdet::FlashHypothesisAnaAlg::FillOpDetPositions(geo::Geometry const& geom)
 {
-  FlashHypothesisCollection fhc = fFHAlg.GetFlashHypothesisCollection(trajVector, 
-								      dEdxVector,
-								      geom,
-								      pvs,
-								      larp,
-								      opdigip,
-								      XOffset=0);
-  FillFlashHypothesis(fhc);
 
+  fOpDetPositions_Y.resize(geom.NOpDet());
+  fOpDetPositions_Z.resize(geom.NOpDet());
+
+  double xyz[3];
+  for(size_t i_opdet=0; i_opdet<geom.NOpDet(); i_opdet++){
+    geom.Cryostat(0).OpDet(i_opdet).GetCenter(xyz);
+    fOpDetPositions_Y[i_opdet] = (float)xyz[1];
+    fOpDetPositions_Z[i_opdet] = (float)xyz[2];
+  }
+
+}
+
+void opdet::FlashHypothesisAnaAlg::RunComparison(const unsigned int run,
+						 const unsigned int event,
+						 std::vector<TVector3> const& trajVector, 
+						 std::vector<float> const& dEdxVector,
+						 sim::SimPhotonsCollection const& simPhotonCol,
+						 geo::Geometry const& geom,
+						 opdet::OpDigiProperties const& opdigip,
+						 phot::PhotonVisibilityService const& pvs,
+						 util::LArProperties const& larp)
+{
+  FlashHypothesisCollection fhc = fFHCreator.GetFlashHypothesisCollection(trajVector, 
+									  dEdxVector,
+									  geom,
+									  pvs,
+									  larp,
+									  opdigip,
+									  fXOffset);
   fSPCAlg.InitializeCounters(geom,opdigip);
   fSPCAlg.AddSimPhotonCollection(simPhotonCol);
-  FillSimPhotonCounter(fSPCAlg.PromptPhotonVector(fCounterIndex),fSPCAlg.LatePhotonVector(fCounterIndex));
 
-  std::vector<float> resultVec_PromptCompare(geom.NOpDet());
-  std::vector<float> resultVec_LateCompare(geom.NOpDet());
-  float result_PromptCompare = fhc.GetPromptHypothesis().CompareByError(fSPCAlg.PromptPhotonVector(fCounterIndex),
-									resultVec_PromptCompare);
-  float result_PromptCompare = fhc.GetLateHypothesis().CompareByError(fSPCAlg.LatePhotonVector(fCounterIndex),
-								      resultVec_LateCompare);
-  FillComparisonInfo(resultVec_PromptCompare,result_PromptCompare,
-		     resultVec_LateCompare,result_LateCompare);
-}
-
-void opdet::FlashHypothesisAnaAlg::FillFlashHypothesis(FlashHypothesisCollection const& fhc)
-{
-}
-
-void opdet::FlashHypothesisAnaAlg::FillSimPhotonCounter(std::vector<float> const& promptVec,
-							std::vector<float> const& lateVec)
-{
-}
-
-void opdet::FlashHypothesisAnaAlg::FillComparisonInfo(std::vector<float> const& promptVec, float const& promptTotal
-						      std::vector<float> const& lateVec, float const& lateTotal)
-{
+  fFHCompare.RunComparison(run,event,
+			   fhc,fSPCAlg.GetSimPhotonCounter(fCounterIndex),
+			   fOpDetPositions_Y,fOpDetPositions_Z);
 }

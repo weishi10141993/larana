@@ -10,13 +10,13 @@
 #include "FlashHypothesisCreator.h"
 
 opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisCreator::FlashHypothesisCollection(recob::Track const& track, 
-							 std::vector<float> const& dEdxVector,
-							 geo::Geometry const& geom,
-							 phot::PhotonVisibilityService const& pvs,
-							 util::LArProperties const& larp,
-							 opdet::OpDigiProperties const& opdigip,
-							 float XOffset)
+opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& track, 
+							    std::vector<float> const& dEdxVector,
+							    geo::Geometry const& geom,
+							    phot::PhotonVisibilityService const& pvs,
+							    util::LArProperties const& larp,
+							    opdet::OpDigiProperties const& opdigip,
+							    float XOffset)
 {
   if(track.NumberTrajectoryPoints() != dEdxVector.size())
     throw "ERROR in FlashHypothesisCreator: dEdx vector size not same as track size.";
@@ -31,13 +31,13 @@ opdet::FlashHypothesisCreator::FlashHypothesisCollection(recob::Track const& tra
 }
 
 opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisCreator::FlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
-							 std::vector<float> const& dEdxVector,
-							 geo::Geometry const& geom,
-							 phot::PhotonVisibilityService const& pvs,
-							 util::LArProperties const& larp,
-							 opdet::OpDigiProperties const& opdigip,
-							 float XOffset)
+opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
+							    std::vector<float> const& dEdxVector,
+							    geo::Geometry const& geom,
+							    phot::PhotonVisibilityService const& pvs,
+							    util::LArProperties const& larp,
+							    opdet::OpDigiProperties const& opdigip,
+							    float XOffset)
 {
   if(trajVector.size() != dEdxVector.size())
     throw "ERROR in FlashHypothesisCollection: dEdx vector size not same as track size.";
@@ -53,13 +53,13 @@ opdet::FlashHypothesisCreator::FlashHypothesisCollection(std::vector<TVector3> c
 }
 
 opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisCreator::FlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
-							 float const& dEdx,
-							 geo::Geometry const& geom,
-							 phot::PhotonVisibilityService const& pvs,
-							 util::LArProperties const& larp,
-							 opdet::OpDigiProperties const& opdigip,
-							 float XOffset)
+opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
+							    float const& dEdx,
+							    geo::Geometry const& geom,
+							    phot::PhotonVisibilityService const& pvs,
+							    util::LArProperties const& larp,
+							    opdet::OpDigiProperties const& opdigip,
+							    float XOffset)
 {
   return CreateFlashHypothesesFromSegment(pt1,pt2,dEdx,geom,pvs,larp,opdigip,XOffset);
 }

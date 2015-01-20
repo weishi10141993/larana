@@ -30,6 +30,7 @@ namespace opdet{
 
     void ClearCounters();
 
+    SimPhotonCounter   const& GetSimPhotonCounter(size_t);
     std::vector<float> const& PromptPhotonVector(size_t);
     std::vector<float> const& LatePhotonVector(size_t);
     

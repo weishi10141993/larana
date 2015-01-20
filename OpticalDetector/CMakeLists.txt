@@ -4,6 +4,8 @@
 art_make_library( LIBRARY_NAME FlashHypothesis
 		  	     SOURCE FlashHypothesis.cxx
 		                           FlashHypothesisCalculator.cxx
+		                           FlashUtilities.cxx
+		                           FlashHypothesisComparison.cxx
 			     LIBRARIES
 			                             ${ROOT_BASIC_LIB_LIST}
 )
@@ -15,7 +17,11 @@ art_make_library( LIBRARY_NAME SimPhotonCounter
 )
 
 art_make( BASENAME_ONLY
-          EXCLUDE FlashHypothesis.cxx FlashHypothesisCalculator.cxx SimPhotonCounter.cxx
+          EXCLUDE FlashHypothesis.cxx
+			 FlashHypothesisCalculator.cxx
+		         FlashUtilities.cxx
+		         FlashHypothesisComparison.cxx
+			 SimPhotonCounter.cxx
           LIBRARY_NAME OpticalDetector
           LIB_LIBRARIES 
 	  		FlashHypothesis
@@ -24,6 +30,8 @@ art_make( BASENAME_ONLY
                         Geometry
                         Geometry_service
                         PhotonVisibilityService_service
+		        OpDigiProperties_service
+		        Utilities
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}

@@ -12,9 +12,13 @@
 */
 
 #include "fhiclcpp/ParameterSet.h"
+#include "Geometry/Geometry.h"
+#include "Geometry/OpDetGeo.h"
 
-#include "FlashHypothesisAlg.h"
+#include "FlashHypothesis.h"
+#include "FlashHypothesisCreator.h"
 #include "SimPhotonCounterAlg.h"
+#include "FlashHypothesisComparison.h"
 
 #include "TTree.h"
 
@@ -23,79 +27,41 @@ namespace opdet{
   class FlashHypothesisAnaAlg{
 
   public:
-    FlashHypothesisAnaAlg(fhicl::ParameterSet const& p):
-      fSPCAlg(p.get<fhicl::ParameterSet>("SimPhotonCounterAlgParams")),
-      fCounterIndex(p.get<fhicl::ParameterSet>("SimPhotonCounterIndex")){}
+  FlashHypothesisAnaAlg(fhicl::ParameterSet const& p):
+    fCounterIndex(p.get<unsigned int>("SimPhotonCounterIndex",0)),
+      fXOffset(p.get<float>("HypothesisXOffset",0.0)),
+      fSPCAlg(p.get<fhicl::ParameterSet>("SimPhotonCounterAlgParams")) {}
+    
+    
+    void SetOutputObjects(TTree*,
+			  TH1F*,TH1F*,TH1F*,
+			  TH1F*,TH1F*,TH1F*,
+			  geo::Geometry const&);
 
-
-    void SetOutputTree(TTree*,
-		       TH1F*, TH1F*,
-		       TH1F*, TH1F*,
-		       TH1F*, TH1F*,
-		       TH1F*, TH1F*,
-		       TH1F*, TH1F*,
-		       geo::Geometry const&);
-		       
-    void FillAnaTree(std::vector<TVector3> const& trajVector, 
-		     std::vector<float> const& dEdxVector,
-		     sim::SimPhotonsCollection const&,
-		     geo::Geometry const& geom,
-		     opdet::OpDigiProperties const& opdigip,
-		     phot::PhotonVisibilityService const& pvs,
-		     util::LArProperties const& larp,
-		     float XOffset=0);
-		     
+    void FillOpDetPositions(geo::Geometry const&);
+    
+    void RunComparison(const unsigned int run,
+		       const unsigned int event,
+		       std::vector<TVector3> const& trajVector, 
+		       std::vector<float> const& dEdxVector,
+		       sim::SimPhotonsCollection const&,
+		       geo::Geometry const& geom,
+		       opdet::OpDigiProperties const& opdigip,
+		       phot::PhotonVisibilityService const& pvs,
+		       util::LArProperties const& larp);
+    
     
   private:
 
     unsigned int        fCounterIndex;
+    float               fXOffset;
 
-    FlashHypothesisAlg  fFHAlg;
-    SimPhotonCounterAlg fSPCAlg;
+    FlashHypothesisCreator    fFHCreator;
+    SimPhotonCounterAlg       fSPCAlg;
+    FlashHypothesisComparison fFHCompare;
 
-    TTree *fTree;
-
-    typedef struct {
-      unsigned int run;
-      unsigned int event;
-
-      float comp_tot_prompt;
-      float comp_tot_late;
-    } FlashHypothesisAnaAlg_t;
-    
-    FlashHypothesisAnaAlg_t fStruct;
-
-    TH1F* hhyp_prompt;
-    TH1F* hhyp_prompt_err;
-    TH1F* hhyp_late;
-    TH1F* hhyp_late_err;
-    TH1F* hhyp_total;
-    TH1F* hhyp_total_err;
-
-    TH1F* hsim_prompt;
-    TH1F* hsim_late;
-
-    TH1F* hcomp_prompt;
-    TH1F* hcomp_late;
-
-    /*
-    std::vector<float> fhyp_prompt;
-    std::vector<float> fhyp_prompt_err;
-    std::vector<float> fhyp_late;
-    std::vector<float> fhyp_late_err;
-    std::vector<float> fhyp_total;
-    std::vector<float> fhyp_total_err;
-
-    std::vector<float> fsim_prompt;
-    std::vector<float> fsim_late;
-
-    std::vector<float> fcomp_prompt;
-    std::vector<float> fcomp_late;
-    */
-    void FillFlashHypothesis(FlashHypothesisCollection const&);
-    void FillSimPhotonCounter(std::vector<float> const&, std::vector<float> const&);
-    void FillComparisonInfo(std::vector<float> const&, float const&,
-			    std::vector<float> const&, float const&);
+    std::vector<float> fOpDetPositions_Y;
+    std::vector<float> fOpDetPositions_Z;
     
   };
   

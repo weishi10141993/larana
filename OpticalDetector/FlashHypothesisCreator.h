@@ -35,29 +35,29 @@ namespace opdet{
   public:
     FlashHypothesisCreator() {}
     
-    FlashHypothesisCollection FlashHypothesisCollection(recob::Track const& track, 
-							std::vector<float> const& dEdxVector,
-							geo::Geometry const& geom,
-							phot::PhotonVisibilityService const& pvs,
-							util::LArProperties const& larp,
-							opdet::OpDigiProperties const& opdigip,
-							float XOffset=0);
+    FlashHypothesisCollection GetFlashHypothesisCollection(recob::Track const& track, 
+							   std::vector<float> const& dEdxVector,
+							   geo::Geometry const& geom,
+							   phot::PhotonVisibilityService const& pvs,
+							   util::LArProperties const& larp,
+							   opdet::OpDigiProperties const& opdigip,
+							   float XOffset=0);
     
-    FlashHypothesisCollection FlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
-							std::vector<float> const& dEdxVector,
-							geo::Geometry const& geom,
-							phot::PhotonVisibilityService const& pvs,
-							util::LArProperties const& larp,
-							opdet::OpDigiProperties const& opdigip,
-							float XOffset=0);
+    FlashHypothesisCollection GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
+							   std::vector<float> const& dEdxVector,
+							   geo::Geometry const& geom,
+							   phot::PhotonVisibilityService const& pvs,
+							   util::LArProperties const& larp,
+							   opdet::OpDigiProperties const& opdigip,
+							   float XOffset=0);
     
-    FlashHypothesisCollection FlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
-							float const& dEdx,
-							geo::Geometry const& geom,
-							phot::PhotonVisibilityService const& pvs,
-							util::LArProperties const& larp,
-							opdet::OpDigiProperties const& opdigip,
-							float XOffset=0);
+    FlashHypothesisCollection GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
+							   float const& dEdx,
+							   geo::Geometry const& geom,
+							   phot::PhotonVisibilityService const& pvs,
+							   util::LArProperties const& larp,
+							   opdet::OpDigiProperties const& opdigip,
+							   float XOffset=0);
     
   private: 
     FlashHypothesisCollection CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 

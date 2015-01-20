@@ -85,3 +85,8 @@ std::vector<float> const& opdet::SimPhotonCounterAlg::LatePhotonVector(size_t i)
 {
   return fCounters.at(i).LatePhotonVector();
 }
+
+opdet::SimPhotonCounter const& opdet::SimPhotonCounterAlg::GetSimPhotonCounter(size_t i)
+{
+  return fCounters.at(i);
+}
