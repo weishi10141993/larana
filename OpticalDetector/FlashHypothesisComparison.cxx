@@ -9,8 +9,6 @@
  */
 
 #include "FlashHypothesisComparison.h"
-#include <algorithm>
-#include <functional>
 #include "TTree.h"
 #include "TH1F.h"
 
@@ -199,14 +197,12 @@ void opdet::FlashHypothesisComparison::FillSimPhotonCounterInfo(const SimPhotonC
   for(size_t i=0; i<spc.LatePhotonVector().size(); i++)
     fSimHist_l->SetBinContent(i+1,spc.LatePhotonVector()[i]);
 
-  std::vector<float> totalPhotonVector(spc.GetVectorSize());
-  std::transform(spc.PromptPhotonVector().begin(),spc.PromptPhotonVector().end(),
-		 spc.LatePhotonVector().begin(),
-		 totalPhotonVector.begin(),
-		 std::plus<float>());
   fSimPEs_t = fSimPEs_p+fSimPEs_l;
-  fUtil.GetPosition(totalPhotonVector,posY,fSimY_t,fSimRMSY_t);
-  fUtil.GetPosition(totalPhotonVector,posZ,fSimZ_t,fSimRMSZ_t);
+  fUtil.GetPosition(spc.TotalPhotonVector(),posY,fSimY_t,fSimRMSY_t);
+  fUtil.GetPosition(spc.TotalPhotonVector(),posZ,fSimZ_t,fSimRMSZ_t);
+
+  for(size_t i=0; i<spc.GetVectorSize(); i++)
+    fSimHist_t->SetBinContent(i+1,spc.TotalPhotonVector(i));
   
 }
 
@@ -216,13 +212,7 @@ void opdet::FlashHypothesisComparison::FillComparisonInfo(const FlashHypothesisC
   std::vector<float> result_p,result_l,result_t;
   fCompare_p = fUtil.CompareByError(fhc.GetPromptHypothesis(),spc.PromptPhotonVector(),result_p);
   fCompare_l = fUtil.CompareByError(fhc.GetLateHypothesis(),spc.LatePhotonVector(),result_l);
-
-  std::vector<float> totalPhotonVector(spc.GetVectorSize());
-  std::transform(spc.PromptPhotonVector().begin(),spc.PromptPhotonVector().end(),
-		 spc.LatePhotonVector().begin(),
-		 totalPhotonVector.begin(),
-		 std::plus<float>());
-  fCompare_t = fUtil.CompareByError(fhc.GetTotalHypothesis(),totalPhotonVector,result_t);
+  fCompare_t = fUtil.CompareByError(fhc.GetTotalHypothesis(),spc.TotalPhotonVector(),result_t);
 
   for(size_t i=0; i<result_p.size(); i++){
     fCompareHist_p->SetBinContent(i+1,result_p[i]);

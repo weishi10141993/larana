@@ -1,6 +1,8 @@
 #include "SimPhotonCounter.h"
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
+#include <functional>
 
 opdet::SimPhotonCounter::SimPhotonCounter(size_t s,
 					  float t_p1, float t_p2,
@@ -86,14 +88,24 @@ void opdet::SimPhotonCounter::ClearVectors()
   }
 }
 
+std::vector<float> opdet::SimPhotonCounter::TotalPhotonVector() const{
+  
+  std::vector<float> totalPhotonVector(GetVectorSize());
+  std::transform(PromptPhotonVector().begin(),PromptPhotonVector().end(),
+		 LatePhotonVector().begin(),
+		 totalPhotonVector.begin(),
+		 std::plus<float>());
+  return totalPhotonVector;
+}
+
 void opdet::SimPhotonCounter::Print()
 {
   std::cout << "Vector size: " << GetVectorSize() << std::endl;
   std::cout << "Time cut ranges: ("
 	    << MinPromptTime() << "," << MaxPromptTime() << ") , ("
 	    << MinLateTime() << "," << MaxLateTime() << ")" << std::endl;
-  std::cout << "\t" << "i : QE / Prompt / Late" << std::endl;
+  std::cout << "\t" << "i : QE / Prompt / Late / Total" << std::endl;
   for(size_t i=0; i<GetVectorSize(); i++)
-    std::cout << "\t" << i << ": " << _qeVector[i] << " / " << _photonVector_prompt[i] << " / " << _photonVector_late[i] << std::endl;
+    std::cout << "\t" << i << ": " << _qeVector[i] << " / " << _photonVector_prompt[i] << " / " << _photonVector_late[i] << " / " << TotalPhotonVector(i) << std::endl;
   
 }

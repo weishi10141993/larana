@@ -5,7 +5,6 @@ art_make_library( LIBRARY_NAME FlashHypothesis
 		  	     SOURCE FlashHypothesis.cxx
 		                           FlashHypothesisCalculator.cxx
 		                           FlashUtilities.cxx
-		                           FlashHypothesisComparison.cxx
 			     LIBRARIES
 			                             ${ROOT_BASIC_LIB_LIST}
 )
@@ -13,6 +12,14 @@ art_make_library( LIBRARY_NAME FlashHypothesis
 art_make_library( LIBRARY_NAME SimPhotonCounter
 		  	     SOURCE SimPhotonCounter.cxx
 			     LIBRARIES
+			                ${ROOT_BASIC_LIB_LIST}
+)
+
+art_make_library( LIBRARY_NAME FlashHypothesisComparison
+		  	     SOURCE FlashHypothesisComparison.cxx
+			     LIBRARIES
+					FlashHypothesis
+					SimPhotonCounter
 			                ${ROOT_BASIC_LIB_LIST}
 )
 
@@ -26,6 +33,7 @@ art_make( BASENAME_ONLY
           LIB_LIBRARIES 
 	  		FlashHypothesis
 			SimPhotonCounter
+	  		FlashHypothesisComparison
 			RecoBase
 			MCBase
                         Geometry

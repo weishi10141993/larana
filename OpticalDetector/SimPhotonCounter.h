@@ -51,13 +51,18 @@ namespace opdet{
     void ClearVectors();
     const std::vector<float>& PromptPhotonVector() const { return _photonVector_prompt; }
     const std::vector<float>& LatePhotonVector() const { return _photonVector_late; }
-    float PromptPhotonVector(size_t i) { return _photonVector_prompt.at(i); }
-    float LatePhotonVector(size_t i) { return _photonVector_late.at(i); }
+    float PromptPhotonVector(size_t i) const { return _photonVector_prompt.at(i); }
+    float LatePhotonVector(size_t i) const { return _photonVector_late.at(i); }
+
+    std::vector<float> TotalPhotonVector() const;
+    float TotalPhotonVector(size_t i) const
+    { return (PromptPhotonVector(i)+LatePhotonVector(i)); }
 
     float PromptPhotonTotal() const
     { return std::accumulate(_photonVector_prompt.begin(),_photonVector_prompt.end(),0.0); }
     float LatePhotonTotal() const
     { return std::accumulate(_photonVector_late.begin(),_photonVector_late.end(),0.0); }
+    float PhotonTotal() const { return (PromptPhotonTotal()+LatePhotonTotal()); }
     
     void Print();
     
