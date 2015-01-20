@@ -49,18 +49,11 @@ standard_opdigiproperties_3windows: @local::standard_opdigiproperties
 standard_opdigiproperties_3windows.TimeBegin: -1600
 standard_opdigiproperties_3windows.TimeEnd:    4800
 
-microboone_opdigiproperties:           @local::standard_opdigiproperties
-microboone_opdigiproperties_3windows:  @local::standard_opdigiproperties_3windows
-
 
 standard_opdetresponse:
 {
-   QuantumEfficiency:       1
-   WavelengthCutLow:        0 
-   WavelengthCutHigh:       10000
-   LightGuideAttenuation:   false
+   service_provider:        DefaultOpDetResponse
 }
 
-microboone_opdetresponse: @local::standard_opdetresponse
 
 END_PROLOG
