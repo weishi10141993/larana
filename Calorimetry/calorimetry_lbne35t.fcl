@@ -8,8 +8,8 @@ lbne35t_calorimetryalgmc:	@local::standard_calorimetryalgmc
 lbne35t_calodata:
 {
  module_type:            "Calorimetry"
- TrackModuleLabel:       "track3d"
- HitsModuleLabel:        "ffthit"
+ TrackModuleLabel:       "costrk"
+ SpacePointModuleLabel:  "costrk"
  UseArea:		 false
  CaloAlg:	         @local::lbne35t_calorimetryalgdata
 }
@@ -17,8 +17,8 @@ lbne35t_calodata:
 lbne35t_calomc:
 {
  module_type:            "Calorimetry"
- TrackModuleLabel:       "track3d"
- HitsModuleLabel:        "gaushit"
+ TrackModuleLabel:       "costrk"
+ SpacePointModuleLabel:  "costrk"
  UseArea:		 false
  MakeTree:               false
  CaloAlg:	         @local::lbne35t_calorimetryalgmc
