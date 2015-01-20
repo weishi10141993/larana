@@ -308,7 +308,7 @@ namespace opdet {
 	      {
 		int VoxID; double NProd;
 		pvs->RetrieveLightProd(VoxID, NProd);
-		pvs->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetAll)/NProd);		
+		pvs->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetDetected)/NProd);		
 	      }
 
 
