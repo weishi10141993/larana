@@ -52,7 +52,7 @@ namespace opdet{
     void RunComparison(const unsigned int run,
 		       const unsigned int event,
 		       std::vector<sim::MCTrack> const&, 
-		       sim::SimPhotonsCollection const&,
+		       std::vector<sim::SimPhotons> const&,
 		       geo::Geometry const& geom,
 		       opdet::OpDigiProperties const& opdigip,
 		       phot::PhotonVisibilityService const& pvs,

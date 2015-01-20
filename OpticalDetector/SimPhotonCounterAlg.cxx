@@ -70,6 +70,13 @@ void opdet::SimPhotonCounterAlg::AddSimPhotonCollection(sim::SimPhotonsCollectio
       counter.AddSimPhotons(photons.second);
 }
 
+void opdet::SimPhotonCounterAlg::AddSimPhotonsVector(std::vector<sim::SimPhotons> const& spv)
+{
+  for(auto const& photons : spv)
+    for(auto & counter : fCounters)
+      counter.AddSimPhotons(photons);
+}
+
 void opdet::SimPhotonCounterAlg::ClearCounters()
 {
   for(auto & counter : fCounters)

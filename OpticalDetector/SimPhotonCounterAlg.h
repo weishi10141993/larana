@@ -27,6 +27,7 @@ namespace opdet{
 			    opdet::OpDigiProperties const&);
     
     void AddSimPhotonCollection(sim::SimPhotonsCollection const&);
+    void AddSimPhotonsVector(std::vector<sim::SimPhotons> const&);
 
     void ClearCounters();
 
