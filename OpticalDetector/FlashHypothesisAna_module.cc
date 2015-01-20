@@ -48,7 +48,7 @@ namespace opdet{
   private:
     
     std::string fMCTrackLabel;
-    std::string fMCSimPhotonCollectionLabel;
+    std::string fMCSimPhotonsLabel;
     
     FlashHypothesisAnaAlg fAlg;
     
@@ -59,12 +59,36 @@ namespace opdet{
     :
     EDAnalyzer(p),
     fMCTrackLabel(p.get<std::string>("MCTrackLabel")),
-    fMCSimPhotonCollectionLabel(p.get<std::string>("MCSimPhotonCollectionLabel")),
+    fMCSimPhotonsLabel(p.get<std::string>("MCSimPhotonsLabel")),
     fAlg(p.get<fhicl::ParameterSet>("FlashHypothesisAnaAlgParams"))
   {}
   
   void FlashHypothesisAna::analyze(art::Event const & e)
   {
+
+    art::Handle< std::vector<sim::MCTrack> > mctrackHandle;
+    e.getByLabel(fMCTrackLabel,mctrackHandle);
+    std::vector<sim::MCTrack> const& mctrackVec(*mctrackHandle);
+
+    art::Handle< std::vector<sim::SimPhotons> > simPhotonsHandle;
+    e.getByLabel(fMCSimPhotonsLabel,simPhotonsHandle);
+    std::vector<sim::SimPhotons> const& simPhotonsVec(*simPhotonsHandle);
+
+
+    art::ServiceHandle<geo::Geometry> geoHandle;
+    art::ServiceHandle<opdet::OpDigiProperties> opdigiHandle;
+    art::ServiceHandle<phot::PhotonVisibilityService> pvsHandle;
+    art::ServiceHandle<util::LArProperties> larpHandle;
+
+    geo::Geometry const& geo(*geoHandle);
+    opdet::OpDigiProperties const& opdigi(*opdigiHandle);
+    phot::PhotonVisibilityService const& pvs(*pvsHandle);
+    util::LArProperties const& larp(*larpHandle);
+
+    fAlg.RunComparison((unsigned int)e.run(),(unsigned int)e.id().event(),
+		       mctrackVec,simPhotonsVec,
+		       geo,opdigi,pvs,larp);
+
   }
   
   void FlashHypothesisAna::beginJob()
