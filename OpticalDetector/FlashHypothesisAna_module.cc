@@ -98,7 +98,7 @@ namespace opdet{
     
     art::ServiceHandle<art::TFileService> tfs;    
 
-    fAlg.SetOutputObjects(tfs->make<TTree>(),
+    fAlg.SetOutputObjects(tfs->make<TTree>("ctree","FlashHypothesisAnaTree"),
 			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),
 			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),
 			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),

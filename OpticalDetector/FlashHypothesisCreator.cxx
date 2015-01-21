@@ -21,7 +21,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
   bool interpolate_dEdx=false;
   if(track.NumberTrajectoryPoints() == dEdxVector.size())
     interpolate_dEdx=true;
-  else if(track.NumberTrajectoryPoints() == dEdxVector.size()-1)
+  else if(track.NumberTrajectoryPoints() == dEdxVector.size()+1)
     interpolate_dEdx=false;
   else
     throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with track size.";
@@ -36,7 +36,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
     else
       fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
 						   track.LocationAtPoint(pt),
-						   dEdxVector[pt],
+						   dEdxVector[pt-1],
 						   geom,pvs,larp,opdigip,XOffset);
   }
   return fhc;
@@ -54,7 +54,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
   bool interpolate_dEdx=false;
   if(mctrack.size() == dEdxVector.size())
     interpolate_dEdx=true;
-  else if(mctrack.size() == dEdxVector.size()-1)
+  else if(mctrack.size() == dEdxVector.size()+1)
     interpolate_dEdx=false;
   else
     throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with mctrack size.";
@@ -69,7 +69,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
     else
       fhc = fhc + CreateFlashHypothesesFromSegment(mctrack[pt-1].Position().Vect(),
 						   mctrack[pt].Position().Vect(),
-						   dEdxVector[pt],
+						   dEdxVector[pt-1],
 						   geom,pvs,larp,opdigip,XOffset);
   }
   return fhc;
@@ -87,7 +87,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3
   bool interpolate_dEdx=false;
   if(trajVector.size() == dEdxVector.size())
     interpolate_dEdx=true;
-  else if(trajVector.size() == dEdxVector.size()-1)
+  else if(trajVector.size() == dEdxVector.size()+1)
     interpolate_dEdx=false;
   else
     throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with trajVector size.";
@@ -102,7 +102,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3
     else
       fhc = fhc + CreateFlashHypothesesFromSegment(trajVector[pt-1],
 						   trajVector[pt],
-						   dEdxVector[pt],
+						   dEdxVector[pt-1],
 						   geom,pvs,larp,opdigip,XOffset);
   }
   return fhc;
