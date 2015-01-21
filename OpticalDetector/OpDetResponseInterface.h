@@ -32,27 +32,43 @@ namespace opdet
         virtual ~OpDetResponseInterface() = default;
 
         virtual void reconfigure(fhicl::ParameterSet const& p);
+        virtual int  NOpChannels() const;
         virtual bool detected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const;
         virtual bool detected(int OpChannel, const sim::OnePhoton& Phot) const;
         virtual bool detectedLite(int OpChannel, int &newOpChannel) const;
         virtual bool detectedLite(int OpChannel) const;
-
+        
         virtual float wavelength(double energy) const;
 
     private:
         virtual void doReconfigure(fhicl::ParameterSet const& p) = 0;
+        virtual int  doNOpChannels() const;
         virtual bool doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const = 0;
         virtual bool doDetectedLite(int OpChannel, int &newOpChannel) const = 0;
 
-
     }; // class OpDetResponse
 
+    
     //-------------------------------------------------------------------------------------------------------------
     inline void OpDetResponseInterface::reconfigure(fhicl::ParameterSet const& p)
     {
         doReconfigure(p);
     }
     
+    //-------------------------------------------------------------------------------------------------------------
+    inline int OpDetResponseInterface::NOpChannels() const
+    {
+        return doNOpChannels();
+    }
+
+    //-------------------------------------------------------------------------------------------------------------
+    inline int OpDetResponseInterface::doNOpChannels() const
+    {
+        // By default return the number of detector channels
+        art::ServiceHandle<geo::Geometry> geom;
+        return geom->NOpChannels();
+    }
+
     //-------------------------------------------------------------------------------------------------------------
     inline bool OpDetResponseInterface::detected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const
     {

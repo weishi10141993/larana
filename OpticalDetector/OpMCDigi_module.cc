@@ -16,7 +16,7 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "RawData/OpDetPulse.h"
 #include "Simulation/sim.h"
-#include "Geometry/Geometry.h"
+//#include "Geometry/Geometry.h"
 #include "OpticalDetector/OpDigiProperties.h"
 #include "OpticalDetector/OpDetResponseInterface.h"
 
@@ -224,8 +224,7 @@ namespace opdet {
 
     int nSamples = ( TimeEnd_ns-TimeBegin_ns)*SampleFreq_ns;
     
-    art::ServiceHandle<geo::Geometry> geom;
-    int NOpChannels = geom->NOpChannels();
+    int NOpChannels = odresponse->NOpChannels();
 
 
     // This vector will store all the waveforms we will make
@@ -241,12 +240,13 @@ namespace opdet {
 	const sim::SimPhotons& ThePhot=itOpDet->second;
 	
 	int Ch = ThePhot.OpChannel();
+        int readoutCh;
 	
 	// For every photon in the hit:
 	for(const sim::OnePhoton& Phot: ThePhot)
 	  {
 	    // Sample a random subset according to QE
-            if(odresponse->detected(Ch, Phot))
+            if(odresponse->detected(Ch, Phot, readoutCh))
 	      {
 		
 		// Convert photon arrival time to the appropriate bin, dictated by fSampleFreq. Photon arrival time is in ns, beginning time in us, and sample frequency in MHz. Notice that we have to accommodate for the beginning time
@@ -255,7 +255,7 @@ namespace opdet {
 		    int binTime = int((Phot.Time - TimeBegin_ns) * SampleFreq_ns);		
 	
 		    // Call function to add waveforms to our pulse
-		    AddTimedWaveform( binTime, PulsesFromDetPhotons[Ch], fSinglePEWaveform );
+		    AddTimedWaveform( binTime, PulsesFromDetPhotons[readoutCh], fSinglePEWaveform );
 		    
 		  }
 	      } // random QE cut
@@ -271,6 +271,8 @@ namespace opdet {
     for ( auto const& photon : (*photonHandle) )
     {
       int Ch=photon.OpChannel;
+      int readoutCh;
+      
       std::map<int, int> PhotonsMap = photon.DetectedPhotons;
 	
       // For every photon in the hit:
@@ -279,7 +281,7 @@ namespace opdet {
         for(int i = 0; i < it->second; i++)
         {
 	      // Sample a random subset according to QE
-              if(odresponse->detectedLite(Ch))
+              if(odresponse->detectedLite(Ch, readoutCh))
 	      {
               // Convert photon arrival time to the appropriate bin, dictated by fSampleFreq.
               // Photon arrival time is in ns, beginning time in us, and sample frequency in MHz.
@@ -289,7 +291,7 @@ namespace opdet {
                 int binTime = int((it->first - TimeBegin_ns) * SampleFreq_ns);		
 	
                 // Call function to add waveforms to our pulse
-                AddTimedWaveform( binTime, PulsesFromDetPhotons[Ch], fSinglePEWaveform );
+                AddTimedWaveform( binTime, PulsesFromDetPhotons[readoutCh], fSinglePEWaveform );
               }
           } // random QE cut
         }
