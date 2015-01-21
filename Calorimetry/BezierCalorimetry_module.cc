@@ -91,7 +91,7 @@ void calo::BezierCalorimetry::reconfigure(fhicl::ParameterSet const& pset)
 void calo::BezierCalorimetry::produce(art::Event& evt)
 { 
   art::Handle< std::vector<recob::Track> > trackHandle;
-  evt.getByLabel(fBTrackModuleLabel, trackHandle);
+  evt.getByLabel(fBTrackModuleLabel, "bezierformat", trackHandle);
   std::vector< art::Ptr<recob::Track> > tracks;
   art::fill_ptr_vector(tracks, trackHandle);
   
