@@ -35,8 +35,10 @@ namespace opdet{
 
 
     //--------------------------------------------------------------------
-    bool MicrobooneOpDetResponse::doDetected(int OpChannel, const sim::OnePhoton& Phot) const
+    bool MicrobooneOpDetResponse::doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const
     {
+        newOpChannel = OpChannel;
+        
         // Check QE
         if ( CLHEP::RandFlat::shoot(1.0) > fQE ) return false;
 
@@ -49,8 +51,10 @@ namespace opdet{
     }
     
     //--------------------------------------------------------------------
-    bool MicrobooneOpDetResponse::doDetectedLite(int OpChannel) const
+    bool MicrobooneOpDetResponse::doDetectedLite(int OpChannel, int &newOpChannel) const
     {
+        newOpChannel = OpChannel;
+        
         // Check QE
         if ( CLHEP::RandFlat::shoot(1.0) > fQE ) return false;
 

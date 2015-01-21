@@ -29,14 +29,16 @@ namespace opdet{
 
 
     //--------------------------------------------------------------------
-    bool DefaultOpDetResponse::doDetected(int /*OpChannel*/, const sim::OnePhoton& /*Phot*/) const
+    bool DefaultOpDetResponse::doDetected(int OpChannel, const sim::OnePhoton& /*Phot*/, int &newOpChannel) const
     {
+        newOpChannel = OpChannel;
         return true;
     }
     
     //--------------------------------------------------------------------
-    bool DefaultOpDetResponse::doDetectedLite(int /*OpChannel*/) const
+    bool DefaultOpDetResponse::doDetectedLite(int OpChannel, int &newOpChannel) const
     {
+        newOpChannel = OpChannel;
         return true;
     }
 

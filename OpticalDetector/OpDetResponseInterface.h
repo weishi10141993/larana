@@ -32,24 +32,58 @@ namespace opdet
         virtual ~OpDetResponseInterface() = default;
 
         virtual void reconfigure(fhicl::ParameterSet const& p);
+        virtual bool detected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const;
         virtual bool detected(int OpChannel, const sim::OnePhoton& Phot) const;
+        virtual bool detectedLite(int OpChannel, int &newOpChannel) const;
         virtual bool detectedLite(int OpChannel) const;
 
         virtual float wavelength(double energy) const;
 
     private:
         virtual void doReconfigure(fhicl::ParameterSet const& p) = 0;
-        virtual bool doDetected(int OpChannel, const sim::OnePhoton& Phot) const = 0;
-        virtual bool doDetectedLite(int OpChannel) const = 0;
+        virtual bool doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const = 0;
+        virtual bool doDetectedLite(int OpChannel, int &newOpChannel) const = 0;
 
 
     }; // class OpDetResponse
 
-    inline void OpDetResponseInterface::reconfigure(fhicl::ParameterSet const& p) { doReconfigure(p); }
-    inline bool OpDetResponseInterface::detected(int OpChannel, const sim::OnePhoton& Phot) const { return doDetected(OpChannel, Phot); }
-    inline bool OpDetResponseInterface::detectedLite(int OpChannel) const { return doDetectedLite(OpChannel); }
+    //-------------------------------------------------------------------------------------------------------------
+    inline void OpDetResponseInterface::reconfigure(fhicl::ParameterSet const& p)
+    {
+        doReconfigure(p);
+    }
+    
+    //-------------------------------------------------------------------------------------------------------------
+    inline bool OpDetResponseInterface::detected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const
+    {
+        return doDetected(OpChannel, Phot, newOpChannel);
+    }
 
-    inline float OpDetResponseInterface::wavelength(double energy) const { return (2.0*3.142)*0.000197/energy; }
+    //-------------------------------------------------------------------------------------------------------------
+    inline bool OpDetResponseInterface::detected(int OpChannel, const sim::OnePhoton& Phot) const
+    {
+        int newOpChannel;
+        return doDetected(OpChannel, Phot, newOpChannel);
+    }
+    
+    //-------------------------------------------------------------------------------------------------------------
+    inline bool OpDetResponseInterface::detectedLite(int OpChannel, int &newOpChannel) const
+    {
+        return doDetectedLite(OpChannel, newOpChannel);
+    }
+
+    //-------------------------------------------------------------------------------------------------------------
+    inline bool OpDetResponseInterface::detectedLite(int OpChannel) const
+    {
+        int newOpChannel;
+        return doDetectedLite(OpChannel, newOpChannel);
+    }
+
+    //-------------------------------------------------------------------------------------------------------------
+    inline float OpDetResponseInterface::wavelength(double energy) const
+    {
+        return (2.0*3.142)*0.000197/energy;
+    }
 
 } //namespace opdet
 
