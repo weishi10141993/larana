@@ -49,6 +49,7 @@ void opdet::FlashHypothesisAnaAlg::RunComparison(const unsigned int run,
 {
   FlashHypothesisCollection fhc(geom.NOpDet());
   for(auto const& mctrack : mctrackVec){
+    if(mctrack.size()==0) continue;
     std::vector<float> dEdxVector(mctrack.size()-1,fdEdx);
     fhc = fhc + fFHCreator.GetFlashHypothesisCollection(mctrack, 
 							dEdxVector,
