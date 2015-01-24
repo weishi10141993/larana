@@ -32,7 +32,13 @@ namespace opdet
         virtual ~OpDetResponseInterface() = default;
 
         virtual void reconfigure(fhicl::ParameterSet const& p);
+
         virtual int  NOpChannels() const;
+
+        // Can only uniquely go from readout to geometry since
+        // one geometrical channel goes to multiple readout channels
+        virtual int  readoutToGeoChannel(int readoutChannel) const;
+        
         virtual bool detected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const;
         virtual bool detected(int OpChannel, const sim::OnePhoton& Phot) const;
         virtual bool detectedLite(int OpChannel, int &newOpChannel) const;
@@ -42,7 +48,10 @@ namespace opdet
 
     private:
         virtual void doReconfigure(fhicl::ParameterSet const& p) = 0;
+
         virtual int  doNOpChannels() const;
+        virtual int  doReadoutToGeoChannel(int readoutChannel) const;
+        
         virtual bool doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const = 0;
         virtual bool doDetectedLite(int OpChannel, int &newOpChannel) const = 0;
 
@@ -54,6 +63,9 @@ namespace opdet
     {
         doReconfigure(p);
     }
+
+
+    
     
     //-------------------------------------------------------------------------------------------------------------
     inline int OpDetResponseInterface::NOpChannels() const
@@ -68,6 +80,22 @@ namespace opdet
         art::ServiceHandle<geo::Geometry> geom;
         return geom->NOpChannels();
     }
+    
+    //-------------------------------------------------------------------------------------------------------------
+    inline int OpDetResponseInterface::readoutToGeoChannel(int readoutChannel) const
+    {
+        return  doReadoutToGeoChannel(readoutChannel);
+    }
+
+    //-------------------------------------------------------------------------------------------------------------
+    inline int OpDetResponseInterface::doReadoutToGeoChannel(int readoutChannel) const
+    {
+        // By default the readout and geometry channels are the same
+        return readoutChannel;
+    }
+
+
+    
 
     //-------------------------------------------------------------------------------------------------------------
     inline bool OpDetResponseInterface::detected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const
