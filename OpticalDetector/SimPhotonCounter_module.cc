@@ -49,6 +49,7 @@
 
 // LArSoft includes
 #include "PhotonPropagation/PhotonVisibilityService.h"
+#include "OpticalDetector/OpDetResponseInterface.h"
 #include "Simulation/SimListUtils.h"
 #include "Simulation/sim.h"
 #include "Simulation/LArG4Parameters.h"
@@ -142,9 +143,9 @@ namespace opdet {
     fMakeDetectedPhotonsTree=  pset.get<bool>("MakeDetectedPhotonsTree");
     fMakeOpDetsTree=           pset.get<bool>("MakeOpDetsTree");
     fMakeOpDetEventsTree=      pset.get<bool>("MakeOpDetEventsTree");
-    fQE=                       pset.get<double>("QuantumEfficiency");
-    fWavelengthCutLow=         pset.get<double>("WavelengthCutLow");
-    fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");
+    //fQE=                       pset.get<double>("QuantumEfficiency");
+    //fWavelengthCutLow=         pset.get<double>("WavelengthCutLow");
+    //fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");
     // get the random number seed, use a random default if not specified    
     // in the configuration file.  
     unsigned int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
@@ -225,211 +226,214 @@ namespace opdet {
     art::ServiceHandle<sim::LArG4Parameters> lgp;
     bool fUseLitePhotons = lgp->UseLitePhotons();
 
+    // Service for determining opdet responses
+    art::ServiceHandle<opdet::OpDetResponseInterface> odresponse;
+
     if(!fUseLitePhotons)
     {
-      //Get SimPhotonsCollection from Event
-      sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,fInputModule);
-      
-      //Reset counters
-      fCountEventAll=0;
-      fCountEventDetected=0;
-      
-      if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< TheHitCollection.size()<<std::endl;
-      if(TheHitCollection.size()>0)
-	{
-	  for(sim::SimPhotonsCollection::const_iterator itOpDet=TheHitCollection.begin(); itOpDet!=TheHitCollection.end(); itOpDet++)
-	    {
-	      //Reset Counters
-	      fCountOpDetAll=0;
-	      fCountOpDetDetected=0;
-	      
-	      //Get data from HitCollection entry
-	      fOpChannel=itOpDet->first;
-	      const sim::SimPhotons& TheHit=itOpDet->second;
-	      
-	      //	    std::cout<<"OpDet " << fOpChannel << " has size " << TheHit.size()<<std::endl;
-	      
-	      // Loop through OpDet phots.  
-	      //   Note we make the screen output decision outside the loop
-	      //   in order to avoid evaluating large numbers of unnecessary 
-	      //   if conditions. 
-	      
-	      if(fVerbosity > 3)
-		{
-		  for(const sim::OnePhoton& Phot: TheHit)
-		    {
-		      // Calculate wavelength in nm
-		      fWavelength= (2.0*3.142)*0.000197/Phot.Energy;
-		      
+    //Get SimPhotonsCollection from Event
+    sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,fInputModule);
+
+    //Reset counters
+    fCountEventAll=0;
+    fCountEventDetected=0;
+
+    if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< TheHitCollection.size()<<std::endl;
+    if(TheHitCollection.size()>0)
+      {
+	for(sim::SimPhotonsCollection::const_iterator itOpDet=TheHitCollection.begin(); itOpDet!=TheHitCollection.end(); itOpDet++)
+	  {
+	    //Reset Counters
+	    fCountOpDetAll=0;
+	    fCountOpDetDetected=0;
+
+	    //Get data from HitCollection entry
+	    fOpChannel=itOpDet->first;
+	    const sim::SimPhotons& TheHit=itOpDet->second;
+	     
+	    //	    std::cout<<"OpDet " << fOpChannel << " has size " << TheHit.size()<<std::endl;
+	    
+	    // Loop through OpDet phots.  
+	    //   Note we make the screen output decision outside the loop
+	    //   in order to avoid evaluating large numbers of unnecessary 
+	    //   if conditions. 
+
+	    if(fVerbosity > 3)
+	      {
+		for(const sim::OnePhoton& Phot: TheHit)
+		  {
+		    // Calculate wavelength in nm
+                    fWavelength= odresponse->wavelength(Phot.Energy);
+
 		    //Get arrival time from phot
-		      fTime= Phot.Time;
-		      std::cout<<"Arrival time: " << fTime<<std::endl;
-		      
-		      // Increment per OpDet counters and fill per phot trees
-		      fCountOpDetAll++;
-		      if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-		      if((flat.fire(1.0)<=fQE)&&(fWavelength>fWavelengthCutLow)&&(fWavelength<fWavelengthCutHigh))
-			{
-			  if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
-			  fCountOpDetDetected++;
-			  std::cout<<"OpDetResponse PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
-			}
-		      else
-			std::cout<<"OpDetResponse PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
-		    }
-		}
-	      else
-		{
-		  for(const sim::OnePhoton& Phot: TheHit)
-		    {
-		      // Calculate wavelength in nm
-		      fWavelength= (2.0*3.142)*0.000197/Phot.Energy;
-		      fTime= Phot.Time;		
-		      
-		      // Increment per OpDet counters and fill per phot trees
-		      fCountOpDetAll++;
-		      if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-		      if((flat.fire(1.0)<=fQE)&&(fWavelength>fWavelengthCutLow)&&(fWavelength<fWavelengthCutHigh))
-			{
-			  if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
-			  fCountOpDetDetected++;
-			}
-		    }
-		}
-	      
-	      
-	      // If this is a library building job, fill relevant entry
+		    fTime= Phot.Time;
+		    std::cout<<"Arrival time: " << fTime<<std::endl;
+		    
+		    // Increment per OpDet counters and fill per phot trees
+		    fCountOpDetAll++;
+		    if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
+                    if(odresponse->detected(fOpChannel, Phot))
+		      {
+			if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
+			fCountOpDetDetected++;
+			std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
+		      }
+		    else
+		      std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
+		  }
+	      }
+	    else
+	      {
+		for(const sim::OnePhoton& Phot: TheHit)
+		  {
+		    // Calculate wavelength in nm
+                    fWavelength= odresponse->wavelength(Phot.Energy);
+		    fTime= Phot.Time;		
+    
+		    // Increment per OpDet counters and fill per phot trees
+		    fCountOpDetAll++;
+		    if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
+                    if(odresponse->detected(fOpChannel, Phot))
+		      {
+			if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
+			fCountOpDetDetected++;
+		      }
+		  }
+	      }
+	  
+	  	      
+	    // If this is a library building job, fill relevant entry
 	    art::ServiceHandle<phot::PhotonVisibilityService> pvs;
 	    if(pvs->IsBuildJob())
 	      {
 		int VoxID; double NProd;
 		pvs->RetrieveLightProd(VoxID, NProd);
-		pvs->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetAll)/NProd);		
+		pvs->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetDetected)/NProd);		
 	      }
-	    
-	    
+
+
 	    // Incremenent per event and fill Per OpDet trees	    
 	    if(fMakeOpDetsTree) fTheOpDetTree->Fill();
 	    fCountEventAll+=fCountOpDetAll;
 	    fCountEventDetected+=fCountOpDetDetected;
-	    
+
 	    // Give per OpDet output
-	    if(fVerbosity >2) std::cout<<"OpDetResponse PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 
-	    }
-	  
-	  // Fill per event tree
-	  if(fMakeOpDetEventsTree) fTheEventTree->Fill();
-	  
-	  // Give per event output
-	  if(fVerbosity >1) std::cout<<"OpDetResponse PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 	
-	  
-	}
-      else
-	{
-	  // if empty OpDet hit collection, 
-	  // add an empty record to the per event tree 
-	  if(fMakeOpDetEventsTree) fTheEventTree->Fill();
-	}
-      
-    }
+	    if(fVerbosity >2) std::cout<<"OpDetResponseInterface PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 
+	  }
+
+	// Fill per event tree
+	if(fMakeOpDetEventsTree) fTheEventTree->Fill();
+
+	// Give per event output
+	if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 	
+
+      }
     else
       {
-	//Get SimPhotonsLite from Event
-	art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle; 
-	evt.getByLabel("largeant", photonHandle);
-	
-	
-	//Reset counters
-	fCountEventAll=0;
-	fCountEventDetected=0;
-	
-	if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*photonHandle).size()<<std::endl;
-	
-	
-	if((*photonHandle).size()>0)
-	  {
-	    
-	    for ( auto const& photon : (*photonHandle) )
-	      {
-		//Get data from HitCollection entry
-		fOpChannel=photon.OpChannel;
-		std::map<int, int> PhotonsMap = photon.DetectedPhotons;
-		
-		//Reset Counters
-		fCountOpDetAll=0;
-		fCountOpDetDetected=0;
-		
-		if(fVerbosity > 3)
-		  {
-		    for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
-		      {
-			// Calculate wavelength in nm
-			fWavelength= 128;
-			
-			//Get arrival time from phot
-			fTime= it->first*2;
-			std::cout<<"Arrival time: " << fTime<<std::endl;
-			
-			for(int i = 0; i < it->second ; i++)
-			  {
-			    // Increment per OpDet counters and fill per phot trees
-			    fCountOpDetAll++;
-			    if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-			    if((flat.fire(1.0)<=fQE)&&(fWavelength>fWavelengthCutLow)&&(fWavelength<fWavelengthCutHigh))
-			      {
-				if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
-				fCountOpDetDetected++;
-				std::cout<<"OpDetResponse PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
-			      }
-			    else
-			      std::cout<<"OpDetResponse PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
-			  }
-		      }
-		  }
-		else
-		  {
-		    for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
-		      {
-			// Calculate wavelength in nm
-			fWavelength= 128;
-			fTime= it->first*2;		
-			
-			for(int i = 0; i < it->second; i++)
-			  {
-			    // Increment per OpDet counters and fill per phot trees
-			    fCountOpDetAll++;
-			    if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-			    if((flat.fire(1.0)<=fQE)&&(fWavelength>fWavelengthCutLow)&&(fWavelength<fWavelengthCutHigh))
-			      {
-				if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
-				fCountOpDetDetected++;
-			      }
-			  }
-		      }
-		  }
-		
-		// Incremenent per event and fill Per OpDet trees	    
-		if(fMakeOpDetsTree) fTheOpDetTree->Fill();
-		fCountEventAll+=fCountOpDetAll;
-		fCountEventDetected+=fCountOpDetDetected;
-		
-		// Give per OpDet output
-		if(fVerbosity >2) std::cout<<"OpDetResponse PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 
-	      }
-	    // Fill per event tree
-	    if(fMakeOpDetEventsTree) fTheEventTree->Fill();
-	    
-	    // Give per event output
-	    if(fVerbosity >1) std::cout<<"OpDetResponse PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 	
-	    
-	  }
-	else
-	  {
-	    // if empty OpDet hit collection, 
-	    // add an empty record to the per event tree 
-	    if(fMakeOpDetEventsTree) fTheEventTree->Fill();
-	  } 
+	// if empty OpDet hit collection, 
+	// add an empty record to the per event tree 
+	if(fMakeOpDetEventsTree) fTheEventTree->Fill();
       }
+    
+    }
+    else
+    {
+    //Get SimPhotonsLite from Event
+    art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle; 
+    evt.getByLabel("largeant", photonHandle);
+
+    
+    //Reset counters
+    fCountEventAll=0;
+    fCountEventDetected=0;
+
+    if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*photonHandle).size()<<std::endl;
+
+    
+    if((*photonHandle).size()>0)
+      {
+        
+        for ( auto const& photon : (*photonHandle) )
+        {
+          //Get data from HitCollection entry
+          fOpChannel=photon.OpChannel;
+          std::map<int, int> PhotonsMap = photon.DetectedPhotons;
+
+          //Reset Counters
+          fCountOpDetAll=0;
+          fCountOpDetDetected=0;
+
+	    if(fVerbosity > 3)
+	      {
+            for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
+            {
+		    // Calculate wavelength in nm
+		    fWavelength= 128;
+
+		    //Get arrival time from phot
+		    fTime= it->first*2;
+		    std::cout<<"Arrival time: " << fTime<<std::endl;
+		   
+            for(int i = 0; i < it->second ; i++)
+            {
+		    // Increment per OpDet counters and fill per phot trees
+		    fCountOpDetAll++;
+		    if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
+                    if(odresponse->detectedLite(fOpChannel))
+		      {
+			if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
+			fCountOpDetDetected++;
+			std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
+		      }
+		    else
+		      std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
+            }
+            }
+	      }
+	    else
+	      {
+		    for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
+            {
+		      // Calculate wavelength in nm
+		      fWavelength= 128;
+		      fTime= it->first*2;		
+   
+              for(int i = 0; i < it->second; i++)
+              {
+                // Increment per OpDet counters and fill per phot trees
+                fCountOpDetAll++;
+                if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
+                if(odresponse->detectedLite(fOpChannel))
+		        {
+                  if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
+                  fCountOpDetDetected++;
+		        }
+              }
+            }
+          }
+	  	      
+	    // Incremenent per event and fill Per OpDet trees	    
+	    if(fMakeOpDetsTree) fTheOpDetTree->Fill();
+	    fCountEventAll+=fCountOpDetAll;
+	    fCountEventDetected+=fCountOpDetDetected;
+
+	    // Give per OpDet output
+	    if(fVerbosity >2) std::cout<<"OpDetResponseInterface PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 
+        }
+        // Fill per event tree
+        if(fMakeOpDetEventsTree) fTheEventTree->Fill();
+
+        // Give per event output
+        if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 	
+
+      }
+    else
+    {
+      // if empty OpDet hit collection, 
+      // add an empty record to the per event tree 
+      if(fMakeOpDetEventsTree) fTheEventTree->Fill();
+    } 
+    }
   }
 }
 
