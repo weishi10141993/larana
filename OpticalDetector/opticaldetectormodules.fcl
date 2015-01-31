@@ -169,9 +169,6 @@ standard_simphotoncounter:
   MakeDetectedPhotonsTree: true
   MakeOpDetsTree:          true
   MakeOpDetEventsTree:     true
-  QuantumEfficiency:       1
-  WavelengthCutLow:        0 
-  WavelengthCutHigh:       10000
 }
 
 
@@ -285,6 +282,36 @@ standard_stitchpmtframes:
    ADCOffset:            2048
 }
 
+standard_simphotoncounteralg:
+{
+  SimPhotonCounterParams:
+  [
+   { 
+     MinPromptTime: -9e9
+     MaxPromptTime: 100
+     MinLateTime:   100
+     MaxLateTime:   9e9
+     MinWavelength: 0
+     MaxWavelength: 1e6
+   }
+  ]
+}
+
+standard_flashhypothesisanaalg:
+{
+    SimPhotonCounterIndex: 0
+    dEdx: 2.1
+    XOffset: 0.0
+    SimPhotonCounterAlgParams: @local::standard_simphotoncounteralg
+}
+
+standard_flashhypothesisanamodule:
+{
+    module_type: "FlashHypothesisAna"
+    MCTrackLabel: "mctrack"
+    MCSimPhotonsLabel: "largeant"
+    FlashHypothesisAnaAlgParams: @local::standard_flashhypothesisanaalg
+}
 
 microboone_simphotoncounter: @local::standard_simphotoncounter
 microboone_opdigi:           @local::standard_opdigi

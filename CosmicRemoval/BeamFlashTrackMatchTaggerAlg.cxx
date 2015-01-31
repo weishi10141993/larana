@@ -36,13 +36,22 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const
   fNormalizeHypothesisToFlash = p.get<bool>("NormalizeHypothesisToFlash");
 }
 
-void cosmic::BeamFlashTrackMatchTaggerAlg::SetHypothesisComparisonTree(TTree* tree){
+void cosmic::BeamFlashTrackMatchTaggerAlg::SetHypothesisComparisonTree(TTree* tree, 
+								       TH1F* hist_flash, TH1F* hist_hyp){
   cTree = tree;
+
+  cOpDetHist_flash = hist_flash;
+  cOpDetHist_flash->SetNameTitle("opdet_hist_flash","Optical Detector Occupancy, Flash");
+
+  cOpDetHist_hyp = hist_hyp;
+  cOpDetHist_hyp->SetNameTitle("opdet_hist_hyp","Optical Detector Occupancy, Hypothesis");
+
   cTree->Branch("fcp",&cFlashComparison_p,cFlashComparison_p.leaf_structure.c_str());
   cTree->Branch("opdet_hyp",&cOpDetVector_hyp);
   cTree->Branch("opdet_flash",&cOpDetVector_flash);
+  cTree->Branch("opdet_hist_flash","TH1F",cOpDetHist_flash);
+  cTree->Branch("opdet_hist_hyp","TH1F",cOpDetHist_hyp);
 }
-
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<recob::OpFlash> const& flashVector,
 								 std::vector<recob::Track> const& trackVector,
@@ -260,6 +269,20 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 
       cFlashComparison_p.chi2 = CalculateChi2(cOpDetVector_flash,cOpDetVector_hyp);
 
+      //cOpDetHist_flash->SetBins(cOpDetVector_flash.size(),0,cOpDetVector_flash.size());
+      for(size_t i=0; i<cOpDetVector_flash.size(); i++)
+	cOpDetHist_flash->SetBinContent(i+1,cOpDetVector_flash[i]);
+
+      //cOpDetHist_hyp->SetBins(cOpDetVector_hyp.size(),0,cOpDetVector_hyp.size());
+      for(size_t i=0; i<cOpDetVector_hyp.size(); i++)
+	cOpDetHist_hyp->SetBinContent(i+1,cOpDetVector_hyp[i]);
+
+      for(size_t i=0; i<cOpDetVector_flash.size(); i++){
+	std::cout << "Flash/Hyp " << i << " : " 
+		  << cOpDetHist_flash->GetBinContent(i+1) << " "
+		  << cOpDetHist_hyp->GetBinContent(i+1) << std::endl;
+      }
+
       cTree->Fill();
     }//end loop over flashes
     
@@ -364,6 +387,9 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob:
   float totalHypothesisPE=0;
   const float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
 
+  //get QE from ubChannelConfig, which gives per tube, so goes in AddLightFromSegment
+  //VisibleEnergySeparation(step);
+  
   for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++)    
     AddLightFromSegment(track.LocationAtPoint(pt-1),track.LocationAtPoint(pt),
 			lightHypothesis,totalHypothesisPE,

@@ -26,6 +26,7 @@
 #include "OpticalDetector/OpDigiProperties.h"
 
 #include "TTree.h"
+#include "TH1F.h"
 #include "TVector3.h"
 
 
@@ -49,7 +50,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			     util::LArProperties const&,
 			     opdet::OpDigiProperties const&);
 
-  void SetHypothesisComparisonTree(TTree*);
+  void SetHypothesisComparisonTree(TTree*,TH1F*,TH1F*);
 
   void RunHypothesisComparison(unsigned int const,
 			       unsigned int const,
@@ -128,6 +129,8 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   FlashComparisonProperties_t cFlashComparison_p;
   std::vector<float> cOpDetVector_flash;
   std::vector<float> cOpDetVector_hyp;
+  TH1F* cOpDetHist_flash;
+  TH1F* cOpDetHist_hyp;
 
 
   typedef enum CompatibilityResultType{

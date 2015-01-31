@@ -1,13 +1,46 @@
 
 # OpFlashFinder_module.cc is not built - it seems specific to uboone
 
+art_make_library( LIBRARY_NAME FlashHypothesis
+		  	     SOURCE FlashHypothesis.cxx
+		                           FlashHypothesisCalculator.cxx
+		                           FlashUtilities.cxx
+			     LIBRARIES
+			                             ${ROOT_BASIC_LIB_LIST}
+)
+
+art_make_library( LIBRARY_NAME SimPhotonCounter
+		  	     SOURCE SimPhotonCounter.cxx
+			     LIBRARIES
+			                ${ROOT_BASIC_LIB_LIST}
+)
+
+art_make_library( LIBRARY_NAME FlashHypothesisComparison
+		  	     SOURCE FlashHypothesisComparison.cxx
+			     LIBRARIES
+					FlashHypothesis
+					SimPhotonCounter
+			                ${ROOT_BASIC_LIB_LIST}
+)
+
 art_make( BASENAME_ONLY
-          # EXCLUDE OpFlashFinder_module.cc
+          EXCLUDE FlashHypothesis.cxx
+			 FlashHypothesisCalculator.cxx
+		         FlashUtilities.cxx
+		         FlashHypothesisComparison.cxx
+			 SimPhotonCounter.cxx
           LIBRARY_NAME OpticalDetector
           LIB_LIBRARIES 
-                        RecoBase
+	  		FlashHypothesis
+			SimPhotonCounter
+	  		FlashHypothesisComparison
+			RecoBase
+			MCBase
                         Geometry
                         Geometry_service
+                        PhotonVisibilityService_service
+		        OpDigiProperties_service
+		        Utilities
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -30,6 +63,7 @@ art_make( BASENAME_ONLY
                         Filters
                         RecoObjects
                         RecoBase
+			MCBase
                         RecoAlg
                         Geometry
                         Geometry_service
@@ -76,5 +110,5 @@ art_make( BASENAME_ONLY
 install_headers()
 install_fhicl()
 install_source()
-install_fw( LIST sensl_1.dat toyWaveform.txt
+install_fw( LIST toyWaveform.txt
             SUBDIRNAME OpticalDetector )

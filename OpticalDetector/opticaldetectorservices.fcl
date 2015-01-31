@@ -49,7 +49,11 @@ standard_opdigiproperties_3windows: @local::standard_opdigiproperties
 standard_opdigiproperties_3windows.TimeBegin: -1600
 standard_opdigiproperties_3windows.TimeEnd:    4800
 
-microboone_opdigiproperties:           @local::standard_opdigiproperties
-microboone_opdigiproperties_3windows:  @local::standard_opdigiproperties_3windows
+
+standard_opdetresponse:
+{
+   service_provider:        DefaultOpDetResponse
+}
+
 
 END_PROLOG

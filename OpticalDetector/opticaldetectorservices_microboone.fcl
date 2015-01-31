@@ -2,6 +2,16 @@
 
 BEGIN_PROLOG
 
-microboone_opdigiproperties:  @local::standard_opdigiproperties
+microboone_opdigiproperties:           @local::standard_opdigiproperties
+microboone_opdigiproperties_3windows:  @local::standard_opdigiproperties_3windows
+
+microboone_opdetresponse:
+{
+   service_provider:        MicrobooneOpDetResponse
+   QuantumEfficiency:       1
+   WavelengthCutLow:        0 
+   WavelengthCutHigh:       10000
+}
+
 
 END_PROLOG
