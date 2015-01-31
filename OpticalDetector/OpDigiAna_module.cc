@@ -142,6 +142,8 @@ namespace opdet {
     art::ServiceHandle<art::TFileService> tfs;
 
 
+    std::vector<std::string> histnames;
+
     // For every OpDet waveform in the vector given by WaveformHandle
     for(unsigned int i = 0; i < WaveformHandle->size(); ++i)
       {
@@ -153,7 +155,26 @@ namespace opdet {
 	// Notice that histogram axis is in ns but binned by 1/64MHz;
 	//   appropriate conversions are made from beginning and end time 
 	//   in us, and frequency in MHz.
-	sprintf(HistName, "Event %d OpDet %i", evt.id().event(), ThePulse.OpChannel());
+
+        // Make sure the histogram name is unique since there can be multiple pulses
+        // per event and photo detector
+        unsigned int pulsenum = 0;
+        while (true) {
+            sprintf(HistName, "Event_%d_OpDet_%i_Pulse_%i", evt.id().event(), ThePulse.OpChannel(), pulsenum);
+            auto p = std::find(histnames.begin(), histnames.end(), HistName);
+            if ( p != histnames.end() ) {
+                // Found a duplicate
+                pulsenum++;
+            }
+            else {
+                // Found a unique name
+                histnames.push_back(HistName);
+                break;
+            }
+        }
+            
+        
+        
 	TH1D* PulseHist = nullptr;
 	if(fMakeBipolarHist)
 	  {
@@ -163,7 +184,7 @@ namespace opdet {
 					     fTimeEnd * 1000.);
 	  }
 
-	sprintf(HistName, "Event %d uni OpDet %i", evt.id().event(), ThePulse.OpChannel());
+	sprintf(HistName, "Event_%d_uni_OpDet_%i_Pulse_%i", evt.id().event(), ThePulse.OpChannel(), pulsenum);
 	TH1D* UnipolarHist = nullptr;
 	if(fMakeUnipolarHist)
 	  {
