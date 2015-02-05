@@ -125,8 +125,8 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 						    dist_projected(hit,geom)));
   float pitch = track.PitchInView(geom.View(hit.WireID().Plane),traj_iter);
 
-  HitPropertiesMultiset.emplace(hit.Charge(false),
-				hit.Charge(false)/pitch,
+  HitPropertiesMultiset.emplace(hit.Integral(),
+				hit.Integral()/pitch,
 				caloAlg.dEdx_AREA(hit,pitch),
 				pitch,
 				track.LocationAtPoint(traj_iter),

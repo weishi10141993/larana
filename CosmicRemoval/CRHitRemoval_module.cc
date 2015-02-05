@@ -26,7 +26,7 @@
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Services/Optional/TFileService.h" 
+#include "art/Framework/Services/Registry/ServiceHandle.h" 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "Geometry/Geometry.h"
@@ -36,6 +36,8 @@
 #include "RecoBase/PFParticle.h"
 #include "AnalysisBase/CosmicTag.h"
 #include "Utilities/AssociationUtil.h"
+#include "Utilities/TimeService.h"
+#include "Utilities/SimpleTimeService.h"
 
 // Local functions.
 namespace
@@ -170,6 +172,10 @@ void CRHitRemoval::beginJob()
 void CRHitRemoval::produce(art::Event & evt)
 {
     ++fNumEvent;
+    
+    // get the time service for the identification of the spill window
+    util::SimpleTimeService const* time_service
+      = &(*(art::ServiceHandle<util::TimeService>()));
     
     // Start by looking up the original hits
     art::Handle< std::vector<recob::Hit> > hitHandle;
@@ -399,8 +405,20 @@ void CRHitRemoval::produce(art::Event & evt)
         // Now make the new list of output hits
         for (const auto& hit : originalHits)
         {
+            LOG_WARNING("CRHitRemoval")
+              << "This module has experiment-specific information hard-coded!";
+            // ... and yes, I want it printed this annoyingly
+            
             // Kludge to remove out of time hits
-            if (hit->StartTime() > 6400 || hit->EndTime() < 3200) continue;
+            const double start_time_since_trigger
+              = time_service->TPCTick2TrigTime(hit->PeakTimeMinusRMS());
+            const double end_time_since_trigger
+              = time_service->TPCTick2TrigTime(hit->PeakTimePlusRMS());
+            
+            if (end_time_since_trigger < 0.)
+              continue;
+            if (start_time_since_trigger > time_service->TPCClock().FramePeriod())
+              continue;
             
             outputHits->emplace_back(*hit);
         }

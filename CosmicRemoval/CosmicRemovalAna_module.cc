@@ -32,6 +32,7 @@
 #include "RecoBase/Track.h"
 #include "RecoBase/Cluster.h"
 #include "RecoBase/Hit.h"
+#include "RawData/RawDigit.h"
 #include "MCBase/MCHitCollection.h"
 #include "AnalysisBase/CosmicTag.h"
 
@@ -310,7 +311,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 
   for(size_t hit_iter=0; hit_iter<hitVector.size(); hit_iter++){
 
-    float charge = hitVector[hit_iter].Charge();
+    float charge = hitVector[hit_iter].Integral();
     hit_origin_t origin = hitOrigins[hit_iter];
 
     if(track_indices_per_hit[hit_iter].size()!=0)
@@ -408,7 +409,7 @@ void microboone::CosmicRemovalAna::FillMCInfo( std::vector<recob::Hit> const& hi
     if(trackIDs.size()==0){
       hitOrigins[itr] = hit_origin_Unknown;
       cEventVals.nHitsTotal_Unknown++;
-      cEventVals.qTotal_Unknown += this_hit.Charge();
+      cEventVals.qTotal_Unknown += this_hit.Integral();
       continue;
     }
     
@@ -428,12 +429,12 @@ void microboone::CosmicRemovalAna::FillMCInfo( std::vector<recob::Hit> const& hi
     if(non_cosmic_energy > cosmic_energy){
       hitOrigins[itr] = hit_origin_NonCosmic;
       cEventVals.nHitsTotal_NonCosmic++;
-      cEventVals.qTotal_NonCosmic += this_hit.Charge();
+      cEventVals.qTotal_NonCosmic += this_hit.Integral();
     }
     else{
       hitOrigins[itr] = hit_origin_Cosmic;
       cEventVals.nHitsTotal_Cosmic++;
-      cEventVals.qTotal_Cosmic += this_hit.Charge();
+      cEventVals.qTotal_Cosmic += this_hit.Integral();
     }
   }
 
@@ -537,11 +538,11 @@ void microboone::CosmicRemovalAna::FillClusterInfo(size_t const& hit_iter,
 void microboone::CosmicRemovalAna::FillAllTagsInfo(recob::Hit const& hit,
 						   hit_origin_t const& origin){
   if(origin==hit_origin_Cosmic){
-    cEventVals.TotalTaggedCharge_Cosmic += hit.Charge();
+    cEventVals.TotalTaggedCharge_Cosmic += hit.Integral();
     cEventVals.TotalTaggedHits_Cosmic++;
   }
   else if(origin==hit_origin_NonCosmic){
-    cEventVals.TotalTaggedCharge_NonCosmic += hit.Charge();
+    cEventVals.TotalTaggedCharge_NonCosmic += hit.Integral();
     cEventVals.TotalTaggedHits_NonCosmic++;
   }
 
