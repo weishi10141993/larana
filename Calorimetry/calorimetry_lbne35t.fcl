@@ -11,18 +11,18 @@ lbne35t_calorimetryalgmc.CalAreaConstants: [ 0.013312, 0.01384, 0.0309 ]
 lbne35t_calodata:
 {
  module_type:            "Calorimetry"
- TrackModuleLabel:       "costrk"
- SpacePointModuleLabel:  "costrk"
- UseArea:		 false
+ TrackModuleLabel:       "stitch"
+ SpacePointModuleLabel:  "stitch"
+ UseArea:		 true
  CaloAlg:	         @local::lbne35t_calorimetryalgdata
 }
 
 lbne35t_calomc:
 {
  module_type:            "Calorimetry"
- TrackModuleLabel:       "costrk"
- SpacePointModuleLabel:  "costrk"
- UseArea:		 false
+ TrackModuleLabel:       "stitch"
+ SpacePointModuleLabel:  "stitch"
+ UseArea:		 true
  MakeTree:               false
  CaloAlg:	         @local::lbne35t_calorimetryalgmc
 }
