@@ -313,7 +313,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 
     for (size_t ipl = 0; ipl < nplanes; ++ipl){//loop over all wire planes
 
-      geo::PlaneID planeID(cstat,tpc,ipl);
+      geo::PlaneID planeID;//(cstat,tpc,ipl);
 
       fwire.clear();
       ftime.clear();
@@ -388,6 +388,16 @@ void calo::Calorimetry::produce(art::Event& evt)
       for (size_t ihit = 0; ihit < hits[ipl].size(); ++ihit){//loop over all hits on each wire plane
 
 	//std::cout<<ihit<<std::endl;
+
+	if (!planeID.isValid){
+	  plane = allHits[hits[ipl][ihit]]->WireID().Plane;
+	  tpc   = allHits[hits[ipl][ihit]]->WireID().TPC;
+	  cstat = allHits[hits[ipl][ihit]]->WireID().Cryostat;
+	  planeID.Cryostat = cstat;
+	  planeID.TPC = tpc;
+	  planeID.Plane = plane;
+	  planeID.isValid = true;
+	}
 
 	wire = allHits[hits[ipl][ihit]]->WireID().Wire;
 	time = allHits[hits[ipl][ihit]]->PeakTime() ;
