@@ -195,7 +195,7 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
         /////////////////////////////////////
         for ( unsigned int p = 0; p < hitVec.size(); p++)
         {
-            if( hitVec[p]->StartTime() < fDetectorWidthTicks || hitVec[p]->EndTime() > 2.*fDetectorWidthTicks)
+            if( hitVec[p]->PeakTimeMinusRMS() < fDetectorWidthTicks || hitVec[p]->PeakTimePlusRMS() > 2.*fDetectorWidthTicks)
             {
                 isCosmic = 1;
                 tag_id   = anab::CosmicTagID_t::kOutsideDrift_Partial;

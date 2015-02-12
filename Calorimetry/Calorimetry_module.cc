@@ -313,7 +313,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 
     for (size_t ipl = 0; ipl < nplanes; ++ipl){//loop over all wire planes
 
-      geo::PlaneID planeID(cstat,tpc,ipl);
+      geo::PlaneID planeID;//(cstat,tpc,ipl);
 
       fwire.clear();
       ftime.clear();
@@ -389,13 +389,23 @@ void calo::Calorimetry::produce(art::Event& evt)
 
 	//std::cout<<ihit<<std::endl;
 
+	if (!planeID.isValid){
+	  plane = allHits[hits[ipl][ihit]]->WireID().Plane;
+	  tpc   = allHits[hits[ipl][ihit]]->WireID().TPC;
+	  cstat = allHits[hits[ipl][ihit]]->WireID().Cryostat;
+	  planeID.Cryostat = cstat;
+	  planeID.TPC = tpc;
+	  planeID.Plane = plane;
+	  planeID.isValid = true;
+	}
+
 	wire = allHits[hits[ipl][ihit]]->WireID().Wire;
 	time = allHits[hits[ipl][ihit]]->PeakTime() ;
-	stime = allHits[hits[ipl][ihit]]->StartTime() ;
-	etime = allHits[hits[ipl][ihit]]->EndTime();            
+	stime = allHits[hits[ipl][ihit]]->PeakTimeMinusRMS();
+	etime = allHits[hits[ipl][ihit]]->PeakTimePlusRMS();
 	
-	double charge = allHits[hits[ipl][ihit]]->Charge(true);
-	if (fUseArea) charge = allHits[hits[ipl][ihit]]->Charge(false);
+	double charge = allHits[hits[ipl][ihit]]->PeakAmplitude();
+	if (fUseArea) charge = allHits[hits[ipl][ihit]]->Integral();
 	//get 3d coordinate and track pitch for the current hit
 	//not all hits are associated with space points, the method uses neighboring spacepts to interpolate
 	double xyz3d[3];
@@ -611,7 +621,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	    //	for(art::PtrVector<recob::Hit>::const_iterator hitIter = hitsV.begin(); 
 	    //	    hitIter != hitsV.end();  
 	    //	    ++hitCtr, hitIter++){
-	    channel = allHits[hits[ipl][ihit]]->Wire()->RawDigit()->Channel();
+	    channel = allHits[hits[ipl][ihit]]->Channel();
 	    if (chanFilt.BadChannel(channel)) continue;
 	    // grab the space points associated with this hit
 	    std::vector< art::Ptr<recob::SpacePoint> > sppv = fmspts.at(hits[ipl][ihit]);
