@@ -3,6 +3,11 @@
 //   bjpjones@mit.edu
 //
 
+#ifndef BoDataFrameInput_h
+#define BoDataFrameInput_h 1
+
+// C/C++ standard libraries
+#include <fstream>
 
 #include "art/Framework/Core/EDProducer.h"
 #include "RawData/OpDetPulse.h"
@@ -10,15 +15,8 @@
 #include "OpticalDetector/OpDigiProperties.h"
 
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoisson.h"
-
-
 // ROOT includes.
 #include <Rtypes.h>
-#ifndef BoDataFrameInput_h
-#define BoDataFrameInput_h 1
 
 
 
@@ -129,9 +127,6 @@ namespace opdet {
 
     // Open file for reading
     fTextFile.open(FullFilePath);
-
-    unsigned int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
-    createEngine(seed);
 
   }
   

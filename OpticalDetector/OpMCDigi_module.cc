@@ -111,6 +111,7 @@ namespace opdet{
 #include "Simulation/SimPhotons.h"
 #include "Simulation/LArG4Parameters.h"
 #include "RawData/OpDetPulse.h"
+#include "Utilities/FetchRandomSeed.h"
 
 // ROOT includes
 #include <TH1D.h>
@@ -154,7 +155,9 @@ namespace opdet {
 
 
     
-    unsigned int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
+    // obtain the random seed from a service,
+    // unless overridden in configuration with key "Seed" (that is default)
+    const unsigned int seed = lar::util::FetchRandomSeed(&pset);
     createEngine(seed);
 
     // Sample a random fraction of detected photons 

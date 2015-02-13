@@ -15,6 +15,7 @@
 #include "OpticalDetectorData/ChannelDataGroup.h"
 #include "OpticalDetector/OpDigiProperties.h"
 #include "Geometry/Geometry.h"
+#include "Utilities/FetchRandomSeed.h"
 
 // ART includes
 #include "art/Framework/Core/EDProducer.h"
@@ -115,7 +116,9 @@ namespace opdet {
     // Initialize toy waveform vector fSinglePEWaveform
     fSinglePEWaveform = fOpDigiProperties->SinglePEWaveform();
     
-    unsigned int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
+    // obtain the random seed from a service,
+    // unless overridden in configuration with key "Seed" (that is default)
+    const unsigned int seed = lar::util::FetchRandomSeed(&pset);
     createEngine(seed);
 
     // Sample a random fraction of detected photons 
