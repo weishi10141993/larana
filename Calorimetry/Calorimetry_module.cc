@@ -893,8 +893,8 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
     ky /= tot;
     kz /= tot;
     //get pitch
-    double wirePitch = geom->WirePitch(0,1,hit->WireID().Plane);
-    double angleToVert = geom->Plane(hit->WireID().Plane).Wire(0).ThetaZ(false) - 0.5*TMath::Pi();
+    double wirePitch = geom->WirePitch(0,1,hit->WireID().Plane,hit->WireID().TPC,hit->WireID().Cryostat);
+    double angleToVert = geom->Plane(hit->WireID().Plane,hit->WireID().TPC,hit->WireID().Cryostat).Wire(0).ThetaZ(false) - 0.5*TMath::Pi();
     double cosgamma = TMath::Abs(TMath::Sin(angleToVert)*ky+TMath::Cos(angleToVert)*kz);
     if (cosgamma>0) pitch = wirePitch/cosgamma;   
 
