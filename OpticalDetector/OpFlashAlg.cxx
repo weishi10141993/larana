@@ -29,6 +29,7 @@ namespace opdet{
 		      pmtana::AlgoThreshold const& ThreshAlg,
 		      std::map<int,int> const& ChannelMap,
 		      geo::Geometry const& geom,
+          opdet::OpDetResponseInterface const& odresponse,
 		      float const& HitThreshold,
 		      float const& FlashThreshold,
 		      float const& WidthTolerance,
@@ -52,6 +53,7 @@ namespace opdet{
 		   ThreshAlg,
 		   ChannelMap,
 		   geom,
+       odresponse,
 		   HitThreshold,
 		   FlashThreshold,
 		   WidthTolerance,
@@ -93,6 +95,7 @@ namespace opdet{
 		    pmtana::AlgoThreshold const& ThreshAlg, 
 		    std::map<int,int> const& ChannelMap,
 		    geo::Geometry const& geom,
+        opdet::OpDetResponseInterface const& odresponse,
 		    float const& HitThreshold,
 		    float const& FlashThreshold,
 		    float const& WidthTolerance,
@@ -118,14 +121,14 @@ namespace opdet{
     std::vector<int> FlashesInAccumulator2;
     
     const size_t NHits_prev = HitVector.size();
-    unsigned int NOpChannels = geom.NOpChannels();
+    unsigned int NOpChannels = odresponse.NOpChannels();
 
     for(auto const& wf_ptr : OpticalRawDigitFramePtrVector){
 
       const int Channel = ChannelMap.at((int)wf_ptr->ChannelNumber());
       const uint32_t TimeSlice = wf_ptr->TimeSlice();
 
-      if( Channel<0 || Channel > int(NOpChannels) ) {
+      if( Channel<0 || Channel > int(NOpChannels - 1) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
 	continue;
       }
@@ -211,6 +214,7 @@ namespace opdet{
 		     HitVector,
 		     FlashVector,
 		     geom,
+         odresponse,
 		     pmt_clock.Frame(ts.BeamGateTime()),
 		     Frame,
 		     TrigCoinc);
@@ -607,13 +611,15 @@ namespace opdet{
   //-------------------------------------------------------------------------------------------------
   void GetHitGeometryInfo(recob::OpHit const& currentHit,
 			  geo::Geometry const& geom,
+        opdet::OpDetResponseInterface const& odresponse,
 			  std::vector<double> & sumw,
 			  std::vector<double> & sumw2,
 			  double & sumy, double & sumy2,
 			  double & sumz, double & sumz2)
   {
 	unsigned int o=0, c=0; double xyz[3];
-	geom.OpChannelToCryoOpDet(currentHit.OpChannel(),o,c);
+  unsigned int geoChannel = odresponse.readoutToGeoChannel(currentHit.OpChannel());
+	geom.OpChannelToCryoOpDet(geoChannel,o,c);
 	geom.Cryostat(c).OpDet(o).GetCenter(xyz);
 	
 	double PEThisHit = currentHit.PE();
@@ -629,7 +635,7 @@ namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
   double CalculateWidth(double const& sum, double const& sum_squared, double const& weights_sum){
-    return std::sqrt( sum_squared*weights_sum + sum*sum )/weights_sum;
+    return std::sqrt( sum_squared*weights_sum - sum*sum )/weights_sum;
   }
 
   //-------------------------------------------------------------------------------------------------
@@ -637,6 +643,7 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
+          opdet::OpDetResponseInterface const& odresponse,
 		      unsigned int const TrigFrame,
 		      unsigned short const Frame,
 		      float const& TrigCoinc)
@@ -644,7 +651,7 @@ namespace opdet{
 
     double MaxTime = -1e9, MinTime = 1e9;
     
-    std::vector<double> PEs(geom.NOpChannels(),0);
+    std::vector<double> PEs(odresponse.NOpChannels(),0);
     unsigned int Nplanes = geom.Nplanes();
     std::vector<double> sumw(Nplanes,0), sumw2(Nplanes,0);
     
@@ -661,6 +668,7 @@ namespace opdet{
 			 PEs);
       GetHitGeometryInfo(HitVector.at(HitID),
 			 geom,
+       odresponse,
 			 sumw,
 			 sumw2,
 			 sumy, sumy2,

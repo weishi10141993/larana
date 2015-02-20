@@ -1,8 +1,9 @@
 // This analyzer writes out a TTree containing the properties of
 // each reconstructed flash
 //
-#ifndef OpFlashAna_H
-#define OpFlashAna_H 1
+
+#ifndef LBNEOpFlashAna_H
+#define LBNEOpFlashAna_H 1
 
 // ROOT includes
 #include "TH1.h"
@@ -21,11 +22,13 @@
 #include <climits>
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
+//#include "Geometry/Geometry.h"
+#include "OpticalDetector/OpDetResponseInterface.h"
 #include "RawData/OpDetPulse.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "Utilities/TimeService.h"
+//#include "OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -42,12 +45,12 @@
 
 namespace opdet {
  
-  class OpFlashAna : public art::EDAnalyzer{
+  class LBNEOpFlashAna : public art::EDAnalyzer{
   public:
  
     // Standard constructor and destructor for an ART module.
-    OpFlashAna(const fhicl::ParameterSet&);
-    virtual ~OpFlashAna();
+    LBNEOpFlashAna(const fhicl::ParameterSet&);
+    virtual ~LBNEOpFlashAna();
 
     // This method is called once, at the start of the job. In this
     // example, it will define the histogram we'll write.
@@ -111,13 +114,13 @@ namespace opdet {
 
 } 
 
-#endif // OpFlashAna_H
+#endif // LBNEOpFlashAna_H
 
 namespace opdet {
 
   //-----------------------------------------------------------------------
   // Constructor
-  OpFlashAna::OpFlashAna(fhicl::ParameterSet const& pset)
+  LBNEOpFlashAna::LBNEOpFlashAna(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
   {
 
@@ -127,11 +130,15 @@ namespace opdet {
     fOpHitModuleLabel   = pset.get<std::string>("OpHitModuleLabel");
 
 
-    art::ServiceHandle<OpDigiProperties> odp;
-    fTimeBegin  = odp->TimeBegin();
-    fTimeEnd    = odp->TimeEnd();
-    fSampleFreq = odp->SampleFreq();
+//    art::ServiceHandle<OpDigiProperties> odp;
+//    fTimeBegin  = odp->TimeBegin();
+//    fTimeEnd    = odp->TimeEnd();
+//    fSampleFreq = odp->SampleFreq();
 
+    art::ServiceHandle< util::TimeService > timeService;
+    fTimeBegin  = timeService->OpticalClock().Time();
+    fTimeEnd    = timeService->OpticalClock().FramePeriod();
+    fSampleFreq = timeService->OpticalClock().Frequency();
     
    
     fYMin =  pset.get<float>("YMin");
@@ -208,17 +215,17 @@ namespace opdet {
 
   //-----------------------------------------------------------------------
   // Destructor
-  OpFlashAna::~OpFlashAna() 
+  LBNEOpFlashAna::~LBNEOpFlashAna() 
   {}
    
   //-----------------------------------------------------------------------
-  void OpFlashAna::beginJob()
+  void LBNEOpFlashAna::beginJob()
   {
   }
    
 
   //-----------------------------------------------------------------------
-  void OpFlashAna::analyze(const art::Event& evt) 
+  void LBNEOpFlashAna::analyze(const art::Event& evt) 
   {
     
     // Get flashes from event
@@ -259,8 +266,10 @@ namespace opdet {
 						PosHistZRes, fZMin, fZMax);
       }
     
-    art::ServiceHandle<geo::Geometry> geom;
-    unsigned int NOpDet = geom->NOpDet();
+    //art::ServiceHandle<geo::Geometry> geom;
+    //unsigned int NOpDet = geom->NOpDet();
+    art::ServiceHandle< opdet::OpDetResponseInterface > odResponse;
+    unsigned int NOpDet = odResponse->NOpChannels();
 
 
     // For every OpFlash in the vector
@@ -353,6 +362,6 @@ namespace opdet {
 } // namespace opdet
 
 namespace opdet {
-  DEFINE_ART_MODULE(OpFlashAna)
+  DEFINE_ART_MODULE(LBNEOpFlashAna)
 }
 
