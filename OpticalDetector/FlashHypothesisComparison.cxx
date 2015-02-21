@@ -16,9 +16,11 @@ void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
 							TH1F* h_h_p, TH1F* h_s_p, TH1F* h_c_p,
 							TH1F* h_h_l, TH1F* h_s_l, TH1F* h_c_l,
 							TH1F* h_h_t, TH1F* h_s_t, TH1F* h_c_t,
-							const unsigned int n_opdet)
+							const unsigned int n_opdet,
+							bool fill)
 {
   fTree = tree;
+  fFillTree = fill;
   fTree->SetName("ctree");
   
   fTree->Branch("run",&fRun,"run/i");
@@ -137,9 +139,10 @@ void opdet::FlashHypothesisComparison::RunComparison(const unsigned int run,
   if(fhc.GetVectorSize() != (unsigned int)fHypHist_p->GetNbinsX() || 
      fhc.GetVectorSize() != spc.PromptPhotonVector().size() ||
      fhc.GetVectorSize() != posY.size() ||
-     fhc.GetVectorSize() != posZ.size() )
+     fhc.GetVectorSize() != posZ.size() ){
+    std::cout << (unsigned int)fHypHist_p->GetNbinsX() << " " << spc.PromptPhotonVector().size() << " " << posY.size() << " " << posZ.size() << std::endl;
     throw std::runtime_error("ERROR in FlashHypothesisComparison: Mismatch in vector sizes.");
-
+  }
   fRun = run;
   fEvent = event;
 
@@ -147,7 +150,7 @@ void opdet::FlashHypothesisComparison::RunComparison(const unsigned int run,
   FillSimPhotonCounterInfo(spc,posY,posZ);
   FillComparisonInfo(fhc,spc);
 
-  fTree->Fill();
+  if(fFillTree) fTree->Fill();
 }
 
 void opdet::FlashHypothesisComparison::FillFlashHypothesisInfo(const FlashHypothesisCollection& fhc,

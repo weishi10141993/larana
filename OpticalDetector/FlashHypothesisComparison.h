@@ -29,7 +29,8 @@ namespace opdet{
 			  TH1F*,TH1F*,TH1F*,
 			  TH1F*,TH1F*,TH1F*,
 			  TH1F*,TH1F*,TH1F*,
-			  const unsigned int);
+			  const unsigned int,
+			  bool fill=true);
 
     void RunComparison(const unsigned int,
 		       const unsigned int,
@@ -53,7 +54,8 @@ namespace opdet{
     void FillComparisonInfo(const FlashHypothesisCollection&,
 			    const SimPhotonCounter&);
 
-    TTree *fTree;
+    bool   fFillTree;
+    TTree* fTree;
     
     TH1F* fHypHist_p;
     TH1F* fSimHist_p;

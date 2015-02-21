@@ -95,7 +95,7 @@ namespace opdet{
   {
     art::ServiceHandle<geo::Geometry> geoHandle;
     geo::Geometry const& geo(*geoHandle);
-    
+
     art::ServiceHandle<art::TFileService> tfs;    
 
     fAlg.SetOutputObjects(tfs->make<TTree>("ctree","FlashHypothesisAnaTree"),
