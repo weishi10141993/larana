@@ -15,7 +15,6 @@
 #include "OpticalDetectorData/ChannelDataGroup.h"
 #include "OpticalDetector/OpDigiProperties.h"
 #include "Geometry/Geometry.h"
-#include "Utilities/FetchRandomSeed.h"
 
 // ART includes
 #include "art/Framework/Core/EDProducer.h"
@@ -27,6 +26,9 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+// art extensions
+#include "artextensions/SeedService/SeedService.hh"
 
 // CLHEP includes
 #include "CLHEP/Random/RandFlat.h"
@@ -116,10 +118,10 @@ namespace opdet {
     // Initialize toy waveform vector fSinglePEWaveform
     fSinglePEWaveform = fOpDigiProperties->SinglePEWaveform();
     
-    // obtain the random seed from a service,
-    // unless overridden in configuration with key "Seed" (that is default)
-    const unsigned int seed = lar::util::FetchRandomSeed(&pset);
-    createEngine(seed);
+    // create a default random engine; obtain the random seed from SeedService,
+    // unless overridden in configuration with key "Seed"
+    art::ServiceHandle<artext::SeedService>()
+      ->createEngine(*this, pset, "Seed");
 
     // Sample a random fraction of detected photons 
     art::ServiceHandle<art::RandomNumberGenerator> rng;

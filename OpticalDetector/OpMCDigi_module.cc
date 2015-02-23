@@ -106,12 +106,14 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+// art extensions
+#include "artextensions/SeedService/SeedService.hh"
+
 // LArSoft includes
 #include "Simulation/SimListUtils.h"
 #include "Simulation/SimPhotons.h"
 #include "Simulation/LArG4Parameters.h"
 #include "RawData/OpDetPulse.h"
-#include "Utilities/FetchRandomSeed.h"
 
 // ROOT includes
 #include <TH1D.h>
@@ -155,10 +157,10 @@ namespace opdet {
 
 
     
-    // obtain the random seed from a service,
-    // unless overridden in configuration with key "Seed" (that is default)
-    const unsigned int seed = lar::util::FetchRandomSeed(&pset);
-    createEngine(seed);
+    // create a default random engine; obtain the random seed from SeedService,
+    // unless overridden in configuration with key "Seed"
+    art::ServiceHandle<artext::SeedService>()
+      ->createEngine(*this, pset, "Seed");
 
     // Sample a random fraction of detected photons 
     art::ServiceHandle<art::RandomNumberGenerator> rng;
