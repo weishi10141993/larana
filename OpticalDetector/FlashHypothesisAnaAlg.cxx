@@ -16,11 +16,15 @@ void opdet::FlashHypothesisAnaAlg::SetOutputObjects(TTree *tree,
 						    TH1F* h_h_t, TH1F* h_s_t, TH1F* h_c_t,
 						    geo::Geometry const& geom)
 {
+  fTree = tree;
   fFHCompare.SetOutputObjects(tree,
 			      h_h_p,h_s_p,h_c_p,
 			      h_h_l,h_s_l,h_c_l,
 			      h_h_t,h_s_t,h_c_t,
-			      geom.NOpDet());
+			      geom.NOpDet(),
+			      false);
+
+  fMCTAlg.SetOutputTree(tree,false);
 }
 
 void opdet::FlashHypothesisAnaAlg::FillOpDetPositions(geo::Geometry const& geom)
@@ -66,4 +70,8 @@ void opdet::FlashHypothesisAnaAlg::RunComparison(const unsigned int run,
   fFHCompare.RunComparison(run,event,
 			   fhc,fSPCAlg.GetSimPhotonCounter(fCounterIndex),
 			   fOpDetPositions_Y,fOpDetPositions_Z);
+
+  fMCTAlg.FillTree(run,event,mctrackVec);
+
+  fTree->Fill();
 }

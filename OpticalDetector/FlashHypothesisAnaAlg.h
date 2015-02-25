@@ -21,6 +21,7 @@
 
 #include "Simulation/SimPhotons.h"
 #include "MCBase/MCTrack.h"
+#include "MCSTReco/MCTrackCollectionAnaAlg.h"
 
 #include "FlashHypothesis.h"
 #include "FlashHypothesisCreator.h"
@@ -66,9 +67,12 @@ namespace opdet{
     float               fdEdx;
     float               fXOffset;
 
-    FlashHypothesisCreator    fFHCreator;
-    SimPhotonCounterAlg       fSPCAlg;
-    FlashHypothesisComparison fFHCompare;
+    TTree* fTree;
+
+    FlashHypothesisCreator       fFHCreator;
+    SimPhotonCounterAlg          fSPCAlg;
+    FlashHypothesisComparison    fFHCompare;
+    sim::MCTrackCollectionAnaAlg fMCTAlg;
 
     std::vector<float> fOpDetPositions_Y;
     std::vector<float> fOpDetPositions_Z;

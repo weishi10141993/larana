@@ -20,6 +20,7 @@ art_make_library( LIBRARY_NAME FlashHypothesisComparison
 			     LIBRARIES
 					FlashHypothesis
 					SimPhotonCounter
+					MCSTReco
 			                ${ROOT_BASIC_LIB_LIST}
 )
 
