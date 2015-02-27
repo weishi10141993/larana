@@ -146,10 +146,6 @@ namespace opdet {
     //fQE=                       pset.get<double>("QuantumEfficiency");
     //fWavelengthCutLow=         pset.get<double>("WavelengthCutLow");
     //fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");
-    // get the random number seed, use a random default if not specified    
-    // in the configuration file.  
-    unsigned int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
-    createEngine(seed);    
   }
   
 
@@ -213,11 +209,6 @@ namespace opdet {
 
   void SimPhotonCounter::analyze(art::Event const& evt)
   {
-
-    // Setup random number generator (for QE sampling)
-    art::ServiceHandle<art::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine &engine = rng->getEngine();
-    CLHEP::RandFlat   flat(engine);
 
     // Lookup event ID from event
     art::EventNumber_t event = evt.id().event();

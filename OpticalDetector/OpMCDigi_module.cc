@@ -106,6 +106,9 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+// art extensions
+#include "artextensions/SeedService/SeedService.hh"
+
 // LArSoft includes
 #include "Simulation/SimListUtils.h"
 #include "Simulation/SimPhotons.h"
@@ -154,8 +157,10 @@ namespace opdet {
 
 
     
-    unsigned int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
-    createEngine(seed);
+    // create a default random engine; obtain the random seed from SeedService,
+    // unless overridden in configuration with key "Seed"
+    art::ServiceHandle<artext::SeedService>()
+      ->createEngine(*this, pset, "Seed");
 
     // Sample a random fraction of detected photons 
     art::ServiceHandle<art::RandomNumberGenerator> rng;

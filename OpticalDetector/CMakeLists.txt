@@ -20,6 +20,7 @@ art_make_library( LIBRARY_NAME FlashHypothesisComparison
 			     LIBRARIES
 					FlashHypothesis
 					SimPhotonCounter
+					MCSTReco
 			                ${ROOT_BASIC_LIB_LIST}
 )
 
@@ -73,6 +74,7 @@ art_make( BASENAME_ONLY
                         RawData
                         AnalysisAlg
                         AnalysisBase
+                        ${SEEDSERVICE_SERVICE} # artextensions
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}

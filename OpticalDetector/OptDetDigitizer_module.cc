@@ -27,6 +27,9 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+// art extensions
+#include "artextensions/SeedService/SeedService.hh"
+
 // CLHEP includes
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
@@ -115,8 +118,10 @@ namespace opdet {
     // Initialize toy waveform vector fSinglePEWaveform
     fSinglePEWaveform = fOpDigiProperties->SinglePEWaveform();
     
-    unsigned int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
-    createEngine(seed);
+    // create a default random engine; obtain the random seed from SeedService,
+    // unless overridden in configuration with key "Seed"
+    art::ServiceHandle<artext::SeedService>()
+      ->createEngine(*this, pset, "Seed");
 
     // Sample a random fraction of detected photons 
     art::ServiceHandle<art::RandomNumberGenerator> rng;
