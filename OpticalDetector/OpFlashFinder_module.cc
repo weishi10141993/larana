@@ -228,7 +228,7 @@ namespace opdet {
 	{
 	  util::CreateAssn(*this, evt, *(FlashPtr), *(HitPtr), *(AssnPtr.get()), AssocList[i][j], AssocList[i][j], i);
 	}
-    
+
     // Store results into the event
     evt.put(std::move(FlashPtr));
     evt.put(std::move(HitPtr));

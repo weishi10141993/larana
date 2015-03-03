@@ -1,6 +1,6 @@
 /*!
  * Title:   OpFlash Algorithims
- * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov)
+ * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov and gleb.sinev@duke.edu)
  *
  * Description:
  * These are the algorithms used by OpFlashFinder to produce flashes.
@@ -41,7 +41,7 @@ namespace opdet{
     std::map<unsigned short, std::vector<const optdata::OpticalRawDigit*> > OpDigitChanByFrame;
     for(auto const& opdigitchannel : OpticalRawDigitVector)
       OpDigitChanByFrame[opdigitchannel.Frame()].push_back(&opdigitchannel);
-    
+
     for(auto wfframe : OpDigitChanByFrame)
       ProcessFrame(wfframe.first,
 		   wfframe.second,
