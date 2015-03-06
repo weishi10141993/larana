@@ -19,8 +19,13 @@ microboone_calorimetryalgmc.CalAmpConstants: [9.200e-4, 1.062e-3, 1.084e-03]
 #microboone_calorimetryalgmc.CalAreaConstants: [ 1.2093e-2, 1.2831e-2, 2.934e-2 ]
 #Area constants for MCC5. - A. Schukraft 08/07/14
 #microboone_calorimetryalgmc.CalAreaConstants: [ 7.488e-3, 5.110e-3, 1.008e-2 ]
+<<<<<<< HEAD
+#area constants tuned with mean for a test - A. Schukraft
+microboone_calorimetryalgmc.CalAreaConstants: [ 5.0252e-3, 5.2266e-3, 5.4670e-3 ]
+=======
 #Area constants for pre-MCC6. - T. Yang 3/5/15
 microboone_calorimetryalgmc.CalAreaConstants: [ 5.198e-3, 5.247e-3, 5.562e-3 ]
+>>>>>>> 088c7a9b1b472e2549facfbfa7967eea015e9983
 
 microboone_calodata:                  @local::standard_calodata
 microboone_calodata.CaloAlg:          @local::microboone_calorimetryalgdata
