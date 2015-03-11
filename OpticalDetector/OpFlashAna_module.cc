@@ -2,8 +2,8 @@
 // each reconstructed flash
 //
 
-#ifndef LBNEOpFlashAna_H
-#define LBNEOpFlashAna_H 1
+#ifndef OpFlashAna_H
+#define OpFlashAna_H 1
 
 // ROOT includes
 #include "TH1.h"
@@ -45,12 +45,12 @@
 
 namespace opdet {
  
-  class LBNEOpFlashAna : public art::EDAnalyzer{
+  class OpFlashAna : public art::EDAnalyzer{
   public:
  
     // Standard constructor and destructor for an ART module.
-    LBNEOpFlashAna(const fhicl::ParameterSet&);
-    virtual ~LBNEOpFlashAna();
+    OpFlashAna(const fhicl::ParameterSet&);
+    virtual ~OpFlashAna();
 
     // This method is called once, at the start of the job. In this
     // example, it will define the histogram we'll write.
@@ -114,13 +114,13 @@ namespace opdet {
 
 } 
 
-#endif // LBNEOpFlashAna_H
+#endif // OpFlashAna_H
 
 namespace opdet {
 
   //-----------------------------------------------------------------------
   // Constructor
-  LBNEOpFlashAna::LBNEOpFlashAna(fhicl::ParameterSet const& pset)
+  OpFlashAna::OpFlashAna(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
   {
 
@@ -215,17 +215,17 @@ namespace opdet {
 
   //-----------------------------------------------------------------------
   // Destructor
-  LBNEOpFlashAna::~LBNEOpFlashAna() 
+  OpFlashAna::~OpFlashAna() 
   {}
    
   //-----------------------------------------------------------------------
-  void LBNEOpFlashAna::beginJob()
+  void OpFlashAna::beginJob()
   {
   }
    
 
   //-----------------------------------------------------------------------
-  void LBNEOpFlashAna::analyze(const art::Event& evt) 
+  void OpFlashAna::analyze(const art::Event& evt) 
   {
     
     // Get flashes from event
@@ -362,6 +362,6 @@ namespace opdet {
 } // namespace opdet
 
 namespace opdet {
-  DEFINE_ART_MODULE(LBNEOpFlashAna)
+  DEFINE_ART_MODULE(OpFlashAna)
 }
 

@@ -17,6 +17,7 @@
 #include "OpticalDetector/OpDetResponseInterface.h"
 #include "OpticalDetectorData/OpticalRawDigit.h"
 #include "OpticalDetector/AlgoThreshold.h"
+#include "OpticalDetector/AlgoLBNE.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpFlash.h"
@@ -77,7 +78,8 @@ namespace opdet {
 
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
-    pmtana::AlgoThreshold     fThreshAlg;
+//    pmtana::AlgoThreshold     fThreshAlg;
+    pmtana::AlgoLBNE          fThreshAlg;
 
     Int_t   fChannelMapMode;
     Int_t   fBinWidth;

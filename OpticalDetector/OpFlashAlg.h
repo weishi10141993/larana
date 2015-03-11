@@ -13,6 +13,7 @@
 #include "OpticalDetectorData/OpticalTypes.h"
 #include "OpticalDetectorData/OpticalRawDigit.h"
 #include "OpticalDetector/AlgoThreshold.h"
+#include "OpticalDetector/AlgoLBNE.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "OpticalDetector/PMTPulseRecoBase.h"
 #include "RecoBase/OpHit.h"
@@ -29,7 +30,8 @@ namespace opdet{
 		      std::vector< std::vector<int> >&,
 		      int const&,
 		      pmtana::PulseRecoManager const&,
-		      pmtana::AlgoThreshold const&,
+		      //pmtana::AlgoThreshold const&,
+		      pmtana::AlgoLBNE const&,
 		      std::map<int,int> const&,
 		      geo::Geometry const&,
           opdet::OpDetResponseInterface const&,
@@ -47,7 +49,8 @@ namespace opdet{
 		    std::vector< std::vector<int> >&,
 		    int const&,
 		    pmtana::PulseRecoManager const&,
-		    pmtana::AlgoThreshold const&,
+		    //pmtana::AlgoThreshold const&,
+		    pmtana::AlgoLBNE const&,
 		    std::map<int,int> const&,
 		    geo::Geometry const&,
         opdet::OpDetResponseInterface const&,
