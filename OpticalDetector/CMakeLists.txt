@@ -74,7 +74,7 @@ art_make( BASENAME_ONLY
                         RawData
                         AnalysisAlg
                         AnalysisBase
-                        ${SEEDSERVICE_SERVICE} # artextensions
+                        SeedService_service # artextensions
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
