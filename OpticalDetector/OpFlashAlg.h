@@ -22,7 +22,7 @@
 
 namespace opdet{
 
-  void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const&,
+  void RunFlashFinder(std::vector<const optdata::OpticalRawDigit*>,
 		      std::vector<recob::OpHit>&,
 		      std::vector<recob::OpFlash>&,
 		      std::vector< std::vector<int> >&,
@@ -39,7 +39,7 @@ namespace opdet{
 		      float const&);
   
   void ProcessFrame(unsigned short,
-		    std::vector<const optdata::OpticalRawDigit*> const&,
+		    std::vector<const optdata::OpticalRawDigit*>,
 		    std::vector<recob::OpHit>&,
 		    std::vector<recob::OpFlash>&,
 		    std::vector< std::vector<int> >&,

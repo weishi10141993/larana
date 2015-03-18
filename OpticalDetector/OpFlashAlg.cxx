@@ -20,7 +20,7 @@
 namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
-  void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const& OpticalRawDigitVector,
+  void RunFlashFinder(std::vector<const optdata::OpticalRawDigit *> OpticalRawDigitVector,
 		      std::vector<recob::OpHit>& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      std::vector< std::vector<int> >& AssocList,
@@ -38,8 +38,8 @@ namespace opdet{
   {
     
     std::map<unsigned short, std::vector<const optdata::OpticalRawDigit*> > OpDigitChanByFrame;
-    for(auto const& opdigitchannel : OpticalRawDigitVector)
-      OpDigitChanByFrame[opdigitchannel.Frame()].push_back(&opdigitchannel);
+    for(auto opdigitchannel : OpticalRawDigitVector)
+      OpDigitChanByFrame[opdigitchannel->Frame()].push_back(opdigitchannel);
     
     for(auto wfframe : OpDigitChanByFrame)
       ProcessFrame(wfframe.first,
@@ -84,7 +84,7 @@ namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
   void ProcessFrame(unsigned short Frame,
-		    std::vector<const optdata::OpticalRawDigit*> const& OpticalRawDigitFramePtrVector,
+		    std::vector<const optdata::OpticalRawDigit*> OpticalRawDigitFramePtrVector,
 		    std::vector<recob::OpHit>& HitVector,
 		    std::vector<recob::OpFlash>& FlashVector,
 		    std::vector< std::vector<int> >& AssocList,

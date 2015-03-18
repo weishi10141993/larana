@@ -11,6 +11,7 @@
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
 #include "OpticalDetectorData/OpticalRawDigit.h"
+#include "OpticalDetectorData/FIFOChannel.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
@@ -184,10 +185,25 @@ namespace opdet {
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
+    std::vector<const optdata::OpticalRawDigit *> ord;
+
     // Get the pulses from the event
-    art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
-    evt.getByLabel(fInputModule, wfHandle);
-    std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
+    art::Handle< std::vector< optdata::FIFOChannel > > fifoHandle;
+    art::Handle< std::vector< optdata::OpticalRawDigit > > ordHandle;
+    if (evt.getByLabel(fInputModule,fifoHandle)){
+      std::vector<optdata::FIFOChannel> const& fifoVector(*fifoHandle);
+      ord.resize(fifoVector.size());
+      for (size_t i = 0; i<fifoVector.size(); ++i){
+	ord[i] = &fifoVector[i];
+      }
+    }
+    else if (evt.getByLabel(fInputModule, ordHandle)){
+      std::vector<optdata::OpticalRawDigit> const& ordVector(*ordHandle);
+      ord.resize(ordVector.size());
+      for (size_t i = 0; i<ordVector.size(); ++i){
+	ord[i] = &ordVector[i];
+      }
+    }
 
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
@@ -195,7 +211,7 @@ namespace opdet {
     art::ServiceHandle<util::TimeService> ts_ptr;
     util::TimeService const& ts(*ts_ptr);
 
-    RunFlashFinder(WaveformVector,
+    RunFlashFinder(ord,
 		   *HitPtr,
 		   *FlashPtr,
 		   AssocList,
