@@ -313,6 +313,15 @@ standard_flashhypothesisanamodule:
     FlashHypothesisAnaAlgParams: @local::standard_flashhypothesisanaalg
 }
 
+
+microboone_opdetreformatter:
+{
+   module_type: "OpticalRawDigitReformatter"
+   GenModule:       "generator"
+   InputModule:     "optreadout"
+}
+
+
 microboone_simphotoncounter: @local::standard_simphotoncounter
 microboone_opdigi:           @local::standard_opdigi
 microboone_tracktimeassoc:   @local::standard_tracktimeassoc
