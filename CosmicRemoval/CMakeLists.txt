@@ -28,7 +28,7 @@ art_make(BASENAME_ONLY
 			    CosmicRemoval
 			    BackTracker_service
 			    RecoAlg
-                Cluster3DAlgs
+                            Cluster3DAlgs
 			    Simulation
 			    RecoObjects
 			    RecoBase
@@ -40,6 +40,7 @@ art_make(BASENAME_ONLY
 			    AnalysisAlg
 			    AnalysisBase
                             LArProperties_service
+			    DetectorProperties_service
 			    Utilities
 			    ${MAGNETICFIELD_SERVICE}
 			    ${SIMULATIONBASE}
