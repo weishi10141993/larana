@@ -18,7 +18,7 @@
 #include "TFile.h"
 
 namespace opdet{
-
+/*
   //-------------------------------------------------------------------------------------------------
   void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const& OpticalRawDigitVector,
 		      std::vector<recob::OpHit>& HitVector,
@@ -64,7 +64,7 @@ namespace opdet{
 		   TrigCoinc);
     
   }
-  
+*/  
   //-------------------------------------------------------------------------------------------------
   void writeHistogram(std::vector<double> const& binned){
 
@@ -87,8 +87,9 @@ namespace opdet{
   }
 
   //-------------------------------------------------------------------------------------------------
-  void ProcessFrame(unsigned short Frame,
-		    std::vector<const optdata::OpticalRawDigit*> const& OpticalRawDigitFramePtrVector,
+//  void ProcessFrame(unsigned short Frame,
+//		    std::vector<const optdata::OpticalRawDigit*> const& OpticalRawDigitFramePtrVector,
+  void RunFlashFinder(std::vector<raw::OpDetWaveform> const& OpDetWaveformVector,
 		    std::vector<recob::OpHit>& HitVector,
 		    std::vector<recob::OpFlash>& FlashVector,
 		    std::vector< std::vector<int> >& AssocList,
@@ -127,10 +128,13 @@ namespace opdet{
     const size_t NHits_prev = HitVector.size();
     unsigned int NOpChannels = odresponse.NOpChannels();
 
-    for(auto const& wf_ptr : OpticalRawDigitFramePtrVector){
+    //for(auto const& wf_ptr : OpticalRawDigitFramePtrVector){
+    for(auto const& wf_ptr : OpDetWaveformVector){
 
-      const int Channel = ChannelMap.at((int)wf_ptr->ChannelNumber());
-      const uint32_t TimeSlice = wf_ptr->TimeSlice();
+      //const int Channel = ChannelMap.at((int)wf_ptr->ChannelNumber());
+      //const uint32_t TimeSlice = wf_ptr->TimeSlice();
+      const int Channel = ChannelMap.at((int)wf_ptr.ChannelNumber());
+      const uint32_t TimeSlice = wf_ptr.Time();
 
       if( Channel<0 || Channel > int(NOpChannels - 1) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
@@ -150,7 +154,8 @@ namespace opdet{
 	ConstructHit( HitThreshold,
 		      Channel,
 		      TimeSlice,
-		      Frame,
+//		      Frame,
+		      0,
 		      ThreshAlg.GetPulse(k),
 		      ts,
 		      SPESize.at(Channel),
@@ -220,7 +225,8 @@ namespace opdet{
 		     geom,
          odresponse,
 		     pmt_clock.Frame(ts.BeamGateTime()),
-		     Frame,
+//		     Frame,
+         0,
 		     TrigCoinc);
 
     RemoveLateLight(FlashVector,
@@ -697,7 +703,7 @@ namespace opdet{
       WireWidths.at(p)  = CalculateWidth(sumw.at(p),sumw2.at(p),TotalPE);
     }
     
-    bool InBeamFrame = (Frame==TrigFrame);
+//    bool InBeamFrame = (Frame==TrigFrame);
     double TimeWidth = (MaxTime-MinTime)/2.;
     
     int OnBeamTime =0; 
@@ -706,9 +712,11 @@ namespace opdet{
     FlashVector.emplace_back( AveTime,
 			      TimeWidth,
 			      AveAbsTime,
-			      Frame,
+//			      Frame,
+			      0,
 			      PEs, 
-			      InBeamFrame,
+//			      InBeamFrame,
+			      0,
 			      OnBeamTime,
 			      FastToTotal,
 			      meany, 

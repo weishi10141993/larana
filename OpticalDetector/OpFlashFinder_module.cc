@@ -15,7 +15,8 @@
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
 #include "OpticalDetector/OpDetResponseInterface.h"
-#include "OpticalDetectorData/OpticalRawDigit.h"
+//#include "OpticalDetectorData/OpticalRawDigit.h"
+#include "RawData/OpDetWaveform.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoLBNE.h"
 #include "OpticalDetector/AlgoPedestal.h"
@@ -178,8 +179,8 @@ namespace opdet {
   {
 
     // These are the storage pointers we will put in the event
-    std::unique_ptr<std::vector< recob::OpHit > >   HitPtr (new std::vector<recob::OpHit >);
-    std::unique_ptr<std::vector< recob::OpFlash > > FlashPtr (new std::vector<recob::OpFlash >);
+    std::unique_ptr< std::vector< recob::OpHit > >   HitPtr (new std::vector<recob::OpHit >);
+    std::unique_ptr< std::vector< recob::OpFlash > > FlashPtr (new std::vector<recob::OpFlash >);
     std::unique_ptr< art::Assns<recob::OpFlash, recob::OpHit > >  AssnPtr( new art::Assns<recob::OpFlash, recob::OpHit>);
 
     // This will keep track of what flashes will assoc to what ophits
@@ -193,9 +194,11 @@ namespace opdet {
     }
 
     // Get the pulses from the event
-    art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
+    //art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
+    art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
     evt.getByLabel(fInputModule, wfHandle);
-    std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
+    //std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
+    std::vector< raw::OpDetWaveform > const& WaveformVector(*wfHandle);
 
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
