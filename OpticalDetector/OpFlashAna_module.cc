@@ -1,6 +1,7 @@
 // This analyzer writes out a TTree containing the properties of
 // each reconstructed flash
 //
+
 #ifndef OpFlashAna_H
 #define OpFlashAna_H 1
 
@@ -21,11 +22,13 @@
 #include <climits>
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
+//#include "Geometry/Geometry.h"
+#include "OpticalDetector/OpDetResponseInterface.h"
 #include "RawData/OpDetPulse.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "Utilities/TimeService.h"
+//#include "OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -127,11 +130,15 @@ namespace opdet {
     fOpHitModuleLabel   = pset.get<std::string>("OpHitModuleLabel");
 
 
-    art::ServiceHandle<OpDigiProperties> odp;
-    fTimeBegin  = odp->TimeBegin();
-    fTimeEnd    = odp->TimeEnd();
-    fSampleFreq = odp->SampleFreq();
+//    art::ServiceHandle<OpDigiProperties> odp;
+//    fTimeBegin  = odp->TimeBegin();
+//    fTimeEnd    = odp->TimeEnd();
+//    fSampleFreq = odp->SampleFreq();
 
+    art::ServiceHandle< util::TimeService > timeService;
+    fTimeBegin  = timeService->OpticalClock().Time();
+    fTimeEnd    = timeService->OpticalClock().FramePeriod();
+    fSampleFreq = timeService->OpticalClock().Frequency();
     
    
     fYMin =  pset.get<float>("YMin");
@@ -259,8 +266,10 @@ namespace opdet {
 						PosHistZRes, fZMin, fZMax);
       }
     
-    art::ServiceHandle<geo::Geometry> geom;
-    unsigned int NOpDet = geom->NOpDet();
+    //art::ServiceHandle<geo::Geometry> geom;
+    //unsigned int NOpDet = geom->NOpDet();
+    art::ServiceHandle< opdet::OpDetResponseInterface > odResponse;
+    unsigned int NOpDet = odResponse->NOpChannels();
 
 
     // For every OpFlash in the vector

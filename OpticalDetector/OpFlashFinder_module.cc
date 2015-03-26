@@ -2,6 +2,10 @@
 //
 // This module finds periods of time-localized activity
 // from the optical system, called Flashes.
+//
+// Modified to make it more detector agnostic
+// by Gleb Sinev, Duke, 2015
+//
 
 
 #ifndef OpFlashFinder_H
@@ -10,8 +14,11 @@
 // LArSoft includes
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
-#include "OpticalDetectorData/OpticalRawDigit.h"
+#include "OpticalDetector/OpDetResponseInterface.h"
+//#include "OpticalDetectorData/OpticalRawDigit.h"
+#include "RawData/OpDetWaveform.h"
 #include "OpticalDetector/AlgoThreshold.h"
+#include "OpticalDetector/AlgoLBNE.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpFlash.h"
@@ -72,7 +79,8 @@ namespace opdet {
 
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
-    pmtana::AlgoThreshold     fThreshAlg;
+//    pmtana::AlgoThreshold     fThreshAlg;
+    pmtana::AlgoLBNE          fThreshAlg;
 
     Int_t   fChannelMapMode;
     Int_t   fBinWidth;
@@ -138,8 +146,9 @@ namespace opdet {
     fHitThreshold   = pset.get<float>        ("HitThreshold");
     
 
+    art::ServiceHandle< opdet::OpDetResponseInterface > odresponse;
+    fNOpChannels = odresponse->NOpChannels();
     art::ServiceHandle<geo::Geometry> geom;
-    fNOpChannels = geom->NOpChannels();
     fNplanes     = geom->Nplanes();
     
     fSPESize     = GetSPEScales();
@@ -170,8 +179,8 @@ namespace opdet {
   {
 
     // These are the storage pointers we will put in the event
-    std::unique_ptr<std::vector< recob::OpHit > >   HitPtr (new std::vector<recob::OpHit >);
-    std::unique_ptr<std::vector< recob::OpFlash > > FlashPtr (new std::vector<recob::OpFlash >);
+    std::unique_ptr< std::vector< recob::OpHit > >   HitPtr (new std::vector<recob::OpHit >);
+    std::unique_ptr< std::vector< recob::OpFlash > > FlashPtr (new std::vector<recob::OpFlash >);
     std::unique_ptr< art::Assns<recob::OpFlash, recob::OpHit > >  AssnPtr( new art::Assns<recob::OpFlash, recob::OpHit>);
 
     // This will keep track of what flashes will assoc to what ophits
@@ -185,12 +194,17 @@ namespace opdet {
     }
 
     // Get the pulses from the event
-    art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
+    //art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
+    art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
     evt.getByLabel(fInputModule, wfHandle);
-    std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
+    //std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
+    std::vector< raw::OpDetWaveform > const& WaveformVector(*wfHandle);
 
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
+
+    art::ServiceHandle< opdet::OpDetResponseInterface > ODResponseHandle;
+    opdet::OpDetResponseInterface const& ODResponse(*ODResponseHandle);
 
     art::ServiceHandle<util::TimeService> ts_ptr;
     util::TimeService const& ts(*ts_ptr);
@@ -204,6 +218,7 @@ namespace opdet {
 		   fThreshAlg,
 		   fChannelMap,
 		   Geometry,
+       ODResponse,
 		   fHitThreshold,
 		   fFlashThreshold,
 		   fWidthTolerance,
@@ -218,7 +233,7 @@ namespace opdet {
 	{
 	  util::CreateAssn(*this, evt, *(FlashPtr), *(HitPtr), *(AssnPtr.get()), AssocList[i][j], AssocList[i][j], i);
 	}
-    
+
     // Store results into the event
     evt.put(std::move(FlashPtr));
     evt.put(std::move(HitPtr));

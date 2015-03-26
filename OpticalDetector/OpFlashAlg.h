@@ -2,7 +2,7 @@
 #define OPFLASHALG_H
 /*!
  * Title:   OpFlash Algorithims
- * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov)
+ * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov and gleb.sinev@duke.edu)
  *
  * Description:
  * These are the algorithms used by OpFlashFinder to produce flashes.
@@ -11,33 +11,40 @@
 #include <functional>
 #include "Simulation/BeamGateInfo.h"
 #include "OpticalDetectorData/OpticalTypes.h"
-#include "OpticalDetectorData/OpticalRawDigit.h"
-#include "OpticalDetector/AlgoThreshold.h"
+//#include "OpticalDetectorData/OpticalRawDigit.h"
+#include "RawData/OpDetWaveform.h"
+//#include "OpticalDetector/AlgoThreshold.h"
+//#include "OpticalDetector/AlgoLBNE.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "OpticalDetector/PMTPulseRecoBase.h"
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
 #include "Geometry/Geometry.h"
+#include "OpticalDetector/OpDetResponseInterface.h"
 #include "Utilities/TimeService.h"
 
 namespace opdet{
 
-  void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const&,
+  //void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const&,
+  void RunFlashFinder(std::vector<raw::OpDetWaveform> const&,
 		      std::vector<recob::OpHit>&,
 		      std::vector<recob::OpFlash>&,
 		      std::vector< std::vector<int> >&,
 		      int const&,
 		      pmtana::PulseRecoManager const&,
-		      pmtana::AlgoThreshold const&,
+		      //pmtana::AlgoThreshold const&,
+		      //pmtana::AlgoLBNE const&,
+		      pmtana::PMTPulseRecoBase const&,
 		      std::map<int,int> const&,
 		      geo::Geometry const&,
+          opdet::OpDetResponseInterface const&,
 		      float const&,
 		      float const&,
 		      float const&,
 		      util::TimeService const&,
 		      std::vector<double> const&,
 		      float const&);
-  
+/*  
   void ProcessFrame(unsigned short,
 		    std::vector<const optdata::OpticalRawDigit*> const&,
 		    std::vector<recob::OpHit>&,
@@ -45,16 +52,19 @@ namespace opdet{
 		    std::vector< std::vector<int> >&,
 		    int const&,
 		    pmtana::PulseRecoManager const&,
-		    pmtana::AlgoThreshold const&,
+		    //pmtana::AlgoThreshold const&,
+		    //pmtana::AlgoLBNE const&,
+		    pmtana::PMTPulseRecoBase const&,
 		    std::map<int,int> const&,
 		    geo::Geometry const&,
+        opdet::OpDetResponseInterface const&,
 		    float const&,
 		    float const&,
 		    float const&,
 		    util::TimeService const&,
 		    std::vector<double> const&,
 		    float const&);
-
+*/
   void ConstructHit( float const&, 
 		     int const&,
 		     uint32_t const&,
@@ -139,6 +149,7 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
+          opdet::OpDetResponseInterface const& odresponse,
 		      unsigned int const TrigFrame,
 		      unsigned short const Frame,
 		      float const& TrigCoinc);
