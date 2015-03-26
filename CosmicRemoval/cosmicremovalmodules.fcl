@@ -1,4 +1,5 @@
 #include "spacepointalgorithms.fcl"
+#include "clustermodules.fcl"
 BEGIN_PROLOG
 
 standard_cosmictagger:
@@ -42,6 +43,17 @@ standard_cosmicpfparticletagger:
     TPCZBoundary: 5
     PFParticleModuleLabel: "pfparticle"
     TrackModuleLabel:      "track"
+}
+
+standard_cosmicpcaxistagger:
+{
+    module_type:             "CosmicPCAxisTagger"
+    TPCXBoundary:            5
+    TPCYBoundary:            5
+    TPCZBoundary:            5
+    PFParticleModuleLabel:   "pfparticle"
+    PCAxisModuleLabel:       "pfparticle"
+    PrincipalComponentsAlg:  @local::standard_cluster3dprincipalcomponentsalg
 }
 
 standard_beamflashtrackmatchtaggeralg:
@@ -102,12 +114,23 @@ standard_crhitremoval:
   CosmicTagThresholds:     [0.6, 0.6]
 }
 
+standard_crhitremovalbypca:
+{
+  module_type:             "CRHitRemovalByPCA"
+  HitProducerLabel:        "gaushit"
+  CosmicProducerLabel:     "cosmicpcaxisKHit"
+  PFParticleProducerLabel: "pandoraCosmic"
+  CosmicTagThreshold:      0.6
+}
+
 microboone_cosmictagger:               @local::standard_cosmictagger
 microboone_cosmictracktagger:          @local::standard_cosmictracktagger
 microboone_cosmicpfparticletagger:     @local::standard_cosmicpfparticletagger
+microboone_cosmicpcaxistagger:         @local::standard_cosmicpcaxistagger
 microboone_cosmicclustertagger:        @local::standard_cosmicclustertagger
 microboone_beamflashtrackmatchtagger:  @local::standard_beamflashtrackmatchtagger
 microboone_crhitremoval:               @local::standard_crhitremoval
+microboone_crhitremovalbypca:          @local::standard_crhitremovalbypca
 
 microboone_cosmicremovalana:
 {

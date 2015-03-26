@@ -28,6 +28,7 @@ art_make(BASENAME_ONLY
 			    CosmicRemoval
 			    BackTracker_service
 			    RecoAlg
+                Cluster3DAlgs
 			    Simulation
 			    RecoObjects
 			    RecoBase
