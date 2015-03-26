@@ -195,10 +195,10 @@ namespace opdet {
 
     // Get the pulses from the event
     //art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
-    art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
-    evt.getByLabel(fInputModule, wfHandle);
+    std::vector< art::Handle< std::vector< raw::OpDetWaveform > > > wfHandleVector;
+    evt.getManyByType(wfHandle);
+    //evt.getByLabel(fInputModule, wfHandle);
     //std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
-    std::vector< raw::OpDetWaveform > const& WaveformVector(*wfHandle);
 
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
@@ -209,31 +209,34 @@ namespace opdet {
     art::ServiceHandle<util::TimeService> ts_ptr;
     util::TimeService const& ts(*ts_ptr);
 
-    RunFlashFinder(WaveformVector,
-		   *HitPtr,
-		   *FlashPtr,
-		   AssocList,
-		   fBinWidth,
-		   fPulseRecoMgr,
-		   fThreshAlg,
-		   fChannelMap,
-		   Geometry,
-       ODResponse,
-		   fHitThreshold,
-		   fFlashThreshold,
-		   fWidthTolerance,
-		   ts,
-		   fSPESize,
-		   fTrigCoinc);
+    for (auto wfHandle : wfHandleVector) {
+        std::vector< raw::OpDetWaveform > const& WaveformVector(*wfHandle);
+
+        RunFlashFinder(WaveformVector,
+                       *HitPtr,
+                       *FlashPtr,
+                       AssocList,
+                       fBinWidth,
+                       fPulseRecoMgr,
+                       fThreshAlg,
+                       fChannelMap,
+                       Geometry,
+                       ODResponse,
+                       fHitThreshold,
+                       fFlashThreshold,
+                       fWidthTolerance,
+                       ts,
+                       fSPESize,
+                       fTrigCoinc);
 
 
-    // Make the associations which we noted we need
-    for(size_t i=0; i!=AssocList.size(); ++i)
-      for(size_t j=0; j!=AssocList.at(i).size(); ++j)
-	{
-	  util::CreateAssn(*this, evt, *(FlashPtr), *(HitPtr), *(AssnPtr.get()), AssocList[i][j], AssocList[i][j], i);
-	}
-
+        // Make the associations which we noted we need
+        for(size_t i=0; i!=AssocList.size(); ++i)
+            for(size_t j=0; j!=AssocList.at(i).size(); ++j)
+            {
+                util::CreateAssn(*this, evt, *(FlashPtr), *(HitPtr), *(AssnPtr.get()), AssocList[i][j], AssocList[i][j], i);
+            }
+    }
     // Store results into the event
     evt.put(std::move(FlashPtr));
     evt.put(std::move(HitPtr));
