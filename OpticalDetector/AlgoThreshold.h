@@ -39,7 +39,7 @@ namespace pmtana
     virtual ~AlgoThreshold();
 
     /// Implementation of AlgoThreshold::reco() method
-    virtual bool RecoPulse(const std::vector<uint16_t> &wf);
+    virtual bool RecoPulse(const std::vector<short> &wf);
     
     /// Implementation of AlgoThreshold::reset() method
     virtual void Reset();

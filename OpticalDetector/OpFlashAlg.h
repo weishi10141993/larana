@@ -11,10 +11,7 @@
 #include <functional>
 #include "Simulation/BeamGateInfo.h"
 #include "OpticalDetectorData/OpticalTypes.h"
-//#include "OpticalDetectorData/OpticalRawDigit.h"
 #include "RawData/OpDetWaveform.h"
-//#include "OpticalDetector/AlgoThreshold.h"
-//#include "OpticalDetector/AlgoLBNE.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "OpticalDetector/PMTPulseRecoBase.h"
 #include "RecoBase/OpHit.h"
@@ -25,15 +22,12 @@
 
 namespace opdet{
 
-  //void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const&,
   void RunFlashFinder(std::vector<raw::OpDetWaveform> const&,
 		      std::vector<recob::OpHit>&,
 		      std::vector<recob::OpFlash>&,
 		      std::vector< std::vector<int> >&,
 		      int const&,
 		      pmtana::PulseRecoManager const&,
-		      //pmtana::AlgoThreshold const&,
-		      //pmtana::AlgoLBNE const&,
 		      pmtana::PMTPulseRecoBase const&,
 		      std::map<int,int> const&,
 		      geo::Geometry const&,
@@ -44,27 +38,7 @@ namespace opdet{
 		      util::TimeService const&,
 		      std::vector<double> const&,
 		      float const&);
-/*  
-  void ProcessFrame(unsigned short,
-		    std::vector<const optdata::OpticalRawDigit*> const&,
-		    std::vector<recob::OpHit>&,
-		    std::vector<recob::OpFlash>&,
-		    std::vector< std::vector<int> >&,
-		    int const&,
-		    pmtana::PulseRecoManager const&,
-		    //pmtana::AlgoThreshold const&,
-		    //pmtana::AlgoLBNE const&,
-		    pmtana::PMTPulseRecoBase const&,
-		    std::map<int,int> const&,
-		    geo::Geometry const&,
-        opdet::OpDetResponseInterface const&,
-		    float const&,
-		    float const&,
-		    float const&,
-		    util::TimeService const&,
-		    std::vector<double> const&,
-		    float const&);
-*/
+
   void ConstructHit( float const&, 
 		     int const&,
 		     uint32_t const&,

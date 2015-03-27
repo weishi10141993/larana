@@ -27,7 +27,7 @@ namespace pmtana {
       virtual ~AlgoLBNE();
 
       // Implementation of PMTPulseRecoBase::RecoPulse() method
-      virtual bool RecoPulse(const std::vector< uint16_t > &wf);
+      virtual bool RecoPulse(const std::vector< short > &wf);
 
       // Implementation of PMTPulseRecoBase::Reset() method
       virtual void Reset();

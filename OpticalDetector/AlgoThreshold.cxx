@@ -37,7 +37,7 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool AlgoThreshold::RecoPulse(const std::vector<uint16_t> &wf)
+  bool AlgoThreshold::RecoPulse(const std::vector<short> &wf)
   //***************************************************************
   {
     bool fire = false;

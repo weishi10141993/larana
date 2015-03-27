@@ -39,7 +39,7 @@ namespace pmtana
     virtual ~AlgoFixedWindow();
 
     /// Implementation of AlgoFixedWindow::reco() method
-    virtual bool RecoPulse(const std::vector<uint16_t> &wf);
+    virtual bool RecoPulse(const std::vector<short> &wf);
     
     /// Implementation of AlgoFixedWindow::reset() method
     virtual void Reset();

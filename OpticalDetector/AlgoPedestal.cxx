@@ -28,7 +28,7 @@ namespace pmtana{
   {}
 
   //*************************************************************************************************
-  void AlgoPedestal::ComputePedestal(const std::vector<uint16_t>& wf, size_t start, size_t nsample) const
+  void AlgoPedestal::ComputePedestal(const std::vector<short>& wf, size_t start, size_t nsample) const
   //*************************************************************************************************
   {  
     //_mean  = -1;

@@ -46,7 +46,7 @@ namespace pmtana {
   }
 
   //---------------------------------------------------------------------
-  bool AlgoLBNE::RecoPulse(const std::vector< uint16_t > &wf)
+  bool AlgoLBNE::RecoPulse(const std::vector< short > &wf)
   {
     
     double threshold    = (_adc_thres > (_nsigma*_ped_rms) ? _adc_thres : (_nsigma*_ped_rms));

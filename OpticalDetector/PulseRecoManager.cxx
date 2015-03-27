@@ -32,7 +32,7 @@ namespace pmtana{
   {}
 
   //***************************************************************
-  bool PulseRecoManager::RecoPulse(const std::vector<uint16_t> &fifo) const
+  bool PulseRecoManager::RecoPulse(const std::vector<short> &fifo) const
   //***************************************************************
   {
     bool status = true;

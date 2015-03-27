@@ -18,53 +18,7 @@
 #include "TFile.h"
 
 namespace opdet{
-/*
-  //-------------------------------------------------------------------------------------------------
-  void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const& OpticalRawDigitVector,
-		      std::vector<recob::OpHit>& HitVector,
-		      std::vector<recob::OpFlash>& FlashVector,
-		      std::vector< std::vector<int> >& AssocList,
-		      int const& BinWidth,
-		      pmtana::PulseRecoManager const& PulseRecoMgr,
-		      //pmtana::AlgoThreshold const& ThreshAlg,
-		      //pmtana::AlgoLBNE const& ThreshAlg,
-		      pmtana::PMTPulseRecoBase const& ThreshAlg,
-		      std::map<int,int> const& ChannelMap,
-		      geo::Geometry const& geom,
-          opdet::OpDetResponseInterface const& odresponse,
-		      float const& HitThreshold,
-		      float const& FlashThreshold,
-		      float const& WidthTolerance,
-		      util::TimeService const& ts,
-		      std::vector<double> const& SPESize,
-		      float const& TrigCoinc)
-  {
-    
-    std::map<unsigned short, std::vector<const optdata::OpticalRawDigit*> > OpDigitChanByFrame;
-    for(auto const& opdigitchannel : OpticalRawDigitVector)
-      OpDigitChanByFrame[opdigitchannel.Frame()].push_back(&opdigitchannel);
 
-    for(auto wfframe : OpDigitChanByFrame)
-      ProcessFrame(wfframe.first,
-		   wfframe.second,
-		   HitVector,
-		   FlashVector,
-		   AssocList,
-		   BinWidth,
-		   PulseRecoMgr,
-		   ThreshAlg,
-		   ChannelMap,
-		   geom,
-       odresponse,
-		   HitThreshold,
-		   FlashThreshold,
-		   WidthTolerance,
-		   ts,
-		   SPESize,
-		   TrigCoinc);
-    
-  }
-*/  
   //-------------------------------------------------------------------------------------------------
   void writeHistogram(std::vector<double> const& binned){
 
@@ -87,16 +41,12 @@ namespace opdet{
   }
 
   //-------------------------------------------------------------------------------------------------
-//  void ProcessFrame(unsigned short Frame,
-//		    std::vector<const optdata::OpticalRawDigit*> const& OpticalRawDigitFramePtrVector,
   void RunFlashFinder(std::vector<raw::OpDetWaveform> const& OpDetWaveformVector,
 		    std::vector<recob::OpHit>& HitVector,
 		    std::vector<recob::OpFlash>& FlashVector,
 		    std::vector< std::vector<int> >& AssocList,
 		    int const& BinWidth,
 		    pmtana::PulseRecoManager const& PulseRecoMgr,
-		    //pmtana::AlgoThreshold const& ThreshAlg, 
-		    //pmtana::AlgoLBNE const& ThreshAlg, 
 		    pmtana::PMTPulseRecoBase const& ThreshAlg,
 		    std::map<int,int> const& ChannelMap,
 		    geo::Geometry const& geom,
@@ -128,13 +78,10 @@ namespace opdet{
     const size_t NHits_prev = HitVector.size();
     unsigned int NOpChannels = odresponse.NOpChannels();
 
-    //for(auto const& wf_ptr : OpticalRawDigitFramePtrVector){
     for(auto const& wf_ptr : OpDetWaveformVector){
 
-      //const int Channel = ChannelMap.at((int)wf_ptr->ChannelNumber());
-      //const uint32_t TimeSlice = wf_ptr->TimeSlice();
       const int Channel = ChannelMap.at((int)wf_ptr.ChannelNumber());
-      const uint32_t TimeSlice = wf_ptr.Time();
+      const uint32_t TimeSlice = wf_ptr.TimeStamp();
 
       if( Channel<0 || Channel > int(NOpChannels - 1) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
@@ -146,7 +93,7 @@ namespace opdet{
 	continue;
       }
       
-      PulseRecoMgr.RecoPulse(*wf_ptr);
+      PulseRecoMgr.RecoPulse(wf_ptr);
       
       const size_t NPulses = ThreshAlg.GetNPulse();
       for(size_t k=0; k<NPulses; ++k){
@@ -154,7 +101,6 @@ namespace opdet{
 	ConstructHit( HitThreshold,
 		      Channel,
 		      TimeSlice,
-//		      Frame,
 		      0,
 		      ThreshAlg.GetPulse(k),
 		      ts,
@@ -703,7 +649,6 @@ namespace opdet{
       WireWidths.at(p)  = CalculateWidth(sumw.at(p),sumw2.at(p),TotalPE);
     }
     
-//    bool InBeamFrame = (Frame==TrigFrame);
     double TimeWidth = (MaxTime-MinTime)/2.;
     
     int OnBeamTime =0; 
@@ -712,10 +657,8 @@ namespace opdet{
     FlashVector.emplace_back( AveTime,
 			      TimeWidth,
 			      AveAbsTime,
-//			      Frame,
 			      0,
 			      PEs, 
-//			      InBeamFrame,
 			      0,
 			      OnBeamTime,
 			      FastToTotal,

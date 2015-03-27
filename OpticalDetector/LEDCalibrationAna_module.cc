@@ -10,7 +10,7 @@
 
 // LArSoft includes
 #include "Geometry/Geometry.h"
-#include "OpticalDetectorData/OpticalRawDigit.h"
+#include "RawData/OpDetWaveform.h"
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
@@ -254,16 +254,16 @@ namespace opdet {
     art::ServiceHandle<art::TFileService> tfs;
 
     // Create a handle for our vector of pulses
-    art::Handle< std::vector< optdata::OpticalRawDigit > > OpticalRawDigitHandle;
+    art::Handle< std::vector< raw::OpDetWaveform > > OpDetWaveformHandle;
 
     // Read in WaveformHandle
-    evt.getByLabel(fInputModule, OpticalRawDigitHandle);
+    evt.getByLabel(fInputModule, OpDetWaveformHandle);
 
     std::map<uint32_t, std::vector<int> > OrgOpDigitByChannel;
     
-    for(size_t i=0; i!=OpticalRawDigitHandle->size(); ++i)
+    for(size_t i=0; i!=OpDetWaveformHandle->size(); ++i)
       {
-        OrgOpDigitByChannel[ShaperToChannel(OpticalRawDigitHandle->at(i).ChannelNumber())].push_back(i);
+        OrgOpDigitByChannel[ShaperToChannel(OpDetWaveformHandle->at(i).ChannelNumber())].push_back(i);
       }
 
     std::vector<uint32_t> FrameNumbersForTrig;
@@ -271,15 +271,15 @@ namespace opdet {
     
     for(size_t i=0; i!=OrgOpDigitByChannel[fTriggerChannel].size(); ++i)
       {
-	FrameNumbersForTrig.push_back(OpticalRawDigitHandle->at(OrgOpDigitByChannel[ fTriggerChannel][i] ).Frame());
-	TimeSlicesForTrig.push_back(OpticalRawDigitHandle->at(OrgOpDigitByChannel[ fTriggerChannel][i] ).TimeSlice());
+	FrameNumbersForTrig.push_back(0);
+	TimeSlicesForTrig.push_back(OpDetWaveformHandle->at(OrgOpDigitByChannel[ fTriggerChannel][i] ).TimeStamp());
       }
 
-    for(size_t i=0; i!=OpticalRawDigitHandle->size(); ++i)
+    for(size_t i=0; i!=OpDetWaveformHandle->size(); ++i)
       {
-	uint32_t Frame     = OpticalRawDigitHandle->at(i).Frame();
-        uint32_t TimeSlice = OpticalRawDigitHandle->at(i).TimeSlice();
-	fShaper   = OpticalRawDigitHandle->at(i).ChannelNumber();
+	uint32_t Frame     = 0;
+        uint32_t TimeSlice = OpDetWaveformHandle->at(i).TimeStamp();
+	fShaper   = OpDetWaveformHandle->at(i).ChannelNumber();
 	fChannel  = ShaperToChannel(fShaper);
 	
 
@@ -292,7 +292,7 @@ namespace opdet {
 		  {
 		    
 		   
-		    const optdata::OpticalRawDigit& wf = OpticalRawDigitHandle->at(i);
+		    const raw::OpDetWaveform& wf = OpDetWaveformHandle->at(i);
 
 		    fPulseRecoMgr.RecoPulse(wf);
 		    

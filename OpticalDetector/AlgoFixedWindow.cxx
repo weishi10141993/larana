@@ -40,7 +40,7 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool AlgoFixedWindow::RecoPulse(const std::vector<uint16_t> &wf)
+  bool AlgoFixedWindow::RecoPulse(const std::vector<short> &wf)
   //***************************************************************
   {
     this->Reset();
