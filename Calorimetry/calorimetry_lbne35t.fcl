@@ -13,6 +13,7 @@ lbne35t_calodata:
  module_type:            "Calorimetry"
  TrackModuleLabel:       "stitch"
  SpacePointModuleLabel:  "stitch"
+ T0ModuleLabel:          "mctrutht0"
  UseArea:		 true
  CaloAlg:	         @local::lbne35t_calorimetryalgdata
 }
@@ -22,6 +23,7 @@ lbne35t_calomc:
  module_type:            "Calorimetry"
  TrackModuleLabel:       "stitch"
  SpacePointModuleLabel:  "stitch"
+ T0ModuleLabel:          "mctrutht0"
  UseArea:		 true
  MakeTree:               false
  CaloAlg:	         @local::lbne35t_calorimetryalgmc

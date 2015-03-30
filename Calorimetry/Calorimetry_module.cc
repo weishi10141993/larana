@@ -32,6 +32,7 @@ extern "C" {
 #include "RecoBase/SpacePoint.h"
 #include "RecoBase/Track.h"
 #include "AnalysisBase/Calorimetry.h"
+#include "AnalysisBase/T0.h"
 #include "Utilities/AssociationUtil.h"
 #include "Filters/ChannelFilter.h"
 #include "Geometry/PlaneGeo.h"
@@ -90,6 +91,7 @@ namespace calo {
 
     std::string fTrackModuleLabel;
     std::string fSpacePointModuleLabel;
+    std::string fT0ModuleLabel;
     bool fMakeTree;
     bool fUseArea;
     CalorimetryAlg caloAlg;
@@ -164,6 +166,7 @@ namespace calo {
 calo::Calorimetry::Calorimetry(fhicl::ParameterSet const& pset)
   : fTrackModuleLabel(pset.get< std::string >("TrackModuleLabel")      ),
     fSpacePointModuleLabel (pset.get< std::string >("SpacePointModuleLabel")       ),
+    fT0ModuleLabel (pset.get< std::string >("T0ModuleLabel") ),
     fMakeTree(pset.get< bool >("MakeTree") ),
     fUseArea(pset.get< bool >("UseArea") ),
     caloAlg(pset.get< fhicl::ParameterSet >("CaloAlg"))
@@ -263,6 +266,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 
   //art::FindManyP<recob::SpacePoint> fmsp(trackListHandle, evt, fTrackModuleLabel);
   art::FindManyP<recob::Hit>        fmht(trackListHandle, evt, fTrackModuleLabel);
+  art::FindManyP<anab::T0>          fmt0(trackListHandle, evt, fT0ModuleLabel);
 
   for(size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter){   
 
@@ -302,15 +306,22 @@ void calo::Calorimetry::produce(art::Event& evt)
     unsigned int wire    = 0;   //hit wire number 
     unsigned int plane   = 0;  //hit plane number
 
-    //get hits in each plane
+    
 
     std::vector< art::Ptr<recob::Hit> > allHits = fmht.at(trkIter);
+    double T0 =0;
+    if ( fmt0.isValid() ) {
+      std::vector< art::Ptr<anab::T0> > allT0 = fmt0.at(trkIter);
+      if ( allT0.size() ) T0 = allT0[0]->Time();
+    }
+    double TickT0 = T0 / detprop->SamplingRate();
     std::vector< std::vector<unsigned int> > hits(nplanes);
+
     art::FindManyP<recob::SpacePoint> fmspts(allHits, evt, fSpacePointModuleLabel);
     for (size_t ah = 0; ah< allHits.size(); ++ah){
       hits[allHits[ah]->WireID().Plane].push_back(ah);
     }
-
+    //get hits in each plane
     for (size_t ipl = 0; ipl < nplanes; ++ipl){//loop over all wire planes
 
       geo::PlaneID planeID;//(cstat,tpc,ipl);
@@ -375,7 +386,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	std::vector< art::Ptr<recob::SpacePoint> > sptv = fmspts.at(hits[ipl][i]);
 	for (size_t j = 0; j < sptv.size(); ++j){
 	  
-	  double t = allHits[hits[ipl][i]]->PeakTime();
+	  double t = allHits[hits[ipl][i]]->PeakTime() - TickT0; // Want T0 here? Otherwise ticks to x is wrong?
 	  double x = detprop->ConvertTicksToX(t, allHits[hits[ipl][i]]->WireID().Plane, allHits[hits[ipl][i]]->WireID().TPC, allHits[hits[ipl][i]]->WireID().Cryostat);
 	  double w = allHits[hits[ipl][i]]->WireID().Wire;
 	  trkx.push_back(sptv[j]->XYZ()[0]);
@@ -400,7 +411,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	}
 
 	wire = allHits[hits[ipl][ihit]]->WireID().Wire;
-	time = allHits[hits[ipl][ihit]]->PeakTime() ;
+	time = allHits[hits[ipl][ihit]]->PeakTime(); // What about here? T0 
 	stime = allHits[hits[ipl][ihit]]->PeakTimeMinusRMS();
 	etime = allHits[hits[ipl][ihit]]->PeakTimePlusRMS();
 	
@@ -438,8 +449,8 @@ void calo::Calorimetry::produce(art::Event& evt)
 	double MIPs = charge;
 	double dQdx = MIPs/pitch;
 	double dEdx = 0;
-	if (fUseArea) dEdx = caloAlg.dEdx_AREA(allHits[hits[ipl][ihit]], pitch);
-	else dEdx = caloAlg.dEdx_AMP(allHits[hits[ipl][ihit]], pitch);
+	if (fUseArea) dEdx = caloAlg.dEdx_AREA(allHits[hits[ipl][ihit]], pitch, T0);
+	else dEdx = caloAlg.dEdx_AMP(allHits[hits[ipl][ihit]], pitch, T0);
 
 	Kin_En = Kin_En + dEdx * pitch;	
 
