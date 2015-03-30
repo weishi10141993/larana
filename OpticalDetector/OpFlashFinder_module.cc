@@ -196,7 +196,7 @@ namespace opdet {
     // Get the pulses from the event
     //art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
     std::vector< art::Handle< std::vector< raw::OpDetWaveform > > > wfHandleVector;
-    evt.getManyByType(wfHandle);
+    evt.getManyByType(wfHandleVector);
     //evt.getByLabel(fInputModule, wfHandle);
     //std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
 
