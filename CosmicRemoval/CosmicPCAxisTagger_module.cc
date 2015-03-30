@@ -107,11 +107,22 @@ cosmic::CosmicPCAxisTagger::~CosmicPCAxisTagger()
 
 void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
 {
+    // Instatiate the output
+    std::unique_ptr< std::vector< anab::CosmicTag > >                  cosmicTagPFParticleVector(  new std::vector<anab::CosmicTag> );
+    std::unique_ptr< art::Assns<recob::PCAxis,     anab::CosmicTag > > assnOutCosmicTagPCAxis(     new art::Assns<recob::PCAxis,     anab::CosmicTag>);
+    std::unique_ptr< art::Assns<recob::PFParticle, anab::CosmicTag > > assnOutCosmicTagPFParticle( new art::Assns<recob::PFParticle, anab::CosmicTag>);
+    
     // Recover handle for PFParticles
     art::Handle<std::vector<recob::PFParticle> > pfParticleHandle;
     evt.getByLabel( fPFParticleModuleLabel, pfParticleHandle);
     
-    if (!pfParticleHandle.isValid()) return;
+    if (!pfParticleHandle.isValid())
+    {
+        evt.put( std::move(cosmicTagPFParticleVector)  );
+        evt.put( std::move(assnOutCosmicTagPFParticle) );
+        evt.put( std::move(assnOutCosmicTagPCAxis)     );
+        return;
+    }
     
     // We need a handle to the collection of clusters in the data store so we can
     // handle associations to hits.
@@ -122,7 +133,13 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
     art::Handle<std::vector<recob::PCAxis> > pcaxisHandle;
     evt.getByLabel( fPCAxisModuleLabel, pcaxisHandle);
     
-    if (!pcaxisHandle.isValid()) return;
+    if (!pcaxisHandle.isValid())
+    {
+        evt.put( std::move(cosmicTagPFParticleVector)  );
+        evt.put( std::move(assnOutCosmicTagPFParticle) );
+        evt.put( std::move(assnOutCosmicTagPCAxis)     );
+        return;
+    }
     
     // Recover handle for PCAxis <--> PFParticle associations
     art::Handle< art::Assns<recob::PFParticle, recob::PCAxis> > pfPartToPCAxisHandle;
@@ -137,11 +154,6 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
     
     // Likewise, recover the collection of associations to hits
     art::FindManyP<recob::Hit> clusterHitAssns(clusterHandle, evt, fPFParticleModuleLabel);
-    
-    // Instatiate the output
-    std::unique_ptr< std::vector< anab::CosmicTag > >                  cosmicTagPFParticleVector(  new std::vector<anab::CosmicTag> );
-    std::unique_ptr< art::Assns<recob::PCAxis,     anab::CosmicTag > > assnOutCosmicTagPCAxis(     new art::Assns<recob::PCAxis,     anab::CosmicTag>);
-    std::unique_ptr< art::Assns<recob::PFParticle, anab::CosmicTag > > assnOutCosmicTagPFParticle( new art::Assns<recob::PFParticle, anab::CosmicTag>);
     
     // The outer loop is going to be over PFParticles
     for(size_t pfPartIdx = 0; pfPartIdx != pfParticleHandle->size(); pfPartIdx++)
@@ -362,6 +374,8 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
     evt.put( std::move(cosmicTagPFParticleVector)  );
     evt.put( std::move(assnOutCosmicTagPFParticle) );
     evt.put( std::move(assnOutCosmicTagPCAxis)     );
+    
+    return;
 
 } // end of produce
 //////////////////////////////////////////////////////////////////////////////////////////////////////
