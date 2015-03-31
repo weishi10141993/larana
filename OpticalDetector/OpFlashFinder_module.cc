@@ -79,8 +79,8 @@ namespace opdet {
 
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
-//    pmtana::AlgoThreshold     fThreshAlg;
-    pmtana::AlgoLBNE          fThreshAlg;
+    pmtana::AlgoThreshold     fThreshAlg;
+      //pmtana::AlgoLBNE          fThreshAlg;
 
     Int_t   fChannelMapMode;
     Int_t   fBinWidth;
@@ -209,34 +209,41 @@ namespace opdet {
     art::ServiceHandle<util::TimeService> ts_ptr;
     util::TimeService const& ts(*ts_ptr);
 
+    int totalsize = 0;
     for (auto wfHandle : wfHandleVector) {
-        std::vector< raw::OpDetWaveform > const& WaveformVector(*wfHandle);
-
-        RunFlashFinder(WaveformVector,
-                       *HitPtr,
-                       *FlashPtr,
-                       AssocList,
-                       fBinWidth,
-                       fPulseRecoMgr,
-                       fThreshAlg,
-                       fChannelMap,
-                       Geometry,
-                       ODResponse,
-                       fHitThreshold,
-                       fFlashThreshold,
-                       fWidthTolerance,
-                       ts,
-                       fSPESize,
-                       fTrigCoinc);
-
-
-        // Make the associations which we noted we need
-        for(size_t i=0; i!=AssocList.size(); ++i)
-            for(size_t j=0; j!=AssocList.at(i).size(); ++j)
-            {
-                util::CreateAssn(*this, evt, *(FlashPtr), *(HitPtr), *(AssnPtr.get()), AssocList[i][j], AssocList[i][j], i);
-            }
+        //std::vector< raw::OpDetWaveform > const& WaveformVector(*wfHandle);
+        totalsize += wfHandle->size();
     }
+
+    std::vector< raw::OpDetWaveform > WaveformVector;
+    WaveformVector.reserve(totalsize);
+    for (auto wfHandle : wfHandleVector) 
+        WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
+    
+
+    RunFlashFinder(WaveformVector,
+                   *HitPtr,
+                   *FlashPtr,
+                   AssocList,
+                   fBinWidth,
+                   fPulseRecoMgr,
+                   fThreshAlg,
+                   fChannelMap,
+                   Geometry,
+                   ODResponse,
+                   fHitThreshold,
+                   fFlashThreshold,
+                   fWidthTolerance,
+                   ts,
+                   fSPESize,
+                   fTrigCoinc);
+
+
+    // Make the associations which we noted we need
+    for(size_t i=0; i!=AssocList.size(); ++i)
+      for(size_t j=0; j!=AssocList.at(i).size(); ++j)
+        util::CreateAssn(*this, evt, *(FlashPtr), *(HitPtr), *(AssnPtr.get()), AssocList[i][j], AssocList[i][j], i);
+    
     // Store results into the event
     evt.put(std::move(FlashPtr));
     evt.put(std::move(HitPtr));

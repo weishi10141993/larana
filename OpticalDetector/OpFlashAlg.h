@@ -31,7 +31,7 @@ namespace opdet{
 		      pmtana::PMTPulseRecoBase const&,
 		      std::map<int,int> const&,
 		      geo::Geometry const&,
-          opdet::OpDetResponseInterface const&,
+		      opdet::OpDetResponseInterface const&,
 		      float const&,
 		      float const&,
 		      float const&,
@@ -41,8 +41,7 @@ namespace opdet{
 
   void ConstructHit( float const&, 
 		     int const&,
-		     uint32_t const&,
-		     unsigned short const&,
+		     double const&,
 		     pmtana::pulse_param const&,
 		     util::TimeService const&,
 		     double const&,
@@ -123,9 +122,8 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-          opdet::OpDetResponseInterface const& odresponse,
-		      unsigned int const TrigFrame,
-		      unsigned short const Frame,
+		      opdet::OpDetResponseInterface const& odresponse,
+		      util::TimeService const& ts,
 		      float const& TrigCoinc);
 
   void AddHitContribution( recob::OpHit const& currentHit,

@@ -1,6 +1,10 @@
+// -*- mode: c++; c-basic-offset: 2; -*-
 /*!
  * Title:   OpFlash Algorithims
- * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov and gleb.sinev@duke.edu)
+ * Authors, editors:  Ben Jones, MIT
+ *                    Wes Ketchum wketchum@lanl.gov
+ *                    Gleb Sinev  gleb.sinev@duke.edu
+ *                    Alex Himmel ahimmel@fnal.gov
  *
  * Description:
  * These are the algorithms used by OpFlashFinder to produce flashes.
@@ -50,7 +54,7 @@ namespace opdet{
 		    pmtana::PMTPulseRecoBase const& ThreshAlg,
 		    std::map<int,int> const& ChannelMap,
 		    geo::Geometry const& geom,
-        opdet::OpDetResponseInterface const& odresponse,
+		    opdet::OpDetResponseInterface const& odresponse,
 		    float const& HitThreshold,
 		    float const& FlashThreshold,
 		    float const& WidthTolerance,
@@ -81,7 +85,8 @@ namespace opdet{
     for(auto const& wf_ptr : OpDetWaveformVector){
 
       const int Channel = ChannelMap.at((int)wf_ptr.ChannelNumber());
-      const uint32_t TimeSlice = wf_ptr.TimeStamp();
+      const double TimeStamp = wf_ptr.TimeStamp();
+      const uint32_t TimeSlice = pmt_clock.Sample(TimeStamp);
 
       if( Channel<0 || Channel > int(NOpChannels - 1) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
@@ -89,8 +94,8 @@ namespace opdet{
       }
       
       if( TimeSlice > pmt_clock.FrameTicks() ){
-	mf::LogError("OpFlashFinder")<<"This slice " << TimeSlice<< "is outside the countable region - skipping";
-	continue;
+        mf::LogError("OpFlashFinder")<<"This slice " << TimeSlice<< "is outside the countable region - skipping";
+        continue;
       }
       
       PulseRecoMgr.RecoPulse(wf_ptr);
@@ -100,8 +105,7 @@ namespace opdet{
 	
 	ConstructHit( HitThreshold,
 		      Channel,
-		      TimeSlice,
-		      0,
+		      TimeStamp,
 		      ThreshAlg.GetPulse(k),
 		      ts,
 		      SPESize.at(Channel),
@@ -169,10 +173,8 @@ namespace opdet{
 		     HitVector,
 		     FlashVector,
 		     geom,
-         odresponse,
-		     pmt_clock.Frame(ts.BeamGateTime()),
-//		     Frame,
-         0,
+		     odresponse,
+		     ts,
 		     TrigCoinc);
 
     RemoveLateLight(FlashVector,
@@ -194,18 +196,19 @@ namespace opdet{
   //-------------------------------------------------------------------------------------------------
   void ConstructHit( float const& HitThreshold,
 		     int const& Channel,
-		     uint32_t const& TimeSlice,
-		     unsigned short const& Frame,
+		     double const& TimeStamp,
 		     pmtana::pulse_param const& pulse,
 		     util::TimeService const& ts,
 		     double const& SPESize,
 		     std::vector<recob::OpHit>& HitVector)
   {
     if( pulse.peak<HitThreshold ) return;
-    
-    double AbsTime = ts.OpticalTick2Time(pulse.t_max, TimeSlice, Frame);
 
-    double RelTime = ts.OpticalTick2BeamTime(pulse.t_max, TimeSlice, Frame);
+    double AbsTime = TimeStamp + pulse.t_max * ts.OpticalClock().TickPeriod();
+    
+    double RelTime = AbsTime - ts.BeamGateTime();
+    
+    int    Frame   = ts.OpticalClock().Frame(TimeStamp);
 
     double PE      = pulse.peak / SPESize;
     
@@ -600,9 +603,8 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-          opdet::OpDetResponseInterface const& odresponse,
-		      unsigned int const TrigFrame,
-		      unsigned short const Frame,
+		      opdet::OpDetResponseInterface const& odresponse,
+		      util::TimeService const& ts,
 		      float const& TrigCoinc)
   {
 
@@ -625,7 +627,7 @@ namespace opdet{
 			 PEs);
       GetHitGeometryInfo(HitVector.at(HitID),
 			 geom,
-       odresponse,
+			 odresponse,
 			 sumw,
 			 sumw2,
 			 sumy, sumy2,
@@ -649,7 +651,10 @@ namespace opdet{
       WireCenters.at(p) = sumw.at(p)/TotalPE;
       WireWidths.at(p)  = CalculateWidth(sumw.at(p),sumw2.at(p),TotalPE);
     }
-    
+
+    int Frame = ts.OpticalClock().Frame(AveAbsTime);
+    int TrigFrame = ts.OpticalClock().Frame(ts.BeamGateTime());
+    bool InBeamFrame = (Frame==TrigFrame);
     double TimeWidth = (MaxTime-MinTime)/2.;
     
     int OnBeamTime =0; 
@@ -658,9 +663,9 @@ namespace opdet{
     FlashVector.emplace_back( AveTime,
 			      TimeWidth,
 			      AveAbsTime,
-			      0,
+			      Frame,
 			      PEs, 
-			      0,
+			      InBeamFrame,
 			      OnBeamTime,
 			      FastToTotal,
 			      meany, 
