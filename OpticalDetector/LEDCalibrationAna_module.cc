@@ -1,3 +1,4 @@
+// -*- mode: c++; c-basic-offset: 2; -*-
 // Ben Jones, MIT, 2013
 //
 //  This ana module extracts pedestals and gains from 
@@ -14,6 +15,7 @@
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
+#include "Utilities/TimeService.h"
 
 // Framework includes
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -246,6 +248,7 @@ namespace opdet {
   void LEDCalibrationAna::analyze(const art::Event& evt) 
   {
 
+    art::ServiceHandle<util::TimeService> ts;
 
 
     fRunID=evt.run();
@@ -271,14 +274,18 @@ namespace opdet {
     
     for(size_t i=0; i!=OrgOpDigitByChannel[fTriggerChannel].size(); ++i)
       {
-	FrameNumbersForTrig.push_back(0);
-	TimeSlicesForTrig.push_back(OpDetWaveformHandle->at(OrgOpDigitByChannel[ fTriggerChannel][i] ).TimeStamp());
+        double TimeStamp = OpDetWaveformHandle->at(OrgOpDigitByChannel[ fTriggerChannel][i] ).TimeStamp();
+        uint32_t Frame     = ts->OpticalClock().Frame(TimeStamp);
+        uint32_t TimeSlice = ts->OpticalClock().Sample(TimeStamp);
+	FrameNumbersForTrig.push_back(Frame);
+	TimeSlicesForTrig.push_back(TimeSlice);
       }
 
     for(size_t i=0; i!=OpDetWaveformHandle->size(); ++i)
       {
-	uint32_t Frame     = 0;
-        uint32_t TimeSlice = OpDetWaveformHandle->at(i).TimeStamp();
+        double TimeStamp = OpDetWaveformHandle->at(i).TimeStamp();
+        uint32_t Frame     = ts->OpticalClock().Frame(TimeStamp);
+        uint32_t TimeSlice = ts->OpticalClock().Sample(TimeStamp);
 	fShaper   = OpDetWaveformHandle->at(i).ChannelNumber();
 	fChannel  = ShaperToChannel(fShaper);
 	
