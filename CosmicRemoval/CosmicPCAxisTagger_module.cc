@@ -309,12 +309,12 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
                 if (fDetLength - trackEndPt1_Z < fTPCZBoundary || fDetLength - trackEndPt2_Z < fTPCZBoundary ) nBdZ++;
                 if (             trackEndPt1_Z < fTPCZBoundary ||              trackEndPt2_Z < fTPCZBoundary ) nBdZ++;
                 
-                std::cout << "***>> track1 end points, x: " << trackEndPt1_X << ", y: " << trackEndPt1_Y << ", z: " << trackEndPt1_Z << std::endl;
-                std::cout << "      track2 end points, x: " << trackEndPt2_X << ", y: " << trackEndPt2_Y << ", z: " << trackEndPt2_Z << std::endl;
-                std::cout << "      fDetWidth: " << fDetWidth << ", fDetHalfHeight: " << fDetHalfHeight << ", fDetLength: " << fDetLength << std::endl;
-                std::cout << "      fTPCXBoundary: " << fTPCXBoundary << ", fTPCYBoundary: " << fTPCYBoundary << ", fTPCZBoundary: " << fTPCZBoundary << std::endl;
-                std::cout << "      nBdX: " << nBdX << ", nBdY: " << nBdY << ", nBdZ: " << nBdZ << std::endl;
-                std::cout << recoPCA << std::endl;
+//                std::cout << "***>> track1 end points, x: " << trackEndPt1_X << ", y: " << trackEndPt1_Y << ", z: " << trackEndPt1_Z << std::endl;
+//                std::cout << "      track2 end points, x: " << trackEndPt2_X << ", y: " << trackEndPt2_Y << ", z: " << trackEndPt2_Z << std::endl;
+//                std::cout << "      fDetWidth: " << fDetWidth << ", fDetHalfHeight: " << fDetHalfHeight << ", fDetLength: " << fDetLength << std::endl;
+//                std::cout << "      fTPCXBoundary: " << fTPCXBoundary << ", fTPCYBoundary: " << fTPCYBoundary << ", fTPCZBoundary: " << fTPCZBoundary << std::endl;
+//                std::cout << "      nBdX: " << nBdX << ", nBdY: " << nBdY << ", nBdZ: " << nBdZ << std::endl;
+//                std::cout << recoPCA << std::endl;
                 
                 // This should check for the case of a track which is both entering and exiting
                 // but we consider entering and exiting the z boundaries to be a special case (should it be?)
