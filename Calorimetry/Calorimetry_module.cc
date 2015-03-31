@@ -87,7 +87,7 @@ namespace calo {
     bool BeginsOnBoundary(art::Ptr<recob::Track> lar_track);
     bool EndsOnBoundary(art::Ptr<recob::Track> lar_track);
 
-    void GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> trkx, std::vector<double> trky, std::vector<double> trkz, std::vector<double> trkw, std::vector<double> trkx0, double *xyz3d, double &pitch);
+    void GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> trkx, std::vector<double> trky, std::vector<double> trkz, std::vector<double> trkw, std::vector<double> trkx0, double *xyz3d, double &pitch, double TickT0);
 
     std::string fTrackModuleLabel;
     std::string fSpacePointModuleLabel;
@@ -310,11 +310,13 @@ void calo::Calorimetry::produce(art::Event& evt)
 
     std::vector< art::Ptr<recob::Hit> > allHits = fmht.at(trkIter);
     double T0 =0;
+    double TickT0 =0;
     if ( fmt0.isValid() ) {
       std::vector< art::Ptr<anab::T0> > allT0 = fmt0.at(trkIter);
       if ( allT0.size() ) T0 = allT0[0]->Time();
+      TickT0 = T0 / detprop->SamplingRate();    
     }
-    double TickT0 = T0 / detprop->SamplingRate();
+    
     std::vector< std::vector<unsigned int> > hits(nplanes);
 
     art::FindManyP<recob::SpacePoint> fmspts(allHits, evt, fSpacePointModuleLabel);
@@ -421,7 +423,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	//not all hits are associated with space points, the method uses neighboring spacepts to interpolate
 	double xyz3d[3];
 	double pitch;
-	GetPitch(allHits[hits[ipl][ihit]], trkx, trky, trkz, trkw, trkx0, xyz3d, pitch);
+	GetPitch(allHits[hits[ipl][ihit]], trkx, trky, trkz, trkw, trkx0, xyz3d, pitch, TickT0);
 
 	if (xyz3d[2]<-100) continue; //hit not on track
 	if (pitch<=0) pitch = fTrkPitch;
@@ -756,7 +758,7 @@ void calo::Calorimetry::ReadCaloTree(){
   }
 }
 
-void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> trkx, std::vector<double> trky, std::vector<double> trkz, std::vector<double> trkw, std::vector<double> trkx0, double *xyz3d, double &pitch){
+void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> trkx, std::vector<double> trky, std::vector<double> trkz, std::vector<double> trkw, std::vector<double> trkx0, double *xyz3d, double &pitch, double TickT0){
   //Get 3d coordinates and track pitch for each hit
   //Find 5 nearest space points and determine xyz and curvature->track pitch
 
@@ -771,7 +773,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
 
   double wire_pitch = geom->WirePitch(0,1,0);
 
-  double t0 = hit->PeakTime();
+  double t0 = hit->PeakTime() - TickT0;
   double x0 = dp->ConvertTicksToX(t0, hit->WireID().Plane, hit->WireID().TPC, hit->WireID().Cryostat);
   double w0 = hit->WireID().Wire;
 
