@@ -591,7 +591,8 @@ namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
   double CalculateWidth(double const& sum, double const& sum_squared, double const& weights_sum){
-    return std::sqrt( sum_squared*weights_sum - sum*sum )/weights_sum;
+    //return std::sqrt( sum_squared*weights_sum - sum*sum )/weights_sum; // GVS bugfix
+    return std::sqrt( sum_squared*weights_sum + sum*sum )/weights_sum;
   }
 
   //-------------------------------------------------------------------------------------------------
