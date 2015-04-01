@@ -1,3 +1,4 @@
+// -*- mode: c++; c-basic-offset: 2; -*-
 // This analyzer writes out a TTree containing the properties of
 // each reconstructed flash
 //
@@ -42,6 +43,7 @@
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/FindManyP.h"
 
 namespace opdet {
  
@@ -82,10 +84,12 @@ namespace opdet {
     bool fMakePerFlashTree;
     bool fMakeFlashBreakdownTree;
     bool fMakePerOpHitTree;
-
+    bool fMakeFlashHitMatchTree;
+      
     TTree * fPerFlashTree;
     TTree * fPerOpHitTree;
     TTree * fFlashBreakdownTree;
+    TTree * fFlashHitMatchTree;
    
     Int_t fEventID;
     Int_t fFlashID;
@@ -153,7 +157,9 @@ namespace opdet {
     fMakePerFlashTree       =  pset.get<bool>("MakePerFlashTree");
     fMakeFlashBreakdownTree =  pset.get<bool>("MakeFlashBreakdownTree");
     fMakePerOpHitTree       =  pset.get<bool>("MakePerOpHitTree");
+    fMakeFlashHitMatchTree  =  pset.get<bool>("MakeFlashHitMatchTree");
 
+    
     PosHistYRes=100;
     PosHistZRes=100;
 
@@ -183,7 +189,7 @@ namespace opdet {
     if(fMakePerOpHitTree)
       {
 	fPerOpHitTree = tfs->make<TTree>("PerOpHitTree","PerOpHitTree");
-	fPerOpHitTree->Branch("EventID",   &fEventID,    "EventID/I");
+	fPerOpHitTree->Branch("EventID",     &fEventID,    "EventID/I");
 	fPerOpHitTree->Branch("OpChannel",   &fOpChannel,    "OpChannel/I");
 	fPerOpHitTree->Branch("PeakTimeAbs", &fPeakTimeAbs,  "PeakTimeAbs/F");
 	fPerOpHitTree->Branch("PeakTime",    &fPeakTime,     "PeakTime/F");
@@ -209,6 +215,17 @@ namespace opdet {
 	fPerFlashTree->Branch("OnBeamTime",&fOnBeamTime, "OnBeamTime/I");
 	fPerFlashTree->Branch("TotalPE",   &fTotalPE,    "TotalPE/F");
       }
+    if(fMakeFlashHitMatchTree)
+      {
+	fFlashHitMatchTree = tfs->make<TTree>("FlashHitMatchTree","FlashHitMatchTree");
+	fFlashHitMatchTree->Branch("EventID",    &fEventID,      "EventID/I");
+	fFlashHitMatchTree->Branch("FlashID",    &fFlashID,      "FlashID/I");
+	fFlashHitMatchTree->Branch("OpChannel",  &fOpChannel,    "OpChannel/I");
+	fFlashHitMatchTree->Branch("PeakTimeAbs",&fPeakTimeAbs,  "PeakTimeAbs/F");
+	fFlashHitMatchTree->Branch("PeakTime",   &fPeakTime,     "PeakTime/F");
+	fFlashHitMatchTree->Branch("HitPE",      &fPE,           "HitPE/F");
+	fFlashHitMatchTree->Branch("FlashPE",    &fTotalPE,      "FlashPE/F");
+      }
     
     fFlashID=0;
   }
@@ -231,6 +248,9 @@ namespace opdet {
     // Get flashes from event
     art::Handle< std::vector< recob::OpFlash > > FlashHandle;
     evt.getByLabel(fOpFlashModuleLabel, FlashHandle);
+
+    // Get assosciations between flashes and hits
+    art::FindManyP<recob::OpHit> Assns(FlashHandle, evt, fOpFlashModuleLabel);
 
     // Create string for histogram name
     char HistName[50];
@@ -280,6 +300,8 @@ namespace opdet {
 	art::Ptr< recob::OpFlash > TheFlashPtr(FlashHandle, i);
 	recob::OpFlash TheFlash = *TheFlashPtr;
 
+        std::vector< art::Ptr<recob::OpHit> > matchedHits = Assns.at(i);
+        mf::LogInfo("OpFlashAna") << "Found " << matchedHits.size() << " assosciated OpHits with this flash" << std::endl;
 
 	fFlashTime = TheFlash.Time();
 	fFlashID++;
@@ -334,6 +356,23 @@ namespace opdet {
 	if(fMakeFlashTimeHist) FlashTimes->Fill(fFlashTime, fTotalPE);
 	
 	if(fMakePerFlashTree)  fPerFlashTree->Fill();
+
+        if(fMakeFlashHitMatchTree) {
+          // Extract the assosciations 
+          for (auto ophit : matchedHits) {
+            mf::LogInfo("OpFlashAna") << "ophit.ProductID: " << ophit.id() << std::endl;
+            fOpChannel   = ophit->OpChannel();
+	    fPeakTimeAbs = ophit->PeakTimeAbs();
+	    fPeakTime    = ophit->PeakTime();
+	    fFrame       = ophit->Frame();
+	    fWidth       = ophit->Width();
+	    fArea        = ophit->Area();
+	    fAmplitude   = ophit->Amplitude();
+	    fPE          = ophit->PE();
+	    fFastToTotal = ophit->FastToTotal();
+            fFlashHitMatchTree->Fill();
+          }
+        }
 	
       }
     
@@ -357,6 +396,7 @@ namespace opdet {
 	  }
 
       }
+
   }
 
 } // namespace opdet

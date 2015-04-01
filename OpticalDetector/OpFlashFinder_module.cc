@@ -1,3 +1,4 @@
+// -*- mode: c++; c-basic-offset: 2; -*-
 // Ben Jones, MIT, 2013
 //
 // This module finds periods of time-localized activity
@@ -241,8 +242,7 @@ namespace opdet {
 
     // Make the associations which we noted we need
     for(size_t i=0; i!=AssocList.size(); ++i)
-      for(size_t j=0; j!=AssocList.at(i).size(); ++j)
-        util::CreateAssn(*this, evt, *(FlashPtr), *(HitPtr), *(AssnPtr.get()), AssocList[i][j], AssocList[i][j], i);
+      util::CreateAssn(*this, evt, *(AssnPtr.get()), i+1, AssocList[i].begin(), AssocList[i].end());
     
     // Store results into the event
     evt.put(std::move(FlashPtr));
