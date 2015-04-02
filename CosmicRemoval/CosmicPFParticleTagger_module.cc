@@ -92,17 +92,31 @@ cosmic::CosmicPFParticleTagger::~CosmicPFParticleTagger()
 
 void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
 {
+    // Instatiate the output
+    std::unique_ptr< std::vector< anab::CosmicTag > > cosmicTagTrackVector( new std::vector<anab::CosmicTag> );
+    std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > >    assnOutCosmicTagTrack( new art::Assns<recob::Track, anab::CosmicTag>);
+    
     // Recover handle for PFParticles
     art::Handle<std::vector<recob::PFParticle> > pfParticleHandle;
     evt.getByLabel( fPFParticleModuleLabel, pfParticleHandle);
     
-    if (!pfParticleHandle.isValid()) return;
+    if (!pfParticleHandle.isValid())
+    {
+        evt.put( std::move(cosmicTagTrackVector) );
+        evt.put( std::move(assnOutCosmicTagTrack) );
+        return;
+    }
     
     // Recover the handle for the tracks
     art::Handle<std::vector<recob::Track> > trackHandle;
     evt.getByLabel( fTrackModuleLabel, trackHandle);
     
-    if (!trackHandle.isValid()) return;
+    if (!trackHandle.isValid())
+    {
+        evt.put( std::move(cosmicTagTrackVector) );
+        evt.put( std::move(assnOutCosmicTagTrack) );
+        return;
+    }
     
     // Recover handle for track <--> PFParticle associations
     art::Handle< art::Assns<recob::PFParticle, recob::Track> > pfPartToTrackHandle;
@@ -113,10 +127,6 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
     
     // and the hits
     art::FindManyP<recob::Hit>  hitsSpill(trackHandle, evt, fTrackModuleLabel);
-    
-    // Instatiate the output
-    std::unique_ptr< std::vector< anab::CosmicTag > > cosmicTagTrackVector( new std::vector<anab::CosmicTag> );
-    std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > >    assnOutCosmicTagTrack( new art::Assns<recob::Track, anab::CosmicTag>);
     
     // The outer loop is going to be over PFParticles
     for(size_t pfPartIdx = 0; pfPartIdx != pfParticleHandle->size(); pfPartIdx++)
@@ -288,6 +298,8 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
     
     evt.put( std::move(cosmicTagTrackVector) );
     evt.put( std::move(assnOutCosmicTagTrack) );
+    
+    return;
 
 } // end of produce
 //////////////////////////////////////////////////////////////////////////////////////////////////////
