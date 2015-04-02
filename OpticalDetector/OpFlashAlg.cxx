@@ -183,13 +183,9 @@ namespace opdet{
     //checkOnBeamFlash(FlashVector);
 
     //Finally, write the association list
-    //The transform adds a constant offset to the elements of each vector in RefinedHitsPerFlash
     //back_inserter tacks the result onto the end of AssocList
-    for(auto & HitIndicesThisFlash : RefinedHitsPerFlash){
-      for(auto & HitIndex : HitIndicesThisFlash)
-	HitIndex += NHits_prev;
+    for(auto & HitIndicesThisFlash : RefinedHitsPerFlash)
       AssocList.push_back(HitIndicesThisFlash);
-    }
     
   }//end ProcessFrame
 
@@ -744,7 +740,16 @@ namespace opdet{
 
     size_t BeginFlash = FlashVector.size() - RefinedHitsPerFlash.size();
 
+    
+
     recob::OpFlashSortByTime sort_flash_by_time;
+
+    // Determine the sort of FlashVector starting at BeginFlash
+    auto sort_order = sort_permutation(FlashVector, BeginFlash, sort_flash_by_time);
+
+    // Sort the RefinedHitsPerFlash in the same way as tail end of FlashVector
+    apply_permutation(RefinedHitsPerFlash, sort_order);
+
     std::sort(FlashVector.begin()+BeginFlash,
 	      FlashVector.end(),
 	      sort_flash_by_time);
@@ -760,5 +765,29 @@ namespace opdet{
 
   }//end RemoveLateLight
 
+
+
+  //-------------------------------------------------------------------------------------------------
+  template <typename T, typename Compare>
+  std::vector<int> sort_permutation(std::vector<T> const& vec, int offset, Compare compare)
+  {
+    std::vector<int> p(vec.size()-offset);
+    std::iota(p.begin(), p.end(), 0);
+    std::sort(p.begin(), p.end(), [&](int i, int j){ return compare(vec[i+offset], vec[j+offset]); });
+    return p;
+  }
+
+
+  //-------------------------------------------------------------------------------------------------
+  template <typename T>
+  void apply_permutation(std::vector<T> & vec, std::vector<int> const& p)
+  {
+    std::vector<T> sorted_vec(p.size());
+    std::transform(p.begin(), p.end(), sorted_vec.begin(),
+        [&](int i){ return vec[i]; });
+    vec = sorted_vec;
+  }
+  
+    
 }//end namespace opdet
 

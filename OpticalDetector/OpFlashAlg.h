@@ -1,3 +1,4 @@
+// -*- mode: c++; c-basic-offset: 2; -*-
 #ifndef OPFLASHALG_H
 #define OPFLASHALG_H
 /*!
@@ -157,8 +158,12 @@ namespace opdet{
 				size_t const& BeginFlash,
 				std::vector< std::vector<int> >& RefinedHitsPerFlash);
 
+  template <typename T, typename Compare>
+  std::vector<int> sort_permutation(std::vector<T> const& vec, int offset, Compare compare);
 
-
+  template <typename T>
+  void apply_permutation(std::vector<T> & vec, std::vector<int> const& p);
+      
 }//end opdet namespace
 
 #endif
