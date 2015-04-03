@@ -99,6 +99,7 @@ namespace opdet {
     bool  fInBeamFrame;
     int   fOnBeamTime;
     Float_t fTotalPE;
+    Int_t   fFlashFrame;
     
     Float_t fNPe;
     Float_t fYCenter;
@@ -175,15 +176,13 @@ namespace opdet {
 	fFlashBreakdownTree->Branch("FlashTime", &fFlashTime,  "FlashTime/F");
 	fFlashBreakdownTree->Branch("NPe",       &fNPe,        "NPe/F");
 	fFlashBreakdownTree->Branch("AbsTime",   &fAbsTime,    "AbsTime/F");
+	fFlashBreakdownTree->Branch("FlashFrame",&fFlashFrame, "FlashFrame/I");
 	fFlashBreakdownTree->Branch("InBeamFrame",&fInBeamFrame, "InBeamFrame/B");
 	fFlashBreakdownTree->Branch("OnBeamTime",&fOnBeamTime, "OnBeamTime/I");
 	fFlashBreakdownTree->Branch("YCenter",   &fYCenter,    "YCenter/F");
 	fFlashBreakdownTree->Branch("ZCenter",   &fZCenter,    "ZCenter/F");
 	fFlashBreakdownTree->Branch("YWidth",    &fYWidth,     "YWidth/F");
 	fFlashBreakdownTree->Branch("ZWidth",    &fZWidth,     "ZWidth/F");
-	fFlashBreakdownTree->Branch("AbsTime",   &fAbsTime,    "AbsTime/F");
-	fFlashBreakdownTree->Branch("InBeamFrame",&fInBeamFrame, "InBeamFrame/B");
-	fFlashBreakdownTree->Branch("OnBeamTime",&fOnBeamTime, "OnBeamTime/I");
 	fFlashBreakdownTree->Branch("TotalPE",   &fTotalPE,    "TotalPE/F");
       }
 
@@ -213,6 +212,7 @@ namespace opdet {
 	fPerFlashTree->Branch("ZWidth",    &fZWidth,     "ZWidth/F");
 	fPerFlashTree->Branch("FlashTime", &fFlashTime,  "FlashTime/F");
 	fPerFlashTree->Branch("AbsTime",   &fAbsTime,    "AbsTime/F");
+	fPerFlashTree->Branch("FlashFrame",&fFlashFrame, "FlashFrame/I");
 	fPerFlashTree->Branch("InBeamFrame",&fInBeamFrame, "InBeamFrame/B");
 	fPerFlashTree->Branch("OnBeamTime",&fOnBeamTime, "OnBeamTime/I");
 	fPerFlashTree->Branch("TotalPE",   &fTotalPE,    "TotalPE/F");
@@ -230,6 +230,8 @@ namespace opdet {
 	fFlashHitMatchTree->Branch("FlashPE",       &fTotalPE,    "FlashPE/F");
 	fFlashHitMatchTree->Branch("FlashTimeAbs",  &fAbsTime,    "FlashTimeAbs/F");
 	fFlashHitMatchTree->Branch("FlashTime",     &fFlashTime,  "FlashTime/F");
+	fFlashHitMatchTree->Branch("HitFrame",      &fFrame,      "HitFrame/I");
+	fFlashHitMatchTree->Branch("FlashFrame",    &fFlashFrame, "FlashFrame/I");
       }
     
     fFlashID=0;
@@ -331,7 +333,7 @@ namespace opdet {
 	fInBeamFrame = TheFlash.InBeamFrame();
 	fOnBeamTime  = TheFlash.OnBeamTime();
 	fAbsTime     = TheFlash.AbsTime();
-	fFrame       = TheFlash.Frame();
+	fFlashFrame  = TheFlash.Frame();
 	fTotalPE     = TheFlash.TotalPE();
 	
 	
