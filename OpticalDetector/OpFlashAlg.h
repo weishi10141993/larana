@@ -27,7 +27,7 @@ namespace opdet{
 		      std::vector<recob::OpHit>&,
 		      std::vector<recob::OpFlash>&,
 		      std::vector< std::vector<int> >&,
-		      int const&,
+		      double const&,
 		      pmtana::PulseRecoManager const&,
 		      pmtana::PMTPulseRecoBase const&,
 		      std::map<int,int> const&,
@@ -49,8 +49,8 @@ namespace opdet{
 		     std::vector<recob::OpHit>&);
 
   unsigned int GetAccumIndex(double const& TMax, 
-			     uint32_t const& TimeSlice, 
-			     int const& BinWidth, 
+			     double const& TimeStamp,
+			     double const& BinWidth, 
 			     double const& BinOffset);
 
   void FillAccumulator(unsigned int const& AccumIndex,

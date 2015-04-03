@@ -239,10 +239,10 @@ standard_opflash:
    GenModule:       "generator"
    InputModule:     "optreadout"
    ChannelMapMode:   0
-   BinWidth:         64      # | Pulse finding parameters
-   FlashThreshold:   2
-   HitThreshold:     0.2 
-   WidthTolerance:   0.5
+   BinWidth:         1   # us | Pulse finding parameters
+   FlashThreshold:   2   # PE
+   HitThreshold:     0.2 # PE
+   WidthTolerance:   0.5 # unitless 
    TrigCoinc:        2.5 #in microseconds!
    reco_man:         @local::standard_preco_manager
    algo_threshold:   @local::standard_algo_threshold

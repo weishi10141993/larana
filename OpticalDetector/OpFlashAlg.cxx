@@ -49,7 +49,7 @@ namespace opdet{
 		    std::vector<recob::OpHit>& HitVector,
 		    std::vector<recob::OpFlash>& FlashVector,
 		    std::vector< std::vector<int> >& AssocList,
-		    int const& BinWidth,
+		    double const& BinWidth,
 		    pmtana::PulseRecoManager const& PulseRecoMgr,
 		    pmtana::PMTPulseRecoBase const& ThreshAlg,
 		    std::map<int,int> const& ChannelMap,
@@ -64,15 +64,18 @@ namespace opdet{
 
   {
 
-    //The +3000 here is microboone specific, to account for the beam-gate window size.
     auto const& pmt_clock = ts.OpticalClock();
+
+    // Initial size for accumulators - will be automatically extended if needed
+    int initialsize = 6400; 
+    
     // These are the accumulators which will hold broad-binned light yields
-    std::vector<double>  Binned1((pmt_clock.FrameTicks() + 3000 + BinWidth)/BinWidth);
-    std::vector<double>  Binned2((pmt_clock.FrameTicks() + 3000 + BinWidth)/BinWidth);
+    std::vector<double>  Binned1(initialsize);
+    std::vector<double>  Binned2(initialsize);
     
     // These will keep track of which pulses put activity in each bin
-    std::vector<std::vector<int> > Contributors1((pmt_clock.FrameTicks() + 3000 + BinWidth)/BinWidth);
-    std::vector<std::vector<int> > Contributors2((pmt_clock.FrameTicks() + 3000 + BinWidth)/BinWidth);
+    std::vector<std::vector<int> > Contributors1(initialsize);
+    std::vector<std::vector<int> > Contributors2(initialsize);
     
     // These will keep track of where we have met the flash condition
     //  (in order to prevent second pointless loop)
@@ -86,16 +89,10 @@ namespace opdet{
 
       const int Channel = ChannelMap.at((int)wf_ptr.ChannelNumber());
       const double TimeStamp = wf_ptr.TimeStamp();
-      const uint32_t TimeSlice = pmt_clock.Sample(TimeStamp);
 
       if( Channel<0 || Channel > int(NOpChannels - 1) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
 	continue;
-      }
-      
-      if( TimeSlice > pmt_clock.FrameTicks() ){
-        mf::LogError("OpFlashFinder")<<"This slice " << TimeSlice<< "is outside the countable region - skipping";
-        continue;
       }
       
       PulseRecoMgr.RecoPulse(wf_ptr);
@@ -111,10 +108,25 @@ namespace opdet{
 		      SPESize.at(Channel),
 		      HitVector );
 
-	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max, 
-						 TimeSlice, 
+	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
+						 TimeStamp, 
 						 BinWidth, 
 						 0);
+
+	unsigned int AccumIndex2 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
+						 TimeStamp, 
+						 BinWidth, 
+						 BinWidth/2.);
+
+        // Extend accumulators if needed (2 always larger than 1)
+        if (AccumIndex2 >= Binned1.size()) {
+          std::cout << "Extending vectors to " << AccumIndex2*1.2 << std::endl;
+          Binned1.resize(AccumIndex2*1.2);
+          Binned2.resize(AccumIndex2*1.2);
+          Contributors1.resize(AccumIndex2*1.2);
+          Contributors2.resize(AccumIndex2*1.2);
+        }
+        
 	FillAccumulator(AccumIndex1,
 			HitVector.size()-1,
 			HitVector[HitVector.size()-1].PE(),
@@ -123,10 +135,6 @@ namespace opdet{
 			Contributors1,
 			FlashesInAccumulator1);
 
-	unsigned int AccumIndex2 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max, 
-						 TimeSlice, 
-						 BinWidth, 
-						 BinWidth/2);
 	FillAccumulator(AccumIndex2,
 			HitVector.size()-1,
 			HitVector[HitVector.size()-1].PE(),
@@ -134,11 +142,13 @@ namespace opdet{
 			Binned2,
 			Contributors2,
 			FlashesInAccumulator2);
-  
+        
+
       }
       
     }//end loop over FIFO channels in frame
 
+    
     //Now start to create flashes
     //First, need vector to keep track of which hits belong to which flashes
     std::vector< std::vector<int> > HitsPerFlash;
@@ -177,8 +187,8 @@ namespace opdet{
 		     ts,
 		     TrigCoinc);
 
-    RemoveLateLight(FlashVector,
-    		    RefinedHitsPerFlash);
+    //RemoveLateLight(FlashVector,
+    //		    RefinedHitsPerFlash);
 
     //checkOnBeamFlash(FlashVector);
 
@@ -224,10 +234,10 @@ namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
   unsigned int GetAccumIndex(double const& TMax, 
-			     uint32_t const& TimeSlice, 
-			     int const& BinWidth, 
+			     double const& TimeStamp, 
+			     double const& BinWidth, 
 			     double const& BinOffset){
-    return ( (TMax + TimeSlice) + BinOffset) / BinWidth;
+    return (int)( ((TMax + TimeStamp) + BinOffset) / BinWidth );
   }
 
   //-------------------------------------------------------------------------------------------------
@@ -270,7 +280,6 @@ namespace opdet{
     
     // for each hit in the flash
     for(auto const& HitIndex : Contributors.at(Bin)){
-      
       // if unclaimed, claim it
       if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
 	HitsThisFlash.push_back(HitIndex);
@@ -648,7 +657,11 @@ namespace opdet{
       WireWidths.at(p)  = CalculateWidth(sumw.at(p),sumw2.at(p),TotalPE);
     }
 
-    int Frame = ts.OpticalClock().Frame(AveAbsTime);
+    // Emprical corrections to get the Frame right
+    // Eventual solution - remove frames
+    int Frame = ts.OpticalClock().Frame(AveAbsTime-18.1);
+    if (Frame == 0) Frame = 1;
+    
     int TrigFrame = ts.OpticalClock().Frame(ts.BeamGateTime());
     bool InBeamFrame = (Frame==TrigFrame);
     double TimeWidth = (MaxTime-MinTime)/2.;
