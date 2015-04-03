@@ -187,8 +187,8 @@ namespace opdet{
 		     ts,
 		     TrigCoinc);
 
-    //RemoveLateLight(FlashVector,
-    //		    RefinedHitsPerFlash);
+    RemoveLateLight(FlashVector,
+    		    RefinedHitsPerFlash);
 
     //checkOnBeamFlash(FlashVector);
 
