@@ -307,8 +307,6 @@ namespace opdet {
 	art::Ptr< recob::OpFlash > TheFlashPtr(FlashHandle, i);
 	recob::OpFlash TheFlash = *TheFlashPtr;
 
-        std::vector< art::Ptr<recob::OpHit> > matchedHits = Assns.at(i);
-        mf::LogInfo("OpFlashAna") << "Found " << matchedHits.size() << " assosciated OpHits with this flash" << std::endl;
 
 	fFlashTime = TheFlash.Time();
 	fFlashID = i; //++;

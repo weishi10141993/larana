@@ -173,8 +173,6 @@ namespace opdet {
         for (unsigned int i = 0; i < CategoryLabels.size(); i++) {
             // Only store collections which contain waveforms, assign the label
             if (RawOpDetVecs[i]->size() > 0) {
-                mf::LogInfo("OpticalRawDigitReformatter") << "Reformatted " << RawOpDetVecs[i]->size()
-                                                          << " " << CategoryLabels[i] << " waveforms" << std::endl;
                 evt.put(std::move(RawOpDetVecs[i]), CategoryLabels[i]);
             }
         }
