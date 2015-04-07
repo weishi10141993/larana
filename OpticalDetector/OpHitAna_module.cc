@@ -189,7 +189,7 @@ namespace opdet {
     art::ServiceHandle<art::TFileService> tfs;
     
     art::ServiceHandle<geo::Geometry> geom;
-    int NOpDet = geom->NOpDet();
+    int NOpChannels = geom->NOpChannels();
 
     std::vector<TH1D*> HitHist;
     
@@ -204,7 +204,7 @@ namespace opdet {
 				  fTimeEnd * 1000.);
       }
     
-    for(int i=0; i!=NOpDet; ++i)
+    for(int i=0; i!=NOpChannels; ++i)
       {
 	
 	sprintf(HistName, "Event %d OpDet %i", evt.id().event(), i);

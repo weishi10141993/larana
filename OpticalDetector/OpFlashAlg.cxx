@@ -609,9 +609,8 @@ namespace opdet{
 			  double & sumy, double & sumy2,
 			  double & sumz, double & sumz2)
   {
-	unsigned int o=0, c=0; double xyz[3];
-	geom.OpChannelToCryoOpDet(currentHit.OpChannel(),o,c);
-	geom.Cryostat(c).OpDet(o).GetCenter(xyz);
+        double xyz[3];
+	geom.OpDetGeoFromOpChannel(currentHit.OpChannel()).GetCenter(xyz);
 	
 	double PEThisHit = currentHit.PE();
 	for(size_t p=0; p!=geom.Nplanes(); p++){

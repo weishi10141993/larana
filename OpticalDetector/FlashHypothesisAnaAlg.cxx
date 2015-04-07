@@ -21,7 +21,7 @@ void opdet::FlashHypothesisAnaAlg::SetOutputObjects(TTree *tree,
 			      h_h_p,h_s_p,h_c_p,
 			      h_h_l,h_s_l,h_c_l,
 			      h_h_t,h_s_t,h_c_t,
-			      geom.NOpDet(),
+			      geom.NOpDets(),
 			      false);
 
   fMCTAlg.SetOutputTree(tree,false);
@@ -30,11 +30,11 @@ void opdet::FlashHypothesisAnaAlg::SetOutputObjects(TTree *tree,
 void opdet::FlashHypothesisAnaAlg::FillOpDetPositions(geo::Geometry const& geom)
 {
 
-  fOpDetPositions_Y.resize(geom.NOpDet());
-  fOpDetPositions_Z.resize(geom.NOpDet());
+  fOpDetPositions_Y.resize(geom.NOpDets());
+  fOpDetPositions_Z.resize(geom.NOpDets());
 
   double xyz[3];
-  for(size_t i_opdet=0; i_opdet<geom.NOpDet(); i_opdet++){
+  for(size_t i_opdet=0; i_opdet<geom.NOpDets(); i_opdet++){
     geom.Cryostat(0).OpDet(i_opdet).GetCenter(xyz);
     fOpDetPositions_Y[i_opdet] = (float)xyz[1];
     fOpDetPositions_Z[i_opdet] = (float)xyz[2];
@@ -51,7 +51,7 @@ void opdet::FlashHypothesisAnaAlg::RunComparison(const unsigned int run,
 						 phot::PhotonVisibilityService const& pvs,
 						 util::LArProperties const& larp)
 {
-  FlashHypothesisCollection fhc(geom.NOpDet());
+  FlashHypothesisCollection fhc(geom.NOpDets());
   for(auto const& mctrack : mctrackVec){
     if(mctrack.size()==0) continue;
     std::vector<float> dEdxVector(mctrack.size()-1,fdEdx);

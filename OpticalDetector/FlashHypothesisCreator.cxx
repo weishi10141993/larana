@@ -26,7 +26,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
   else
     throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with track size.";
 
-  FlashHypothesisCollection fhc(geom.NOpDet());
+  FlashHypothesisCollection fhc(geom.NOpDets());
   for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++){
     if(interpolate_dEdx)
       fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
@@ -59,7 +59,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
   else
     throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with mctrack size.";
 
-  FlashHypothesisCollection fhc(geom.NOpDet());
+  FlashHypothesisCollection fhc(geom.NOpDets());
   for(size_t pt=1; pt<mctrack.size(); pt++){
     if(interpolate_dEdx)
       fhc = fhc + CreateFlashHypothesesFromSegment(mctrack[pt-1].Position().Vect(),
@@ -92,7 +92,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3
   else
     throw "ERROR in FlashHypothesisCreator: dEdx vector size not compatible with trajVector size.";
 
-  FlashHypothesisCollection fhc(geom.NOpDet());
+  FlashHypothesisCollection fhc(geom.NOpDets());
   for(size_t pt=1; pt<trajVector.size(); pt++){
     if(interpolate_dEdx)
       fhc = fhc + CreateFlashHypothesesFromSegment(trajVector[pt-1],
@@ -129,9 +129,9 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
-  FlashHypothesisCollection fhc(geom.NOpDet());
+  FlashHypothesisCollection fhc(geom.NOpDets());
 
-  FlashHypothesis prompt_hyp = FlashHypothesis(geom.NOpDet());
+  FlashHypothesis prompt_hyp = FlashHypothesis(geom.NOpDets());
   
   std::vector<double> xyz_segment(_calc.SegmentMidpoint(pt1,pt2,XOffset));
   
@@ -139,10 +139,10 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
   const std::vector<float>* PointVisibility = pvs.GetAllVisibilities(&xyz_segment[0]);
   
   //check vector size, as it may be zero if given a y/z outside some range
-  if(PointVisibility->size()!=geom.NOpDet()) return fhc;
+  if(PointVisibility->size()!=geom.NOpDets()) return fhc;
   
   //klugey ... right now, set a qe_vector that gives constant qe across all opdets
-  std::vector<float> qe_vector(geom.NOpDet(),opdigip.QE());
+  std::vector<float> qe_vector(geom.NOpDets(),opdigip.QE());
   _calc.FillFlashHypothesis(larp.ScintYield()*larp.ScintYieldRatio(),
 			    dEdx,
 			    pt1,pt2,
