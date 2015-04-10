@@ -16,6 +16,7 @@
 #include "RecoBase/OpFlash.h"
 
 #include "TTree.h"
+#include "TH1.h"
 
 namespace opdet{
 
@@ -25,7 +26,8 @@ namespace opdet{
 
     OpFlashAnaAlg(){}
     void SetOpFlashTree(TTree*);
-
+    void SetFlashTimeHist(TH1F*);
+    
     void FillOpFlashes(const std::vector<recob::OpFlash>&);
     
   private:
@@ -33,6 +35,7 @@ namespace opdet{
     TTree* fOpFlashTree;
     std::unique_ptr<recob::OpFlash> fOpFlashDataPtr;
 
+    TH1F* fFlashTimeHist;
   };
   
 }
