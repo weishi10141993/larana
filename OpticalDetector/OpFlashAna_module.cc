@@ -23,8 +23,7 @@
 #include <climits>
 
 // LArSoft includes
-//#include "Geometry/Geometry.h"
-#include "OpticalDetector/OpDetResponseInterface.h"
+#include "Geometry/Geometry.h"
 #include "RawData/OpDetPulse.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
@@ -293,10 +292,8 @@ namespace opdet {
 						PosHistZRes, fZMin, fZMax);
       }
     
-    //art::ServiceHandle<geo::Geometry> geom;
-    //unsigned int NOpDet = geom->NOpDet();
-    art::ServiceHandle< opdet::OpDetResponseInterface > odResponse;
-    unsigned int NOpDet = odResponse->NOpChannels();
+    art::ServiceHandle<geo::Geometry> geom;
+    unsigned int NOpDet = geom->NOpChannels();
 
 
     // For every OpFlash in the vector
