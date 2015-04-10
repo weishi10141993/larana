@@ -15,7 +15,6 @@
 // LArSoft includes
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
-#include "OpticalDetector/OpDetResponseInterface.h"
 //#include "OpticalDetectorData/OpticalRawDigit.h"
 #include "RawData/OpDetWaveform.h"
 #include "OpticalDetector/AlgoThreshold.h"
@@ -147,9 +146,8 @@ namespace opdet {
     fHitThreshold   = pset.get<float>        ("HitThreshold");
     
 
-    art::ServiceHandle< opdet::OpDetResponseInterface > odresponse;
-    fNOpChannels = odresponse->NOpChannels();
     art::ServiceHandle<geo::Geometry> geom;
+    fNOpChannels = geom->NOpChannels();
     fNplanes     = geom->Nplanes();
     
     fSPESize     = GetSPEScales();
@@ -204,9 +202,6 @@ namespace opdet {
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
 
-    art::ServiceHandle< opdet::OpDetResponseInterface > ODResponseHandle;
-    opdet::OpDetResponseInterface const& ODResponse(*ODResponseHandle);
-
     art::ServiceHandle<util::TimeService> ts_ptr;
     util::TimeService const& ts(*ts_ptr);
 
@@ -231,7 +226,6 @@ namespace opdet {
                    fThreshAlg,
                    fChannelMap,
                    Geometry,
-                   ODResponse,
                    fHitThreshold,
                    fFlashThreshold,
                    fWidthTolerance,

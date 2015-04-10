@@ -18,7 +18,6 @@
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
 #include "Geometry/Geometry.h"
-#include "OpticalDetector/OpDetResponseInterface.h"
 #include "Utilities/TimeService.h"
 
 namespace opdet{
@@ -32,7 +31,6 @@ namespace opdet{
 		      pmtana::PMTPulseRecoBase const&,
 		      std::map<int,int> const&,
 		      geo::Geometry const&,
-		      opdet::OpDetResponseInterface const&,
 		      float const&,
 		      float const&,
 		      float const&,
@@ -123,7 +121,6 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-		      opdet::OpDetResponseInterface const& odresponse,
 		      util::TimeService const& ts,
 		      float const& TrigCoinc);
 
