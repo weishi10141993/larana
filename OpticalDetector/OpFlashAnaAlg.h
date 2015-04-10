@@ -10,6 +10,9 @@
  * 
 */
 
+#include <vector>
+#include <memory>
+
 #include "RecoBase/OpFlash.h"
 
 #include "TTree.h"
@@ -21,27 +24,15 @@ namespace opdet{
   public:
 
     OpFlashAnaAlg(){}
-    void SetOutputTree(TTree*);
+    void SetOpFlashTree(TTree*);
+
+    void FillOpFlashes(const std::vector<recob::OpFlash>&);
     
   private:
 
-    TTree* fTree;
+    TTree* fOpFlashTree;
+    std::unique_ptr<recob::OpFlash> fOpFlashDataPtr;
 
-    //timing info
-    double fTime;
-    double fTimeWidth;
-    double fAbsTime;
-    unsigned int fFrame;
-
-    //position info
-    float fYCenter;
-    float fYWidth;
-    float fZCenter;
-    float fZWidth;
-    
-    //PE info
-    float fFastToTotal;
-    
   };
   
 }
