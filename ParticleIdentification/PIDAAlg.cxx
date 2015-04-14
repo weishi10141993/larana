@@ -114,6 +114,14 @@ float pid::PIDAAlg::getPIDAKDEFullWidthHalfMax(const size_t i_b){
   return fpida_kde_fwhm[i_b];
 }
 
+const std::vector<float>& pid::PIDAAlg::getPIDAValues(){
+  return fpida_values;
+}
+
+const std::vector<float>& pid::PIDAAlg::getPIDAErrors(){
+  return fpida_errors;
+}
+
 void pid::PIDAAlg::RunPIDAAlg(anab::Calorimetry const& calo){
   std::vector<double> const& resRange = calo.ResidualRange();
   std::vector<double> const& dEdx     = calo.dEdx();
