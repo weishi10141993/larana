@@ -238,6 +238,7 @@ standard_opflash:
    module_type:     "OpFlashFinder"
    GenModule:       "generator"
    InputModule:     "optreadout"
+   InputLabels:     [ "" ]
    ChannelMapMode:   0
    BinWidth:         1   # us | Pulse finding parameters
    FlashThreshold:   2   # PE
@@ -326,7 +327,6 @@ microboone_opdetreformatter:
 microboone_simphotoncounter: @local::standard_simphotoncounter
 microboone_opdigi:           @local::standard_opdigi
 microboone_tracktimeassoc:   @local::standard_tracktimeassoc
-microboone_opflash:          @local::standard_opflash
 microboone_opflashtruth:     @local::standard_opflashtruth
 
 microboone_opdigiana:        @local::standard_opdigiana

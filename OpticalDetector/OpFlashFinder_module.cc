@@ -76,6 +76,7 @@ namespace opdet {
     // The parameters we'll read from the .fcl file.
     std::string fInputModule;              // Input tag for OpDet collection
     std::string fGenModule ;
+    std::vector< std::string > fInputLabels;
 
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
@@ -136,7 +137,8 @@ namespace opdet {
     // Indicate that the Input Module comes from .fcl
     fInputModule    = pset.get<std::string>("InputModule");
     fGenModule      = pset.get<std::string>("GenModule");
-
+    fInputLabels    = pset.get<std::vector<std::string> >("InputLabels");
+    
     fChannelMapMode = pset.get<int>          ("ChannelMapMode");
 
     fBinWidth       = pset.get<int>          ("BinWidth");
@@ -192,29 +194,33 @@ namespace opdet {
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
-    // Get the pulses from the event
-    //art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
-    std::vector< art::Handle< std::vector< raw::OpDetWaveform > > > wfHandleVector;
-    evt.getManyByType(wfHandleVector);
-    //evt.getByLabel(fInputModule, wfHandle);
-    //std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
-
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
 
     art::ServiceHandle<util::TimeService> ts_ptr;
     util::TimeService const& ts(*ts_ptr);
 
+    //
+    // Get the pulses from the event
+    //
+    std::vector< art::Handle< std::vector< raw::OpDetWaveform > > > wfHandleVector;
+
+    // Reserve a large enough array
     int totalsize = 0;
-    for (auto wfHandle : wfHandleVector) {
-        //std::vector< raw::OpDetWaveform > const& WaveformVector(*wfHandle);
-        totalsize += wfHandle->size();
+    for ( auto label : fInputLabels) {
+      art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
+      evt.getByLabel(fInputModule, label, wfHandle);
+      totalsize += wfHandle->size();
     }
 
+    // Load pulses into WaveformVector
     std::vector< raw::OpDetWaveform > WaveformVector;
-    WaveformVector.reserve(totalsize);
-    for (auto wfHandle : wfHandleVector) 
-        WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
+    for ( auto label : fInputLabels) {
+      art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
+      evt.getByLabel(fInputModule, label, wfHandle);
+      WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
+    }
+
     
 
     RunFlashFinder(WaveformVector,
