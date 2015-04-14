@@ -55,6 +55,9 @@ class pid::PIDAAlg{
   float getPIDAMean();
   float getPIDASigma();
 
+  const std::vector<float>& getPIDAValues();
+  const std::vector<float>& getPIDAErrors();
+
   size_t getNKDEBandwidths() { return fKDEBandwidths.size(); }
   float getKDEBandwidth(const size_t i_b) { return fKDEBandwidths.at(i_b); }
   float getPIDAKDEMostProbable(const size_t);
