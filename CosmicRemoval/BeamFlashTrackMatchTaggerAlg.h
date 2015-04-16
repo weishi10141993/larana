@@ -171,7 +171,8 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 				geo::Geometry const& geom);
   
   CompatibilityResultType CheckCompatibility(std::vector<float> const& lightHypothesis, 
-					     const recob::OpFlash* flashPointer);
+					     const recob::OpFlash* flashPointer,
+                                             geo::Geometry const& geom);
 
   bool InDetector(TVector3 const&, geo::Geometry const&);
   bool InDriftWindow(double, double, geo::Geometry const&);
@@ -189,6 +190,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   void PrintFlashProperties(recob::OpFlash const&, std::ostream* output=&std::cout);
   void PrintHypothesisFlashComparison(std::vector<float> const&,
 				      const recob::OpFlash*,
+                                      geo::Geometry const& geom,
 				      CompatibilityResultType,
 				      std::ostream* output=&std::cout);
 

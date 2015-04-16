@@ -99,12 +99,12 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
     //check compatibility with beam flash
     bool compatible=false;
     for(const recob::OpFlash* flashPointer : flashesOnBeamTime){
-      CompatibilityResultType result = CheckCompatibility(lightHypothesis,flashPointer);
+      CompatibilityResultType result = CheckCompatibility(lightHypothesis,flashPointer, geom);
       if(result==CompatibilityResultType::kCompatible) compatible=true;
       if(DEBUG_FLAG){
 	PrintTrackProperties(track);
 	PrintFlashProperties(*flashPointer);
-	PrintHypothesisFlashComparison(lightHypothesis,flashPointer,result);
+	PrintHypothesisFlashComparison(lightHypothesis,flashPointer,geom,result);
       }
     }
 
@@ -170,12 +170,15 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 			geom);
     
     for(auto flash : flashesOnBeamTime){
-      cOpDetVector_flash = std::vector<float>(geom.NOpDet(),0);  
+      cOpDetVector_flash = std::vector<float>(geom.NOpDets(),0);  
       cFlashComparison_p.flash_nOpDet = 0;
-      for(size_t i=0; i<cOpDetVector_flash.size(); i++){ 
-	cOpDetVector_flash[i] = flash.second->PE(i);
-	if(flash.second->PE(i) < fMinOpHitPE) cFlashComparison_p.flash_nOpDet++;
+      for(size_t c=0; c<geom.NOpChannels(); c++){
+        unsigned int OpDet = geom.OpDetFromOpChannel(c);
+	cOpDetVector_flash[OpDet] += flash.second->PE(c);
       }
+      for(size_t o=0; o<cOpDetVector_flash.size(); o++)
+	if(cOpDetVector_flash[o] < fMinOpHitPE) cFlashComparison_p.flash_nOpDet++;
+
       cFlashComparison_p.flash_index = flash.first;
       cFlashComparison_p.flash_totalPE = flash.second->TotalPE();
       cFlashComparison_p.flash_y = flash.second->YCenter();
@@ -254,12 +257,14 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 			geom);
     
     for(auto flash : flashesOnBeamTime){
-      cOpDetVector_flash = std::vector<float>(geom.NOpDet(),0);  
+      cOpDetVector_flash = std::vector<float>(geom.NOpDets(),0);  
       cFlashComparison_p.flash_nOpDet = 0;
-      for(size_t i=0; i<cOpDetVector_flash.size(); i++){ 
-	cOpDetVector_flash[i] = flash.second->PE(i);
-	if(flash.second->PE(i) < fMinOpHitPE) cFlashComparison_p.flash_nOpDet++;
+      for(size_t c=0; c<geom.NOpChannels(); c++){
+        unsigned int OpDet = geom.OpDetFromOpChannel(c);
+	cOpDetVector_flash[OpDet] += flash.second->PE(c);
       }
+      for(size_t o=0; o<cOpDetVector_flash.size(); o++)
+	if(cOpDetVector_flash[o] < fMinOpHitPE) cFlashComparison_p.flash_nOpDet++;
       cFlashComparison_p.flash_index = flash.first;
       cFlashComparison_p.flash_totalPE = flash.second->TotalPE();
       cFlashComparison_p.flash_y = flash.second->YCenter();
@@ -349,12 +354,12 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::AddLightFromSegment(TVector3 const& p
   const std::vector<float>* PointVisibility = pvs.GetAllVisibilities(xyz_segment);
   
   //check vector size, as it may be zero if given a y/z outside some range
-  if(PointVisibility->size()!=geom.NOpDet()) return;
+  if(PointVisibility->size()!=geom.NOpDets()) return;
   
   //get the amount of light
   float LightAmount = PromptMIPScintYield*(pt2-pt1).Mag();
   
-  for(size_t opdet_i=0; opdet_i<geom.NOpDet(); opdet_i++){
+  for(size_t opdet_i=0; opdet_i<geom.NOpDets(); opdet_i++){
     lightHypothesis[opdet_i] += PointVisibility->at(opdet_i)*LightAmount;
     totalHypothesisPE += PointVisibility->at(opdet_i)*LightAmount;
    
@@ -370,7 +375,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::AddLightFromSegment(TVector3 const& p
 void cosmic::BeamFlashTrackMatchTaggerAlg::NormalizeLightHypothesis(std::vector<float> & lightHypothesis,
 								    float const& totalHypothesisPE,
 								    geo::Geometry const& geom){
-  for(size_t opdet_i=0; opdet_i<geom.NOpDet(); opdet_i++)
+  for(size_t opdet_i=0; opdet_i<geom.NOpDets(); opdet_i++)
     lightHypothesis[opdet_i] /= totalHypothesisPE;
 }
 								    
@@ -383,7 +388,7 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob:
 									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {
-  std::vector<float> lightHypothesis(geom.NOpDet(),0);  
+  std::vector<float> lightHypothesis(geom.NOpDets(),0);  
   float totalHypothesisPE=0;
   const float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
 
@@ -413,7 +418,7 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(simb::
 									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {
-  std::vector<float> lightHypothesis(geom.NOpDet(),0);  
+  std::vector<float> lightHypothesis(geom.NOpDets(),0);  
   float totalHypothesisPE=0;
   const float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
 
@@ -440,25 +445,32 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(simb::
 //---------------------------------------
 cosmic::BeamFlashTrackMatchTaggerAlg::CompatibilityResultType 
 cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> const& lightHypothesis, 
-							 const recob::OpFlash* flashPointer)
+							 const recob::OpFlash* flashPointer,
+                                                         geo::Geometry const& geom)
 {
   float hypothesis_integral=0;
   float flash_integral=0;
   unsigned int cumulativeChannels=0;
+
+  std::vector<double> PEbyOpDet(geom.NOpDets(),0);
+  for (unsigned int c = 0; c < geom.NOpChannels(); c++){
+    unsigned int o = geom.OpDetFromOpChannel(c);
+    PEbyOpDet[o] += flashPointer->PE(c);
+  }
   
   float hypothesis_scale=1.;
   if(fNormalizeHypothesisToFlash) hypothesis_scale = flashPointer->TotalPE();
 
   for(size_t pmt_i=0; pmt_i<lightHypothesis.size(); pmt_i++){
 
-    flash_integral += flashPointer->PE(pmt_i);
+    flash_integral += PEbyOpDet[pmt_i];
 
     if(lightHypothesis[pmt_i] < std::numeric_limits<float>::epsilon() ) continue;
     hypothesis_integral += lightHypothesis[pmt_i]*hypothesis_scale;
 
-    if(flashPointer->PE(pmt_i) < fMinOpHitPE) continue;
+    if(PEbyOpDet[pmt_i] < fMinOpHitPE) continue;
 
-    float diff_scaled = (lightHypothesis[pmt_i]*hypothesis_scale - flashPointer->PE(pmt_i))/std::sqrt(lightHypothesis[pmt_i]*hypothesis_scale);
+    float diff_scaled = (lightHypothesis[pmt_i]*hypothesis_scale - PEbyOpDet[pmt_i])/std::sqrt(lightHypothesis[pmt_i]*hypothesis_scale);
 
     if( diff_scaled > fSingleChannelCut ) return CompatibilityResultType::kSingleChannelCut;
 
@@ -527,6 +539,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintFlashProperties(recob::OpFlash c
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::PrintHypothesisFlashComparison(std::vector<float> const& lightHypothesis,
 									  const recob::OpFlash* flashPointer,
+                                                                          geo::Geometry const& geom,
 									  CompatibilityResultType result,
 									  std::ostream* output)
 {
@@ -540,17 +553,24 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintHypothesisFlashComparison(std::v
   float hypothesis_scale=1.;
   if(fNormalizeHypothesisToFlash) hypothesis_scale = flashPointer->TotalPE();
 
+  
+  std::vector<double> PEbyOpDet(geom.NOpDets(),0);
+  for (unsigned int c = 0; c < geom.NOpChannels(); c++){
+    unsigned int o = geom.OpDetFromOpChannel(c);
+    PEbyOpDet[o] += flashPointer->PE(c);
+  }
+
   for(size_t pmt_i=0; pmt_i<lightHypothesis.size(); pmt_i++){
 
-    flash_integral += flashPointer->PE(pmt_i);
+    flash_integral += PEbyOpDet[pmt_i];
 
     *output << "\n\t pmt_i=" << pmt_i << ", (hypothesis,flash)=(" 
-	   << lightHypothesis[pmt_i]*hypothesis_scale << "," << flashPointer->PE(pmt_i) << ")";
+	   << lightHypothesis[pmt_i]*hypothesis_scale << "," << PEbyOpDet[pmt_i] << ")";
 
     if(lightHypothesis[pmt_i] < std::numeric_limits<float>::epsilon() ) continue;
 
     *output << "  difference=" 
-	    << (lightHypothesis[pmt_i]*hypothesis_scale - flashPointer->PE(pmt_i))/std::sqrt(lightHypothesis[pmt_i]*hypothesis_scale);
+	    << (lightHypothesis[pmt_i]*hypothesis_scale - PEbyOpDet[pmt_i])/std::sqrt(lightHypothesis[pmt_i]*hypothesis_scale);
 
     hypothesis_integral += lightHypothesis[pmt_i]*hypothesis_scale;
   }
