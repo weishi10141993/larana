@@ -29,7 +29,8 @@
 #include "art/Framework/Core/ModuleMacros.h"
 
 // LArSoft
-#include "OpticalDetectorData/FIFOChannel.h"
+//#include "OpticalDetectorData/FIFOChannel.h"
+#include "RawData/OpDetWaveform.h"
 #include "Utilities/DetectorProperties.h"
 #include "Geometry/Geometry.h"
 // STL
@@ -145,7 +146,8 @@ namespace pmtana {
 
     //data_ptr->set_event(evt.id().event(), evt.run(), evt.subRun());
 
-    std::vector<const optdata::FIFOChannel*> pmtArray;
+//    std::vector<const optdata::FIFOChannel*> pmtArray;
+    std::vector<const raw::OpDetWaveform*> pmtArray;
     try{
 
       evt.getView(_fifo_mod_name,pmtArray);
@@ -161,7 +163,8 @@ namespace pmtana {
 
     for(size_t i=0; i<pmtArray.size(); ++i) {
 
-      const optdata::FIFOChannel* fifo_ptr(pmtArray.at(i));
+//      const optdata::FIFOChannel* fifo_ptr(pmtArray.at(i));
+      const raw::OpDetWaveform* fifo_ptr(pmtArray.at(i));
 
       _preco_man.RecoPulse(*fifo_ptr);
 

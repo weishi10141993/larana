@@ -3,7 +3,7 @@
 #define OPFLASHALG_H
 /*!
  * Title:   OpFlash Algorithims
- * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov)
+ * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov and gleb.sinev@duke.edu)
  *
  * Description:
  * These are the algorithms used by OpFlashFinder to produce flashes.
@@ -12,8 +12,7 @@
 #include <functional>
 #include "Simulation/BeamGateInfo.h"
 #include "OpticalDetectorData/OpticalTypes.h"
-#include "OpticalDetectorData/OpticalRawDigit.h"
-#include "OpticalDetector/AlgoThreshold.h"
+#include "RawData/OpDetWaveform.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "OpticalDetector/PMTPulseRecoBase.h"
 #include "RecoBase/OpHit.h"
@@ -23,13 +22,13 @@
 
 namespace opdet{
 
-  void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const&,
+  void RunFlashFinder(std::vector<raw::OpDetWaveform> const&,
 		      std::vector<recob::OpHit>&,
 		      std::vector<recob::OpFlash>&,
 		      std::vector< std::vector<int> >&,
-		      int const&,
+		      double const&,
 		      pmtana::PulseRecoManager const&,
-		      pmtana::AlgoThreshold const&,
+		      pmtana::PMTPulseRecoBase const&,
 		      std::map<int,int> const&,
 		      geo::Geometry const&,
 		      float const&,
@@ -38,36 +37,18 @@ namespace opdet{
 		      util::TimeService const&,
 		      std::vector<double> const&,
 		      float const&);
-  
-  void ProcessFrame(unsigned short,
-		    std::vector<const optdata::OpticalRawDigit*> const&,
-		    std::vector<recob::OpHit>&,
-		    std::vector<recob::OpFlash>&,
-		    std::vector< std::vector<int> >&,
-		    int const&,
-		    pmtana::PulseRecoManager const&,
-		    pmtana::AlgoThreshold const&,
-		    std::map<int,int> const&,
-		    geo::Geometry const&,
-		    float const&,
-		    float const&,
-		    float const&,
-		    util::TimeService const&,
-		    std::vector<double> const&,
-		    float const&);
 
   void ConstructHit( float const&, 
 		     int const&,
-		     uint32_t const&,
-		     unsigned short const&,
+		     double const&,
 		     pmtana::pulse_param const&,
 		     util::TimeService const&,
 		     double const&,
 		     std::vector<recob::OpHit>&);
 
   unsigned int GetAccumIndex(double const& TMax, 
-			     uint32_t const& TimeSlice, 
-			     int const& BinWidth, 
+			     double const& TimeStamp,
+			     double const& BinWidth, 
 			     double const& BinOffset);
 
   void FillAccumulator(unsigned int const& AccumIndex,
@@ -140,8 +121,7 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-		      unsigned int const TrigFrame,
-		      unsigned short const Frame,
+		      util::TimeService const& ts,
 		      float const& TrigCoinc);
 
   void AddHitContribution( recob::OpHit const& currentHit,

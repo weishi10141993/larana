@@ -49,10 +49,16 @@ void cosmic::HitTagAssociatorAlg::MakeHitTagAssociations(std::vector< std::vecto
   tags_per_hit.resize(N_HITS);
 
   for(size_t i_hit=0; i_hit<N_HITS; i_hit++){
+
     for(size_t i_bridge=0; i_bridge<bridges_per_hit[i_hit].size(); i_bridge++){
+
+      if(i_bridge >= tag_per_bridge.size()) continue;
+
       if(tag_per_bridge[i_bridge]==std::numeric_limits<size_t>::max()) continue;
+
       tags_per_hit[i_hit].push_back(tag_per_bridge[i_bridge]); 
-    }
-  }
+    }//end loop over bridges
+
+  }//end loop over hits
 
 }

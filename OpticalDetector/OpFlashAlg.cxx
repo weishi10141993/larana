@@ -1,7 +1,10 @@
 // -*- mode: c++; c-basic-offset: 2; -*-
 /*!
  * Title:   OpFlash Algorithims
- * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov)
+ * Authors, editors:  Ben Jones, MIT
+ *                    Wes Ketchum wketchum@lanl.gov
+ *                    Gleb Sinev  gleb.sinev@duke.edu
+ *                    Alex Himmel ahimmel@fnal.gov
  *
  * Description:
  * These are the algorithms used by OpFlashFinder to produce flashes.
@@ -20,48 +23,6 @@
 
 namespace opdet{
 
-  //-------------------------------------------------------------------------------------------------
-  void RunFlashFinder(std::vector<optdata::OpticalRawDigit> const& OpticalRawDigitVector,
-		      std::vector<recob::OpHit>& HitVector,
-		      std::vector<recob::OpFlash>& FlashVector,
-		      std::vector< std::vector<int> >& AssocList,
-		      int const& BinWidth,
-		      pmtana::PulseRecoManager const& PulseRecoMgr,
-		      pmtana::AlgoThreshold const& ThreshAlg,
-		      std::map<int,int> const& ChannelMap,
-		      geo::Geometry const& geom,
-		      float const& HitThreshold,
-		      float const& FlashThreshold,
-		      float const& WidthTolerance,
-		      util::TimeService const& ts,
-		      std::vector<double> const& SPESize,
-		      float const& TrigCoinc)
-  {
-    
-    std::map<unsigned short, std::vector<const optdata::OpticalRawDigit*> > OpDigitChanByFrame;
-    for(auto const& opdigitchannel : OpticalRawDigitVector)
-      OpDigitChanByFrame[opdigitchannel.Frame()].push_back(&opdigitchannel);
-    
-    for(auto wfframe : OpDigitChanByFrame)
-      ProcessFrame(wfframe.first,
-		   wfframe.second,
-		   HitVector,
-		   FlashVector,
-		   AssocList,
-		   BinWidth,
-		   PulseRecoMgr,
-		   ThreshAlg,
-		   ChannelMap,
-		   geom,
-		   HitThreshold,
-		   FlashThreshold,
-		   WidthTolerance,
-		   ts,
-		   SPESize,
-		   TrigCoinc);
-    
-  }
-  
   //-------------------------------------------------------------------------------------------------
   void writeHistogram(std::vector<double> const& binned){
 
@@ -84,14 +45,13 @@ namespace opdet{
   }
 
   //-------------------------------------------------------------------------------------------------
-  void ProcessFrame(unsigned short Frame,
-		    std::vector<const optdata::OpticalRawDigit*> const& OpticalRawDigitFramePtrVector,
+  void RunFlashFinder(std::vector<raw::OpDetWaveform> const& OpDetWaveformVector,
 		    std::vector<recob::OpHit>& HitVector,
 		    std::vector<recob::OpFlash>& FlashVector,
 		    std::vector< std::vector<int> >& AssocList,
-		    int const& BinWidth,
+		    double const& BinWidth,
 		    pmtana::PulseRecoManager const& PulseRecoMgr,
-		    pmtana::AlgoThreshold const& ThreshAlg, 
+		    pmtana::PMTPulseRecoBase const& ThreshAlg,
 		    std::map<int,int> const& ChannelMap,
 		    geo::Geometry const& geom,
 		    float const& HitThreshold,
@@ -103,15 +63,18 @@ namespace opdet{
 
   {
 
-    //The +3000 here is microboone specific, to account for the beam-gate window size.
     auto const& pmt_clock = ts.OpticalClock();
+
+    // Initial size for accumulators - will be automatically extended if needed
+    int initialsize = 6400; 
+    
     // These are the accumulators which will hold broad-binned light yields
-    std::vector<double>  Binned1((pmt_clock.FrameTicks() + 3000 + BinWidth)/BinWidth);
-    std::vector<double>  Binned2((pmt_clock.FrameTicks() + 3000 + BinWidth)/BinWidth);
+    std::vector<double>  Binned1(initialsize);
+    std::vector<double>  Binned2(initialsize);
     
     // These will keep track of which pulses put activity in each bin
-    std::vector<std::vector<int> > Contributors1((pmt_clock.FrameTicks() + 3000 + BinWidth)/BinWidth);
-    std::vector<std::vector<int> > Contributors2((pmt_clock.FrameTicks() + 3000 + BinWidth)/BinWidth);
+    std::vector<std::vector<int> > Contributors1(initialsize);
+    std::vector<std::vector<int> > Contributors2(initialsize);
     
     // These will keep track of where we have met the flash condition
     //  (in order to prevent second pointless loop)
@@ -121,39 +84,48 @@ namespace opdet{
     const size_t NHits_prev = HitVector.size();
     unsigned int NOpChannels = geom.NOpChannels();
 
-    for(auto const& wf_ptr : OpticalRawDigitFramePtrVector){
+    for(auto const& wf_ptr : OpDetWaveformVector){
 
-      const int Channel = ChannelMap.at((int)wf_ptr->ChannelNumber());
-      const uint32_t TimeSlice = wf_ptr->TimeSlice();
+      const int Channel = ChannelMap.at((int)wf_ptr.ChannelNumber());
+      const double TimeStamp = wf_ptr.TimeStamp();
 
-      if( Channel<0 || Channel > int(NOpChannels) ) {
+      if( Channel<0 || Channel > int(NOpChannels - 1) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
 	continue;
       }
       
-      if( TimeSlice > pmt_clock.FrameTicks() ){
-	mf::LogError("OpFlashFinder")<<"This slice " << TimeSlice<< "is outside the countable region - skipping";
-	continue;
-      }
-      
-      PulseRecoMgr.RecoPulse(*wf_ptr);
+      PulseRecoMgr.RecoPulse(wf_ptr);
       
       const size_t NPulses = ThreshAlg.GetNPulse();
       for(size_t k=0; k<NPulses; ++k){
 	
 	ConstructHit( HitThreshold,
 		      Channel,
-		      TimeSlice,
-		      Frame,
+		      TimeStamp,
 		      ThreshAlg.GetPulse(k),
 		      ts,
 		      SPESize.at(Channel),
 		      HitVector );
 
-	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max, 
-						 TimeSlice, 
+	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
+						 TimeStamp, 
 						 BinWidth, 
 						 0);
+
+	unsigned int AccumIndex2 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
+						 TimeStamp, 
+						 BinWidth, 
+						 BinWidth/2.);
+
+        // Extend accumulators if needed (2 always larger than 1)
+        if (AccumIndex2 >= Binned1.size()) {
+          std::cout << "Extending vectors to " << AccumIndex2*1.2 << std::endl;
+          Binned1.resize(AccumIndex2*1.2);
+          Binned2.resize(AccumIndex2*1.2);
+          Contributors1.resize(AccumIndex2*1.2);
+          Contributors2.resize(AccumIndex2*1.2);
+        }
+        
 	FillAccumulator(AccumIndex1,
 			HitVector.size()-1,
 			HitVector[HitVector.size()-1].PE(),
@@ -162,10 +134,6 @@ namespace opdet{
 			Contributors1,
 			FlashesInAccumulator1);
 
-	unsigned int AccumIndex2 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max, 
-						 TimeSlice, 
-						 BinWidth, 
-						 BinWidth/2);
 	FillAccumulator(AccumIndex2,
 			HitVector.size()-1,
 			HitVector[HitVector.size()-1].PE(),
@@ -173,11 +141,13 @@ namespace opdet{
 			Binned2,
 			Contributors2,
 			FlashesInAccumulator2);
-  
+        
+
       }
       
     }//end loop over FIFO channels in frame
 
+    
     //Now start to create flashes
     //First, need vector to keep track of which hits belong to which flashes
     std::vector< std::vector<int> > HitsPerFlash;
@@ -212,8 +182,7 @@ namespace opdet{
 		     HitVector,
 		     FlashVector,
 		     geom,
-		     pmt_clock.Frame(ts.BeamGateTime()),
-		     Frame,
+		     ts,
 		     TrigCoinc);
 
     RemoveLateLight(FlashVector,
@@ -231,18 +200,19 @@ namespace opdet{
   //-------------------------------------------------------------------------------------------------
   void ConstructHit( float const& HitThreshold,
 		     int const& Channel,
-		     uint32_t const& TimeSlice,
-		     unsigned short const& Frame,
+		     double const& TimeStamp,
 		     pmtana::pulse_param const& pulse,
 		     util::TimeService const& ts,
 		     double const& SPESize,
 		     std::vector<recob::OpHit>& HitVector)
   {
     if( pulse.peak<HitThreshold ) return;
-    
-    double AbsTime = ts.OpticalTick2Time(pulse.t_max, TimeSlice, Frame);
 
-    double RelTime = ts.OpticalTick2BeamTime(pulse.t_max, TimeSlice, Frame);
+    double AbsTime = TimeStamp + pulse.t_max * ts.OpticalClock().TickPeriod();
+    
+    double RelTime = AbsTime - ts.BeamGateTime();
+    
+    int    Frame   = ts.OpticalClock().Frame(TimeStamp);
 
     double PE      = pulse.peak / SPESize;
     
@@ -262,10 +232,10 @@ namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
   unsigned int GetAccumIndex(double const& TMax, 
-			     uint32_t const& TimeSlice, 
-			     int const& BinWidth, 
+			     double const& TimeStamp, 
+			     double const& BinWidth, 
 			     double const& BinOffset){
-    return ( (TMax + TimeSlice) + BinOffset) / BinWidth;
+    return (int)( ((TMax + TimeStamp) + BinOffset) / BinWidth );
   }
 
   //-------------------------------------------------------------------------------------------------
@@ -308,7 +278,6 @@ namespace opdet{
     
     // for each hit in the flash
     for(auto const& HitIndex : Contributors.at(Bin)){
-      
       // if unclaimed, claim it
       if(HitClaimedByFlash.at(HitIndex-NHits_prev)==-1)
 	HitsThisFlash.push_back(HitIndex);
@@ -609,9 +578,8 @@ namespace opdet{
 			  double & sumy, double & sumy2,
 			  double & sumz, double & sumz2)
   {
-	unsigned int o=0, c=0; double xyz[3];
-	geom.OpChannelToCryoOpDet(currentHit.OpChannel(),o,c);
-	geom.Cryostat(c).OpDet(o).GetCenter(xyz);
+        double xyz[3];
+	geom.OpDetGeoFromOpChannel(currentHit.OpChannel()).GetCenter(xyz);
 	
 	double PEThisHit = currentHit.PE();
 	for(size_t p=0; p!=geom.Nplanes(); p++){
@@ -626,6 +594,7 @@ namespace opdet{
 
   //-------------------------------------------------------------------------------------------------
   double CalculateWidth(double const& sum, double const& sum_squared, double const& weights_sum){
+    //return std::sqrt( sum_squared*weights_sum - sum*sum )/weights_sum; // GVS bugfix
     return std::sqrt( sum_squared*weights_sum + sum*sum )/weights_sum;
   }
 
@@ -634,8 +603,7 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-		      unsigned int const TrigFrame,
-		      unsigned short const Frame,
+		      util::TimeService const& ts,
 		      float const& TrigCoinc)
   {
 
@@ -681,7 +649,13 @@ namespace opdet{
       WireCenters.at(p) = sumw.at(p)/TotalPE;
       WireWidths.at(p)  = CalculateWidth(sumw.at(p),sumw2.at(p),TotalPE);
     }
+
+    // Emprical corrections to get the Frame right
+    // Eventual solution - remove frames
+    int Frame = ts.OpticalClock().Frame(AveAbsTime-18.1);
+    if (Frame == 0) Frame = 1;
     
+    int TrigFrame = ts.OpticalClock().Frame(ts.BeamGateTime());
     bool InBeamFrame = (Frame==TrigFrame);
     double TimeWidth = (MaxTime-MinTime)/2.;
     

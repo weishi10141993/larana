@@ -32,11 +32,11 @@ namespace pmtana{
   {}
 
   //***************************************************************
-  bool PulseRecoManager::RecoPulse(const std::vector<uint16_t> &fifo) const
+  bool PulseRecoManager::RecoPulse(const std::vector<short> &fifo) const
   //***************************************************************
   {
     bool status = true;
-  
+
     //
     // Step 0: skipe 0-length waveform with a warning message
     //    

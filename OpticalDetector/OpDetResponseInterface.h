@@ -90,8 +90,9 @@ namespace opdet
     //-------------------------------------------------------------------------------------------------------------
     inline int OpDetResponseInterface::doReadoutToGeoChannel(int readoutChannel) const
     {
-        // By default the readout and geometry channels are the same
-        return readoutChannel;
+        // Pass this call off to the geometry service
+        art::ServiceHandle<geo::Geometry> geom;
+        return geom->OpDetFromOpChannel(readoutChannel);
     }
 
 

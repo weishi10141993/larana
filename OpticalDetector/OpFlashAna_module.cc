@@ -2,6 +2,7 @@
 // This analyzer writes out a TTree containing the properties of
 // each reconstructed flash
 //
+
 #ifndef OpFlashAna_H
 #define OpFlashAna_H 1
 
@@ -26,7 +27,8 @@
 #include "RawData/OpDetPulse.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "Utilities/TimeService.h"
+//#include "OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -133,11 +135,15 @@ namespace opdet {
     fOpHitModuleLabel   = pset.get<std::string>("OpHitModuleLabel");
 
 
-    art::ServiceHandle<OpDigiProperties> odp;
-    fTimeBegin  = odp->TimeBegin();
-    fTimeEnd    = odp->TimeEnd();
-    fSampleFreq = odp->SampleFreq();
+//    art::ServiceHandle<OpDigiProperties> odp;
+//    fTimeBegin  = odp->TimeBegin();
+//    fTimeEnd    = odp->TimeEnd();
+//    fSampleFreq = odp->SampleFreq();
 
+    art::ServiceHandle< util::TimeService > timeService;
+    fTimeBegin  = timeService->OpticalClock().Time();
+    fTimeEnd    = timeService->OpticalClock().FramePeriod();
+    fSampleFreq = timeService->OpticalClock().Frequency();
     
    
     fYMin =  pset.get<float>("YMin");
@@ -287,7 +293,7 @@ namespace opdet {
       }
     
     art::ServiceHandle<geo::Geometry> geom;
-    unsigned int NOpDet = geom->NOpDet();
+    unsigned int NOpChannels = geom->NOpChannels();
 
 
     // For every OpFlash in the vector
@@ -307,7 +313,7 @@ namespace opdet {
 	  {
 	    sprintf(HistName, "Event %d t = %f", evt.id().event(), fFlashTime);
 	    FlashHist.push_back ( tfs->make<TH1D>(HistName, ";OpChannel;PE", 
-						  NOpDet, 0, NOpDet));
+						  NOpChannels, 0, NOpChannels));
 	
 	    sprintf(HistName, "Event %d Flash %f YZ", evt.id().event(), fFlashTime);
 	    
@@ -326,7 +332,7 @@ namespace opdet {
 	fTotalPE     = TheFlash.TotalPE();
 	
 	
-	for(unsigned int j=0; j!=NOpDet; ++j)
+	for(unsigned int j=0; j!=NOpChannels; ++j)
 	  {
 	    if(fMakePerFlashHists) FlashHist.at(FlashHist.size()-1)->Fill(j, TheFlash.PE(j));
 	    fNPe = TheFlash.PE(j);
@@ -371,7 +377,6 @@ namespace opdet {
 	    fHitID++;
 	  }
 	}
-	
       }
     
     if(fMakePerOpHitTree)

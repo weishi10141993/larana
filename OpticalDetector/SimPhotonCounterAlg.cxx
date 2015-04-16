@@ -7,6 +7,7 @@
 */
 
 #include "SimPhotonCounterAlg.h"
+#include "OpDetResponseInterface.h"
 
 opdet::SimPhotonCounterAlg::SimPhotonCounterAlg(fhicl::ParameterSet const& p)
 {
@@ -53,11 +54,12 @@ void opdet::SimPhotonCounterAlg::InitializeCounters(geo::Geometry const& geo,
 						    opdet::OpDigiProperties const& opdigip)
 {
   fCounters.resize(fTimeRanges.size());
+  art::ServiceHandle<opdet::OpDetResponseInterface> odresponse;
   for(size_t i=0; i<fCounters.size(); i++)
     fCounters[i] = SimPhotonCounter(fTimeRanges[i][0],fTimeRanges[i][1],
 				    fTimeRanges[i][2],fTimeRanges[i][3],
 				    fWavelengthRanges[i][0],fWavelengthRanges[i][1],
-				    std::vector<float>(geo.NOpDet(),opdigip.QE()));
+				    std::vector<float>(odresponse->NOpChannels(),opdigip.QE()));
 }
 
 void opdet::SimPhotonCounterAlg::AddSimPhotonCollection(sim::SimPhotonsCollection const& ph_col)

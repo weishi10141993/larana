@@ -19,7 +19,7 @@ BOOST_FIXTURE_TEST_SUITE(AlgoThreshold_test, AlgoThresholdFixture)
 BOOST_AUTO_TEST_CASE(checkZeroVector)
 { 
 
-  std::vector<uint16_t> wf(20,0);
+  std::vector<short> wf(20,0);
   myAlgoThreshold.RecoPulse(wf);
 
   BOOST_CHECK_EQUAL(myAlgoThreshold.GetNPulse(),0ul);
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(checkZeroVector)
 
 BOOST_AUTO_TEST_CASE(checkNPulse)
 {
-  std::vector<uint16_t> wf(20,0);
+  std::vector<short> wf(20,0);
   wf[10]=10;
 
   myAlgoThreshold.RecoPulse(wf);
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(checkNPulse)
 BOOST_AUTO_TEST_CASE(checkSquarePulse)
 { 
 
-  std::vector<uint16_t> wf(20,0);
+  std::vector<short> wf(20,0);
   myAlgoThreshold.SetPedMean(0);
 
   double area = 0;
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(checkSquarePulse)
 BOOST_AUTO_TEST_CASE(checkTrianglePulse)
 { 
 
-  std::vector<uint16_t> wf(20,0);
+  std::vector<short> wf(20,0);
   myAlgoThreshold.SetPedMean(0);
 
   double area = 0;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(checkNonZeroPed)
 { 
 
   double ped = 2;
-  std::vector<uint16_t> wf(20,(uint16_t)ped);
+  std::vector<short> wf(20,(short)ped);
   myAlgoThreshold.SetPedMean(ped);
 
   double area = 0;
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(checkNonZeroPed)
 BOOST_AUTO_TEST_CASE(checkPulseOffEnd)
 { 
 
-  std::vector<uint16_t> wf(20,0);
+  std::vector<short> wf(20,0);
   myAlgoThreshold.SetPedMean(0);
 
   wf[18] = 5; wf[19] = 10;
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(checkPulseOffEnd)
 BOOST_AUTO_TEST_CASE(checkPulseOffFront)
 { 
 
-  std::vector<uint16_t> wf(20,0);
+  std::vector<short> wf(20,0);
   myAlgoThreshold.SetPedMean(0);
 
   wf[0] = 10; wf[1] = 5;
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(checkPulseOffFront)
 BOOST_AUTO_TEST_CASE(checkDoublePulse)
 { 
 
-  std::vector<uint16_t> wf(20,0);
+  std::vector<short> wf(20,0);
   myAlgoThreshold.SetPedMean(0);
 
   wf[4] = 5; wf[5] = 10; wf[6] = 5;

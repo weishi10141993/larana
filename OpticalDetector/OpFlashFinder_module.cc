@@ -3,6 +3,10 @@
 //
 // This module finds periods of time-localized activity
 // from the optical system, called Flashes.
+//
+// Modified to make it more detector agnostic
+// by Gleb Sinev, Duke, 2015
+//
 
 
 #ifndef OpFlashFinder_H
@@ -11,8 +15,10 @@
 // LArSoft includes
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
-#include "OpticalDetectorData/OpticalRawDigit.h"
+//#include "OpticalDetectorData/OpticalRawDigit.h"
+#include "RawData/OpDetWaveform.h"
 #include "OpticalDetector/AlgoThreshold.h"
+#include "OpticalDetector/AlgoLBNE.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpFlash.h"
@@ -70,10 +76,12 @@ namespace opdet {
     // The parameters we'll read from the .fcl file.
     std::string fInputModule;              // Input tag for OpDet collection
     std::string fGenModule ;
+    std::vector< std::string > fInputLabels;
 
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::AlgoThreshold     fThreshAlg;
+      //pmtana::AlgoLBNE          fThreshAlg;
 
     Int_t   fChannelMapMode;
     Int_t   fBinWidth;
@@ -129,7 +137,8 @@ namespace opdet {
     // Indicate that the Input Module comes from .fcl
     fInputModule    = pset.get<std::string>("InputModule");
     fGenModule      = pset.get<std::string>("GenModule");
-
+    fInputLabels    = pset.get<std::vector<std::string> >("InputLabels");
+    
     fChannelMapMode = pset.get<int>          ("ChannelMapMode");
 
     fBinWidth       = pset.get<int>          ("BinWidth");
@@ -171,8 +180,8 @@ namespace opdet {
   {
 
     // These are the storage pointers we will put in the event
-    std::unique_ptr<std::vector< recob::OpHit > >   HitPtr (new std::vector<recob::OpHit >);
-    std::unique_ptr<std::vector< recob::OpFlash > > FlashPtr (new std::vector<recob::OpFlash >);
+    std::unique_ptr< std::vector< recob::OpHit > >   HitPtr (new std::vector<recob::OpHit >);
+    std::unique_ptr< std::vector< recob::OpFlash > > FlashPtr (new std::vector<recob::OpFlash >);
     std::unique_ptr< art::Assns<recob::OpFlash, recob::OpHit > >  AssnPtr( new art::Assns<recob::OpFlash, recob::OpHit>);
 
     // This will keep track of what flashes will assoc to what ophits
@@ -185,32 +194,50 @@ namespace opdet {
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
-    // Get the pulses from the event
-    art::Handle< std::vector< optdata::OpticalRawDigit > > wfHandle;
-    evt.getByLabel(fInputModule, wfHandle);
-    std::vector<optdata::OpticalRawDigit> const& WaveformVector(*wfHandle);
-
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
 
     art::ServiceHandle<util::TimeService> ts_ptr;
     util::TimeService const& ts(*ts_ptr);
 
+    //
+    // Get the pulses from the event
+    //
+    std::vector< art::Handle< std::vector< raw::OpDetWaveform > > > wfHandleVector;
+
+    // Reserve a large enough array
+    int totalsize = 0;
+    for ( auto label : fInputLabels) {
+      art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
+      evt.getByLabel(fInputModule, label, wfHandle);
+      totalsize += wfHandle->size();
+    }
+
+    // Load pulses into WaveformVector
+    std::vector< raw::OpDetWaveform > WaveformVector;
+    for ( auto label : fInputLabels) {
+      art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
+      evt.getByLabel(fInputModule, label, wfHandle);
+      WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
+    }
+
+    
+
     RunFlashFinder(WaveformVector,
-		   *HitPtr,
-		   *FlashPtr,
-		   AssocList,
-		   fBinWidth,
-		   fPulseRecoMgr,
-		   fThreshAlg,
-		   fChannelMap,
-		   Geometry,
-		   fHitThreshold,
-		   fFlashThreshold,
-		   fWidthTolerance,
-		   ts,
-		   fSPESize,
-		   fTrigCoinc);
+                   *HitPtr,
+                   *FlashPtr,
+                   AssocList,
+                   fBinWidth,
+                   fPulseRecoMgr,
+                   fThreshAlg,
+                   fChannelMap,
+                   Geometry,
+                   fHitThreshold,
+                   fFlashThreshold,
+                   fWidthTolerance,
+                   ts,
+                   fSPESize,
+                   fTrigCoinc);
 
 
     // Make the associations which we noted we need

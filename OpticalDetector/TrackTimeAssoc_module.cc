@@ -197,7 +197,7 @@ namespace opdet {
 
     std::vector<std::vector<double> > ReturnVector(XSteps);
     for(size_t i=0; i!=XSteps; ++i)
-      ReturnVector[i].resize(geom->NOpDet());
+      ReturnVector[i].resize(geom->NOpDets());
     
     art::ServiceHandle<phot::PhotonVisibilityService> pvs;
 
@@ -281,7 +281,7 @@ namespace opdet {
   std::vector<double> TrackTimeAssoc::GetMIPHypotheses(trkf::BezierTrack* Btrack, double XOffset)
   {
     art::ServiceHandle<geo::Geometry> geom;
-    std::vector<double> ReturnVector(geom->NOpDet(),0);
+    std::vector<double> ReturnVector(geom->NOpDets(),0);
     
     art::ServiceHandle<phot::PhotonVisibilityService> pvs;
 
@@ -345,7 +345,7 @@ namespace opdet {
       BTracks.push_back(new trkf::BezierTrack(*Tracks.at(i)));
         
     art::ServiceHandle<geo::Geometry> geom;
-    size_t NOpDets = geom->NOpDet();
+    size_t NOpDets = geom->NOpDets();
     
     std::map<int, bool> OnBeamFlashes;
     
@@ -367,8 +367,10 @@ namespace opdet {
 	    
 	//	if(Flashes.at(f)->InBeamFrame())
 	//	  {
-	for(size_t i=0; i!=NOpDets; ++i)
-	  ThisFlashShape[i]=Flashes.at(f)->PE(i);
+        for (unsigned int c = 0; c < geom->NOpChannels(); c++){
+          unsigned int o = geom->OpDetFromOpChannel(c);
+	  ThisFlashShape[o]+=Flashes.at(f)->PE(c);
+        }
 	if(Flashes.at(f)->OnBeamTime()) OnBeamFlashes[f]=true;
 	//	  }
 	FlashShapes.push_back(ThisFlashShape);
