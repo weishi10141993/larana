@@ -8,7 +8,7 @@ microboone_opdigiproperties_3windows:  @local::standard_opdigiproperties_3window
 microboone_opdetresponse:
 {
    service_provider:        MicrobooneOpDetResponse
-   QuantumEfficiency:       1
+   QuantumEfficiency:       0.03
    WavelengthCutLow:        0 
    WavelengthCutHigh:       10000
 }
