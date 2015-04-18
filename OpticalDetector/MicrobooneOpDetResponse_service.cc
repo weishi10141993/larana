@@ -29,10 +29,15 @@ namespace opdet{
     //--------------------------------------------------------------------
     void MicrobooneOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
     {
-        double tempfQE=            pset.get<double>("QuantumEfficiency");
+        fQE=                       pset.get<double>("QuantumEfficiency");
+        //double tempfQE=            pset.get<double>("QuantumEfficiency");
         fWavelengthCutLow=         pset.get<double>("WavelengthCutLow");
         fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");
 
+        /**
+         * Don't apply QE here.  It is applied in the uboone
+         * electronics simulation.
+         **
         // Correct out the prescaling applied during simulation
         art::ServiceHandle<util::LArProperties>   LarProp;
         fQE = tempfQE / LarProp->ScintPreScale();
@@ -44,6 +49,7 @@ namespace opdet{
                                                               << ".  Final QE must be equalt to or smaller than the QE applied at simulation time.";
             assert(false);
         }
+        **/
     }
 
 
@@ -53,9 +59,14 @@ namespace opdet{
         
         newOpChannel = OpChannel;
         
+        /**
+         * Don't apply QE here.  It is applied in the uboone
+         * electronics simulation.
+         **
         // Check QE
         if ( CLHEP::RandFlat::shoot(1.0) > fQE ) return false;
-
+        **/
+        
         double wavel = wavelength(Phot.Energy);
         // Check wavelength acceptance
         if (wavel < fWavelengthCutLow) return false;
@@ -69,8 +80,13 @@ namespace opdet{
     {
         newOpChannel = OpChannel;
         
+        /**
+         * Don't apply QE here.  It is applied in the uboone
+         * electronics simulation.
+         **
         // Check QE
         if ( CLHEP::RandFlat::shoot(1.0) > fQE ) return false;
+        **/
 
         return true;
     }
