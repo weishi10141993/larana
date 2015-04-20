@@ -13,10 +13,13 @@
 #include <vector>
 #include <memory>
 
-#include "RecoBase/OpFlash.h"
-
 #include "TTree.h"
 #include "TH1.h"
+
+namespace recob{
+  class OpHit;
+  class OpFlash;
+}
 
 namespace opdet{
 
@@ -24,18 +27,27 @@ namespace opdet{
 
   public:
 
-    OpFlashAnaAlg(){}
-    void SetOpFlashTree(TTree*);
-    void SetFlashTimeHist(TH1F*);
+    OpFlashAnaAlg(){ fMakeOpHitHist=false; }
+    void SetOpFlashTree(TTree*,bool makeOpHitHist=true);
+    void SetOpHitTree(TTree*);
     
     void FillOpFlashes(const std::vector<recob::OpFlash>&);
+    void FillOpHits(const std::vector<recob::OpHit>&);
     
   private:
 
-    TTree* fOpFlashTree;
     std::unique_ptr<recob::OpFlash> fOpFlashDataPtr;
+    std::unique_ptr<recob::OpHit> fOpHitDataPtr;
 
-    TH1F* fFlashTimeHist;
+    bool fMakeOpHitHist;
+    std::unique_ptr<TH1D> fOpFlashHitHistPtr;
+
+    TTree* fOpFlashTree;
+    void   FillOpFlashTree(const std::vector<recob::OpFlash>&);
+    
+    TTree* fOpHitTree;
+    void   FillOpHitTree(const std::vector<recob::OpHit>&);
+
   };
   
 }
