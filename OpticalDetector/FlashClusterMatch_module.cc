@@ -217,15 +217,17 @@ namespace opdet {
     // Extract flash shape info
     std::vector<std::vector<double> > FlashShapes;
     art::ServiceHandle<geo::Geometry> geom;
-    size_t NOpDets = geom->NOpDet();
+    size_t NOpDets = geom->NOpDets();
 
     for(size_t f=0; f!=Flashes.size(); ++f)
       {
 	if(Flashes.at(f)->OnBeamTime())
           {
 	    std::vector<double> ThisFlashShape(NOpDets,0);
-            for(size_t i=0; i!=NOpDets; ++i)
-	      ThisFlashShape[i]=Flashes.at(f)->PE(i);
+            for (unsigned int c = 0; c < geom->NOpChannels(); c++){
+              unsigned int o = geom->OpDetFromOpChannel(c);
+	      ThisFlashShape[o]+=Flashes.at(f)->PE(c);
+            }
             FlashShapes.push_back(ThisFlashShape);
           }
       }
@@ -342,7 +344,7 @@ namespace opdet {
   std::vector<double> FlashClusterMatch::GetLightHypothesis(std::vector<recob::SpacePoint> spts)
   {
     art::ServiceHandle<geo::Geometry> geom;
-    std::vector<double> ReturnVector(geom->NOpDet(),0);
+    std::vector<double> ReturnVector(geom->NOpDets(),0);
 
     art::ServiceHandle<phot::PhotonVisibilityService> pvs;
 

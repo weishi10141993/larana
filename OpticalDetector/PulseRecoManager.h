@@ -47,7 +47,7 @@ namespace pmtana
     ~PulseRecoManager();
 
     /// Implementation of ana_base::analyze method
-    bool RecoPulse(const std::vector<uint16_t>& fifo) const;
+    bool RecoPulse(const std::vector<short>& fifo) const;
 
     /// A method to set pulse reconstruction algorithm
     void AddRecoAlgo          (PMTPulseRecoBase* algo) { _reco_algo_v.push_back(algo); };
@@ -79,7 +79,7 @@ namespace pmtana
     PED_METHOD _ped_method;
 
     /// A method to judge whether the subject waveform corresponds to a beam readout or not
-    inline bool is_beam(const std::vector<uint16_t> &wf) const {return (wf.size() > 1000);};
+    inline bool is_beam(const std::vector<short> &wf) const {return (wf.size() > 1000);};
 
   };
 }

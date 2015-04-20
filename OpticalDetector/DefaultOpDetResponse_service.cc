@@ -6,7 +6,8 @@
 
 
 #include "OpticalDetector/DefaultOpDetResponse.h"
-
+#include "Utilities/LArProperties.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace opdet{
 
@@ -25,7 +26,16 @@ namespace opdet{
 
     //--------------------------------------------------------------------
     void DefaultOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
-    { }
+    {
+        art::ServiceHandle<util::LArProperties>   LarProp;
+
+        if ( LarProp->ScintPreScale() < 1 ) {
+            mf::LogWarning("DefaultOpDetResponse_service") << "A prescale of " << LarProp->ScintPreScale() << " has been applied during optical MC production, "
+                                                           << "but DefaultOpDetResponse does not include any QE so this effect is not being corrected out.";
+            assert(false);
+        }
+
+    }
 
 
     //--------------------------------------------------------------------

@@ -28,11 +28,14 @@ namespace pmtana{
   {}
 
   //*************************************************************************************************
-  void AlgoPedestal::ComputePedestal(const std::vector<uint16_t>& wf, size_t start, size_t nsample) const
+  void AlgoPedestal::ComputePedestal(const std::vector<short>& wf, size_t start, size_t nsample) const
   //*************************************************************************************************
   {  
     _mean  = -1;
     _sigma = -1;
+    // GVS bugfix
+    //_mean  = 0.0;
+    //_sigma = 0.0;
   
     if( (start + nsample) > wf.size() ){
       std::cout << Form("Wavelength too short (%zu ADC samples) to compute pedestal! (minimum %zu)",

@@ -1,6 +1,8 @@
+// -*- mode: c++; c-basic-offset: 2; -*-
 // This analyzer writes out a TTree containing the properties of
 // each reconstructed flash
 //
+
 #ifndef OpFlashAna_H
 #define OpFlashAna_H 1
 
@@ -25,7 +27,8 @@
 #include "RawData/OpDetPulse.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "Utilities/TimeService.h"
+//#include "OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -39,6 +42,7 @@
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/FindManyP.h"
 
 namespace opdet {
  
@@ -79,18 +83,22 @@ namespace opdet {
     bool fMakePerFlashTree;
     bool fMakeFlashBreakdownTree;
     bool fMakePerOpHitTree;
-
+    bool fMakeFlashHitMatchTree;
+      
     TTree * fPerFlashTree;
     TTree * fPerOpHitTree;
     TTree * fFlashBreakdownTree;
+    TTree * fFlashHitMatchTree;
    
     Int_t fEventID;
     Int_t fFlashID;
+    Int_t fHitID;
     Float_t fFlashTime; 
     Float_t fAbsTime;
     bool  fInBeamFrame;
     int   fOnBeamTime;
     Float_t fTotalPE;
+    Int_t   fFlashFrame;
     
     Float_t fNPe;
     Float_t fYCenter;
@@ -127,11 +135,15 @@ namespace opdet {
     fOpHitModuleLabel   = pset.get<std::string>("OpHitModuleLabel");
 
 
-    art::ServiceHandle<OpDigiProperties> odp;
-    fTimeBegin  = odp->TimeBegin();
-    fTimeEnd    = odp->TimeEnd();
-    fSampleFreq = odp->SampleFreq();
+//    art::ServiceHandle<OpDigiProperties> odp;
+//    fTimeBegin  = odp->TimeBegin();
+//    fTimeEnd    = odp->TimeEnd();
+//    fSampleFreq = odp->SampleFreq();
 
+    art::ServiceHandle< util::TimeService > timeService;
+    fTimeBegin  = timeService->OpticalClock().Time();
+    fTimeEnd    = timeService->OpticalClock().FramePeriod();
+    fSampleFreq = timeService->OpticalClock().Frequency();
     
    
     fYMin =  pset.get<float>("YMin");
@@ -146,7 +158,9 @@ namespace opdet {
     fMakePerFlashTree       =  pset.get<bool>("MakePerFlashTree");
     fMakeFlashBreakdownTree =  pset.get<bool>("MakeFlashBreakdownTree");
     fMakePerOpHitTree       =  pset.get<bool>("MakePerOpHitTree");
+    fMakeFlashHitMatchTree  =  pset.get<bool>("MakeFlashHitMatchTree");
 
+    
     PosHistYRes=100;
     PosHistZRes=100;
 
@@ -161,22 +175,21 @@ namespace opdet {
 	fFlashBreakdownTree->Branch("FlashTime", &fFlashTime,  "FlashTime/F");
 	fFlashBreakdownTree->Branch("NPe",       &fNPe,        "NPe/F");
 	fFlashBreakdownTree->Branch("AbsTime",   &fAbsTime,    "AbsTime/F");
+	fFlashBreakdownTree->Branch("FlashFrame",&fFlashFrame, "FlashFrame/I");
 	fFlashBreakdownTree->Branch("InBeamFrame",&fInBeamFrame, "InBeamFrame/B");
 	fFlashBreakdownTree->Branch("OnBeamTime",&fOnBeamTime, "OnBeamTime/I");
 	fFlashBreakdownTree->Branch("YCenter",   &fYCenter,    "YCenter/F");
 	fFlashBreakdownTree->Branch("ZCenter",   &fZCenter,    "ZCenter/F");
 	fFlashBreakdownTree->Branch("YWidth",    &fYWidth,     "YWidth/F");
 	fFlashBreakdownTree->Branch("ZWidth",    &fZWidth,     "ZWidth/F");
-	fFlashBreakdownTree->Branch("AbsTime",   &fAbsTime,    "AbsTime/F");
-	fFlashBreakdownTree->Branch("InBeamFrame",&fInBeamFrame, "InBeamFrame/B");
-	fFlashBreakdownTree->Branch("OnBeamTime",&fOnBeamTime, "OnBeamTime/I");
 	fFlashBreakdownTree->Branch("TotalPE",   &fTotalPE,    "TotalPE/F");
       }
 
     if(fMakePerOpHitTree)
       {
 	fPerOpHitTree = tfs->make<TTree>("PerOpHitTree","PerOpHitTree");
-	fPerOpHitTree->Branch("EventID",   &fEventID,    "EventID/I");
+	fPerOpHitTree->Branch("EventID",     &fEventID,      "EventID/I");
+	fPerOpHitTree->Branch("HitID",       &fHitID,        "HitID/I");
 	fPerOpHitTree->Branch("OpChannel",   &fOpChannel,    "OpChannel/I");
 	fPerOpHitTree->Branch("PeakTimeAbs", &fPeakTimeAbs,  "PeakTimeAbs/F");
 	fPerOpHitTree->Branch("PeakTime",    &fPeakTime,     "PeakTime/F");
@@ -198,9 +211,26 @@ namespace opdet {
 	fPerFlashTree->Branch("ZWidth",    &fZWidth,     "ZWidth/F");
 	fPerFlashTree->Branch("FlashTime", &fFlashTime,  "FlashTime/F");
 	fPerFlashTree->Branch("AbsTime",   &fAbsTime,    "AbsTime/F");
+	fPerFlashTree->Branch("FlashFrame",&fFlashFrame, "FlashFrame/I");
 	fPerFlashTree->Branch("InBeamFrame",&fInBeamFrame, "InBeamFrame/B");
 	fPerFlashTree->Branch("OnBeamTime",&fOnBeamTime, "OnBeamTime/I");
 	fPerFlashTree->Branch("TotalPE",   &fTotalPE,    "TotalPE/F");
+      }
+    if(fMakeFlashHitMatchTree)
+      {
+	fFlashHitMatchTree = tfs->make<TTree>("FlashHitMatchTree","FlashHitMatchTree");
+	fFlashHitMatchTree->Branch("EventID",       &fEventID,    "EventID/I");
+	fFlashHitMatchTree->Branch("FlashID",       &fFlashID,    "FlashID/I");
+	fFlashHitMatchTree->Branch("HitID",         &fHitID,      "HitID/I");
+	fFlashHitMatchTree->Branch("OpChannel",     &fOpChannel,  "OpChannel/I");
+	fFlashHitMatchTree->Branch("HitPeakTimeAbs",&fPeakTimeAbs,"HitPeakTimeAbs/F");
+	fFlashHitMatchTree->Branch("HitPeakTime",   &fPeakTime,   "HitPeakTime/F");
+	fFlashHitMatchTree->Branch("HitPE",         &fPE,         "HitPE/F");
+	fFlashHitMatchTree->Branch("FlashPE",       &fTotalPE,    "FlashPE/F");
+	fFlashHitMatchTree->Branch("FlashTimeAbs",  &fAbsTime,    "FlashTimeAbs/F");
+	fFlashHitMatchTree->Branch("FlashTime",     &fFlashTime,  "FlashTime/F");
+	fFlashHitMatchTree->Branch("HitFrame",      &fFrame,      "HitFrame/I");
+	fFlashHitMatchTree->Branch("FlashFrame",    &fFlashFrame, "FlashFrame/I");
       }
     
     fFlashID=0;
@@ -224,6 +254,9 @@ namespace opdet {
     // Get flashes from event
     art::Handle< std::vector< recob::OpFlash > > FlashHandle;
     evt.getByLabel(fOpFlashModuleLabel, FlashHandle);
+
+    // Get assosciations between flashes and hits
+    art::FindManyP<recob::OpHit> Assns(FlashHandle, evt, fOpFlashModuleLabel);
 
     // Create string for histogram name
     char HistName[50];
@@ -254,13 +287,13 @@ namespace opdet {
       {
 	sprintf(HistName, "Event %d All Flashes YZ", evt.id().event());
 	
-        FlashPositions = tfs->make<TH2D>(HistName, ";y ;z ", 
+	FlashPositions = tfs->make<TH2D>(HistName, ";y ;z ", 
 						PosHistYRes, fYMin, fYMax,
 						PosHistZRes, fZMin, fZMax);
       }
     
     art::ServiceHandle<geo::Geometry> geom;
-    unsigned int NOpDet = geom->NOpDet();
+    unsigned int NOpChannels = geom->NOpChannels();
 
 
     // For every OpFlash in the vector
@@ -273,14 +306,14 @@ namespace opdet {
 
 
 	fFlashTime = TheFlash.Time();
-	fFlashID++;
+	fFlashID = i; //++;
 	
 	TH2D * ThisFlashPosition = nullptr;
 	if(fMakePerFlashHists)
 	  {
 	    sprintf(HistName, "Event %d t = %f", evt.id().event(), fFlashTime);
 	    FlashHist.push_back ( tfs->make<TH1D>(HistName, ";OpChannel;PE", 
-						  NOpDet, 0, NOpDet));
+						  NOpChannels, 0, NOpChannels));
 	
 	    sprintf(HistName, "Event %d Flash %f YZ", evt.id().event(), fFlashTime);
 	    
@@ -295,11 +328,11 @@ namespace opdet {
 	fInBeamFrame = TheFlash.InBeamFrame();
 	fOnBeamTime  = TheFlash.OnBeamTime();
 	fAbsTime     = TheFlash.AbsTime();
-	fFrame       = TheFlash.Frame();
+	fFlashFrame  = TheFlash.Frame();
 	fTotalPE     = TheFlash.TotalPE();
 	
 	
-	for(unsigned int j=0; j!=NOpDet; ++j)
+	for(unsigned int j=0; j!=NOpChannels; ++j)
 	  {
 	    if(fMakePerFlashHists) FlashHist.at(FlashHist.size()-1)->Fill(j, TheFlash.PE(j));
 	    fNPe = TheFlash.PE(j);
@@ -325,7 +358,25 @@ namespace opdet {
 	if(fMakeFlashTimeHist) FlashTimes->Fill(fFlashTime, fTotalPE);
 	
 	if(fMakePerFlashTree)  fPerFlashTree->Fill();
-	
+
+	if(fMakeFlashHitMatchTree) {
+	  // Extract the assosciations
+	  fHitID = 0;
+	  std::vector< art::Ptr<recob::OpHit> > matchedHits = Assns.at(i);
+	  for (auto ophit : matchedHits) {
+	    fOpChannel   = ophit->OpChannel();
+	    fPeakTimeAbs = ophit->PeakTimeAbs();
+	    fPeakTime    = ophit->PeakTime();
+	    fFrame       = ophit->Frame();
+	    fWidth       = ophit->Width();
+	    fArea        = ophit->Area();
+	    fAmplitude   = ophit->Amplitude();
+	    fPE          = ophit->PE();
+	    fFastToTotal = ophit->FastToTotal();
+	    fFlashHitMatchTree->Fill();
+	    fHitID++;
+	  }
+	}
       }
     
     if(fMakePerOpHitTree)
@@ -344,10 +395,12 @@ namespace opdet {
 	    fAmplitude   = OpHitHandle->at(i).Amplitude();
 	    fPE          = OpHitHandle->at(i).PE();
 	    fFastToTotal = OpHitHandle->at(i).FastToTotal();
+	    fHitID       = i;
 	    fPerOpHitTree->Fill();
 	  }
 
       }
+
   }
 
 } // namespace opdet

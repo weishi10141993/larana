@@ -28,7 +28,7 @@ namespace pmtana{
   {}
 
   //***************************************************************
-  bool CheckIndex(const std::vector<uint16_t> &wf, const size_t &begin, size_t &end)
+  bool CheckIndex(const std::vector<short> &wf, const size_t &begin, size_t &end)
   //***************************************************************
   {
     if(begin >= wf.size() || end >= wf.size() || begin > end){
@@ -77,7 +77,7 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool PMTPulseRecoBase::Integral(const std::vector<uint16_t> &wf,
+  bool PMTPulseRecoBase::Integral(const std::vector<short> &wf,
 				  double &result,
 				  size_t begin,
 				  size_t end) const
@@ -86,9 +86,9 @@ namespace pmtana{
   
     if(!CheckIndex(wf,begin,end)) return false;
   
-    std::vector<uint16_t>::const_iterator begin_iter(wf.begin());
+    std::vector<short>::const_iterator begin_iter(wf.begin());
   
-    std::vector<uint16_t>::const_iterator end_iter(wf.begin());
+    std::vector<short>::const_iterator end_iter(wf.begin());
 
     begin_iter = begin_iter + begin;
 
@@ -100,7 +100,7 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool PMTPulseRecoBase::Derivative(const std::vector<uint16_t> &wf,
+  bool PMTPulseRecoBase::Derivative(const std::vector<short> &wf,
 				    std::vector<int32_t> &diff,
 				    size_t begin,
 				    size_t end) const 
@@ -124,7 +124,7 @@ namespace pmtana{
   }
 
   //***************************************************************
-  size_t PMTPulseRecoBase::Max(const std::vector<uint16_t> &wf,
+  size_t PMTPulseRecoBase::Max(const std::vector<short> &wf,
 			       double &result,
 			       size_t begin,
 			       size_t end) const
@@ -148,7 +148,7 @@ namespace pmtana{
   }
 
   //***************************************************************
-  size_t PMTPulseRecoBase::Min(const std::vector<uint16_t> &wf,
+  size_t PMTPulseRecoBase::Min(const std::vector<short> &wf,
 			       double &result,
 			       size_t begin,
 			       size_t end) const

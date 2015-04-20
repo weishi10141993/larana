@@ -7,6 +7,14 @@ microboone_opdigi:           @local::standard_opdigi
 microboone_tracktimeassoc:   @local::standard_tracktimeassoc
 microboone_opflash:          @local::standard_opflash
 
+microboone_opflash.InputModule: "opreformat"
+#microboone_opflash.InputLabels: [ "BeamPMTTrigger",    "CosmicPMTTrigger",
+#                                  "FEMBeamHighGain",   "FEMBeamLowGain",
+#                                  "FEMCosmicHighGain", "FEMCosmicLowGain",
+#                                  "HighGain",          "LowGain"]
+microboone_opflash.InputLabels: [ "FEMBeamHighGain",   "FEMBeamLowGain",
+                                  "FEMCosmicHighGain", "FEMCosmicLowGain"]
+
 microboone_opdigiana:        @local::standard_opdigiana
 microboone_opflashana:       @local::standard_opflashana
 

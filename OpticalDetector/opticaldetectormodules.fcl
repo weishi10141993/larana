@@ -218,6 +218,7 @@ standard_opflashana:
   MakePerFlashTree:        true
   MakePerOpHitTree:        true
   MakeFlashBreakdownTree:  true
+  MakeFlashHitMatchTree:   true
 
 }
 
@@ -237,11 +238,12 @@ standard_opflash:
    module_type:     "OpFlashFinder"
    GenModule:       "generator"
    InputModule:     "optreadout"
+   InputLabels:     [ "" ]
    ChannelMapMode:   0
-   BinWidth:         64      # | Pulse finding parameters
-   FlashThreshold:   2
-   HitThreshold:     0.2 
-   WidthTolerance:   0.5
+   BinWidth:         1   # us | Pulse finding parameters
+   FlashThreshold:   2   # PE
+   HitThreshold:     0.2 # PE
+   WidthTolerance:   0.5 # unitless 
    TrigCoinc:        2.5 #in microseconds!
    reco_man:         @local::standard_preco_manager
    algo_threshold:   @local::standard_algo_threshold
@@ -313,10 +315,18 @@ standard_flashhypothesisanamodule:
     FlashHypothesisAnaAlgParams: @local::standard_flashhypothesisanaalg
 }
 
+
+microboone_opdetreformatter:
+{
+   module_type: "OpticalRawDigitReformatter"
+   GenModule:       "generator"
+   InputModule:     "optreadout"
+}
+
+
 microboone_simphotoncounter: @local::standard_simphotoncounter
 microboone_opdigi:           @local::standard_opdigi
 microboone_tracktimeassoc:   @local::standard_tracktimeassoc
-microboone_opflash:          @local::standard_opflash
 microboone_opflashtruth:     @local::standard_opflashtruth
 
 microboone_opdigiana:        @local::standard_opdigiana
