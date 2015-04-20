@@ -269,7 +269,7 @@ void calo::Calorimetry::produce(art::Event& evt)
   art::FindManyP<anab::T0>          fmt0(trackListHandle, evt, fT0ModuleLabel);
 
   for(size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter){   
-
+    //std::cout<<"!!!!!!NEW TRACK "<< int(trkIter) <<"!!!!!!!"<<std::endl;
     //fnhits3D = fmsp.at(trkIter).size();
     std::vector<double> larStart;
     std::vector<double> larEnd;
@@ -391,17 +391,17 @@ void calo::Calorimetry::produce(art::Event& evt)
 	  double t = allHits[hits[ipl][i]]->PeakTime() - TickT0; // Want T0 here? Otherwise ticks to x is wrong?
 	  double x = detprop->ConvertTicksToX(t, allHits[hits[ipl][i]]->WireID().Plane, allHits[hits[ipl][i]]->WireID().TPC, allHits[hits[ipl][i]]->WireID().Cryostat);
 	  double w = allHits[hits[ipl][i]]->WireID().Wire;
-	  trkx.push_back(sptv[j]->XYZ()[0]);
+	  trkx.push_back(sptv[j]->XYZ()[0]-detprop->ConvertTicksToX(TickT0, allHits[hits[ipl][i]]->WireID().Plane, allHits[hits[ipl][i]]->WireID().TPC, allHits[hits[ipl][i]]->WireID().Cryostat));
 	  trky.push_back(sptv[j]->XYZ()[1]);
 	  trkz.push_back(sptv[j]->XYZ()[2]);
 	  trkw.push_back(w);
-	    trkx0.push_back(x);
+	  trkx0.push_back(x);
 	}
       }
       for (size_t ihit = 0; ihit < hits[ipl].size(); ++ihit){//loop over all hits on each wire plane
 
 	//std::cout<<ihit<<std::endl;
-
+	
 	if (!planeID.isValid){
 	  plane = allHits[hits[ipl][ihit]]->WireID().Plane;
 	  tpc   = allHits[hits[ipl][ihit]]->WireID().TPC;
@@ -468,10 +468,12 @@ void calo::Calorimetry::produce(art::Event& evt)
 	fetime.push_back(etime);
 	fpitch.push_back(pitch);
 	TVector3 v(xyz3d[0],xyz3d[1],xyz3d[2]);
+	//std::cout << "Adding these positions to v and then fXYZ " << xyz3d[0] << " " << xyz3d[1] << " " << xyz3d[2] << "\n" <<std::endl;
 	fXYZ.push_back(v);
 	++fnsps;
       }
       if (!fnsps){
+	//std::cout << "Adding the aforementioned positions..." << std::endl;
 	calorimetrycol->push_back(anab::Calorimetry(util::kBogusD,
 						    vdEdx,
 						    vdQdx,
@@ -668,6 +670,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	  }
 	}
       }
+      //std::cout << "Adding at the end but still same fXYZ" << std::endl;
       calorimetrycol->push_back(anab::Calorimetry(Kin_En,
 						  vdEdx,
 						  vdQdx,
@@ -761,6 +764,8 @@ void calo::Calorimetry::ReadCaloTree(){
 void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> trkx, std::vector<double> trky, std::vector<double> trkz, std::vector<double> trkw, std::vector<double> trkx0, double *xyz3d, double &pitch, double TickT0){
   //Get 3d coordinates and track pitch for each hit
   //Find 5 nearest space points and determine xyz and curvature->track pitch
+  
+  //std::cout << "Start of get pitch" << std::endl;
 
   // Get services
   art::ServiceHandle<geo::Geometry> geom;
@@ -780,6 +785,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
   for (size_t i = 0; i<trkx.size(); ++i){
     double distance = pow((trkw[i]-w0)*wire_pitch,2)+pow(trkx0[i]-x0,2);
     if (distance>0) distance = sqrt(distance);
+    //std::cout << "Dis " << distance << ", sqaured " << distance*distance << " = " << wire_pitch*wire_pitch <<"("<<trkw[i]<<"-"<<w0<<")^2 + ("<<trkx0[i]<<"-"<<x0<<")^2"<<std::endl;
     sptmap.insert(std::pair<double,size_t>(distance,i));
     if (w0-trkw[i]>0) sptsignmap.insert(std::pair<size_t,int>(i,1));
     else sptsignmap.insert(std::pair<size_t,int>(i,-1));
@@ -801,7 +807,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
     xyz[0] = trkx[isp->second];
     xyz[1] = trky[isp->second];
     xyz[2] = trkz[isp->second];
-    
+        
     double distancesign = sptsignmap[isp->second];
     //std::cout<<np<<" "<<xyz[0]<<" "<<xyz[1]<<" "<<xyz[2]<<" "<<(*isp).first<<std::endl;
     if (np==0&&isp->first>30){//hit not on track
@@ -811,6 +817,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
       pitch = -1;
       return;
     }
+    //std::cout<<np<<" "<<xyz[0]<<" "<<xyz[1]<<" "<<xyz[2]<<" "<<(*isp).first<<" Plane " << hit->WireID().Plane << " TPC " << hit->WireID().TPC << std::endl;
     if (np<5) {
       vx.push_back(xyz[0]);
       vy.push_back(xyz[1]);
@@ -825,6 +832,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
   }
   //std::cout<<"np="<<np<<std::endl;
   if (np>=2){//at least two points
+    //std::cout << "At least 2 points.."<<std::endl;
     TGraph *xs = new TGraph(np,&vs[0],&vx[0]);
     //for (int i = 0; i<np; i++) std::cout<<i<<" "<<vs[i]<<" "<<vx[i]<<" "<<vy[i]<<" "<<vz[i]<<std::endl;
     try{
@@ -839,7 +847,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
       else pol = (TF1*) xs->GetFunction("pol1");
       xyz3d[0] = pol->Eval(0);
       kx = pol->GetParameter(1);
-      //std::cout<<xyz3d[0]<<" "<<kx<<std::endl;
+      //std::cout<<"X fit "<<xyz3d[0]<<" "<<kx<<std::endl;
     }
     catch(...){
       mf::LogWarning("Calorimetry::GetPitch") <<"Fitter failed";
@@ -859,7 +867,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
       else pol = (TF1*) ys->GetFunction("pol1");
       xyz3d[1] = pol->Eval(0);
       ky = pol->GetParameter(1);
-      //std::cout<<xyz3d[1]<<" "<<ky<<std::endl;
+      //std::cout<<"Y fit "<<xyz3d[1]<<" "<<ky<<std::endl;
     }
     catch(...){
       mf::LogWarning("Calorimetry::GetPitch") <<"Fitter failed";
@@ -879,7 +887,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
       else pol = (TF1*) zs->GetFunction("pol1");
       xyz3d[2] = pol->Eval(0);
       kz = pol->GetParameter(1);
-      //std::cout<<xyz3d[2]<<" "<<kz<<std::endl;
+      //std::cout<<"Z fit "<<xyz3d[2]<<" "<<kz<<std::endl;
     }
     catch(...){
       mf::LogWarning("Calorimetry::GetPitch") <<"Fitter failed";
@@ -912,7 +920,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
     if (cosgamma>0) pitch = wirePitch/cosgamma;   
 
   }
-
+  //std::cout << "At end of get pitch " << xyz3d[0] << " " << xyz3d[1] << " " << xyz3d[2] << " " << x0 << " " << std::endl;
 }
 
 
