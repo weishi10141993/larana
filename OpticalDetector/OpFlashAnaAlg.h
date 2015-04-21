@@ -16,10 +16,8 @@
 #include "TTree.h"
 #include "TH1.h"
 
-namespace recob{
-  class OpHit;
-  class OpFlash;
-}
+#include "RecoBase/OpHit.h"
+#include "RecoBase/OpFlash.h"
 
 namespace opdet{
 

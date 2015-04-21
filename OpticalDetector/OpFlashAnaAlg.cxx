@@ -1,6 +1,3 @@
-#include "RecoBase/OpHit.h"
-#include "RecoBase/OpFlash.h"
-
 #include "OpticalDetector/OpFlashAnaAlg.h"
 
 void opdet::OpFlashAnaAlg::SetOpFlashTree(TTree* tree,bool makeOpHitHist)

@@ -315,6 +315,13 @@ standard_flashhypothesisanamodule:
     FlashHypothesisAnaAlgParams: @local::standard_flashhypothesisanaalg
 }
 
+standard_opflashsimpleanamodule:
+{
+    module_type: "OpFlashSimpleAna"
+    OpFlashModuleLabel: "opflash"
+    OpHitModuleLabel:   "opflash"
+    MakeOpDetPEHist:    "true"
+}
 
 microboone_opdetreformatter:
 {
