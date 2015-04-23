@@ -25,8 +25,8 @@ namespace opdet{
 
   public:
 
-    OpFlashAnaAlg(){ fMakeOpHitHist=false; }
-    void SetOpFlashTree(TTree*,bool makeOpHitHist=true);
+    OpFlashAnaAlg(){ fMakeOpDetPEHist=false; }
+    void SetOpFlashTree(TTree*,bool makeOpDetPEHist=true);
     void SetOpHitTree(TTree*);
     
     void FillOpFlashes(const std::vector<recob::OpFlash>&);
@@ -37,8 +37,31 @@ namespace opdet{
     std::unique_ptr<recob::OpFlash> fOpFlashDataPtr;
     std::unique_ptr<recob::OpHit> fOpHitDataPtr;
 
-    bool fMakeOpHitHist;
-    std::unique_ptr<TH1D> fOpFlashHitHistPtr;
+    struct FlashAnaStruct{
+      double        FlashTime;
+      double        FlashTimeWidth;
+      double        FlashAbsTime;
+      double        FlashY;
+      double        FlashYWidth;
+      double        FlashZ;
+      double        FlashZWidth;
+      double        FlashFastToTotal;
+      double        FlashTotalPE;
+      unsigned int  FlashFrame;
+      int           FlashOnBeamTime;
+      bool          FlashInBeamFrame;
+
+      TH1D*         FlashOpDetPEHist;
+
+      std::string   LeafList;
+      FlashAnaStruct()
+      : LeafList("time/D:timewidth/D:abstime/D:y/D:ywidth/D:z/D:zwidth/D:fasttototal/D:totalpe/D:onbeamtime/I:frame/i:inbeamframe/O")
+      { FlashOpDetPEHist = new TH1D(); }
+      ~FlashAnaStruct() { delete FlashOpDetPEHist; }
+    };
+
+    FlashAnaStruct fOpFlashAnaStruct;    
+    bool fMakeOpDetPEHist;
 
     TTree* fOpFlashTree;
     void   FillOpFlashTree(const std::vector<recob::OpFlash>&);
