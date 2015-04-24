@@ -203,21 +203,13 @@ namespace opdet {
     //
     // Get the pulses from the event
     //
-    std::vector< art::Handle< std::vector< raw::OpDetWaveform > > > wfHandleVector;
-
-    // Reserve a large enough array
-    int totalsize = 0;
-    for ( auto label : fInputLabels) {
-      art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
-      evt.getByLabel(fInputModule, label, wfHandle);
-      totalsize += wfHandle->size();
-    }
 
     // Load pulses into WaveformVector
     std::vector< raw::OpDetWaveform > WaveformVector;
     for ( auto label : fInputLabels) {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
       evt.getByLabel(fInputModule, label, wfHandle);
+      if (!wfHandle.isValid()) continue; // Skip non-existant collections
       WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
     }
 
