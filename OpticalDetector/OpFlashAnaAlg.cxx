@@ -39,8 +39,6 @@ void opdet::OpFlashAnaAlg::FillOpFlashTree(const std::vector<recob::OpFlash>& fl
 {
   for(auto const& flash : flashVector){
 
-    std::cout << "flash y = " << flash.YCenter() << "\tflash total pe=" << flash.TotalPE() << std::endl;
-
     fOpFlashAnaStruct.FlashTime = flash.Time();
     fOpFlashAnaStruct.FlashTimeWidth = flash.TimeWidth();
     fOpFlashAnaStruct.FlashAbsTime = flash.AbsTime();
@@ -73,6 +71,7 @@ void opdet::OpFlashAnaAlg::FillOpHitTree(const std::vector<recob::OpHit>& hitVec
     fOpHitAnaStruct.HitPeakTimeAbs = hit.PeakTimeAbs();
     fOpHitAnaStruct.HitWidth = hit.Width();
     fOpHitAnaStruct.HitArea = hit.Area();
+    fOpHitAnaStruct.HitAmplitude = hit.Amplitude();
     fOpHitAnaStruct.HitFastToTotal = hit.FastToTotal();
     fOpHitAnaStruct.HitPE = hit.PE();
     fOpHitAnaStruct.HitFrame = hit.Frame();
