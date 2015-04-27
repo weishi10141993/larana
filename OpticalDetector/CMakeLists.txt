@@ -24,18 +24,28 @@ art_make_library( LIBRARY_NAME FlashHypothesisComparison
 			                ${ROOT_BASIC_LIB_LIST}
 )
 
+art_make_library( LIBRARY_NAME OpFlashAnaAlg
+		  	     SOURCE OpFlashAnaAlg.cxx
+			     LIBRARIES
+					RecoBase
+			                ${ROOT_BASIC_LIB_LIST}
+)
+
+
 art_make( BASENAME_ONLY
           EXCLUDE FlashHypothesis.cxx
 			 FlashHypothesisCalculator.cxx
 		         FlashUtilities.cxx
 		         FlashHypothesisComparison.cxx
 			 SimPhotonCounter.cxx
+			 OpFlashAnaAlg.cxx
           LIBRARY_NAME OpticalDetector
           LIB_LIBRARIES 
+			RecoBase
 	  		FlashHypothesis
 			SimPhotonCounter
 	  		FlashHypothesisComparison
-			RecoBase
+			OpFlashAnaAlg
 			MCBase
                         Geometry
                         Geometry_service
