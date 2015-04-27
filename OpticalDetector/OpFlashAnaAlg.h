@@ -34,9 +34,6 @@ namespace opdet{
     
   private:
 
-    std::unique_ptr<recob::OpFlash> fOpFlashDataPtr;
-    std::unique_ptr<recob::OpHit> fOpHitDataPtr;
-
     struct FlashAnaStruct{
       double        FlashTime;
       double        FlashTimeWidth;
@@ -66,6 +63,25 @@ namespace opdet{
     TTree* fOpFlashTree;
     void   FillOpFlashTree(const std::vector<recob::OpFlash>&);
     
+
+    struct HitAnaStruct{
+      double        HitPeakTime;
+      double        HitPeakTimeAbs;
+      double        HitWidth;
+      double        HitArea;
+      double        HitAmplitude;
+      double        HitFastToTotal;
+      double        HitPE;
+      unsigned int  HitFrame;
+      int           HitOpChannel;
+
+      std::string   LeafList;
+      HitAnaStruct()
+      : LeafList("time/D:abstime/D:width/D:area/D:amplitude/D:fasttototal/D:pe/D:frame/I:opchannel/i")
+      { }
+    };
+    HitAnaStruct fOpHitAnaStruct;
+
     TTree* fOpHitTree;
     void   FillOpHitTree(const std::vector<recob::OpHit>&);
 

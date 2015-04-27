@@ -20,13 +20,9 @@ void opdet::OpFlashAnaAlg::SetOpFlashTree(TTree* tree,bool makeOpDetPEHist)
 void opdet::OpFlashAnaAlg::SetOpHitTree(TTree* tree)
 {
   fOpHitTree = tree;
-  
-  fOpHitDataPtr.reset(new recob::OpHit);  
-  recob::OpHit* hitptr = fOpHitDataPtr.get();
   fOpHitTree->Branch(fOpHitTree->GetName(),
-		       "recob::OpHit",
-		       &hitptr);
-
+		     &fOpHitAnaStruct,
+		     fOpHitAnaStruct.LeafList.c_str());
 }
 
 void opdet::OpFlashAnaAlg::FillOpFlashes(const std::vector<recob::OpFlash>& flashVector)
@@ -72,7 +68,16 @@ void opdet::OpFlashAnaAlg::FillOpFlashTree(const std::vector<recob::OpFlash>& fl
 void opdet::OpFlashAnaAlg::FillOpHitTree(const std::vector<recob::OpHit>& hitVector)
 {
   for(auto const& hit : hitVector){
-    *fOpHitDataPtr = hit;
+    
+    fOpHitAnaStruct.HitPeakTime = hit.PeakTime();
+    fOpHitAnaStruct.HitPeakTimeAbs = hit.PeakTimeAbs();
+    fOpHitAnaStruct.HitWidth = hit.Width();
+    fOpHitAnaStruct.HitArea = hit.Area();
+    fOpHitAnaStruct.HitFastToTotal() = hit.FastToTotal();
+    fOpHitAnaStruct.HitPE = hit.PE();
+    fOpHitAnaStruct.HitFrame = hit.Frame();
+    fOpHitAnaStruct.HitOpChannel = hit.OpChannel();
+
     fOpHitTree->Fill();
   }
 }
