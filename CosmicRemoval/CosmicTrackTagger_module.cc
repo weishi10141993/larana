@@ -98,7 +98,7 @@ cosmic::CosmicTrackTagger::CosmicTrackTagger(fhicl::ParameterSet const & p)
 
   // Call appropriate Produces<>() functions here.
   produces< std::vector<anab::CosmicTag> >();
-  produces< art::Assns<anab::CosmicTag, recob::Track> >();
+  produces< art::Assns<recob::Track, anab::CosmicTag> >();
 }
 
 cosmic::CosmicTrackTagger::~CosmicTrackTagger() {
