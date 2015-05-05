@@ -209,6 +209,7 @@ namespace opdet {
     for ( auto label : fInputLabels) {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
       evt.getByLabel(fInputModule, label, wfHandle);
+      if (!wfHandle.isValid()) continue; // Skip non-existent collections
       totalsize += wfHandle->size();
     }
 

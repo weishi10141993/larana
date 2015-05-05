@@ -362,7 +362,7 @@ namespace opdet {
 		    fWavelength= 128;
 
 		    //Get arrival time from phot
-		    fTime= it->first*2;
+		    fTime= it->first;
 		    std::cout<<"Arrival time: " << fTime<<std::endl;
 		   
             for(int i = 0; i < it->second ; i++)
@@ -387,7 +387,7 @@ namespace opdet {
             {
 		      // Calculate wavelength in nm
 		      fWavelength= 128;
-		      fTime= it->first*2;		
+		      fTime= it->first;		
    
               for(int i = 0; i < it->second; i++)
               {
