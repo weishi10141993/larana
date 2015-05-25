@@ -38,6 +38,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // ROOT includes
@@ -45,7 +46,6 @@
 // C++ Includes
 #include <map>
 #include <vector>
-#include <iostream>
 #include <cstring>
 #include <sstream>
 #include "math.h"
@@ -77,17 +77,17 @@ namespace opdet {
     std::string fInputModule;              // Input tag for OpDet collection
     std::string fGenModule ;
     std::vector< std::string > fInputLabels;
+    std::string fThreshAlgName;
 
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
-    pmtana::AlgoThreshold     fThreshAlg;
-      //pmtana::AlgoLBNE          fThreshAlg;
+    pmtana::PMTPulseRecoBase* fThreshAlg;
 
-    Int_t   fChannelMapMode;
-    Int_t   fBinWidth;
-    Float_t fFlashThreshold;
-    Float_t fHitThreshold;
-    Float_t fWidthTolerance;
+    Int_t    fChannelMapMode;
+    Int_t    fBinWidth;
+    Float_t  fFlashThreshold;
+    Float_t  fHitThreshold;
+    Float_t  fWidthTolerance;
     Double_t fTrigCoinc;
     
 
@@ -114,30 +114,38 @@ namespace opdet {
   //-----------------------------------------------------------------------
   // Constructor
   OpFlashFinder::OpFlashFinder(const fhicl::ParameterSet & pset):
-    fPulseRecoMgr(),
-    fThreshAlg()
+    fPulseRecoMgr()
   {
 
     reconfigure(pset);
+
+    if      (fThreshAlgName == "AlgoThreshold") 
+              fThreshAlg = new pmtana::AlgoThreshold;
+    else if (fThreshAlgName == "AlgoLBNE"     ) 
+              fThreshAlg = new pmtana::AlgoLBNE();
+    else throw art::Exception(art::errors::UnimplementedFeature)
+                    << "Cannot find implementation for " 
+                    << fThreshAlgName << " algorithm.\n";   
 
     produces<std::vector< recob::OpFlash> >();
     produces<std::vector< recob::OpHit> >();
     produces<art::Assns<recob::OpFlash, recob::OpHit> >();
 
-    fPulseRecoMgr.AddRecoAlgo(&fThreshAlg);
+    fPulseRecoMgr.AddRecoAlgo(fThreshAlg);
     fPulseRecoMgr.SetPedAlgo(pmtana::kHEAD);
-
 
   }
 
-  //---------------------------------------------
-
+  //-----------------------------------------------------------------------
   void OpFlashFinder::reconfigure(fhicl::ParameterSet const& pset)
   {
+
     // Indicate that the Input Module comes from .fcl
     fInputModule    = pset.get<std::string>("InputModule");
     fGenModule      = pset.get<std::string>("GenModule");
     fInputLabels    = pset.get<std::vector<std::string> >("InputLabels");
+    fThreshAlgName  = pset.get< fhicl::ParameterSet >("algo_threshold")
+                          .get< std::string >("module_type");
     
     fChannelMapMode = pset.get<int>          ("ChannelMapMode");
 
@@ -160,7 +168,11 @@ namespace opdet {
   //-----------------------------------------------------------------------
   // Destructor
   OpFlashFinder::~OpFlashFinder() 
-  {}
+  {
+  
+    delete fThreshAlg;
+
+  }
    
   //-----------------------------------------------------------------------
   void OpFlashFinder::beginJob()
@@ -170,10 +182,7 @@ namespace opdet {
   //-----------------------------------------------------------------------
   void OpFlashFinder::endJob()
   { 
-
   }
-
-
 
   //-----------------------------------------------------------------------
   void OpFlashFinder::produce(art::Event& evt) 
@@ -231,7 +240,7 @@ namespace opdet {
                    AssocList,
                    fBinWidth,
                    fPulseRecoMgr,
-                   fThreshAlg,
+                   *fThreshAlg,
                    fChannelMap,
                    Geometry,
                    fHitThreshold,
@@ -254,9 +263,7 @@ namespace opdet {
   }
 
 
-  //--------------------------------------
-
-
+  //-----------------------------------------------------------------------
   std::vector<double> OpFlashFinder::GetSPEScales()
   {
     // This will eventually interface to some kind of gain service
@@ -265,7 +272,7 @@ namespace opdet {
     return std::vector<double>(fNOpChannels,20);
   }
 
-  //-------------------------------------
+  //-----------------------------------------------------------------------
   std::map<int, int>  OpFlashFinder::GetChannelMap()
   {
     // This will eventually interface to a shaper map database
@@ -279,7 +286,7 @@ namespace opdet {
 
     if(fChannelMapMode==0)
       {
-	for(size_t i=0; i!=32; ++i)
+	for(size_t i=0; i!=132; ++i)
 	  ReturnMap[i] = i;
       }
     else if(fChannelMapMode==1)
