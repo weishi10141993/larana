@@ -5,8 +5,8 @@ BEGIN_PROLOG
 lbne35t_calorimetryalgdata:	@local::standard_calorimetryalgdata
 lbne35t_calorimetryalgmc:	@local::standard_calorimetryalgmc
 
-lbne35t_calorimetryalgmc.CalAmpConstants:  [ 1.1314e-3, 1.2957e-3, 1.1723e-3 ]
-lbne35t_calorimetryalgmc.CalAreaConstants: [ 6.2253e-3, 6.3385e-3, 6.2554e-3 ]
+lbne35t_calorimetryalgmc.CalAmpConstants:  [ 0.9033e-3, 1.0287e-3, 0.8800e-3 ]
+lbne35t_calorimetryalgmc.CalAreaConstants: [ 5.1822e-3, 5.2682e-3, 5.3962e-3 ]
 
 lbne35t_calodata:
 {
