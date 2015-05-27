@@ -118,9 +118,10 @@ namespace opdet {
 
     reconfigure(pset);
 
-    if      (fThreshAlgName == "AlgoThreshold") 
+    // Initialize the hit finder
+    if      (fThreshAlgName == "Threshold") 
               fThreshAlg = new pmtana::AlgoThreshold();
-    else if (fThreshAlgName == "AlgoFirstPeak") 
+    else if (fThreshAlgName == "FirstPeak") 
               fThreshAlg = new pmtana::AlgoFirstPeak();
     else throw art::Exception(art::errors::UnimplementedFeature)
                     << "Cannot find implementation for " 
@@ -144,7 +145,7 @@ namespace opdet {
     fGenModule      = pset.get<std::string>("GenModule");
     fInputLabels    = pset.get<std::vector<std::string> >("InputLabels");
     fThreshAlgName  = pset.get< fhicl::ParameterSet >("algo_threshold")
-                          .get< std::string >("module_type");
+                          .get< std::string >("HitFinder");
     
     fChannelMapMode = pset.get<int>          ("ChannelMapMode");
 

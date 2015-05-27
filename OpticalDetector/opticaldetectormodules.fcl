@@ -109,9 +109,18 @@ standard_fifohistana:
 
 ###################################################################
 
+standard_algo_firstpeak:
+{
+    module_type:       "AlgoFirstPeak"
+    HitFinder:         "FirstPeak"
+}
+
+###################################################################
+
 standard_algo_threshold:
 {
     module_type:       "AlgoThreshold"
+    HitFinder:         "Threshold"
 }
 
 ###################################################################
