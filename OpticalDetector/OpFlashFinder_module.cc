@@ -15,10 +15,9 @@
 // LArSoft includes
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
-//#include "OpticalDetectorData/OpticalRawDigit.h"
 #include "RawData/OpDetWaveform.h"
 #include "OpticalDetector/AlgoThreshold.h"
-#include "OpticalDetector/AlgoLBNE.h"
+#include "OpticalDetector/AlgoFirstPeak.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpFlash.h"
@@ -120,9 +119,9 @@ namespace opdet {
     reconfigure(pset);
 
     if      (fThreshAlgName == "AlgoThreshold") 
-              fThreshAlg = new pmtana::AlgoThreshold;
-    else if (fThreshAlgName == "AlgoLBNE"     ) 
-              fThreshAlg = new pmtana::AlgoLBNE();
+              fThreshAlg = new pmtana::AlgoThreshold();
+    else if (fThreshAlgName == "AlgoFirstPeak") 
+              fThreshAlg = new pmtana::AlgoFirstPeak();
     else throw art::Exception(art::errors::UnimplementedFeature)
                     << "Cannot find implementation for " 
                     << fThreshAlgName << " algorithm.\n";   
@@ -286,7 +285,7 @@ namespace opdet {
 
     if(fChannelMapMode==0)
       {
-	for(size_t i=0; i!=132; ++i)
+	for(size_t i=0; i!=1000; ++i)
 	  ReturnMap[i] = i;
       }
     else if(fChannelMapMode==1)

@@ -58,7 +58,7 @@ namespace pmtana
     /// A variable holder for a user-defined absolute ADC threshold value
     double _adc_thres;
 
-    /// A variable holder for a multiplicative factor for the pedestal standard deviation to defin the threshold.
+    /// A variable holder for a multiplicative factor for the pedestal standard deviation to define the threshold.
     double _nsigma;
   
   };

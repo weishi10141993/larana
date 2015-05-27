@@ -44,7 +44,7 @@ namespace pmtana {
       // A variable holder for a user-defined absolute ADC threshold value
       double _adc_thres;
 
-      // A variable holder for a multiplicative factor for the pedestal standard deviation to difine the threshold
+      // A variable holder for a multiplicative factor for the pedestal standard deviation to define the threshold
       double _nsigma;
 
       // Functional response to one photoelectron (time in ticks)
