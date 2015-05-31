@@ -17,7 +17,7 @@
 #include "Geometry/OpDetGeo.h"
 #include "RawData/OpDetWaveform.h"
 #include "OpticalDetector/AlgoThreshold.h"
-#include "OpticalDetector/AlgoFirstPeak.h"
+#include "OpticalDetector/AlgoSiPM.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpFlash.h"
@@ -121,8 +121,9 @@ namespace opdet {
     // Initialize the hit finder
     if      (fThreshAlgName == "Threshold") 
               fThreshAlg = new pmtana::AlgoThreshold();
-    else if (fThreshAlgName == "FirstPeak") 
-              fThreshAlg = new pmtana::AlgoFirstPeak();
+    else if (fThreshAlgName == "SiPM") 
+              fThreshAlg = new pmtana::AlgoSiPM(
+                pset.get< fhicl::ParameterSet >("algo_threshold"));
     else throw art::Exception(art::errors::UnimplementedFeature)
                     << "Cannot find implementation for " 
                     << fThreshAlgName << " algorithm.\n";   

@@ -1,35 +1,33 @@
 //=======================
-// AlgoFirstPeak.cxx
+// AlgoSiPM.cxx
 //=======================
 
-#include "AlgoFirstPeak.h"
+#include "AlgoSiPM.h"
 
-#ifndef ALGOFIRSTPEAK_CXX
-#define ALGOFIRSTPEAK_CXX
+#ifndef ALGOSIPM_CXX
+#define ALGOSIPM_CXX
 
 namespace pmtana {
 
   //---------------------------------------------------------------------------
-  AlgoFirstPeak::AlgoFirstPeak()
+  AlgoSiPM::AlgoSiPM(const fhicl::ParameterSet &pset)
   {
 
-    //_adc_thres = 3;
-    //_adc_thres = 13;
-    _adc_thres = 5;
-    _min_width = 10;
+    _adc_thres = pset.get< float >("ADCThreshold");
+    _min_width = pset.get< float >("MinWidth");
 
-    _nsigma = 5;
+//    _nsigma = 5;
 
     Reset();
 
   }
 
   //---------------------------------------------------------------------------
-  AlgoFirstPeak::~AlgoFirstPeak()
+  AlgoSiPM::~AlgoSiPM()
   {}
 
   //---------------------------------------------------------------------------
-  void AlgoFirstPeak::Reset()
+  void AlgoSiPM::Reset()
   {
 
     PMTPulseRecoBase::Reset();
@@ -37,7 +35,7 @@ namespace pmtana {
   }
 
   //---------------------------------------------------------------------------
-  bool AlgoFirstPeak::RecoPulse(const std::vector< short > &wf)
+  bool AlgoSiPM::RecoPulse(const std::vector< short > &wf)
   {
     
     bool   fire        = false;

@@ -109,10 +109,12 @@ standard_fifohistana:
 
 ###################################################################
 
-standard_algo_firstpeak:
+standard_algo_sipm:
 {
-    module_type:       "AlgoFirstPeak"
-    HitFinder:         "FirstPeak"
+    module_type:       "AlgoSiPM"
+    HitFinder:         "SiPM"
+    ADCThreshold:      5
+    MinWidth:          10
 }
 
 ###################################################################
