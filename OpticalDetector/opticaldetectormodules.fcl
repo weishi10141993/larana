@@ -113,8 +113,10 @@ standard_algo_sipm:
 {
     module_type:       "AlgoSiPM"
     HitFinder:         "SiPM"
-    ADCThreshold:      5
+    ADCThreshold:      13
     MinWidth:          10
+    SecondThreshold:    1
+    Pedestal:        1500
 }
 
 ###################################################################

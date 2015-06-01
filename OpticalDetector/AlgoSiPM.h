@@ -35,7 +35,7 @@ namespace pmtana {
       virtual void Reset();
 
       // A method to set user-defined ADC threshold value
-      void SetADCThreshold(double v) {_adc_thres = v;};
+//      void SetADCThreshold(double v) {_adc_thres = v;};
 
       // A method to set a multiplication factor to the pedestal standard deviation
       // which is used as one of two input values to define a threshold
@@ -48,6 +48,12 @@ namespace pmtana {
 
       // Minimum width for a hit to be recorded
       int _min_width;
+
+      // Start recording hit information after this threshold is reached
+      double _2nd_thres;
+
+      // Use this pedestal instead of the one given by the pedestal algorithm
+      double _pedestal;
 
       // A variable holder for a multiplicative factor for the pedestal 
       // standard deviation to define the threshold
