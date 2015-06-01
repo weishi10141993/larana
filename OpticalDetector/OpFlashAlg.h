@@ -36,6 +36,7 @@ namespace opdet{
 		      float const&,
 		      util::TimeService const&,
 		      std::vector<double> const&,
+          bool const&,
 		      float const&);
 
   void ConstructHit( float const&, 
@@ -44,6 +45,7 @@ namespace opdet{
 		     pmtana::pulse_param const&,
 		     util::TimeService const&,
 		     double const&,
+         bool const&,
 		     std::vector<recob::OpHit>&);
 
   unsigned int GetAccumIndex(double const& TMax, 

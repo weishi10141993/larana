@@ -88,6 +88,8 @@ namespace opdet {
     Float_t  fHitThreshold;
     Float_t  fWidthTolerance;
     Double_t fTrigCoinc;
+    Bool_t   fAreaToPE;
+    Float_t  fSPEArea;
     
 
     unsigned int fNplanes;
@@ -155,6 +157,8 @@ namespace opdet {
     fWidthTolerance = pset.get<float>        ("WidthTolerance");
     fTrigCoinc      = pset.get<double>       ("TrigCoinc");
     fHitThreshold   = pset.get<float>        ("HitThreshold");
+    fAreaToPE       = pset.get<bool>         ("AreaToPE");
+    fSPEArea        = pset.get<float>        ("SPEArea");
     
 
     art::ServiceHandle<geo::Geometry> geom;
@@ -249,6 +253,7 @@ namespace opdet {
                    fWidthTolerance,
                    ts,
                    fSPESize,
+                   fAreaToPE,
                    fTrigCoinc);
 
 
@@ -268,9 +273,12 @@ namespace opdet {
   std::vector<double> OpFlashFinder::GetSPEScales()
   {
     // This will eventually interface to some kind of gain service
-    //  or database.  For now all SPE scales are set to 20 ADC.
+    // or database. For now all SPE scales are set to 20 ADC.
+    // Alternatively all SPE scales are set to fSPEArea 
+    // if hit area is used to calculate number of PEs.
   
-    return std::vector<double>(fNOpChannels,20);
+    if (fAreaToPE) return std::vector<double>(fNOpChannels,fSPEArea);
+    else           return std::vector<double>(fNOpChannels,20);
   }
 
   //-----------------------------------------------------------------------

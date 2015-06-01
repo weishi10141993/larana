@@ -59,6 +59,7 @@ namespace opdet{
 		    float const& WidthTolerance,
 		    util::TimeService const& ts,
 		    std::vector<double> const& SPESize, 
+        bool const& AreaToPE,
 		    float const& TrigCoinc)
 
   {
@@ -105,6 +106,7 @@ namespace opdet{
 		      ThreshAlg.GetPulse(k),
 		      ts,
 		      SPESize.at(Channel),
+          AreaToPE,
 		      HitVector );
 
 	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
@@ -204,6 +206,7 @@ namespace opdet{
 		     pmtana::pulse_param const& pulse,
 		     util::TimeService const& ts,
 		     double const& SPESize,
+         bool const& AreaToPE,
 		     std::vector<recob::OpHit>& HitVector)
   {
     if( pulse.peak<HitThreshold ) return;
@@ -214,7 +217,9 @@ namespace opdet{
     
     int    Frame   = ts.OpticalClock().Frame(TimeStamp);
 
-    double PE      = pulse.peak / SPESize;
+    double PE      = 0.0;
+    if (AreaToPE) PE = pulse.area / SPESize;
+    else          PE = pulse.peak / SPESize;
     
     double width   = ( pulse.t_end - pulse.t_start ) * ts.OpticalClock().TickPeriod();
 
