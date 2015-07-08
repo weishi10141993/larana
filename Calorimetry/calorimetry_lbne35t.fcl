@@ -17,6 +17,7 @@ lbne35t_calodata:
  UseArea:		 true
  CaloAlg:	         @local::lbne35t_calorimetryalgdata
 }
+lbne35t_calodata.CaloAlg.CaloUseModBox: true
 
 lbne35t_calomc:
 {
@@ -28,5 +29,6 @@ lbne35t_calomc:
  MakeTree:               false
  CaloAlg:	         @local::lbne35t_calorimetryalgmc
 }
+lbne35t_calomc.CaloAlg.CaloUseModBox: true
 
 END_PROLOG
