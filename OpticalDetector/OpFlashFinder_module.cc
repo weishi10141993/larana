@@ -273,7 +273,7 @@ namespace opdet {
     // if hit area is used to calculate number of PEs.
   
     if (fAreaToPE) return std::vector<double>(fNOpChannels,fSPEArea);
-    else           return std::vector<double>(fNOpChannels,20);
+    else           return std::vector<double>(1000,20); // temp fix while we work out the expeiment-agnostic service that provides this info.
   }
 
 
