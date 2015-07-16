@@ -82,7 +82,6 @@ namespace opdet {
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::PMTPulseRecoBase* fThreshAlg;
 
-    Int_t    fChannelMapMode;
     Int_t    fBinWidth;
     Float_t  fFlashThreshold;
     Float_t  fHitThreshold;
@@ -96,7 +95,7 @@ namespace opdet {
     unsigned int fNOpChannels;
    
     std::vector<double> fSPESize;
-    std::map<int, int>  fChannelMap;
+
   };
 
 
@@ -150,8 +149,6 @@ namespace opdet {
     fThreshAlgName  = pset.get< fhicl::ParameterSet >("algo_threshold")
                           .get< std::string >("HitFinder");
     
-    fChannelMapMode = pset.get<int>          ("ChannelMapMode");
-
     fBinWidth       = pset.get<int>          ("BinWidth");
     fFlashThreshold = pset.get<float>        ("FlashThreshold");
     fWidthTolerance = pset.get<float>        ("WidthTolerance");
@@ -166,7 +163,6 @@ namespace opdet {
     fNplanes     = geom->Nplanes();
     
     fSPESize     = GetSPEScales();
-    fChannelMap  = GetChannelMap();
 
   }
 
@@ -246,7 +242,6 @@ namespace opdet {
                    fBinWidth,
                    fPulseRecoMgr,
                    *fThreshAlg,
-                   fChannelMap,
                    Geometry,
                    fHitThreshold,
                    fFlashThreshold,
@@ -281,73 +276,6 @@ namespace opdet {
     else           return std::vector<double>(fNOpChannels,20);
   }
 
-  //-----------------------------------------------------------------------
-  std::map<int, int>  OpFlashFinder::GetChannelMap()
-  {
-    // This will eventually interface to a shaper map database
-    // For now just hacked in by hand.
-    // 
-    // Two modes at present:
-    //  Mode0 : direct map for MC, 1<->1, 2<->2, etc
-    //  Mode1 : shaper map as used in PMT pre-com
-    //
-    std::map<int,int> ReturnMap;
-
-    if(fChannelMapMode==0)
-      {
-	for(size_t i=0; i!=1000; ++i)
-	  ReturnMap[i] = i;
-      }
-    else if(fChannelMapMode==1)
-      {
-	ReturnMap[0] = 5; 
-	ReturnMap[1] = 4;
-	ReturnMap[2] = 7;
-	ReturnMap[3] = 6;  
-	ReturnMap[4] = 2;
-	ReturnMap[5] = 1;
-	ReturnMap[6] = 0;
-	ReturnMap[7] = 3;
-	ReturnMap[8] = 13;
-	ReturnMap[9] = 12;
-	ReturnMap[10]= 15;
-	ReturnMap[11]= 14;
-	ReturnMap[12]= 10;
-	ReturnMap[13]= 9;
-	ReturnMap[14]= 8;
-	ReturnMap[15]= 11;
-	ReturnMap[16]= 21;
-	ReturnMap[17]= 20;
-	ReturnMap[18]= 23;
-	ReturnMap[19]= 22;
-	ReturnMap[20]= 18;
-	ReturnMap[21]= 17;
-	ReturnMap[22]= 16;
-	ReturnMap[23]= 19;
-	ReturnMap[24]= 29;
-	ReturnMap[25]= 28;
-	ReturnMap[26]= -1;  // eventually 31
-	ReturnMap[27]= -1;  // eventually 30
-	ReturnMap[28]= 26;
-	ReturnMap[29]= 25;
-	ReturnMap[30]= 24;
-	ReturnMap[31]= 27;
-	ReturnMap[32]= -1;
-	ReturnMap[33]= -1;
-	ReturnMap[34]= -1;
-	ReturnMap[35]= -1;
-	ReturnMap[36]= -1;
-	ReturnMap[37]= -1; // eventually paddle1
-	ReturnMap[38]= -1; // eventually paddle2
-	ReturnMap[39]= -1; // eventually paddle3
-	ReturnMap[40]= -1; // eventually paddle4
-      }
-    else
-      {
-	mf::LogError("OpFlashFinder") << "Error : Unknown channel map mode!";
-      }
-    return ReturnMap;
-  }
 
 
 } // namespace opdet

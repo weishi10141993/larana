@@ -29,7 +29,6 @@ namespace opdet{
 		      double const&,
 		      pmtana::PulseRecoManager const&,
 		      pmtana::PMTPulseRecoBase const&,
-		      std::map<int,int> const&,
 		      geo::Geometry const&,
 		      float const&,
 		      float const&,

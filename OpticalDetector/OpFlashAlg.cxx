@@ -52,14 +52,13 @@ namespace opdet{
 		    double const& BinWidth,
 		    pmtana::PulseRecoManager const& PulseRecoMgr,
 		    pmtana::PMTPulseRecoBase const& ThreshAlg,
-		    std::map<int,int> const& ChannelMap,
 		    geo::Geometry const& geom,
 		    float const& HitThreshold,
 		    float const& FlashThreshold,
 		    float const& WidthTolerance,
 		    util::TimeService const& ts,
 		    std::vector<double> const& SPESize, 
-        bool const& AreaToPE,
+		    bool const& AreaToPE,
 		    float const& TrigCoinc)
 
   {
@@ -83,14 +82,13 @@ namespace opdet{
     std::vector<int> FlashesInAccumulator2;
     
     const size_t NHits_prev = HitVector.size();
-    unsigned int NOpChannels = geom.NOpChannels();
 
     for(auto const& wf_ptr : OpDetWaveformVector){
 
-      const int Channel = ChannelMap.at((int)wf_ptr.ChannelNumber());
+      const int Channel = (int)wf_ptr.ChannelNumber();
       const double TimeStamp = wf_ptr.TimeStamp();
 
-      if( Channel<0 || Channel > int(NOpChannels - 1) ) {
+      if( !geom.IsValidOpChannel( Channel ) ) {
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
 	continue;
       }
@@ -106,7 +104,7 @@ namespace opdet{
 		      ThreshAlg.GetPulse(k),
 		      ts,
 		      SPESize.at(Channel),
-          AreaToPE,
+		      AreaToPE,
 		      HitVector );
 
 	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
