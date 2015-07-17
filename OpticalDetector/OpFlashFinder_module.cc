@@ -93,6 +93,7 @@ namespace opdet {
 
     unsigned int fNplanes;
     unsigned int fNOpChannels;
+    unsigned int fMaxOpChannel;
    
     std::vector<double> fSPESize;
 
@@ -159,8 +160,9 @@ namespace opdet {
     
 
     art::ServiceHandle<geo::Geometry> geom;
-    fNOpChannels = geom->NOpChannels();
-    fNplanes     = geom->Nplanes();
+    fNOpChannels  = geom->NOpChannels();
+    fMaxOpChannel = geom->MaxOpChannel();
+    fNplanes      = geom->Nplanes();
     
     fSPESize     = GetSPEScales();
 
@@ -271,9 +273,9 @@ namespace opdet {
     // or database. For now all SPE scales are set to 20 ADC.
     // Alternatively all SPE scales are set to fSPEArea 
     // if hit area is used to calculate number of PEs.
-  
+    
     if (fAreaToPE) return std::vector<double>(fNOpChannels,fSPEArea);
-    else           return std::vector<double>(1000,20); // temp fix while we work out the expeiment-agnostic service that provides this info.
+    else           return std::vector<double>(fMaxOpChannel+1,20); // temp fix while we work out the expeiment-agnostic service that provides this info.
   }
 
 
