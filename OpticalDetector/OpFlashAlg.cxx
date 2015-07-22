@@ -569,7 +569,7 @@ namespace opdet{
     
     // These are totals
     TotalPE     += PEThisHit;
-    PEs.at(currentHit.OpChannel())+=PEThisHit;
+    PEs.at((unsigned int)currentHit.OpChannel())+=PEThisHit;
 
   }
 
@@ -612,7 +612,7 @@ namespace opdet{
 
     double MaxTime = -1e9, MinTime = 1e9;
     
-    std::vector<double> PEs(geom.NOpChannels(),0);
+    std::vector<double> PEs(geom.MaxOpChannel()+1,0.0);
     unsigned int Nplanes = geom.Nplanes();
     std::vector<double> sumw(Nplanes,0), sumw2(Nplanes,0);
     

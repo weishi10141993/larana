@@ -172,9 +172,11 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
     for(auto flash : flashesOnBeamTime){
       cOpDetVector_flash = std::vector<float>(geom.NOpDets(),0);  
       cFlashComparison_p.flash_nOpDet = 0;
-      for(size_t c=0; c<geom.NOpChannels(); c++){
-        unsigned int OpDet = geom.OpDetFromOpChannel(c);
-	cOpDetVector_flash[OpDet] += flash.second->PE(c);
+      for(size_t c=0; c<=geom.MaxOpChannel(); c++){
+	if ( geom.IsValidOpChannel( c ) ) {
+	  unsigned int OpDet = geom.OpDetFromOpChannel(c);
+	  cOpDetVector_flash[OpDet] += flash.second->PE(c);
+	}
       }
       for(size_t o=0; o<cOpDetVector_flash.size(); o++)
 	if(cOpDetVector_flash[o] < fMinOpHitPE) cFlashComparison_p.flash_nOpDet++;
@@ -259,9 +261,12 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
     for(auto flash : flashesOnBeamTime){
       cOpDetVector_flash = std::vector<float>(geom.NOpDets(),0);  
       cFlashComparison_p.flash_nOpDet = 0;
-      for(size_t c=0; c<geom.NOpChannels(); c++){
-        unsigned int OpDet = geom.OpDetFromOpChannel(c);
-	cOpDetVector_flash[OpDet] += flash.second->PE(c);
+      //for(size_t c=0; c<geom.NOpChannels(); c++){
+      for(size_t c=0; c<=geom.MaxOpChannel(); c++){
+	if ( geom.IsValidOpChannel(c) ) {
+	  unsigned int OpDet = geom.OpDetFromOpChannel(c);
+	  cOpDetVector_flash[OpDet] += flash.second->PE(c);
+	}
       }
       for(size_t o=0; o<cOpDetVector_flash.size(); o++)
 	if(cOpDetVector_flash[o] < fMinOpHitPE) cFlashComparison_p.flash_nOpDet++;
@@ -453,9 +458,12 @@ cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> cons
   unsigned int cumulativeChannels=0;
 
   std::vector<double> PEbyOpDet(geom.NOpDets(),0);
-  for (unsigned int c = 0; c < geom.NOpChannels(); c++){
-    unsigned int o = geom.OpDetFromOpChannel(c);
-    PEbyOpDet[o] += flashPointer->PE(c);
+  //for (unsigned int c = 0; c < geom.NOpChannels(); c++){
+  for (unsigned int c = 0; c <= geom.MaxOpChannel(); c++){
+    if ( geom.IsValidOpChannel(c) ) {
+      unsigned int o = geom.OpDetFromOpChannel(c);
+      PEbyOpDet[o] += flashPointer->PE(c);
+    }
   }
   
   float hypothesis_scale=1.;
@@ -555,9 +563,12 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintHypothesisFlashComparison(std::v
 
   
   std::vector<double> PEbyOpDet(geom.NOpDets(),0);
-  for (unsigned int c = 0; c < geom.NOpChannels(); c++){
-    unsigned int o = geom.OpDetFromOpChannel(c);
-    PEbyOpDet[o] += flashPointer->PE(c);
+  //for (unsigned int c = 0; c < geom.NOpChannels(); c++){
+  for ( unsigned int c = 0; c <= geom.MaxOpChannel(); c++){
+    if ( geom.IsValidOpChannel(c) ) {
+      unsigned int o = geom.OpDetFromOpChannel(c);
+      PEbyOpDet[o] += flashPointer->PE(c);
+    }
   }
 
   for(size_t pmt_i=0; pmt_i<lightHypothesis.size(); pmt_i++){
