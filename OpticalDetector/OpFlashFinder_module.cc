@@ -274,6 +274,7 @@ namespace opdet {
   
     if (fAreaToPE) return std::vector<double>(fNOpChannels,fSPEArea);
     else           return std::vector<double>(1000,20); // temp fix while we work out the expeiment-agnostic service that provides this info.
+    // else           return std::vector<double>(fNOpChannels,20); // this is the correct line
   }
 
 
