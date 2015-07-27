@@ -1,11 +1,32 @@
-////////////////////////////////////////////////////////////////////////
-// Class:       MCTruthT0Matching
-// Module Type: producer
-// File:        MCTruthT0Matching_module.cc
-//
-// Generated at Wed Mar 25 13:54:28 2015 by Thomas Warburton using artmod
-// from cetpkgsupport v1_08_04.
-////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/// Class:       MCTruthT0Matching
+/// Module Type: producer
+/// File:        MCTruthT0Matching_module.cc
+///
+/// Author:         Thomas Karl Warburton
+/// E-mail address: k.warburton@sheffield.ac.uk
+///
+/// Generated at Wed Mar 25 13:54:28 2015 by Thomas Warburton using artmod
+/// from cetpkgsupport v1_08_04.
+///
+/// This module accesses the Monte Carlo Truth information stored in the ART
+/// event and matches that with a track. It does this by looping through the
+/// tracks in the event and looping through each hit in the track.
+/// For each hit it uses the backtracker service to work out the charge which
+/// each MCTruth particle contributed to the total charge desposited for the
+/// hit.
+/// The MCTruth particle which is ultimately assigned to the track is simply
+/// the particle which deposited the most charge.
+/// It then stores an ART anab::T0 object which has the following variables;
+/// 1) Generation time of the MCTruth particle assigned to track, in ns.
+/// 2) The trigger type used to assign T0 (in this case 2 for MCTruth)
+/// 3) The Geant4 TrackID of the particle (so can access all MCTrtuh info in
+///     subsequent modules).
+/// 4) The track number of this track in this event.
+///
+/// The module takes a reconstructed track as input.
+/// The module outputs an anab::T0 object
+/////////////////////////////////////////////////////////////////////////////
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
