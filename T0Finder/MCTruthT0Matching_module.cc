@@ -165,18 +165,14 @@ void lbne::MCTruthT0Matching::produce(art::Event & evt)
   std::vector<art::Ptr<recob::Track> > tracklist;
   if (evt.getByLabel(fTrackModuleLabel,trackListHandle))
     art::fill_ptr_vector(tracklist, trackListHandle); 
-  if (!trackListHandle.isValid()) trackListHandle.clear();
+  //if (!trackListHandle.isValid()) trackListHandle.clear();
 
   //ShowerList handle
   art::Handle< std::vector<recob::Shower> > showerListHandle;
   std::vector<art::Ptr<recob::Shower> > showerlist;
   if (evt.getByLabel(fShowerModuleLabel,showerListHandle))
     art::fill_ptr_vector(showerlist, showerListHandle); 
-  if (!showerListHandle.isValid()) showerListHandle.clear();
-
-  //Access tracks and hits
-  art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
-  art::FindManyP<recob::Hit> fmsht(showerListHandle,evt, fShowerModuleLabel);
+  //if (!showerListHandle.isValid()) showerListHandle.clear();
 
   // Create anab::T0 objects and make association with recob::Track
   
@@ -184,95 +180,103 @@ void lbne::MCTruthT0Matching::produce(art::Event & evt)
   std::unique_ptr< art::Assns<recob::Track, anab::T0> > Trackassn( new art::Assns<recob::Track, anab::T0>);
   std::unique_ptr< art::Assns<recob::Shower, anab::T0> > Showerassn( new art::Assns<recob::Shower, anab::T0>);
 
-  size_t NTracks = tracklist.size();
+  if (trackListHandle.isValid()){
+  //Access tracks and hits
+    art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
+    
+    size_t NTracks = tracklist.size();
+    
+    // Now to access MCTruth for each track... 
+    for(size_t iTrk=0; iTrk < NTracks; ++iTrk) { 
+      TrueTrackT0 = 0;
+      TrackID     = 0;
+      TrueTrackID = 0;
+      std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
+      
+      std::map<int,double> trkide;
+      for(size_t h = 0; h < allHits.size(); ++h){
+	art::Ptr<recob::Hit> hit = allHits[h];
+	std::vector<sim::IDE> ides;
+	std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
+	
+	for(size_t e = 0; e < TrackIDs.size(); ++e){
+	  trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
+	}
+      }
+      // Work out which IDE despoited the most charge in the hit if there was more than one.
+      double maxe = -1;
+      double tote = 0;
+      for (std::map<int,double>::iterator ii = trkide.begin(); ii!=trkide.end(); ++ii){
+	tote += ii->second;
+	if ((ii->second)>maxe){
+	  maxe = ii->second;
+	  TrackID = ii->first;
+	}
+      }
+      
+      // Now have trackID, so get PdG code and T0 etc.
+      const simb::MCParticle *particle = bt->TrackIDToParticle(TrackID);
+      TrueTrackT0 = particle->T();
+      TrueTrackID = particle->TrackId();
+      
+      TrueTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
+      
+      //std::cout << "Filling T0col with " << TrueTrackT0 << " " << TrueTriggerType << " " << TrueTrackID << " " << (*T0col).size() << std::endl;
+      
+      T0col->push_back(anab::T0(TrueTrackT0,
+				TrueTriggerType,
+				TrueTrackID,
+				(*T0col).size()
+				));
+      util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);    
+      fTree -> Fill();  
+    } // Loop over tracks   
+  }
   
-  // Now to access MCTruth for each track... 
-  for(size_t iTrk=0; iTrk < NTracks; ++iTrk) { 
-    TrueTrackT0 = 0;
-    TrackID     = 0;
-    TrueTrackID = 0;
-    std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
+  if (showerListHandle.isValid()){
+    art::FindManyP<recob::Hit> fmsht(showerListHandle,evt, fShowerModuleLabel);
+    // Now Loop over showers....
+    size_t NShowers = showerlist.size();
+    for (size_t Shower = 0; Shower < NShowers; ++Shower) {
+      ShowerMatchID     = 0;
+      ShowerID          = 0;
+      ShowerT0          = 0;
+      std::vector< art::Ptr<recob::Hit> > allHits = fmsht.at(Shower);
       
-    std::map<int,double> trkide;
-    for(size_t h = 0; h < allHits.size(); ++h){
-      art::Ptr<recob::Hit> hit = allHits[h];
-      std::vector<sim::IDE> ides;
-      std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
-
-      for(size_t e = 0; e < TrackIDs.size(); ++e){
-	trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
+      std::map<int,double> showeride;
+      for(size_t h = 0; h < allHits.size(); ++h){
+	art::Ptr<recob::Hit> hit = allHits[h];
+	std::vector<sim::IDE> ides;
+	std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
+	
+	for(size_t e = 0; e < TrackIDs.size(); ++e){
+	  showeride[TrackIDs[e].trackID] += TrackIDs[e].energy;
+	}
       }
-    }
-    // Work out which IDE despoited the most charge in the hit if there was more than one.
-    double maxe = -1;
-    double tote = 0;
-    for (std::map<int,double>::iterator ii = trkide.begin(); ii!=trkide.end(); ++ii){
-      tote += ii->second;
-      if ((ii->second)>maxe){
-	maxe = ii->second;
-	TrackID = ii->first;
+      // Work out which IDE despoited the most charge in the hit if there was more than one.
+      double maxe = -1;
+      double tote = 0;
+      for (std::map<int,double>::iterator ii = showeride.begin(); ii!=showeride.end(); ++ii){
+	tote += ii->second;
+	if ((ii->second)>maxe){
+	  maxe = ii->second;
+	  ShowerID = ii->first;
+	}
       }
-    }
-
-    // Now have trackID, so get PdG code and T0 etc.
-    const simb::MCParticle *particle = bt->TrackIDToParticle(TrackID);
-    TrueTrackT0 = particle->T();
-    TrueTrackID = particle->TrackId();
-        
-    TrueTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
-
-    //std::cout << "Filling T0col with " << TrueTrackT0 << " " << TrueTriggerType << " " << TrueTrackID << " " << (*T0col).size() << std::endl;
-    
-    T0col->push_back(anab::T0(TrueTrackT0,
-			      TrueTriggerType,
-			      TrueTrackID,
-			      (*T0col).size()
-			      ));
-    util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);    
-    fTree -> Fill();  
-  } // Loop over tracks   
-
-  // Now Loop over showers....
-  size_t NShowers = showerlist.size();
-  for (size_t Shower = 0; Shower < NShowers; ++Shower) {
-    ShowerMatchID     = 0;
-    ShowerID          = 0;
-    ShowerT0          = 0;
-    std::vector< art::Ptr<recob::Hit> > allHits = fmsht.at(Shower);
-
-    std::map<int,double> showeride;
-    for(size_t h = 0; h < allHits.size(); ++h){
-      art::Ptr<recob::Hit> hit = allHits[h];
-      std::vector<sim::IDE> ides;
-      std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
+      // Now have MCParticle trackID corresponding to shower, so get PdG code and T0 etc.
+      const simb::MCParticle *particle = bt->TrackIDToParticle(ShowerID);
+      ShowerT0 = particle->T();
+      ShowerID = particle->TrackId();
+      ShowerTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
       
-      for(size_t e = 0; e < TrackIDs.size(); ++e){
-	showeride[TrackIDs[e].trackID] += TrackIDs[e].energy;
-      }
-    }
-    // Work out which IDE despoited the most charge in the hit if there was more than one.
-    double maxe = -1;
-    double tote = 0;
-    for (std::map<int,double>::iterator ii = showeride.begin(); ii!=showeride.end(); ++ii){
-      tote += ii->second;
-      if ((ii->second)>maxe){
-	maxe = ii->second;
-	ShowerID = ii->first;
-      }
-    }
-    // Now have MCParticle trackID corresponding to shower, so get PdG code and T0 etc.
-    const simb::MCParticle *particle = bt->TrackIDToParticle(ShowerID);
-    ShowerT0 = particle->T();
-    ShowerID = particle->TrackId();
-    ShowerTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
-    
-    T0col->push_back(anab::T0(ShowerT0,
-			      ShowerTriggerType,
-			      ShowerID,
-			      (*T0col).size()
-			      ));
-    util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);    
-  }// Loop over showers
+      T0col->push_back(anab::T0(ShowerT0,
+				ShowerTriggerType,
+				ShowerID,
+				(*T0col).size()
+				));
+      util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);    
+    }// Loop over showers
+  }
   
   evt.put(std::move(T0col));
   evt.put(std::move(Trackassn));
