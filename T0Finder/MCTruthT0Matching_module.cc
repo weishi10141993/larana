@@ -24,6 +24,10 @@
 ///     subsequent modules).
 /// 4) The track number of this track in this event.
 ///
+/// The module has been extended to also associate an anab::T0 object with a
+/// recob::Shower. It does this following the same algorithm, where
+/// recob::Track has been replaced with recob::Shower. 
+///
 /// The module takes a reconstructed track as input.
 /// The module outputs an anab::T0 object
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +62,7 @@
 #include "RecoBase/Hit.h"
 #include "RecoBase/SpacePoint.h"
 #include "RecoBase/Track.h"
+#include "RecoBase/Shower.h"
 #include "Utilities/AssociationUtil.h"
 #include "Utilities/LArProperties.h"
 #include "Utilities/DetectorProperties.h"
@@ -100,13 +105,19 @@ private:
   
   // Params got from fcl file
   std::string fTrackModuleLabel;
+  std::string fShowerModuleLabel;
 
   // Variable in TFS branches
   TTree* fTree;
-  int    TrackID      = 0;
-  int    TrueTrackID  = 0;
+  int    TrackID         = 0;
+  int    TrueTrackID     = 0;
   int    TrueTriggerType = 0;
-  double TrueTrackT0  = 0;  
+  double TrueTrackT0     = 0;  
+
+  int    ShowerID          = 0;
+  int    ShowerMatchID     = 0;
+  int    ShowerTriggerType = 0;
+  double ShowerT0          = 0;
 };
 
 
@@ -115,15 +126,17 @@ lbne::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
 // Initialize member data here, if know don't want to reconfigure on the fly
 {
   // Call appropriate produces<>() functions here.
-  produces< std::vector<anab::T0>             >();
-  produces< art::Assns<recob::Track, anab::T0> >();
+  produces< std::vector<anab::T0>               >();
+  produces< art::Assns<recob::Track , anab::T0> >();
+  produces< art::Assns<recob::Shower, anab::T0> > ();
   reconfigure(p);
 }
 
 void lbne::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
 {
   // Implementation of optional member function here.
-  fTrackModuleLabel = (p.get< std::string > ("TrackModuleLabel") );
+  fTrackModuleLabel  = (p.get< std::string > ("TrackModuleLabel" ) );
+  fShowerModuleLabel = (p.get< std::string > ("ShowerModuleLabel") );
 }
 
 void lbne::MCTruthT0Matching::beginJob()
@@ -131,10 +144,10 @@ void lbne::MCTruthT0Matching::beginJob()
   // Implementation of optional member function here.
   art::ServiceHandle<art::TFileService> tfs;
   fTree = tfs->make<TTree>("MCTruthT0Matching","MCTruthT0");
-  fTree->Branch("TrueTrackID" ,&TrueTrackID ,"TrueTrackID/I");
-  fTree->Branch("TrueTrackT0" ,&TrueTrackT0 ,"TrueTrackT0/D");
+  fTree->Branch("TrueTrackT0",&TrueTrackT0,"TrueTrackT0/D");
   fTree->Branch("TrueTrackID",&TrueTrackID,"TrueTrackID/D");
-
+  //fTree->Branch("ShowerID"   ,&ShowerID   ,"ShowerID/I"   );
+  //fTree->Branch("ShowerT0"   ,&ShowerT0   ,"ShowerT0/D"   );
 }
 
 void lbne::MCTruthT0Matching::produce(art::Event & evt)
@@ -152,14 +165,24 @@ void lbne::MCTruthT0Matching::produce(art::Event & evt)
   std::vector<art::Ptr<recob::Track> > tracklist;
   if (evt.getByLabel(fTrackModuleLabel,trackListHandle))
     art::fill_ptr_vector(tracklist, trackListHandle); 
+  if (!trackListHandle.isValid()) trackListHandle.clear();
+
+  //ShowerList handle
+  art::Handle< std::vector<recob::Shower> > showerListHandle;
+  std::vector<art::Ptr<recob::Shower> > showerlist;
+  if (evt.getByLabel(fShowerModuleLabel,showerListHandle))
+    art::fill_ptr_vector(showerlist, showerListHandle); 
+  if (!showerListHandle.isValid()) showerListHandle.clear();
 
   //Access tracks and hits
-  art::FindManyP<recob::Hit>       fmht(trackListHandle, evt, fTrackModuleLabel);
-  
+  art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
+  art::FindManyP<recob::Hit> fmsht(showerListHandle,evt, fShowerModuleLabel);
+
   // Create anab::T0 objects and make association with recob::Track
   
   std::unique_ptr< std::vector<anab::T0> > T0col( new std::vector<anab::T0>);
-  std::unique_ptr< art::Assns<recob::Track, anab::T0> > assn( new art::Assns<recob::Track, anab::T0>);
+  std::unique_ptr< art::Assns<recob::Track, anab::T0> > Trackassn( new art::Assns<recob::Track, anab::T0>);
+  std::unique_ptr< art::Assns<recob::Shower, anab::T0> > Showerassn( new art::Assns<recob::Shower, anab::T0>);
 
   size_t NTracks = tracklist.size();
   
@@ -168,7 +191,7 @@ void lbne::MCTruthT0Matching::produce(art::Event & evt)
     TrueTrackT0 = 0;
     TrackID     = 0;
     TrueTrackID = 0;
-    std::vector< art::Ptr<recob::Hit> > allHits = fmht.at(iTrk);
+    std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
       
     std::map<int,double> trkide;
     for(size_t h = 0; h < allHits.size(); ++h){
@@ -205,12 +228,55 @@ void lbne::MCTruthT0Matching::produce(art::Event & evt)
 			      TrueTrackID,
 			      (*T0col).size()
 			      ));
-    util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *assn);    
+    util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);    
     fTree -> Fill();  
   } // Loop over tracks   
 
+  // Now Loop over showers....
+  size_t NShowers = showerlist.size();
+  for (size_t Shower = 0; Shower < NShowers; ++Shower) {
+    ShowerMatchID     = 0;
+    ShowerID          = 0;
+    ShowerT0          = 0;
+    std::vector< art::Ptr<recob::Hit> > allHits = fmsht.at(Shower);
+
+    std::map<int,double> showeride;
+    for(size_t h = 0; h < allHits.size(); ++h){
+      art::Ptr<recob::Hit> hit = allHits[h];
+      std::vector<sim::IDE> ides;
+      std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
+      
+      for(size_t e = 0; e < TrackIDs.size(); ++e){
+	showeride[TrackIDs[e].trackID] += TrackIDs[e].energy;
+      }
+    }
+    // Work out which IDE despoited the most charge in the hit if there was more than one.
+    double maxe = -1;
+    double tote = 0;
+    for (std::map<int,double>::iterator ii = showeride.begin(); ii!=showeride.end(); ++ii){
+      tote += ii->second;
+      if ((ii->second)>maxe){
+	maxe = ii->second;
+	ShowerID = ii->first;
+      }
+    }
+    // Now have MCParticle trackID corresponding to shower, so get PdG code and T0 etc.
+    const simb::MCParticle *particle = bt->TrackIDToParticle(ShowerID);
+    ShowerT0 = particle->T();
+    ShowerID = particle->TrackId();
+    ShowerTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
+    
+    T0col->push_back(anab::T0(ShowerT0,
+			      ShowerTriggerType,
+			      ShowerID,
+			      (*T0col).size()
+			      ));
+    util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);    
+  }// Loop over showers
+  
   evt.put(std::move(T0col));
-  evt.put(std::move(assn));
+  evt.put(std::move(Trackassn));
+  evt.put(std::move(Showerassn));
 
 } // Produce
 

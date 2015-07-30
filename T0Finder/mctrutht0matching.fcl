@@ -3,7 +3,8 @@ BEGIN_PROLOG
 standard_mctrutht0matching:
 {
     module_type:              "MCTruthT0Matching"
-    TrackModuleLabel:         "stitch"
+    TrackModuleLabel:         ""
+    ShowerModuleLabel:        ""
 #   TrackModuleLabel:         "track3d"
 
 }
