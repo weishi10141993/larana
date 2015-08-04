@@ -22,7 +22,6 @@ simple_plugin(MCTruthT0Matching "module"
 			${MF_UTILITIES}
 			${CETLIB}
 			${ROOT_BASIC_LIB_LIST}
-              BASENAME_ONLY
 )
 
 install_headers()
