@@ -1,0 +1,18 @@
+BEGIN_PROLOG
+
+standard_photoncountert0matching:
+{
+    module_type:        "PhotonCounterT0Matching"
+    FlashModuleLabel:   "opflash"
+    TrackModuleLabel:   ""
+    HitsModuleLabel:    ""
+    ShowerModuleLabel:  ""
+    TruthT0ModuleLabel: ""
+    PredictedConstant:  5.30063
+    PredictedSlope:     -0.00394097
+    DriftTicks:         3200
+}
+
+lbne35t_photoncountert0matching:    @local::standard_photoncountert0matching
+
+END_PROLOG
