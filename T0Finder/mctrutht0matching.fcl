@@ -9,6 +9,6 @@ standard_mctrutht0matching:
 
 }
 
-lbne35t_mctrutht0matching:    @local::standard_mctrutht0matching
+dune35t_mctrutht0matching:    @local::standard_mctrutht0matching
 
 END_PROLOG
