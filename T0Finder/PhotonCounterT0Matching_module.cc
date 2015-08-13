@@ -121,7 +121,9 @@ private:
   std::string fTruthT0ModuleLabel;
   double fPredConst;
   double fPredSlope;
-  int    fDriftTicks;
+  double fDriftWindowSize;
+  double fWeightOfDeltaYZ;
+  double fMatchCriteria;
 
   // Variables used in module.......
   std::vector<double> trackStart;
@@ -153,6 +155,8 @@ private:
   TH2D* hdeltaYZ_Length;
   TH2D* hFitParam_Length;
   TH2D* hPhotonT0_MCT0;
+  TH1D* hT0_diff_full;
+  TH1D* hT0_diff_zoom;
 };
 
 
@@ -175,10 +179,12 @@ void lbne::PhotonCounterT0Matching::reconfigure(fhicl::ParameterSet const & p)
   fHitsModuleLabel    = (p.get< std::string > ("HitsModuleLabel"  ) );
   fFlashModuleLabel   = (p.get< std::string > ("FlashModuleLabel" ) );
   fTruthT0ModuleLabel = (p.get< std::string > ("TruthT0ModuleLabel"));
-  fPredConst  = (p.get< double > ("PredictedConstant" ) );
-  fPredSlope  = (p.get< double > ("PredictedSlope"    ) );
-  fDriftTicks = (p.get< int    > ("DriftTicks"        ) );
-  }
+  fPredConst       = (p.get< double > ("PredictedConstant" ) );
+  fPredSlope       = (p.get< double > ("PredictedSlope"    ) );
+  fDriftWindowSize = (p.get< double > ("DriftWindowSize"   ) );
+  fWeightOfDeltaYZ = (p.get< double > ("WeightOfDeltaYZ"   ) );
+  fMatchCriteria   = (p.get< double > ("MatchCriteria"     ) );
+}
 
 void lbne::PhotonCounterT0Matching::beginJob()
 {
@@ -199,15 +205,17 @@ void lbne::PhotonCounterT0Matching::beginJob()
   hPredX_PE = tfs->make<TH2D>("hPredX_PE","Predicted X from PE information against reconstructed X; Reconstructed X (cm); Predicted X (cm)"    , 30, 0, 300, 30, 0, 300 );
   hPredX_T_PE = tfs->make<TH2D>("hPredX_T_PE", 
 				"Predicted X position from time and PE information; Predicted X from timing information (cm); Predicted X from PE information",
-				30, 0, 300, 30, 0, 300);
+				60, 0, 300, 60, 0, 300);
   hdeltaX_deltaYZ = tfs->make<TH2D>("hdeltaX_deltaYZ", 
 				    "Difference between X predicted from PE's and T agaisnt distance of flash from track in YZ; Difference in X predicted from PE's and T (cm); Distance of flash from track in YZ (cm)",
-				    20, 0, 200, 20, 0, 100);
+				    40, 0, 200, 40, 0, 100);
   hdeltaYZ_Length = tfs->make<TH2D>("hdeltaYZ_Length",
 				    "Distance of flash from track against track length; Distance from flash to track (cm); Track length (cm)",
-				    20, 0, 100, 30, 0, 300); 
+				    20, 0, 100, 60, 0, 300); 
   hFitParam_Length = tfs->make<TH2D>("hFitParam_Length", "How fit correlates with track length; Fit correlation; Track Length (cm)", 50, 0, 250, 30, 0, 300);
-  hPhotonT0_MCT0   = tfs->make<TH2D>("hPhotonT0_MCT0"  , "Comparing Photon Counter reconstructed T0 against MCTruth T0; Photon Counter T0 (ns); MCTruthT0 T0 (ns)", 100, -3200, 32000, 100, -3200, 32000);
+  hPhotonT0_MCT0   = tfs->make<TH2D>("hPhotonT0_MCT0"  , "Comparing Photon Counter reconstructed T0 against MCTruth T0; Photon Counter T0 (us); MCTruthT0 T0 (us)", 1760, -1600, 16000, 1760, -1600, 16000);
+  hT0_diff_full    = tfs->make<TH1D>("hT0_diff_full"   , "Difference between MCTruth T0 and photon detector T0; Time difference (us); Number", 320, -1600, 1600);
+  hT0_diff_zoom    = tfs->make<TH1D>("hT0_diff_zoom"   , "Difference between MCTruth T0 and photon detector T0; Time difference (us); Number", 320, -1.6, 1.6);
 }
 
 void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
@@ -253,7 +261,7 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
     //Access tracks and hits
     art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
     art::FindMany<anab::T0>    fmtruth(trackListHandle, evt, fTruthT0ModuleLabel);
-
+    
     size_t NTracks  = tracklist.size();
     size_t NFlashes = flashlist.size();
     
@@ -262,57 +270,68 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
     // Now to access PhotonCounter for each track... 
     for(size_t iTrk=0; iTrk < NTracks; ++iTrk) { 
       std::cout << "\n New Track " << (int)iTrk << std::endl;
-      BestFlashTime = BestFitParam = BestTrackCentre_X = BestTrackLength = 0;
-      BestTimeSepPredX = BestPredictedX = BestDeltaPredX = BestminYZSep = MCTruthT0 = 0;
+      // Reset Variables.
+      BestFlashTime = BestFitParam = BestTrackCentre_X = BestTrackLength = 9999;
+      BestTimeSepPredX = BestPredictedX = BestDeltaPredX = BestminYZSep = MCTruthT0 = 9999;
       bool ValidTrack = false;
+
+      // Work out Properties of the track.
       tracklist[iTrk]->Extent(trackStart,trackEnd); 
       std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
       size_t nHits = allHits.size();
-      trkTimeStart = allHits[nHits-1]->PeakTime();
-      trkTimeEnd   = allHits[0]->PeakTime();
-      
+      trkTimeStart = allHits[nHits-1]->PeakTime() / timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
+      trkTimeEnd   = allHits[0]->PeakTime() / timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
       TrackProp ( trackStart[0], trackEnd[0], TrackLength_X, TrackCentre_X,
 		  trackStart[1], trackEnd[1], TrackLength_Y, TrackCentre_Y,
 		  trackStart[2], trackEnd[2], TrackLength_Z, TrackCentre_Z,
-		  trkTimeStart , trkTimeEnd , trkTimeLengh , trkTimeCentre,
+		  trkTimeStart , trkTimeEnd , trkTimeLengh , trkTimeCentre, // times in us!
 		  TrackLength);     
 
+      // Some cout statement about track properties.
+      ///*
       std::cout << trackStart[0] << " " << trackEnd[0] << " " << TrackLength_X << " " << TrackCentre_X 
 		<< "\n" << trackStart[1] << " " << trackEnd[1] << " " << TrackLength_Y << " " << TrackCentre_Y
 		<< "\n" << trackStart[2] << " " << trackEnd[2] << " " << TrackLength_Z << " " << TrackCentre_Z
 		<< "\n" << trkTimeStart  << " " << trkTimeEnd  << " " << trkTimeLengh  << " " << trkTimeCentre
 		<< std::endl;
-      // Loop over flashes
+      //*/
+      // ----- Loop over flashes ------
       for ( size_t iFlash=0; iFlash < NFlashes; ++iFlash ) {
 	//Reset some flash specific quantities
-	YZSep = minYZSep = 0;
-	FlashTime = TimeSep = 0;
-	PredictedX = TimeSepPredX = DeltaPredX = FitParam = 0;
+	YZSep = minYZSep = 9999;
+	FlashTime = TimeSep = 9999;
+	PredictedX = TimeSepPredX = DeltaPredX = FitParam = 9999;
 	// Check flash could be caused by track...
-	FlashTime = flashlist[iFlash]->Time();
-	TimeSep = trkTimeCentre - FlashTime;
-	if ( TimeSep < 0 || TimeSep > fDriftTicks ) continue;
+	FlashTime = flashlist[iFlash]->Time(); // Got in us!
+	TimeSep = trkTimeCentre - FlashTime; // Time in us!
+	if ( TimeSep < 0 || TimeSep > (fDriftWindowSize*timeservice->TPCClock().Frequency() ) ) continue; // Times compared in us!
+	
 	// Work out some quantities for this flash...
 	PredictedX   = exp ( fPredConst + ( fPredSlope * flashlist[iFlash]->TotalPE() ) );
-	TimeSepPredX = TimeSep * larprop->DriftVelocity() * 0.5;
+	TimeSepPredX = TimeSep * larprop->DriftVelocity(); // us * cm/us = cm!
 	DeltaPredX   = fabs(TimeSepPredX-PredictedX);
-
+	// Dependant on each point...
 	for ( size_t Point = 1; Point < tracklist[iTrk]->NumberTrajectoryPoints(); ++Point ) {
 	  TVector3 NewPoint  = tracklist[iTrk]->LocationAtPoint(Point);
 	  TVector3 PrevPoint = tracklist[iTrk]->LocationAtPoint(Point-1);
 	  YZSep = DistFromPoint ( NewPoint[1], PrevPoint[1], NewPoint[2], PrevPoint[2], 
 				  flashlist[iFlash]->YCenter(), flashlist[iFlash]->ZCenter());
-
 	  if ( Point == 1 ) minYZSep = YZSep;
 	  if ( YZSep < minYZSep ) minYZSep = YZSep;
 	}
-	FitParam = pow( ((DeltaPredX*DeltaPredX)+(minYZSep*minYZSep)), 0.5);
+
+	// Determine how well matched this track is......
+	if (fMatchCriteria == 0) FitParam = pow( ((DeltaPredX*DeltaPredX)+(minYZSep*minYZSep*fWeightOfDeltaYZ)), 0.5);
+	else if (fMatchCriteria == 1) FitParam = minYZSep;
+	else if (fMatchCriteria == 2) FitParam = DeltaPredX;
+	
 	//----FLASH INFO-----
-	//std::cout << "\nFlash " << (int)iFlash << " " << TrackCentre_X << ", " << TimeSepPredX << " - " << PredictedX << " = " << DeltaPredX << ", " << minYZSep << " -> " << FitParam << std::endl; 
+	std::cout << "\nFlash " << (int)iFlash << " " << TrackCentre_X << ", " << TimeSepPredX << " - " << PredictedX << " = " << DeltaPredX << ", " << minYZSep << " -> " << FitParam << std::endl; 
+	
 	//----Select best flash------
 	//double YFitRegion = (-1 * DeltaPredX ) + 80;
 	//if ( minYZSep > YFitRegion ) continue;
-	if ( FitParam < BestFitParam || (int)iFlash == 0) {
+	if ( FitParam < BestFitParam ) {
 	  ValidTrack        = true;
 	  BestFlash         = (int)iFlash;
 	  BestFitParam      = FitParam;
@@ -342,15 +361,17 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	if ( fmtruth.isValid() ) {
 	  std::vector<const anab::T0*> T0s = fmtruth.at((int)iTrk);
 	  for ( size_t i=0; i<T0s.size(); ++i) {
-	    MCTruthT0 = T0s[i]->Time() / (timeservice->TPCClock().TickPeriod()*1e3);
+	    MCTruthT0 = T0s[i]->Time() / 1e3; // Got in ns, now in us!!
 	    hPhotonT0_MCT0 ->Fill( BestFlashTime, MCTruthT0 );
+	    hT0_diff_full  -> Fill( MCTruthT0 - BestFlashTime );
+	    hT0_diff_zoom  -> Fill( MCTruthT0 - BestFlashTime );
 	    //std::cout << "Size " << T0s.size() << " " << MCTruthT0 << " " << BestFlashTime << std::endl;	
 	  }
 	}
 	// -- Fill TTree --
 	fTree->Fill();
 	//Make Association
-	T0col->push_back(anab::T0(BestFlashTime,
+	T0col->push_back(anab::T0(BestFlashTime * 1e3,
 				  FlashTriggerType,
 				  (int)BestFlash,
 				  (*T0col).size()
@@ -416,7 +437,7 @@ void lbne::PhotonCounterT0Matching::TrackProp ( double TrackStart_X, double Trac
 						double TrackStart_Z, double TrackEnd_Z, double &TrackLength_Z, double &TrackCentre_Z,
 						double trkTimeStart, double trkTimeEnd, double &trkTimeLengh , double &trkTimeCentre,
 						double &TrackLength) {
-  
+  ///Calculate central values for track X, Y, Z and time, as well as lengths and overall track length.
   TrackLength_X = fabs ( TrackEnd_X - TrackStart_X );
   if ( TrackStart_X < TrackEnd_X ) TrackCentre_X = TrackStart_X + 0.5*TrackLength_X;
   else TrackCentre_X = TrackStart_X - 0.5*TrackLength_X;
@@ -438,6 +459,7 @@ void lbne::PhotonCounterT0Matching::TrackProp ( double TrackStart_X, double Trac
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 double lbne::PhotonCounterT0Matching::DistFromPoint ( double StartY, double EndY, double StartZ, double EndZ, double PointY, double PointZ ) {
+  ///Calculate the distance between the centre of the flash and the centre of a line connecting two adjacent space points. 
   double Length = hypot ( fabs( EndY - StartY), fabs ( EndZ - StartZ ) );
   //  double distance = (double)((point.x - line_start.x) * (line_end.y - line_start.y) - (point.y - line_start.y) * (line_end.x - line_start.x)) / normalLength;
   double distance = ( (PointZ - StartZ) * (EndY - StartY) - (PointY - StartY) * (EndZ - StartZ) ) / Length;

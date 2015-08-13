@@ -10,7 +10,13 @@ standard_photoncountert0matching:
     TruthT0ModuleLabel: ""
     PredictedConstant:  5.30063
     PredictedSlope:     -0.00394097
-    DriftTicks:         3200
+    DriftWindowSize:    3200        # in Ticks
+    WeightOfDeltaYZ:    1	    # Weighting for deltaYZ quantity when deciding which flash best matches track. 
+    				    # Less than 0 favours deltaYZ quantity. 
+    MatchCriteria:      0           # Criteria used to match tracks and flashes
+    				    # 0 - Use both delta YZ and delta X quantities.
+				    # 1 - Use only delta YZ (the difference between flash and track centres in YZ).
+				    # 2 - Use only delta X (the difference between X positions predicted by timing and from PE versus X fit).
 }
 
 lbne35t_photoncountert0matching:    @local::standard_photoncountert0matching
