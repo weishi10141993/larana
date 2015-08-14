@@ -119,8 +119,10 @@ private:
   std::string fHitsModuleLabel;
   std::string fFlashModuleLabel;
   std::string fTruthT0ModuleLabel;
-  double fPredConst;
-  double fPredSlope;
+  double fPredictedXConstant;
+  double fPredictedXPower = 1;
+  double fPredictedExpConstant;
+  double fPredictedExpGradient;
   double fDriftWindowSize;
   double fWeightOfDeltaYZ;
   double fMatchCriteria;
@@ -179,8 +181,11 @@ void lbne::PhotonCounterT0Matching::reconfigure(fhicl::ParameterSet const & p)
   fHitsModuleLabel    = (p.get< std::string > ("HitsModuleLabel"  ) );
   fFlashModuleLabel   = (p.get< std::string > ("FlashModuleLabel" ) );
   fTruthT0ModuleLabel = (p.get< std::string > ("TruthT0ModuleLabel"));
-  fPredConst       = (p.get< double > ("PredictedConstant" ) );
-  fPredSlope       = (p.get< double > ("PredictedSlope"    ) );
+
+  fPredictedXConstant   = (p.get< double > ("PredictedXConstant"   ) );;
+  fPredictedExpConstant = (p.get< double > ("PredictedExpConstant" ) );;
+  fPredictedExpGradient = (p.get< double > ("PredictedExpGradient" ) );;
+
   fDriftWindowSize = (p.get< double > ("DriftWindowSize"   ) );
   fWeightOfDeltaYZ = (p.get< double > ("WeightOfDeltaYZ"   ) );
   fMatchCriteria   = (p.get< double > ("MatchCriteria"     ) );
@@ -304,10 +309,11 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	// Check flash could be caused by track...
 	FlashTime = flashlist[iFlash]->Time(); // Got in us!
 	TimeSep = trkTimeCentre - FlashTime; // Time in us!
-	if ( TimeSep < 0 || TimeSep > (fDriftWindowSize*timeservice->TPCClock().Frequency() ) ) continue; // Times compared in us!
+	if ( TimeSep < 0 || TimeSep > (fDriftWindowSize/timeservice->TPCClock().Frequency() ) ) continue; // Times compared in us!
 	
 	// Work out some quantities for this flash...
-	PredictedX   = exp ( fPredConst + ( fPredSlope * flashlist[iFlash]->TotalPE() ) );
+	// PredictedX = ( A / x^n ) + exp ( B + Cx )
+	PredictedX   = (fPredictedXConstant / pow ( flashlist[iFlash]->TotalPE(), fPredictedXPower ) ) + ( exp ( fPredictedExpConstant + ( fPredictedExpGradient * flashlist[iFlash]->TotalPE() ) ) );
 	TimeSepPredX = TimeSep * larprop->DriftVelocity(); // us * cm/us = cm!
 	DeltaPredX   = fabs(TimeSepPredX-PredictedX);
 	// Dependant on each point...
