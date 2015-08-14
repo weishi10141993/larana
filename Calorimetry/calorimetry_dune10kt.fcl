@@ -2,25 +2,25 @@
 
 BEGIN_PROLOG
 
-lbne10kt_calorimetryalgdata:	@local::standard_calorimetryalgdata
-lbne10kt_calorimetryalgmc:	@local::standard_calorimetryalgmc
+dune10kt_calorimetryalgdata:	@local::standard_calorimetryalgdata
+dune10kt_calorimetryalgmc:	@local::standard_calorimetryalgmc
 
-lbne10kt_calodata:
+dune10kt_calodata:
 {
  module_type:            "Calorimetry"
  TrackModuleLabel:       "track3d"
  HitsModuleLabel:        "ffthit"
  UseArea:		 false
- CaloAlg:	         @local::lbne10kt_calorimetryalgdata
+ CaloAlg:	         @local::dune10kt_calorimetryalgdata
 }
 
-lbne10kt_calomc:
+dune10kt_calomc:
 {
  module_type:            "Calorimetry"
  TrackModuleLabel:       "track3d"
  HitsModuleLabel:        "ffthit"
  UseArea:		 false
- CaloAlg:	         @local::lbne10kt_calorimetryalgmc
+ CaloAlg:	         @local::dune10kt_calorimetryalgmc
 }
 
 

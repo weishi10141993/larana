@@ -1,0 +1,34 @@
+#include "calorimetry.fcl"
+
+BEGIN_PROLOG
+
+dune35t_calorimetryalgdata:	@local::standard_calorimetryalgdata
+dune35t_calorimetryalgmc:	@local::standard_calorimetryalgmc
+
+dune35t_calorimetryalgmc.CalAmpConstants:  [ 0.9033e-3, 1.0287e-3, 0.8800e-3 ]
+dune35t_calorimetryalgmc.CalAreaConstants: [ 5.1822e-3, 5.2682e-3, 5.3962e-3 ]
+
+dune35t_calodata:
+{
+ module_type:            "Calorimetry"
+ TrackModuleLabel:       "stitch"
+ SpacePointModuleLabel:  "stitch"
+ T0ModuleLabel:          "mctrutht0"
+ UseArea:		 true
+ CaloAlg:	         @local::dune35t_calorimetryalgdata
+}
+dune35t_calodata.CaloAlg.CaloUseModBox: true
+
+dune35t_calomc:
+{
+ module_type:            "Calorimetry"
+ TrackModuleLabel:       "stitch"
+ SpacePointModuleLabel:  "stitch"
+ T0ModuleLabel:          "mctrutht0"
+ UseArea:		 true
+ MakeTree:               false
+ CaloAlg:	         @local::dune35t_calorimetryalgmc
+}
+dune35t_calomc.CaloAlg.CaloUseModBox: true
+
+END_PROLOG
