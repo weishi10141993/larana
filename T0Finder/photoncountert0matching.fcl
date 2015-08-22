@@ -1,0 +1,26 @@
+BEGIN_PROLOG
+
+standard_photoncountert0matching:
+{
+    module_type:        "PhotonCounterT0Matching"
+    FlashModuleLabel:   "opflash"
+    TrackModuleLabel:   ""
+    HitsModuleLabel:    ""
+    ShowerModuleLabel:  ""
+    TruthT0ModuleLabel: ""
+					# ChiSq 182773, NDf 943
+    PredictedXConstant:    214.841      # +/- 52.5865
+    PredictedExpConstant:  5.22514      # +/- 0.02153
+    PredictedExpGradient:  -0.00394097  # +/- 0.000141004
+    DriftWindowSize:    3200        	# in Ticks
+    WeightOfDeltaYZ:    1	    	# Weighting for deltaYZ quantity when deciding which flash best matches track. 
+    				    	# More than 1 favours deltaYZ quantity. 
+    MatchCriteria:      0           	# Criteria used to match tracks and flashes
+    				    	# 0 - Use both delta YZ and delta X quantities.
+				    	# 1 - Use only delta YZ (the difference between flash and track centres in YZ).
+				    	# 2 - Use only delta X (the difference between X positions predicted by timing and from PE versus X fit).
+}
+
+lbne35t_photoncountert0matching:    @local::standard_photoncountert0matching
+
+END_PROLOG
