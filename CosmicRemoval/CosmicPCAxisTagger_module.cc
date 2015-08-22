@@ -38,6 +38,7 @@
 #include "RecoBase/Cluster.h"
 #include "RecoBase/Hit.h"
 #include "RecoBase/PCAxis.h"
+#include "RecoBase/SpacePoint.h"
 #include "RecoObjects/Cluster3D.h"
 
 #include "AnalysisBase/CosmicTag.h"
@@ -133,7 +134,7 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
     art::Handle<std::vector<recob::PCAxis> > pcaxisHandle;
     evt.getByLabel( fPCAxisModuleLabel, pcaxisHandle);
     
-    if (!pcaxisHandle.isValid())
+    if (!pcaxisHandle.isValid() || !clusterHandle.isValid())
     {
         evt.put( std::move(cosmicTagPFParticleVector)  );
         evt.put( std::move(assnOutCosmicTagPFParticle) );
@@ -141,12 +142,11 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
         return;
     }
     
-    // Recover handle for PCAxis <--> PFParticle associations
-    art::Handle< art::Assns<recob::PFParticle, recob::PCAxis> > pfPartToPCAxisHandle;
-    evt.getByLabel(fPCAxisModuleLabel, pfPartToPCAxisHandle);
-    
-    // Recover the list of associated tracks
+    // Recover the list of associated PCA axes
     art::FindManyP<recob::PCAxis> pfPartToPCAxisAssns(pfParticleHandle, evt, fPCAxisModuleLabel);
+    
+    // Add the relations to recover associations cluster hits
+    art::FindManyP<recob::SpacePoint> spacePointAssnVec(pfParticleHandle, evt, fPFParticleModuleLabel);
     
     // Recover the collection of associations between PFParticles and clusters, this will
     // be the mechanism by which we actually deal with clusters
@@ -161,90 +161,45 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
         art::Ptr<recob::PFParticle> pfParticle(pfParticleHandle, pfPartIdx);
         
         // Require the PFParticle be a primary because attached hits will be daughter particles
-        if (!pfParticle->IsPrimary()) continue;
+        //if (!pfParticle->IsPrimary()) continue;
+        // Oops! Don't do this unless traversing the heirarchy!
         
         // Recover the PCAxis vector
         std::vector<art::Ptr<recob::PCAxis> > pcAxisVec = pfPartToPCAxisAssns.at(pfPartIdx);
         
         // Is there an axis associated to this PFParticle?
         if (pcAxisVec.empty()) continue;
-        
+
+        // *****************************************************************************************
         // For what follows below we want the "best" PCAxis object only. However, it can be that
         // there are two PCAxes for a PFParticle (depending on source) where the "first" axis will
         // be the "better" one that we want (this statement by fiat, it is defined that way in the
         // axis producer module).
         if (pcAxisVec.size() > 1 && pcAxisVec.front()->getID() > pcAxisVec.back()->getID()) std::reverse(pcAxisVec.begin(), pcAxisVec.end());
+        // We need to confirm this!!
+        // *****************************************************************************************
         
         // Recover the axis
         const art::Ptr<recob::PCAxis>& pcAxis = pcAxisVec.front();
-        
-        // First a storage container for all the hits
-        art::PtrVector<recob::Hit> recobHitVec;
-        
-        // Now we get the 2D clusters associated to this PFParticle
-        std::vector<art::Ptr<recob::Cluster> > clusterVec = clusterAssns.at(pfPartIdx);
-        
-        // Nominally, one believes there will be 3 2D clusters so we need to loop through the list
-        for(const auto& cluster : clusterVec)
-        {
-            // Recover the 2D hits associated to a given cluster
-            std::vector<art::Ptr<recob::Hit> > hitVec = clusterHitAssns.at(cluster->ID());
-            
-            // And insert them into our list
-            recobHitVec.insert(recobHitVec.end(), hitVec.begin(), hitVec.end());
-        }
         
         // Start the tagging process...
         int                    isCosmic =  0;
         anab::CosmicTagID_t    tag_id   = anab::CosmicTagID_t::kNotTagged;
         
-        // The plan is to find the hits at both ends of the cluster and then check their proximity
-        // to TPC boundaries. What we start with is a PCA analysis axis and the hits associated to
-        // them (through PFParticle). The process we need to follow is to
-        // 1) order the hits along the principal axis
-        // 2) Find the extreme ends of the trajectory (from the end hits)
-        // 3) Check proximity to TPC volume boundaries
-        //
-        // To facilitate the ordering, we will use the PrincipalComponentsAlg... to use that we need
-        // to wrap our recob::Hits in reco::Cluster2D objects which is easily done...
-        Hit2DVector        cluster2DHitVec;
-        reco::Hit2DListPtr hit2DListPtr;
+        // There are two sections to the tagging, in the first we are going to check for hits that are
+        // "out of time" and for this we only need the hit vector. If no hits are out of time then
+        // we need to do a more thorough check of the positions of the hits.
+        // If we find hits that are out of time we'll set the "end points" of our trajectory to
+        // a scale factor past the principle eigen value
+        double eigenVal0 = sqrt(pcAxis->getEigenValues()[0]);
+        double maxArcLen = 3. * eigenVal0;
         
-        RecobToClusterHits(recobHitVec, cluster2DHitVec, hit2DListPtr);
-        
-        // We'll want to have the end positions of our trajectory no matter what so go ahead and get those now
-        // Convert the recob::PCAxis into a reco::PrincipalComponents object for use in PrincipalComponentsAlg
-        reco::PrincipalComponents recoPCA(pcAxis->getSvdOK(),
-                                          pcAxis->getNumHitsUsed(),
-                                          pcAxis->getEigenValues(),
-                                          pcAxis->getEigenVectors(),
-                                          pcAxis->getAvePosition(),
-                                          pcAxis->getAveHitDoca());
-        
-        // Now that we have the 2D hits, we can use the Principal Components alg to get their doca to
-        // the primary axis and to determine an arc length along the axis to this point.
-        fPcaAlg.PCAAnalysis_calc2DDocas(hit2DListPtr, recoPCA);
-        
-        // Want the hits at the maximum extents and it is probably faster to simply do a pass through the
-        // hit list to find them.
-        // Recover positions at front and back
-        double arcLengthToFirstHit = hit2DListPtr.front()->getArcLenToPoca();
-        double arcLengthToLastHit  = hit2DListPtr.back()->getArcLenToPoca();
-        
-        for(const auto& hit : hit2DListPtr)
-        {
-            double arcLenToHit = hit->getArcLenToPoca();
-            
-            if (arcLengthToFirstHit > arcLenToHit) arcLengthToFirstHit = arcLenToHit;
-            if (arcLengthToLastHit  < arcLenToHit) arcLengthToLastHit  = arcLenToHit;
-        }
-        
-        // Recover track end points
+        // Recover PCA end points
         TVector3 vertexPosition(pcAxis->getAvePosition()[0],pcAxis->getAvePosition()[1],pcAxis->getAvePosition()[2]);
         TVector3 vertexDirection(pcAxis->getEigenVectors()[0][0],pcAxis->getEigenVectors()[0][1],pcAxis->getEigenVectors()[0][2]);
         
-        TVector3 pcAxisStart = vertexPosition + arcLengthToFirstHit * vertexDirection;
-        TVector3 pcAxisEnd   = vertexPosition + arcLengthToLastHit  * vertexDirection;
+        TVector3 pcAxisStart = vertexPosition - maxArcLen * vertexDirection;
+        TVector3 pcAxisEnd   = vertexPosition + maxArcLen * vertexDirection;
         
         // "Track" end points in easily readable form
         float trackEndPt1_X = pcAxisStart [0];
@@ -254,34 +209,90 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
         float trackEndPt2_Y = pcAxisEnd[1];
         float trackEndPt2_Z = pcAxisEnd[2];
         
-        // Once we have the hits the first thing we should do is to check if any are "out of time"
-        // If there are out of time hits then we are going to reject the cluster so no need to do
-        // any further processing.
-        /////////////////////////////////////
-        // Check that all hits on particle are "in time"
-        /////////////////////////////////////
-        for(const auto& hit : recobHitVec)
+        // Now we get the 2D clusters associated to this PFParticle
+        std::vector<art::Ptr<recob::Cluster> > clusterVec = clusterAssns.at(pfParticle.key());
+        
+        bool dumpMe(false);
+        
+        // Once we have the clusters then we can loop over them to find the associated hits
+        for(const auto& cluster : clusterVec)
         {
-            if( hit->StartTick() < fDetectorWidthTicks - 10. || hit->EndTick() > 2.*fDetectorWidthTicks + 10.)
+            // Recover the 2D hits associated to a given cluster
+            std::vector<art::Ptr<recob::Hit> > hitVec = clusterHitAssns.at(cluster->ID());
+            
+            // Once we have the hits the first thing we should do is to check if any are "out of time"
+            // If there are out of time hits then we are going to reject the cluster so no need to do
+            // any further processing.
+            /////////////////////////////////////
+            // Check that all hits on particle are "in time"
+            /////////////////////////////////////
+            for(const auto& hit : hitVec)
             {
-                isCosmic = 1;
-                tag_id   = anab::CosmicTagID_t::kOutsideDrift_Partial;
-                break;     // If one hit is out of time it must be a cosmic ray
+                if (dumpMe)
+                {
+                    std::cout << "***>> Hit key: " << hit.key() << ", peak - RMS: " << hit->PeakTimeMinusRMS() << ", peak + RMS: " << hit->PeakTimePlusRMS() << ", det width: " << fDetectorWidthTicks << std::endl;
+                }
+                //if( hit->StartTick() < fDetectorWidthTicks || hit->EndTick() > 2.*fDetectorWidthTicks)
+                if( hit->PeakTimeMinusRMS() < fDetectorWidthTicks || hit->PeakTimePlusRMS() > 2.*fDetectorWidthTicks)
+                {
+                    isCosmic = 1;
+                    tag_id   = anab::CosmicTagID_t::kOutsideDrift_Partial;
+                    break;     // If one hit is out of time it must be a cosmic ray
+                }
             }
         }
+        
+        // Recover the space points associated to this PFParticle.
+        std::vector<art::Ptr<recob::SpacePoint> > spacePointVec = spacePointAssnVec.at(pfParticle.key());
         
         /////////////////////////////////
         // Now check the TPC boundaries:
         /////////////////////////////////
-        if(isCosmic==0 )
+        if(isCosmic==0 && !spacePointVec.empty())
         {
             // Do a check on the transverse components of the PCA axes to make sure we are looking at long straight
             // tracks and not the kind of events we might want to keep
-            double eigenVal0 = sqrt(pcAxis->getEigenValues()[0]);
             double transRMS  = sqrt(std::pow(pcAxis->getEigenValues()[1],2) + std::pow(pcAxis->getEigenValues()[1],2));
             
-            if (eigenVal0 > 10. && transRMS < 10. && transRMS / eigenVal0 < 0.1)
+            //if (eigenVal0 > 10. && transRMS < 10. && transRMS / eigenVal0 < 0.1)
+            if (eigenVal0 > 0. && transRMS > 0.)
             {
+                // The idea is to find the maximum extents of this PFParticle using the PCA axis which we
+                // can then use to determine proximity to a TPC boundary.
+                // We implement this by recovering the 3D Space Points and then make a pass through them to
+                // find the space points at the extremes of the distance along the principle axis.
+                // We'll loop through the space points looking for those which have the largest arc lengths along
+                // the principle axis. Set up to do that
+                double arcLengthToFirstHit(9999.);
+                double arcLengthToLastHit(-9999.);
+                
+                for(const auto spacePoint : spacePointVec)
+                {
+                    TVector3 spacePointPos(spacePoint->XYZ()[0],spacePoint->XYZ()[1],spacePoint->XYZ()[2]);
+                    TVector3 deltaPos    = spacePointPos - vertexPosition;
+                    double   arcLenToHit = deltaPos.Dot(vertexDirection);
+                    
+                    if (arcLenToHit < arcLengthToFirstHit)
+                    {
+                        arcLengthToFirstHit = arcLenToHit;
+                        pcAxisStart         = spacePointPos;
+                    }
+                    
+                    if (arcLenToHit > arcLengthToLastHit)
+                    {
+                        arcLengthToLastHit = arcLenToHit;
+                        pcAxisEnd          = spacePointPos;
+                    }
+                }
+                
+                // "Track" end points in easily readable form
+                trackEndPt1_X = pcAxisStart [0];
+                trackEndPt1_Y = pcAxisStart [1];
+                trackEndPt1_Z = pcAxisStart [2];
+                trackEndPt2_X = pcAxisEnd[0];
+                trackEndPt2_Y = pcAxisEnd[1];
+                trackEndPt2_Z = pcAxisEnd[2];
+                
                 // In below we check entry and exit points. Note that a special case of a particle entering
                 // and exiting the same surface is considered to be running parallel to the surface and NOT
                 // entering and exiting.
@@ -296,8 +307,8 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
                 // Also note that, in theory, any cosmic ray entering or exiting the X surfaces will have presumably
                 // been removed already by the checking of "out of time" hits... but this will at least label
                 // neutrino interaction tracks which exit through the X surfaces of the TPC
-                if (fDetWidth - trackEndPt1_X < fTPCXBoundary || fDetWidth - trackEndPt2_X < fTPCXBoundary) nBdX++;
-                if (            trackEndPt1_X < fTPCXBoundary ||             trackEndPt2_X < fTPCXBoundary) nBdX++;
+                //if (fDetWidth - trackEndPt1_X < fTPCXBoundary || fDetWidth - trackEndPt2_X < fTPCXBoundary) nBdX++;
+                //if (            trackEndPt1_X < fTPCXBoundary ||             trackEndPt2_X < fTPCXBoundary) nBdX++;
             
                 // Check y extents (note coordinate system change)
                 // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
@@ -308,13 +319,6 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
                 // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
                 if (fDetLength - trackEndPt1_Z < fTPCZBoundary || fDetLength - trackEndPt2_Z < fTPCZBoundary ) nBdZ++;
                 if (             trackEndPt1_Z < fTPCZBoundary ||              trackEndPt2_Z < fTPCZBoundary ) nBdZ++;
-                
-//                std::cout << "***>> track1 end points, x: " << trackEndPt1_X << ", y: " << trackEndPt1_Y << ", z: " << trackEndPt1_Z << std::endl;
-//                std::cout << "      track2 end points, x: " << trackEndPt2_X << ", y: " << trackEndPt2_Y << ", z: " << trackEndPt2_Z << std::endl;
-//                std::cout << "      fDetWidth: " << fDetWidth << ", fDetHalfHeight: " << fDetHalfHeight << ", fDetLength: " << fDetLength << std::endl;
-//                std::cout << "      fTPCXBoundary: " << fTPCXBoundary << ", fTPCYBoundary: " << fTPCYBoundary << ", fTPCZBoundary: " << fTPCZBoundary << std::endl;
-//                std::cout << "      nBdX: " << nBdX << ", nBdY: " << nBdY << ", nBdZ: " << nBdZ << std::endl;
-//                std::cout << recoPCA << std::endl;
                 
                 // This should check for the case of a track which is both entering and exiting
                 // but we consider entering and exiting the z boundaries to be a special case (should it be?)
