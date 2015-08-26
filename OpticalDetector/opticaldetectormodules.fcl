@@ -252,6 +252,7 @@ standard_opflash:
    GenModule:       "generator"
    InputModule:     "optreadout"
    InputLabels:     [ "" ]
+   ChannelMasks:    []
    BinWidth:         1   # us | Pulse finding parameters
    FlashThreshold:   2   # PE
    HitThreshold:     0.2 # PE

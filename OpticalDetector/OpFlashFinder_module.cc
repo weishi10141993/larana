@@ -77,7 +77,7 @@ namespace opdet {
     std::string fGenModule ;
     std::vector< std::string > fInputLabels;
     std::string fThreshAlgName;
-
+    std::set<unsigned int> fChannelMasks;
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::PMTPulseRecoBase* fThreshAlg;
@@ -147,8 +147,10 @@ namespace opdet {
     fInputModule    = pset.get<std::string>("InputModule");
     fGenModule      = pset.get<std::string>("GenModule");
     fInputLabels    = pset.get<std::vector<std::string> >("InputLabels");
-    fThreshAlgName  = pset.get< fhicl::ParameterSet >("algo_threshold")
-                          .get< std::string >("HitFinder");
+    fThreshAlgName  = pset.get< fhicl::ParameterSet >("algo_threshold").get< std::string >("HitFinder");
+      
+    for(auto const& ch : pset.get<std::vector<unsigned int> >("ChannelMasks",std::vector<unsigned int>()))
+      fChannelMasks.insert(ch);
     
     fBinWidth       = pset.get<int>          ("BinWidth");
     fFlashThreshold = pset.get<float>        ("FlashThreshold");
@@ -157,7 +159,6 @@ namespace opdet {
     fHitThreshold   = pset.get<float>        ("HitThreshold");
     fAreaToPE       = pset.get<bool>         ("AreaToPE");
     fSPEArea        = pset.get<float>        ("SPEArea");
-    
 
     art::ServiceHandle<geo::Geometry> geom;
     fNOpChannels  = geom->NOpChannels();
@@ -232,10 +233,12 @@ namespace opdet {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
       evt.getByLabel(fInputModule, label, wfHandle);
       if (!wfHandle.isValid()) continue; // Skip non-existent collections
-      WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
+      //WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
+      for(auto const& wf : *wfHandle) {
+	if(fChannelMasks.find(wf.ChannelNumber()) != fChannelMasks.end()) continue;
+	WaveformVector.push_back(wf);
+      }
     }
-
-    
 
     RunFlashFinder(WaveformVector,
                    *HitPtr,
@@ -252,7 +255,6 @@ namespace opdet {
                    fSPESize,
                    fAreaToPE,
                    fTrigCoinc);
-
 
     // Make the associations which we noted we need
     for(size_t i=0; i!=AssocList.size(); ++i)
