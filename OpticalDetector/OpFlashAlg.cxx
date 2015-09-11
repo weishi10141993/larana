@@ -83,6 +83,11 @@ namespace opdet{
     
     const size_t NHits_prev = HitVector.size();
 
+    double min_time = ts.TriggerTime();
+    for(auto const& wf_ptr : OpDetWaveformVector)
+
+      if(wf_ptr.TimeStamp() < min_time) min_time = wf_ptr.TimeStamp();
+
     for(auto const& wf_ptr : OpDetWaveformVector){
 
       const int Channel = (int)wf_ptr.ChannelNumber();
@@ -108,12 +113,12 @@ namespace opdet{
 		      HitVector );
 
 	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
-						 TimeStamp, 
+						 (TimeStamp - min_time),
 						 BinWidth, 
 						 0);
 
 	unsigned int AccumIndex2 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
-						 TimeStamp, 
+						 (TimeStamp - min_time),
 						 BinWidth, 
 						 BinWidth/2.);
 
@@ -204,14 +209,16 @@ namespace opdet{
 		     pmtana::pulse_param const& pulse,
 		     util::TimeService const& ts,
 		     double const& SPESize,
-         bool const& AreaToPE,
+		     bool const& AreaToPE,
 		     std::vector<recob::OpHit>& HitVector)
   {
     if( pulse.peak<HitThreshold ) return;
 
     double AbsTime = TimeStamp + pulse.t_max * ts.OpticalClock().TickPeriod();
-    
+
     double RelTime = AbsTime - ts.BeamGateTime();
+    if(ts.BeamGateTime()<0)
+      RelTime = AbsTime - ts.TriggerTime();
     
     int    Frame   = ts.OpticalClock().Frame(TimeStamp);
 
@@ -658,12 +665,15 @@ namespace opdet{
     int Frame = ts.OpticalClock().Frame(AveAbsTime-18.1);
     if (Frame == 0) Frame = 1;
     
-    int TrigFrame = ts.OpticalClock().Frame(ts.BeamGateTime());
-    bool InBeamFrame = (Frame==TrigFrame);
+    int BeamFrame = ts.OpticalClock().Frame(ts.BeamGateTime());
+    bool InBeamFrame = false;
+    if(!(ts.BeamGateTime()<0))
+      InBeamFrame = (Frame==BeamFrame);
+
     double TimeWidth = (MaxTime-MinTime)/2.;
-    
+
     int OnBeamTime =0; 
-    if( std::abs(AveTime) < TrigCoinc ) OnBeamTime=1;
+    if(InBeamFrame && std::abs(AveTime) < TrigCoinc ) OnBeamTime=1;
     
     FlashVector.emplace_back( AveTime,
 			      TimeWidth,
