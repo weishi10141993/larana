@@ -233,6 +233,7 @@ namespace opdet {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
       evt.getByLabel(fInputModule, label, wfHandle);
       if (!wfHandle.isValid()) continue; // Skip non-existent collections
+
       //WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
       for(auto const& wf : *wfHandle) {
 	if(fChannelMasks.find(wf.ChannelNumber()) != fChannelMasks.end()) continue;
@@ -276,7 +277,7 @@ namespace opdet {
     // Alternatively all SPE scales are set to fSPEArea 
     // if hit area is used to calculate number of PEs.
     
-    if (fAreaToPE) return std::vector<double>(fNOpChannels,fSPEArea);
+    if (fAreaToPE) return std::vector<double>(fMaxOpChannel+1,fSPEArea);
     else           return std::vector<double>(fMaxOpChannel+1,20); // temp fix while we work out the expeiment-agnostic service that provides this info.
   }
 
