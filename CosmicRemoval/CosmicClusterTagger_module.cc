@@ -82,7 +82,8 @@ private:
   std::string fClusterModuleLabel;
   int         fDetectorWidthTicks;
   int         fTickLimit;
-
+  int         fMinTickDrift;
+  int         fMaxTickDrift;
 };
 
 
@@ -147,10 +148,12 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
        = std::minmax(tCluster->StartTick(), tCluster->EndTick());
      double t0 = t_minmax.first; // minimum
      double t1 = t_minmax.second; // maximum
-     if( t0+fTickLimit < fDetectorWidthTicks ) { // This is into the pre-spill window
+     //     if( t0+fTickLimit < fDetectorWidthTicks ) { // This is into the pre-spill window
+     if( t0+fTickLimit < fMinTickDrift ) { // This is into the pre-spill window
        failClusterTickCheck = true;
      }
-     if( t1-fTickLimit > 2*fDetectorWidthTicks ) { // This is into the post-spill window
+     //if( t1-fTickLimit > 2*fDetectorWidthTicks ) { // This is into the post-spill window
+     if( t1-fTickLimit > fMaxTickDrift ) { // This is into the post-spill window
        failClusterTickCheck = true;
      }
      
@@ -222,7 +225,8 @@ void cosmic::CosmicClusterTagger::reconfigure(fhicl::ParameterSet const & p) {
   //  std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
   //  std::cerr << fDetectorWidthTicks<< std::endl;
-
+  fMinTickDrift = p.get("MinTickDrift", 3200);
+  fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks;
 
 
 }
