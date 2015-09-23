@@ -87,6 +87,7 @@ private:
   int fDetectorWidthTicks;
   float fTPCXBoundary, fTPCYBoundary, fTPCZBoundary;
   float fDetHalfHeight, fDetWidth, fDetLength;
+  int fMinTickDrift, fMaxTickDrift;
 };
 
 
@@ -197,7 +198,8 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
         /////////////////////////////////////////////////////////
         // Are any of the ticks outside of the ReadOutWindow ?
         /////////////////////////////////////////////////////////
-        if(tick1 < fDetectorWidthTicks || tick2 > 2*fDetectorWidthTicks ) {
+        //if(tick1 < fDetectorWidthTicks || tick2 > 2*fDetectorWidthTicks ) {
+        if(tick1 < fMinTickDrift || tick2 > fMaxTickDrift ) {
             isCosmic = 1;
             tag_id = anab::CosmicTagID_t::kOutsideDrift_Partial;
         }
@@ -402,6 +404,9 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
 
   //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
+  fMinTickDrift = p.get("MinTickDrift", 3200);
+  fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks;
+
 }
 
 void cosmic::CosmicTrackTagger::endJob() {
