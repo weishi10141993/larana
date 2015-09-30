@@ -64,8 +64,6 @@
 #include "RecoBase/Track.h"
 #include "RecoBase/Shower.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/LArProperties.h"
-#include "Utilities/DetectorProperties.h"
 #include "SimulationBase/MCParticle.h"
 #include "SimulationBase/MCTruth.h"
 #include "MCCheater/BackTracker.h"
@@ -156,8 +154,6 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 
   // Access art services...
   art::ServiceHandle<geo::Geometry> geom;
-  art::ServiceHandle<util::LArProperties> larprop;
-  art::ServiceHandle<util::DetectorProperties> detprop;
   art::ServiceHandle<cheat::BackTracker> bt;
 
   //TrackList handle

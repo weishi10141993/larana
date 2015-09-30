@@ -65,8 +65,8 @@
 #include "RecoBase/Shower.h"
 #include "RecoBase/OpFlash.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/LArProperties.h"
-#include "Utilities/DetectorProperties.h"
+#include "Utilities/DetectorPropertiesService.h"
+#include "Utilities/DetectorClocksService.h"
 #include "SimulationBase/MCParticle.h"
 #include "SimulationBase/MCTruth.h"
 #include "MCCheater/BackTracker.h"
@@ -227,9 +227,8 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 {
   // Access art services...
   art::ServiceHandle<geo::Geometry> geom;
-  art::ServiceHandle<util::LArProperties> larprop;
-  art::ServiceHandle<util::DetectorProperties> detprop;
-  art::ServiceHandle<util::TimeService> timeservice;
+  const dataprov::DetectorProperties* detprop = art::ServiceHandle<util::DetectorPropertiesService>()->getDetectorProperties();
+  const dataprov::DetectorClocks* clks = art::ServiceHandle<util::DetectorClocksService>()->getDetectorClocks();
   art::ServiceHandle<cheat::BackTracker> bt;
 
   //TrackList handle
@@ -284,8 +283,8 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
       tracklist[iTrk]->Extent(trackStart,trackEnd); 
       std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
       size_t nHits = allHits.size();
-      trkTimeStart = allHits[nHits-1]->PeakTime() / timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
-      trkTimeEnd   = allHits[0]->PeakTime() / timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
+      trkTimeStart = allHits[nHits-1]->PeakTime() / clks->TPCClock().Frequency(); //Got in ticks, now in us!
+      trkTimeEnd   = allHits[0]->PeakTime() / clks->TPCClock().Frequency(); //Got in ticks, now in us!
       TrackProp ( trackStart[0], trackEnd[0], TrackLength_X, TrackCentre_X,
 		  trackStart[1], trackEnd[1], TrackLength_Y, TrackCentre_Y,
 		  trackStart[2], trackEnd[2], TrackLength_Z, TrackCentre_Z,
@@ -309,12 +308,12 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	// Check flash could be caused by track...
 	FlashTime = flashlist[iFlash]->Time(); // Got in us!
 	TimeSep = trkTimeCentre - FlashTime; // Time in us!
-	if ( TimeSep < 0 || TimeSep > (fDriftWindowSize/timeservice->TPCClock().Frequency() ) ) continue; // Times compared in us!
+	if ( TimeSep < 0 || TimeSep > (fDriftWindowSize/clks->TPCClock().Frequency() ) ) continue; // Times compared in us!
 	
 	// Work out some quantities for this flash...
 	// PredictedX = ( A / x^n ) + exp ( B + Cx )
 	PredictedX   = (fPredictedXConstant / pow ( flashlist[iFlash]->TotalPE(), fPredictedXPower ) ) + ( exp ( fPredictedExpConstant + ( fPredictedExpGradient * flashlist[iFlash]->TotalPE() ) ) );
-	TimeSepPredX = TimeSep * larprop->DriftVelocity(); // us * cm/us = cm!
+	TimeSepPredX = TimeSep * detprop->DriftVelocity(); // us * cm/us = cm!
 	DeltaPredX   = fabs(TimeSepPredX-PredictedX);
 	// Dependant on each point...
 	for ( size_t Point = 1; Point < tracklist[iTrk]->NumberTrajectoryPoints(); ++Point ) {

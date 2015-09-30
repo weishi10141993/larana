@@ -27,8 +27,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 						   std::vector<anab::Calorimetry>& caloVector,
 						   std::vector<size_t>& assnTrackCaloVector,
 						   geo::Geometry const& geom,
-						   util::LArProperties const& larp,
-						   util::DetectorProperties & detprop)
+						   const dataprov::DetectorProperties* detprop)
 {
 
   //loop over the track list
@@ -52,7 +51,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
       std::vector< std::pair<geo::WireID,float> > traj_points_in_plane(track.NumberTrajectoryPoints());
       for(size_t i_trjpt=0; i_trjpt<track.NumberTrajectoryPoints(); i_trjpt++){
 	double x_pos = track.LocationAtPoint(i_trjpt).X();
-	float tick = detprop.ConvertXToTicks(x_pos,(int)i_plane,0,0);
+	float tick = detprop->ConvertXToTicks(x_pos,(int)i_plane,0,0);
 	traj_points_in_plane[i_trjpt] = std::make_pair(geom.NearestWireID(track.LocationAtPoint(i_trjpt),i_plane),
 						       tick);
       }

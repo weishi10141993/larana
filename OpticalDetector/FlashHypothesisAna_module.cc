@@ -78,12 +78,12 @@ namespace opdet{
     art::ServiceHandle<geo::Geometry> geoHandle;
     art::ServiceHandle<opdet::OpDigiProperties> opdigiHandle;
     art::ServiceHandle<phot::PhotonVisibilityService> pvsHandle;
-    art::ServiceHandle<util::LArProperties> larpHandle;
+    art::ServiceHandle<util::LArPropertiesService> larpHandle;
 
     geo::Geometry const& geo(*geoHandle);
     opdet::OpDigiProperties const& opdigi(*opdigiHandle);
     phot::PhotonVisibilityService const& pvs(*pvsHandle);
-    util::LArProperties const& larp(*larpHandle);
+    const dataprov::LArProperties* larp = larpHandle->getLArProperties();
 
     fAlg.RunComparison((unsigned int)e.run(),(unsigned int)e.id().event(),
 		       mctrackVec,simPhotonsVec,

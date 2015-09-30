@@ -36,8 +36,7 @@
 #include "RecoBase/PFParticle.h"
 #include "AnalysisBase/CosmicTag.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/TimeService.h"
-#include "Utilities/SimpleTimeService.h"
+#include "Utilities/DetectorClocksService.h"
 
 // Local functions.
 namespace
@@ -174,8 +173,7 @@ void CRHitRemoval::produce(art::Event & evt)
     ++fNumEvent;
     
     // get the time service for the identification of the spill window
-    util::SimpleTimeService const* time_service
-      = &(*(art::ServiceHandle<util::TimeService>()));
+    const dataprov::DetectorClocks* time_service = art::ServiceHandle<util::DetectorClocksService>()->getDetectorClocks();
     
     // Start by looking up the original hits
     art::Handle< std::vector<recob::Hit> > hitHandle;

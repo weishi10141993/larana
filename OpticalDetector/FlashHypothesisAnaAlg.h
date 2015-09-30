@@ -16,7 +16,7 @@
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
 #include "PhotonPropagation/PhotonVisibilityService.h"
-#include "Utilities/LArProperties.h"
+#include "Utilities/LArPropertiesService.h"
 #include "OpticalDetector/OpDigiProperties.h"
 
 #include "Simulation/SimPhotons.h"
@@ -58,7 +58,7 @@ namespace opdet{
 		       geo::Geometry const& geom,
 		       opdet::OpDigiProperties const& opdigip,
 		       phot::PhotonVisibilityService const& pvs,
-		       util::LArProperties const& larp);
+		       const dataprov::LArProperties* larp);
     
     
   private:

@@ -59,7 +59,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
 								 std::vector<size_t>& assnTrackTagVector,
 								 geo::Geometry const& geom,
 								 phot::PhotonVisibilityService const& pvs,
-								 util::LArProperties const& larp,
+								 const dataprov::LArProperties* larp,
 								 opdet::OpDigiProperties const& opdigip){
 
   std::vector< const recob::OpFlash* > flashesOnBeamTime;
@@ -124,7 +124,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 								   std::vector<recob::Track> const& trackVector,
 								   geo::Geometry const& geom,
 								   phot::PhotonVisibilityService const& pvs,
-								   util::LArProperties const& larp,
+								   const dataprov::LArProperties* larp,
 								   opdet::OpDigiProperties const& opdigip){
 
   cFlashComparison_p.run = run;
@@ -205,7 +205,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 								   std::vector<simb::MCParticle> const& mcParticleVector,
 								   geo::Geometry const& geom,
 								   phot::PhotonVisibilityService const& pvs,
-								   util::LArProperties const& larp,
+								   const dataprov::LArProperties* larp,
 								   opdet::OpDigiProperties const& opdigip){
 
   cFlashComparison_p.run = run;
@@ -389,13 +389,13 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::NormalizeLightHypothesis(std::vector<
 std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob::Track const& track, 
 									  geo::Geometry const& geom,
 									  phot::PhotonVisibilityService const& pvs,
-									  util::LArProperties const& larp,
+									  const dataprov::LArProperties* larp,
 									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {
   std::vector<float> lightHypothesis(geom.NOpDets(),0);  
   float totalHypothesisPE=0;
-  const float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
+  const float PromptMIPScintYield = larp->ScintYield()*larp->ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
 
   //get QE from ubChannelConfig, which gives per tube, so goes in AddLightFromSegment
   //VisibleEnergySeparation(step);
@@ -419,13 +419,13 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(simb::
 									  size_t start_i, size_t end_i,
 									  geo::Geometry const& geom,
 									  phot::PhotonVisibilityService const& pvs,
-									  util::LArProperties const& larp,
+									  const dataprov::LArProperties* larp,
 									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {
   std::vector<float> lightHypothesis(geom.NOpDets(),0);  
   float totalHypothesisPE=0;
-  const float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
+  const float PromptMIPScintYield = larp->ScintYield()*larp->ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
 
   for(size_t pt=start_i+1; pt<=end_i; pt++)
     AddLightFromSegment(particle.Position(pt-1).Vect(),particle.Position(pt).Vect(),

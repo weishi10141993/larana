@@ -13,7 +13,6 @@ extern "C" {
 #include <string>
 #include <algorithm>
 
-#include "Utilities/DetectorProperties.h"
 #include "Geometry/Geometry.h"
 #include "Geometry/TPCGeo.h"
 #include "Geometry/PlaneGeo.h"

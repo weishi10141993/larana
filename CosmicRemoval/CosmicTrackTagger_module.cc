@@ -36,8 +36,8 @@
 #include "AnalysisBase/CosmicTag.h"
 #include "RecoAlg/SpacePointAlg.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/DetectorProperties.h"
-#include "Utilities/LArProperties.h"
+#include "Utilities/DetectorPropertiesService.h"
+#include "Utilities/LArPropertiesService.h"
 
 #include "TMatrixD.h"
 #include "TDecompSVD.h"
@@ -384,8 +384,8 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
   
   ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-  art::ServiceHandle<util::DetectorProperties> detp;
-  art::ServiceHandle<util::LArProperties> larp;
+  const dataprov::DetectorProperties* detp = art::ServiceHandle<util::DetectorPropertiesService>()->getDetectorProperties();
+  const dataprov::LArProperties* larp = art::ServiceHandle<util::LArPropertiesService>()->getLArProperties();
   art::ServiceHandle<geo::Geometry> geo;
 
   fDetHalfHeight = geo->DetHalfHeight();
@@ -400,7 +400,7 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
   fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
 
-  const double driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
+  const double driftVelocity = detp->DriftVelocity( detp->Efield(), larp->Temperature() ); // cm/us
 
   //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB

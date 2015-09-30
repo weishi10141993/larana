@@ -7,7 +7,7 @@
 
 #include "OpticalDetector/MicrobooneOpDetResponse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "Utilities/LArProperties.h"
+//#include "Utilities/LArPropertiesService.h"
 #include "CLHEP/Random/RandFlat.h"
 
 

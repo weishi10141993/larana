@@ -56,14 +56,14 @@ namespace opdet{
 		    float const& HitThreshold,
 		    float const& FlashThreshold,
 		    float const& WidthTolerance,
-		    util::TimeService const& ts,
+		    const dataprov::DetectorClocks* ts,
 		    std::vector<double> const& SPESize, 
 		    bool const& AreaToPE,
 		    float const& TrigCoinc)
 
   {
 
-    auto const& pmt_clock = ts.OpticalClock();
+    auto const& pmt_clock = ts->OpticalClock();
 
     // Initial size for accumulators - will be automatically extended if needed
     int initialsize = 6400; 
@@ -83,7 +83,7 @@ namespace opdet{
     
     const size_t NHits_prev = HitVector.size();
 
-    double min_time = ts.TriggerTime();
+    double min_time = ts->TriggerTime();
     for(auto const& wf_ptr : OpDetWaveformVector)
 
       if(wf_ptr.TimeStamp() < min_time) min_time = wf_ptr.TimeStamp();
@@ -207,26 +207,26 @@ namespace opdet{
 		     int const& Channel,
 		     double const& TimeStamp,
 		     pmtana::pulse_param const& pulse,
-		     util::TimeService const& ts,
+		     const dataprov::DetectorClocks* ts,
 		     double const& SPESize,
 		     bool const& AreaToPE,
 		     std::vector<recob::OpHit>& HitVector)
   {
     if( pulse.peak<HitThreshold ) return;
 
-    double AbsTime = TimeStamp + pulse.t_max * ts.OpticalClock().TickPeriod();
-
-    double RelTime = AbsTime - ts.BeamGateTime();
-    if(ts.BeamGateTime()<0)
-      RelTime = AbsTime - ts.TriggerTime();
+    double AbsTime = TimeStamp + pulse.t_max * ts->OpticalClock().TickPeriod();
     
-    int    Frame   = ts.OpticalClock().Frame(TimeStamp);
+    double RelTime = AbsTime - ts->BeamGateTime();
+    if(ts->BeamGateTime()<0)
+      RelTime = AbsTime - ts->TriggerTime();
+    
+    int    Frame   = ts->OpticalClock().Frame(TimeStamp);
 
     double PE      = 0.0;
     if (AreaToPE) PE = pulse.area / SPESize;
     else          PE = pulse.peak / SPESize;
     
-    double width   = ( pulse.t_end - pulse.t_start ) * ts.OpticalClock().TickPeriod();
+    double width   = ( pulse.t_end - pulse.t_start ) * ts->OpticalClock().TickPeriod();
 
     HitVector.emplace_back( Channel,
 			    RelTime,
@@ -613,7 +613,7 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-		      util::TimeService const& ts,
+		      const dataprov::DetectorClocks* ts,
 		      float const& TrigCoinc)
   {
 
@@ -662,12 +662,12 @@ namespace opdet{
 
     // Emprical corrections to get the Frame right
     // Eventual solution - remove frames
-    int Frame = ts.OpticalClock().Frame(AveAbsTime-18.1);
+    int Frame = ts->OpticalClock().Frame(AveAbsTime-18.1);
     if (Frame == 0) Frame = 1;
     
-    int BeamFrame = ts.OpticalClock().Frame(ts.BeamGateTime());
+    int BeamFrame = ts->OpticalClock().Frame(ts->BeamGateTime());
     bool InBeamFrame = false;
-    if(!(ts.BeamGateTime()<0))
+    if(!(ts->BeamGateTime()<0))
       InBeamFrame = (Frame==BeamFrame);
 
     double TimeWidth = (MaxTime-MinTime)/2.;

@@ -8,8 +8,8 @@ art_make( BASENAME_ONLY
 		        RecoAlg
                         AnalysisAlg
                         AnalysisBase
-                        LArProperties_service
-                        DetectorProperties_service
+                        LArPropertiesService_service
+                        DetectorPropertiesService_service
                         Utilities
                         ${MF_MESSAGELOGGER}
 		        ${MF_UTILITIES}
@@ -29,8 +29,8 @@ art_make( BASENAME_ONLY
                         RawData
                         AnalysisAlg
                         AnalysisBase
-                        LArProperties_service
-                        DetectorProperties_service
+                        LArPropertiesService_service
+                        DetectorPropertiesService_service
                         Utilities
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}

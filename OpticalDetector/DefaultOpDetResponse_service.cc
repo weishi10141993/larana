@@ -6,7 +6,7 @@
 
 
 #include "OpticalDetector/DefaultOpDetResponse.h"
-#include "Utilities/LArProperties.h"
+#include "Utilities/LArPropertiesService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace opdet{
@@ -27,7 +27,7 @@ namespace opdet{
     //--------------------------------------------------------------------
     void DefaultOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
     {
-        art::ServiceHandle<util::LArProperties>   LarProp;
+      const dataprov::LArProperties* LarProp = art::ServiceHandle<util::LArPropertiesService>()->getLArProperties();
 
         if ( LarProp->ScintPreScale() < 1 ) {
             mf::LogWarning("DefaultOpDetResponse_service") << "A prescale of " << LarProp->ScintPreScale() << " has been applied during optical MC production, "

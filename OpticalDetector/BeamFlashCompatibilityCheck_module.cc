@@ -118,7 +118,6 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "Utilities/LArProperties.h"
 #include "TH2D.h"
 
 // C++ language includes

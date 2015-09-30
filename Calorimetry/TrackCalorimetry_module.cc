@@ -83,10 +83,7 @@ void calo::TrackCalorimetry::produce(art::Event & e)
 {
   art::ServiceHandle<geo::Geometry> geomHandle;
   geo::Geometry & geom(*geomHandle);
-  art::ServiceHandle<util::LArProperties> larpHandle;
-  util::LArProperties const& larp(*larpHandle);
-  art::ServiceHandle<util::DetectorProperties> detpropHandle;
-  util::DetectorProperties & detprop(*detpropHandle);
+  const dataprov::DetectorProperties* detprop = art::ServiceHandle<util::DetectorPropertiesService>()->getDetectorProperties();
 
   art::Handle< std::vector<recob::Track> > trackHandle;
   e.getByLabel(fTrackModuleLabel,trackHandle);
@@ -116,7 +113,7 @@ void calo::TrackCalorimetry::produce(art::Event & e)
   fTrackCaloAlg.ExtractCalorimetry(trackVector,
 				   hitVector,hit_indices_per_track,
 				   caloVector,assnTrackCaloVector,
-				   geom, larp, detprop);
+				   geom, detprop);
 
   //Make the associations for ART
   for(size_t calo_iter=0; calo_iter<assnTrackCaloVector.size(); calo_iter++){

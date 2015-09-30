@@ -17,8 +17,8 @@
 #include "AnalysisBase/Calorimetry.h"
 
 #include "Geometry/Geometry.h"
-#include "Utilities/LArProperties.h"
-#include "Utilities/DetectorProperties.h"
+#include "Utilities/LArPropertiesService.h"
+#include "Utilities/DetectorPropertiesService.h"
 
 #include "AnalysisAlg/CalorimetryAlg.h"
 
@@ -41,8 +41,7 @@ class calo::TrackCalorimetryAlg{
 			  std::vector<anab::Calorimetry>&,
 			  std::vector<size_t>&,
 			  geo::Geometry const&,
-			  util::LArProperties const&,
-			  util::DetectorProperties &);
+			  const dataprov::DetectorProperties*);
 
  private:
 

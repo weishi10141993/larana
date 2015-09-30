@@ -14,7 +14,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
 							    std::vector<float> const& dEdxVector,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    util::LArProperties const& larp,
+							    const dataprov::LArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -47,7 +47,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
 							    std::vector<float> const& dEdxVector,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    util::LArProperties const& larp,
+							    const dataprov::LArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -80,7 +80,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3
 							    std::vector<float> const& dEdxVector,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    util::LArProperties const& larp,
+							    const dataprov::LArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -113,7 +113,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(TVector3 const& pt1,
 							    float const& dEdx,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    util::LArProperties const& larp,
+							    const dataprov::LArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -125,7 +125,7 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
 							    float const& dEdx,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    util::LArProperties const& larp,
+							    const dataprov::LArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -143,13 +143,13 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
   
   //klugey ... right now, set a qe_vector that gives constant qe across all opdets
   std::vector<float> qe_vector(geom.NOpDets(),opdigip.QE());
-  _calc.FillFlashHypothesis(larp.ScintYield()*larp.ScintYieldRatio(),
+  _calc.FillFlashHypothesis(larp->ScintYield()*larp->ScintYieldRatio(),
 			    dEdx,
 			    pt1,pt2,
 			    qe_vector,
 			    *PointVisibility,
 			    prompt_hyp);
   
-  fhc.SetPromptHypAndPromptFraction(prompt_hyp,larp.ScintYieldRatio());
+  fhc.SetPromptHypAndPromptFraction(prompt_hyp,larp->ScintYieldRatio());
   return fhc;
 }

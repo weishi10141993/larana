@@ -6,9 +6,7 @@ simple_plugin(MCTruthT0Matching "module"
 		        Geometry
 			Geometry_service
 			Utilities
-			DetectorProperties_service
 			BackTracker_service
-			LArProperties_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -31,9 +29,9 @@ simple_plugin(PhotonCounterT0Matching "module"
 		        Geometry
 			Geometry_service
 			Utilities
-			DetectorProperties_service
+			DetectorPropertiesService_service 
+			DetectorClocksService_service 
 			BackTracker_service
-			LArProperties_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
