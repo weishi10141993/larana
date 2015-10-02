@@ -33,7 +33,8 @@ extern "C" {
 #include "AnalysisBase/Calorimetry.h"
 #include "AnalysisBase/T0.h"
 #include "Utilities/AssociationUtil.h"
-#include "Filters/ChannelFilter.h"
+#include "CalibrationDBI/Interface/IChannelStatusService.h"
+#include "CalibrationDBI/Interface/IChannelStatusProvider.h"
 #include "Geometry/PlaneGeo.h"
 #include "Geometry/WireGeo.h"
 
@@ -240,14 +241,15 @@ void calo::Calorimetry::produce(art::Event& evt)
   
   // Get Geometry
   art::ServiceHandle<geo::Geometry> geom;
-
+  
   //TPC dimensions  
   TPCsize[0] = (geom->DetHalfWidth())*2.;
   TPCsize[1] = (geom->DetHalfHeight())*2.;
   TPCsize[2] = (geom->DetLength());
 
-  //look for dead wires
-  filter::ChannelFilter chanFilt;
+  // channel quality
+  lariov::IChannelStatusProvider const& channelStatus
+    = art::ServiceHandle<lariov::IChannelStatusService>()->GetProvider();
 
   frun = evt.id().run();
   fevent = evt.id().event();
@@ -621,7 +623,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	tpc   = allHits[hits[ipl][0]]->WireID().TPC;
 	cstat = allHits[hits[ipl][0]]->WireID().Cryostat;
 	channel = geom->PlaneWireToChannel(plane,iw,tpc,cstat);
-	if (chanFilt.BadChannel(channel)){
+	if (channelStatus.IsBad(channel)){
 	  LOG_DEBUG("Calorimetry") << "Found dead wire at Plane = " << plane 
 					 << " Wire =" << iw;
 	  unsigned int closestwire = 0;
@@ -635,7 +637,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	    //	    hitIter != hitsV.end();  
 	    //	    ++hitCtr, hitIter++){
 	    channel = allHits[hits[ipl][ihit]]->Channel();
-	    if (chanFilt.BadChannel(channel)) continue;
+	    if (channelStatus.IsBad(channel)) continue;
 	    // grab the space points associated with this hit
 	    std::vector< art::Ptr<recob::SpacePoint> > sppv = fmspts.at(hits[ipl][ihit]);
 	    if(sppv.size() < 1) continue;
