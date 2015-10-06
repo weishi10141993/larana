@@ -100,7 +100,7 @@ cosmic::CosmicClusterTagger::CosmicClusterTagger(fhicl::ParameterSet const & p)
 
   // Call appropriate Produces<>() functions here.
   produces< std::vector<anab::CosmicTag> >();
-  produces< art::Assns<anab::CosmicTag, recob::Cluster> >();
+  produces< art::Assns<recob::Cluster, anab::CosmicTag> >();
 
 
 
@@ -115,7 +115,7 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
 
 
   std::unique_ptr< std::vector< anab::CosmicTag > > cosmicTagClusterVector( new std::vector<anab::CosmicTag> );
-  std::unique_ptr< art::Assns<recob::Cluster, anab::CosmicTag > >    assnOutCosmicTagCluster( new art::Assns<recob::Cluster, anab::CosmicTag>);
+  std::unique_ptr< art::Assns<recob::Cluster, anab::CosmicTag> >    assnOutCosmicTagCluster( new art::Assns<recob::Cluster, anab::CosmicTag>);
 
 
 
