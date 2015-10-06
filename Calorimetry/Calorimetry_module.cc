@@ -345,7 +345,8 @@ void calo::Calorimetry::produce(art::Event& evt)
       std::vector<double> vresRange;
       std::vector<double> vdQdx;
       std::vector<double> deadwire; //residual range for dead wires
-    
+      std::vector<TVector3> vXYZ;
+
       //range of wire signals
       unsigned int wire0 = 100000;
       unsigned int wire1 = 0;
@@ -481,7 +482,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 						    deadwire,
 						    util::kBogusD,
 						    fpitch,
-						    fXYZ,
+						    vXYZ,
 						    planeID));
 	util::CreateAssn(*this, evt, *calorimetrycol, tracklist[trkIter], *assn);
 	continue;
@@ -543,7 +544,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	}
       }
       LOG_DEBUG("CaloPrtTrk")<<"\n";
-      LOG_DEBUG("CaloPrtHit") << " pt wire  time  ResRng    MIPs   pitch   dE/dx    Ai\n";
+      LOG_DEBUG("CaloPrtHit") << " pt wire  time  ResRng    MIPs   pitch   dE/dx    Ai X Y Z\n";
 
       if (ipl==0){
 	fnspsIND = fnsps;
@@ -577,6 +578,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	  vresRange.push_back(fResRng[i]);
 	  vdEdx.push_back(fdEdx[i]);
 	  vdQdx.push_back(fdQdx[i]);
+	  vXYZ.push_back(fXYZ[i]);
 	  // Calculate PIDA 
 	  if(TrackStops){
 	    Ai = fdEdx[i] * pow(fResRng[i],0.42);
@@ -585,6 +587,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 	  }
 	}
 	LOG_DEBUG("CaloPrtHit") << std::setw(4) << i
+	  //std::cout << std::setw(4) << i
 		   <<std::setw(4)  << fwire[i]
 		   << std::setw(6) << (int)ftime[i]
 		   << std::setiosflags(std::ios::fixed | std::ios::showpoint)
@@ -596,6 +599,9 @@ void calo::Calorimetry::produce(art::Event& evt)
 		   << std::setw(8) << fpitch[i]
 		   << std::setw(8) << fdEdx[i]
 		   << std::setw(8) << Ai
+		  << std::setw(8) << fXYZ[i].x()
+		  << std::setw(8) << fXYZ[i].y()
+		  << std::setw(8) << fXYZ[i].z()
 		   << "\n";
       }//end looping over 3D points
       if(nPIDA > 0) {
@@ -678,7 +684,7 @@ void calo::Calorimetry::produce(art::Event& evt)
 						  deadwire,
 						  Trk_Length,
 						  fpitch,
-						  fXYZ,
+						  vXYZ,
 						  planeID));
       util::CreateAssn(*this, evt, *calorimetrycol, tracklist[trkIter], *assn);
       
