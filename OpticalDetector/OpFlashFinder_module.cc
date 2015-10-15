@@ -19,6 +19,7 @@
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoSiPM.h"
 #include "OpticalDetector/AlgoPedestal.h"
+#include "OpticalDetector/AlgoSlidingWindow.h"
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
@@ -122,10 +123,13 @@ namespace opdet {
 
     // Initialize the hit finder
     if      (fThreshAlgName == "Threshold") 
-              fThreshAlg = new pmtana::AlgoThreshold();
+      fThreshAlg = new pmtana::AlgoThreshold(pset.get< fhicl::ParameterSet >("algo_threshold"));
     else if (fThreshAlgName == "SiPM") 
-              fThreshAlg = new pmtana::AlgoSiPM(
-                pset.get< fhicl::ParameterSet >("algo_threshold"));
+      fThreshAlg = new pmtana::AlgoSiPM(pset.get< fhicl::ParameterSet >("algo_threshold"));
+    else if (fThreshAlgName == "SlidingWindow") {
+      fThreshAlg = new pmtana::AlgoSlidingWindow(pset.get< fhicl::ParameterSet >("algo_threshold"));
+    }
+
     else throw art::Exception(art::errors::UnimplementedFeature)
                     << "Cannot find implementation for " 
                     << fThreshAlgName << " algorithm.\n";   

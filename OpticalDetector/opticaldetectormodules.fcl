@@ -123,15 +123,27 @@ standard_algo_sipm:
 
 standard_algo_threshold:
 {
-    module_type:       "AlgoThreshold"
-    HitFinder:         "Threshold"
+    HitFinder:       "Threshold"
+    ADCThreshold:    3
+    NSigmaThreshold: 5
 }
 
 ###################################################################
 
 standard_algo_fixedwindow:
+{ 
+    HitFinder:       "FixedWindow"
+    StartIndex: 0
+    EndIndex:  20
+}
+
+standard_algo_slidingwindow:
 {
-    module_type:       "AlgoFixedWindow"
+    HitFinder:       "SlidingWindow"
+    ADCThreshold:    8
+    NSigmaThreshold: 5
+    MinWindowSize:   5
+    MaxSigma:        1.0
 }
 
 ###################################################################
@@ -263,9 +275,6 @@ standard_opflash:
    reco_man:         @local::standard_preco_manager
    algo_threshold:   @local::standard_algo_threshold
 }
-
-
-
 
 standard_tracktimeassoc:
 {
