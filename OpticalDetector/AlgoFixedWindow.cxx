@@ -22,6 +22,17 @@ namespace pmtana{
     _index_end = 0;
   }
 
+  //###############################################################
+  AlgoFixedWindow::AlgoFixedWindow(const fhicl::ParameterSet &pset)
+  //###############################################################
+  {
+    Reset();
+
+    _index_start = pset.get<size_t>("StartIndex");
+
+    _index_end = pset.get<size_t>("EndIndex");
+  }
+
   //***************************************************************
   AlgoFixedWindow::~AlgoFixedWindow()
   //***************************************************************

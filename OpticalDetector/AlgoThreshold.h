@@ -16,6 +16,7 @@
 #define ALGOTHRESHOLD_H
 
 #include "PMTPulseRecoBase.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace pmtana
 {
@@ -34,6 +35,9 @@ namespace pmtana
 
     /// Default constructor
     AlgoThreshold();
+
+    /// Alternative constructor
+    AlgoThreshold(const fhicl::ParameterSet &pset);
 
     /// Default destructor
     virtual ~AlgoThreshold();

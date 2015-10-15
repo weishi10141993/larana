@@ -4,8 +4,8 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef ALGOFIXEDWINDOW_CC
-#define ALGOFIXEDWINDOW_CC
+#ifndef ALGOTHRESHOLD_CXX
+#define ALGOTHRESHOLD_CXX
 
 #include "AlgoThreshold.h"
 
@@ -15,10 +15,19 @@ namespace pmtana{
   AlgoThreshold::AlgoThreshold()
   //############################
   {
-
     _adc_thres = 3;
-  
     _nsigma = 5;
+    Reset();
+  }
+
+  //############################################################
+  AlgoThreshold::AlgoThreshold(const fhicl::ParameterSet &pset)
+  //############################################################
+  {
+
+    _adc_thres = pset.get<double>("ADCThreshold");
+  
+    _nsigma = pset.get<double>("NSigmaThreshold");
 
     Reset();
 
