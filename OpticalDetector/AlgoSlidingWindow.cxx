@@ -141,7 +141,7 @@ namespace pmtana{
       if(first_index<0 || second_index<0) throw std::exception();
 
       float slope = (_local_mean.at(second_index) - _local_mean.at(first_index)) / (float(second_index - first_index));
-      for(size_t i=0; i<first_index; ++i) {
+      for(int i=0; i<first_index; ++i) {
 	_local_mean.at(i) = _local_mean.at(first_index) - slope * (first_index - i);
 	_local_sigma.at(i) = _max_sigma;
       }
