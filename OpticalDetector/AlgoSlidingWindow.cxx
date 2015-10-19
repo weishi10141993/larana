@@ -45,7 +45,7 @@ namespace pmtana{
   //**********************************************************************
   {
     // parameters
-    if(wf.size()<_min_wf_size) return false;
+    if(wf.size()<=_min_wf_size) return false;
     
     //
     // Compute pedestal by itself
