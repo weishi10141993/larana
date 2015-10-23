@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-/// Class:       MCTruthT0Matching
+/// Class:       PhotonCounterT0Matching
 /// Module Type: producer
-/// File:        MCTruthT0Matching_module.cc
+/// File:        PhotonCounterT0Matching_module.cc
 ///
 /// Author:         Thomas Karl Warburton
 /// E-mail address: k.warburton@sheffield.ac.uk
@@ -9,24 +9,21 @@
 /// Generated at Wed Mar 25 13:54:28 2015 by Thomas Warburton using artmod
 /// from cetpkgsupport v1_08_04.
 ///
-/// This module accesses the Monte Carlo Truth information stored in the ART
-/// event and matches that with a track. It does this by looping through the
-/// tracks in the event and looping through each hit in the track.
-/// For each hit it uses the backtracker service to work out the charge which
-/// each MCTruth particle contributed to the total charge desposited for the
-/// hit.
-/// The MCTruth particle which is ultimately assigned to the track is simply
-/// the particle which deposited the most charge.
-/// It then stores an ART anab::T0 object which has the following variables;
-/// 1) Generation time of the MCTruth particle assigned to track, in ns.
-/// 2) The trigger type used to assign T0 (in this case 2 for MCTruth)
-/// 3) The Geant4 TrackID of the particle (so can access all MCTrtuh info in
-///     subsequent modules).
-/// 4) The track number of this track in this event.
-///
-/// The module has been extended to also associate an anab::T0 object with a
-/// recob::Shower. It does this following the same algorithm, where
-/// recob::Track has been replaced with recob::Shower. 
+/// This module tries to match a reconstructed track with a reconstructed 
+/// flash with the purpose of making an anab::T0 data product. 
+/// It does this by looping through the reconstructed tracks and for each 
+/// track seeing if any of the reconstructed flashes could be associated with 
+/// it (if it is within 1 drift window). If a flash can be matched with the 
+/// track then some matching criteria are calculated;
+///     A PE vs X relationship
+///     The separation of the flash centre to a track space point in YZ
+/// The flash which has the smallest summed square of these quantities is then
+/// attributed to this track. 
+/// It is possible for a flash to be attributed to multiple tracks, but only 
+/// one flash is attributed to each track. 
+/// If there are no flashes within one drift window of the track, then no flash
+/// is assigned. Therefore it is important to look at other methods of using
+/// other T0 finders in addition to this one.
 ///
 /// The module takes a reconstructed track as input.
 /// The module outputs an anab::T0 object
@@ -126,6 +123,7 @@ private:
   double fDriftWindowSize;
   double fWeightOfDeltaYZ;
   double fMatchCriteria;
+  double fPEThreshold;
 
   // Variables used in module.......
   std::vector<double> trackStart;
@@ -182,13 +180,14 @@ void lbne::PhotonCounterT0Matching::reconfigure(fhicl::ParameterSet const & p)
   fFlashModuleLabel   = (p.get< std::string > ("FlashModuleLabel" ) );
   fTruthT0ModuleLabel = (p.get< std::string > ("TruthT0ModuleLabel"));
 
-  fPredictedXConstant   = (p.get< double > ("PredictedXConstant"   ) );;
-  fPredictedExpConstant = (p.get< double > ("PredictedExpConstant" ) );;
-  fPredictedExpGradient = (p.get< double > ("PredictedExpGradient" ) );;
+  fPredictedXConstant   = (p.get< double > ("PredictedXConstant"   ) );
+  fPredictedExpConstant = (p.get< double > ("PredictedExpConstant" ) );
+  fPredictedExpGradient = (p.get< double > ("PredictedExpGradient" ) );
 
   fDriftWindowSize = (p.get< double > ("DriftWindowSize"   ) );
   fWeightOfDeltaYZ = (p.get< double > ("WeightOfDeltaYZ"   ) );
   fMatchCriteria   = (p.get< double > ("MatchCriteria"     ) );
+  fPEThreshold     = (p.get< double > ("PEThreshold"       ) );
 }
 
 void lbne::PhotonCounterT0Matching::beginJob()
@@ -311,6 +310,9 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	TimeSep = trkTimeCentre - FlashTime; // Time in us!
 	if ( TimeSep < 0 || TimeSep > (fDriftWindowSize/timeservice->TPCClock().Frequency() ) ) continue; // Times compared in us!
 	
+	// Check flash has enough PE's to satisfy our threshold
+	if ( flashlist[iFlash]->TotalPE() < fPEThreshold ) continue;
+
 	// Work out some quantities for this flash...
 	// PredictedX = ( A / x^n ) + exp ( B + Cx )
 	PredictedX   = (fPredictedXConstant / pow ( flashlist[iFlash]->TotalPE(), fPredictedXPower ) ) + ( exp ( fPredictedExpConstant + ( fPredictedExpGradient * flashlist[iFlash]->TotalPE() ) ) );
