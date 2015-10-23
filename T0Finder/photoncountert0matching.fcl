@@ -19,6 +19,7 @@ standard_photoncountert0matching:
     				    	# 0 - Use both delta YZ and delta X quantities.
 				    	# 1 - Use only delta YZ (the difference between flash and track centres in YZ).
 				    	# 2 - Use only delta X (the difference between X positions predicted by timing and from PE versus X fit).
+    PEThreshold:        0               # Threshold number of PE's needed to try to match a flash with a track.
 }
 
 lbne35t_photoncountert0matching:    @local::standard_photoncountert0matching
