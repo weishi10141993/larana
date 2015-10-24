@@ -91,11 +91,12 @@ void pid::Chi2ParticleID::produce(art::Event & evt)
 
   art::FindManyP<anab::Calorimetry> fmcal(trackListHandle, evt, fCalorimetryModuleLabel);
 
-  if (!fmcal.isValid()) return;
+  //if (!fmcal.isValid()) return;
 
   std::unique_ptr< std::vector<anab::ParticleID> > particleidcol(new std::vector<anab::ParticleID>);
   std::unique_ptr< art::Assns<recob::Track, anab::ParticleID> > assn(new art::Assns<recob::Track, anab::ParticleID>);
 
+  if (fmcal.isValid()) {
   for (size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter){   
     for (size_t i = 0; i<fmcal.at(trkIter).size(); ++i){
       anab::ParticleID  pidout;
@@ -104,7 +105,7 @@ void pid::Chi2ParticleID::produce(art::Event & evt)
       util::CreateAssn(*this, evt, *particleidcol, tracklist[trkIter], *assn);
     }
   }
-
+  }
   evt.put(std::move(particleidcol));
   evt.put(std::move(assn));
 
