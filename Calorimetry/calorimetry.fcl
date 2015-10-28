@@ -5,7 +5,7 @@ standard_calorimetryalgdata:
   CalAmpConstants:  	[ 0.582554e-3 , 1.16594e-3 ]
   CalAreaConstants:  	[ 0.544391e-2 , 2.0376e-2 ]
 #  UseArea:              false
-  CaloUseModBox:        false   #use modified Box model recombination correction
+  CaloUseModBox:        true   #use modified Box model recombination correction
 }
 
 standard_calorimetryalgmc:
@@ -13,7 +13,7 @@ standard_calorimetryalgmc:
   CalAmpConstants:   	[ 0.588726e-3 , 1.18998e-3 ]
   CalAreaConstants:   	[ 0.773887e-2 , 1.78186e-2 ]
 #  UseArea:              false
-  CaloUseModBox:        false   #use modified Box model recombination correction
+  CaloUseModBox:        true   #use modified Box model recombination correction
 }
 
 standard_calodata:
@@ -22,7 +22,7 @@ standard_calodata:
  TrackModuleLabel:       "track3d" #this must have track-spacepoint and track-hit associations
  SpacePointModuleLabel:  "spacepointfinder" #this must have spacepoint-hit associations
  T0ModuleLabel:          "mctrutht0"
- UseArea:		 false
+ UseArea:		 true
  MakeTree:               false
  CaloAlg:	         @local::standard_calorimetryalgdata
 }
@@ -33,7 +33,7 @@ standard_calomc:
  TrackModuleLabel:       "track3d" #this must have track-spacepoint and track-hit associations
  SpacePointModuleLabel:  "spacepointfinder" #this must have spacepoint-hit associations
  T0ModuleLabel:          "mctrutht0"
- UseArea:		 false
+ UseArea:		 true
  MakeTree:               false
  CaloAlg:	         @local::standard_calorimetryalgmc
 }
