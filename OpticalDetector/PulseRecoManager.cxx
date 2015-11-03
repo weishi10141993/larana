@@ -103,12 +103,12 @@ namespace pmtana{
     //
     for(auto reco_algo : _reco_algo_v){
       
-	reco_algo->SetPedMean(ped_mean);
-	
-	reco_algo->SetPedRMS (sigma);
-	
-	status = status && reco_algo->RecoPulse(fifo);
-	
+      reco_algo->SetPedMean(ped_mean);
+      
+      reco_algo->SetPedRMS (sigma);
+      
+      status = status && reco_algo->RecoPulse(fifo);
+
     } // end of reco algorithm loop
     return status;
   
