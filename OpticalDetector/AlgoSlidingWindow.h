@@ -59,13 +59,15 @@ namespace pmtana
   protected:
 
     /// A variable holder for a user-defined absolute ADC threshold value
-    float _adc_thres;
+    float _adc_thres, _end_adc_thres;
 
     /// A variable holder for a multiplicative factor for the pedestal standard deviation to define the threshold.
-    float _nsigma;
-
-    size_t _min_wf_size;
+    float _nsigma, _end_nsigma;
+    bool _verbose;
+    size_t _min_wf_size, _num_presample;
     float  _max_sigma;
+    float  _ped_range_max;
+    float  _ped_range_min;
     std::vector<float> _local_mean;
     std::vector<float> _local_sigma;
   
