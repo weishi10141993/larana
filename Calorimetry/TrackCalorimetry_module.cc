@@ -83,7 +83,7 @@ void calo::TrackCalorimetry::produce(art::Event & e)
 {
   art::ServiceHandle<geo::Geometry> geomHandle;
   geo::Geometry & geom(*geomHandle);
-  const dataprov::DetectorProperties* detprop = art::ServiceHandle<util::DetectorPropertiesService>()->getDetectorProperties();
+  const dataprov::IDetectorProperties* detprop = lar::providerFrom<util::IDetectorPropertiesService>();
 
   art::Handle< std::vector<recob::Track> > trackHandle;
   e.getByLabel(fTrackModuleLabel,trackHandle);

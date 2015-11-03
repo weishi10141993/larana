@@ -28,7 +28,7 @@
 #include "SimulationBase/MCTruth.h"
 #include "SimulationBase/MCParticle.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/DetectorClocksService.h"
+#include "Utilities/IDetectorClocksService.h"
 #include "RecoBase/Track.h"
 #include "RecoBase/Cluster.h"
 #include "RecoBase/Hit.h"
@@ -390,7 +390,7 @@ void microboone::CosmicRemovalAna::FillMCInfo( std::vector<recob::Hit> const& hi
 					       std::vector<sim::MCHitCollection> const& mchitCollectionVector,
 					       std::map<int,const simb::MCTruth* > const& trackIdToTruthMap){
 
-  const dataprov::DetectorClocks* ts = art::ServiceHandle<util::DetectorClocksService>()->getDetectorClocks();
+  const dataprov::IDetectorClocks* ts = lar::providerFrom<util::IDetectorClocksService>();
 
   for(size_t itr=0; itr<hitlist.size(); itr++){
 

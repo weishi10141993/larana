@@ -14,7 +14,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
 							    std::vector<float> const& dEdxVector,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    const dataprov::LArProperties* larp,
+							    const dataprov::ILArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -47,7 +47,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
 							    std::vector<float> const& dEdxVector,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    const dataprov::LArProperties* larp,
+							    const dataprov::ILArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -80,7 +80,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3
 							    std::vector<float> const& dEdxVector,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    const dataprov::LArProperties* larp,
+							    const dataprov::ILArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -113,7 +113,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(TVector3 const& pt1,
 							    float const& dEdx,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    const dataprov::LArProperties* larp,
+							    const dataprov::ILArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {
@@ -125,7 +125,7 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
 							    float const& dEdx,
 							    geo::Geometry const& geom,
 							    phot::PhotonVisibilityService const& pvs,
-							    const dataprov::LArProperties* larp,
+							    const dataprov::ILArProperties* larp,
 							    opdet::OpDigiProperties const& opdigip,
 							    float XOffset)
 {

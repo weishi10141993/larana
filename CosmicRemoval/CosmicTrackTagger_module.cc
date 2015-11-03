@@ -36,8 +36,8 @@
 #include "AnalysisBase/CosmicTag.h"
 #include "RecoAlg/SpacePointAlg.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/DetectorPropertiesService.h"
-#include "Utilities/LArPropertiesService.h"
+#include "Utilities/IDetectorPropertiesService.h"
+#include "Utilities/ILArPropertiesService.h"
 
 #include "TMatrixD.h"
 #include "TDecompSVD.h"
@@ -384,8 +384,8 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
   
   ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-  const dataprov::DetectorProperties* detp = art::ServiceHandle<util::DetectorPropertiesService>()->getDetectorProperties();
-  const dataprov::LArProperties* larp = art::ServiceHandle<util::LArPropertiesService>()->getLArProperties();
+  const dataprov::IDetectorProperties* detp = lar::providerFrom<util::IDetectorPropertiesService>();
+  const dataprov::ILArProperties* larp = lar::providerFrom<util::ILArPropertiesService>();
   art::ServiceHandle<geo::Geometry> geo;
 
   fDetHalfHeight = geo->DetHalfHeight();

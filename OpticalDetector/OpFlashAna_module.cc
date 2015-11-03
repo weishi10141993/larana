@@ -27,7 +27,7 @@
 #include "RawData/OpDetPulse.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
-#include "Utilities/DetectorClocksService.h"
+#include "Utilities/IDetectorClocksService.h"
 //#include "OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
@@ -140,7 +140,7 @@ namespace opdet {
 //    fTimeEnd    = odp->TimeEnd();
 //    fSampleFreq = odp->SampleFreq();
 
-    const dataprov::DetectorClocks* clks = art::ServiceHandle< util::DetectorClocksService >()->getDetectorClocks();
+    const dataprov::IDetectorClocks* clks = lar::providerFrom<util::IDetectorClocksService>();
     fTimeBegin  = clks->OpticalClock().Time();
     fTimeEnd    = clks->OpticalClock().FramePeriod();
     fSampleFreq = clks->OpticalClock().Frequency();

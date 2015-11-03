@@ -49,7 +49,7 @@ void opdet::FlashHypothesisAnaAlg::RunComparison(const unsigned int run,
 						 geo::Geometry const& geom,
 						 opdet::OpDigiProperties const& opdigip,
 						 phot::PhotonVisibilityService const& pvs,
-						 const dataprov::LArProperties* larp)
+						 const dataprov::ILArProperties* larp)
 {
   FlashHypothesisCollection fhc(geom.NOpDets());
   for(auto const& mctrack : mctrackVec){

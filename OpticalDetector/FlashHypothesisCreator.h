@@ -20,7 +20,7 @@
 
 #include "Geometry/Geometry.h"
 #include "PhotonPropagation/PhotonVisibilityService.h"
-#include "Utilities/LArPropertiesService.h"
+#include "Utilities/ILArPropertiesService.h"
 #include "OpticalDetector/OpDigiProperties.h"
 
 #include "TVector3.h"
@@ -39,7 +39,7 @@ namespace opdet{
 							   std::vector<float> const& dEdxVector,
 							   geo::Geometry const& geom,
 							   phot::PhotonVisibilityService const& pvs,
-							   const dataprov::LArProperties* larp,
+							   const dataprov::ILArProperties* larp,
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
     
@@ -47,7 +47,7 @@ namespace opdet{
 							   std::vector<float> const& dEdxVector,
 							   geo::Geometry const& geom,
 							   phot::PhotonVisibilityService const& pvs,
-							   const dataprov::LArProperties* larp,
+							   const dataprov::ILArProperties* larp,
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
 
@@ -55,7 +55,7 @@ namespace opdet{
 							   std::vector<float> const& dEdxVector,
 							   geo::Geometry const& geom,
 							   phot::PhotonVisibilityService const& pvs,
-							   const dataprov::LArProperties* larp,
+							   const dataprov::ILArProperties* larp,
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
     
@@ -63,7 +63,7 @@ namespace opdet{
 							   float const& dEdx,
 							   geo::Geometry const& geom,
 							   phot::PhotonVisibilityService const& pvs,
-							   const dataprov::LArProperties* larp,
+							   const dataprov::ILArProperties* larp,
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
     
@@ -72,7 +72,7 @@ namespace opdet{
 							       float const& dEdx,
 							       geo::Geometry const& geom,
 							       phot::PhotonVisibilityService const& pvs,
-							       const dataprov::LArProperties* larp,
+							       const dataprov::ILArProperties* larp,
 							       opdet::OpDigiProperties const& opdigip,
 							       float XOffset);
     
