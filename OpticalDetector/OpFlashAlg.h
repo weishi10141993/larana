@@ -18,7 +18,7 @@
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
 #include "Geometry/Geometry.h"
-#include "Utilities/IDetectorClocksService.h"
+#include "Utilities/DetectorClocksService.h"
 
 namespace opdet{
 
@@ -33,7 +33,7 @@ namespace opdet{
 		      float const&,
 		      float const&,
 		      float const&,
-		      const dataprov::IDetectorClocks*,
+		      const dataprov::DetectorClocks*,
 		      std::vector<double> const&,
           bool const&,
 		      float const&);
@@ -42,7 +42,7 @@ namespace opdet{
 		     int const&,
 		     double const&,
 		     pmtana::pulse_param const&,
-		     const dataprov::IDetectorClocks*,
+		     const dataprov::DetectorClocks*,
 		     double const&,
          bool const&,
 		     std::vector<recob::OpHit>&);
@@ -122,7 +122,7 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-		      const dataprov::IDetectorClocks* ts,
+		      const dataprov::DetectorClocks* ts,
 		      float const& TrigCoinc);
 
   void AddHitContribution( recob::OpHit const& currentHit,

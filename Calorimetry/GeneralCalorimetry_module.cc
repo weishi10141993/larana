@@ -16,7 +16,7 @@ extern "C" {
 #include <string>
 #include <algorithm>
 
-#include "Utilities/IDetectorPropertiesService.h"
+#include "Utilities/DetectorPropertiesService.h"
 #include "Geometry/Geometry.h"
 #include "Geometry/TPCGeo.h"
 #include "Geometry/PlaneGeo.h"
@@ -74,7 +74,7 @@ calo::GeneralCalorimetry::GeneralCalorimetry(fhicl::ParameterSet const& pset)
   , fCollectionPlane(0)
   , caloAlg(pset.get< fhicl::ParameterSet >("CaloAlg"))
 {
-  const dataprov::IDetectorProperties* dp = lar::providerFrom<util::IDetectorPropertiesService>();
+  const dataprov::DetectorProperties* dp = lar::providerFrom<util::DetectorPropertiesService>();
   
   fADCToElectrons = 1./dp->ElectronsToADC();
 
@@ -115,7 +115,7 @@ void calo::GeneralCalorimetry::produce(art::Event& evt)
   std::vector< art::Ptr<recob::Track> > tracks;
   art::fill_ptr_vector(tracks, trackHandle);
   
-  const dataprov::IDetectorProperties* dp = lar::providerFrom<util::IDetectorPropertiesService>();
+  const dataprov::DetectorProperties* dp = lar::providerFrom<util::DetectorPropertiesService>();
 
   //create anab::Calorimetry objects and make association with recob::Track
   std::unique_ptr< std::vector<anab::Calorimetry> > calorimetrycol(new std::vector<anab::Calorimetry>);

@@ -17,7 +17,7 @@
 #include "AnalysisBase/Calorimetry.h"
 
 #include "Geometry/Geometry.h"
-#include "Utilities/IDetectorPropertiesService.h"
+#include "Utilities/DetectorPropertiesService.h"
 
 #include "AnalysisAlg/CalorimetryAlg.h"
 
@@ -40,7 +40,7 @@ class calo::TrackCalorimetryAlg{
 			  std::vector<anab::Calorimetry>&,
 			  std::vector<size_t>&,
 			  geo::Geometry const&,
-			  const dataprov::IDetectorProperties*);
+			  const dataprov::DetectorProperties*);
 
  private:
 

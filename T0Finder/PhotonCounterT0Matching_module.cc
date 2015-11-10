@@ -65,8 +65,8 @@
 #include "RecoBase/Shower.h"
 #include "RecoBase/OpFlash.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/IDetectorPropertiesService.h"
-#include "Utilities/IDetectorClocksService.h"
+#include "Utilities/DetectorPropertiesService.h"
+#include "Utilities/DetectorClocksService.h"
 #include "SimulationBase/MCParticle.h"
 #include "SimulationBase/MCTruth.h"
 #include "MCCheater/BackTracker.h"
@@ -227,8 +227,8 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 {
   // Access art services...
   art::ServiceHandle<geo::Geometry> geom;
-  const dataprov::IDetectorProperties* detprop = lar::providerFrom<util::IDetectorPropertiesService>();
-  const dataprov::IDetectorClocks* clks = lar::providerFrom<util::IDetectorClocksService>();
+  const dataprov::DetectorProperties* detprop = lar::providerFrom<util::DetectorPropertiesService>();
+  const dataprov::DetectorClocks* clks = lar::providerFrom<util::DetectorClocksService>();
   art::ServiceHandle<cheat::BackTracker> bt;
 
   //TrackList handle

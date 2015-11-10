@@ -59,7 +59,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
 								 std::vector<size_t>& assnTrackTagVector,
 								 geo::Geometry const& geom,
 								 phot::PhotonVisibilityService const& pvs,
-								 const dataprov::ILArProperties* larp,
+								 const dataprov::LArProperties* larp,
 								 opdet::OpDigiProperties const& opdigip){
 
   std::vector< const recob::OpFlash* > flashesOnBeamTime;
@@ -124,7 +124,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 								   std::vector<recob::Track> const& trackVector,
 								   geo::Geometry const& geom,
 								   phot::PhotonVisibilityService const& pvs,
-								   const dataprov::ILArProperties* larp,
+								   const dataprov::LArProperties* larp,
 								   opdet::OpDigiProperties const& opdigip){
 
   cFlashComparison_p.run = run;
@@ -205,7 +205,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 								   std::vector<simb::MCParticle> const& mcParticleVector,
 								   geo::Geometry const& geom,
 								   phot::PhotonVisibilityService const& pvs,
-								   const dataprov::ILArProperties* larp,
+								   const dataprov::LArProperties* larp,
 								   opdet::OpDigiProperties const& opdigip){
 
   cFlashComparison_p.run = run;
@@ -389,7 +389,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::NormalizeLightHypothesis(std::vector<
 std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob::Track const& track, 
 									  geo::Geometry const& geom,
 									  phot::PhotonVisibilityService const& pvs,
-									  const dataprov::ILArProperties* larp,
+									  const dataprov::LArProperties* larp,
 									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {
@@ -419,7 +419,7 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(simb::
 									  size_t start_i, size_t end_i,
 									  geo::Geometry const& geom,
 									  phot::PhotonVisibilityService const& pvs,
-									  const dataprov::ILArProperties* larp,
+									  const dataprov::LArProperties* larp,
 									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {

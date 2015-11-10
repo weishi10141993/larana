@@ -15,7 +15,7 @@
 #include "OpticalDetector/AlgoThreshold.h"
 #include "OpticalDetector/AlgoPedestal.h"
 #include "OpticalDetector/PulseRecoManager.h"
-#include "Utilities/IDetectorClocksService.h"
+#include "Utilities/DetectorClocksService.h"
 
 // Framework includes
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -248,7 +248,7 @@ namespace opdet {
   void LEDCalibrationAna::analyze(const art::Event& evt) 
   {
 
-    const dataprov::IDetectorClocks* ts = lar::providerFrom<util::IDetectorClocksService>();
+    const dataprov::DetectorClocks* ts = lar::providerFrom<util::DetectorClocksService>();
 
 
     fRunID=evt.run();

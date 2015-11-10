@@ -82,7 +82,7 @@ namespace opdet{
     geo::Geometry const& geo(*geoHandle);
     opdet::OpDigiProperties const& opdigi(*opdigiHandle);
     phot::PhotonVisibilityService const& pvs(*pvsHandle);
-    auto const *larp = lar::providerFrom<util::ILArPropertiesService>();
+    auto const *larp = lar::providerFrom<util::LArPropertiesService>();
 
     fAlg.RunComparison((unsigned int)e.run(),(unsigned int)e.id().event(),
 		       mctrackVec,simPhotonsVec,

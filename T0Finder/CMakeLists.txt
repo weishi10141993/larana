@@ -29,8 +29,8 @@ simple_plugin(PhotonCounterT0Matching "module"
 		        Geometry
 			Geometry_service
 			Utilities
-			DetectorPropertiesService_service 
-			DetectorClocksService_service 
+			DetectorPropertiesServiceStandard_service 
+			DetectorClocksServiceStandard_service 
 			BackTracker_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}

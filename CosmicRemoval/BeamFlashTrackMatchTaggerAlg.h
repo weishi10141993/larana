@@ -22,7 +22,7 @@
 
 #include "Geometry/Geometry.h"
 #include "PhotonPropagation/PhotonVisibilityService.h"
-#include "Utilities/ILArPropertiesService.h"
+#include "Utilities/LArPropertiesService.h"
 #include "OpticalDetector/OpDigiProperties.h"
 
 #include "TTree.h"
@@ -47,7 +47,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			     std::vector<size_t>&,
 			     geo::Geometry const&,
 			     phot::PhotonVisibilityService const&,
-			     const dataprov::ILArProperties *,
+			     const dataprov::LArProperties *,
 			     opdet::OpDigiProperties const&);
 
   void SetHypothesisComparisonTree(TTree*,TH1F*,TH1F*);
@@ -58,7 +58,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			       std::vector<recob::Track> const&,
 			       geo::Geometry const&,
 			       phot::PhotonVisibilityService const&,
-			       const dataprov::ILArProperties *,
+			       const dataprov::LArProperties *,
 			       opdet::OpDigiProperties const&);
 
   void RunHypothesisComparison(unsigned int const,
@@ -67,7 +67,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			       std::vector<simb::MCParticle> const&,
 			       geo::Geometry const&,
 			       phot::PhotonVisibilityService const&,
-			       const dataprov::ILArProperties *,
+			       const dataprov::LArProperties *,
 			       opdet::OpDigiProperties const&);
 
  private:
@@ -144,7 +144,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   std::vector<float> GetMIPHypotheses(recob::Track const& track, 
 				      geo::Geometry const& geom,
 				      phot::PhotonVisibilityService const& pvs,
-				      const dataprov::ILArProperties *,
+				      const dataprov::LArProperties *,
 				      opdet::OpDigiProperties const&,
 				      float XOffset=0);
 
@@ -153,7 +153,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 				      size_t end_i,
 				      geo::Geometry const& geom,
 				      phot::PhotonVisibilityService const& pvs,
-				      const dataprov::ILArProperties *,
+				      const dataprov::LArProperties *,
 				      opdet::OpDigiProperties const&,
 				      float XOffset=0);
 

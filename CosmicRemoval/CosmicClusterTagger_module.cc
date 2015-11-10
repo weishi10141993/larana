@@ -35,8 +35,8 @@
 
 #include "RecoAlg/SpacePointAlg.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/IDetectorPropertiesService.h"
-#include "Utilities/ILArPropertiesService.h"
+#include "Utilities/DetectorPropertiesService.h"
+#include "Utilities/LArPropertiesService.h"
 
 #include "TMatrixD.h"
 #include "TDecompSVD.h"
@@ -213,8 +213,8 @@ void cosmic::CosmicClusterTagger::beginJob() {
 void cosmic::CosmicClusterTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
  
-  const dataprov::IDetectorProperties* detp = lar::providerFrom<util::IDetectorPropertiesService>();
-  const dataprov::ILArProperties* larp = lar::providerFrom<util::ILArPropertiesService>();
+  const dataprov::DetectorProperties* detp = lar::providerFrom<util::DetectorPropertiesService>();
+  const dataprov::LArProperties* larp = lar::providerFrom<util::LArPropertiesService>();
   art::ServiceHandle<geo::Geometry> geo;
 
   fSamplingRate = detp->SamplingRate();

@@ -27,7 +27,7 @@ void calo::TrackCalorimetryAlg::ExtractCalorimetry(std::vector<recob::Track> con
 						   std::vector<anab::Calorimetry>& caloVector,
 						   std::vector<size_t>& assnTrackCaloVector,
 						   geo::Geometry const& geom,
-						   const dataprov::IDetectorProperties* detprop)
+						   const dataprov::DetectorProperties* detprop)
 {
 
   //loop over the track list
