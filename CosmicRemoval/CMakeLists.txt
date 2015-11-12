@@ -13,7 +13,6 @@ art_make(BASENAME_ONLY
 		     Geometry
 		     Geometry_service
 		     PhotonVisibilityService_service
-		     LArPropertiesServiceStandard_service
 		     OpDigiProperties_service
 		     Utilities
 		     ${SIMULATIONBASE}
@@ -39,8 +38,6 @@ art_make(BASENAME_ONLY
 		            OpDigiProperties_service
 			    AnalysisAlg
 			    AnalysisBase
-                            LArPropertiesServiceStandard_service
-			    DetectorPropertiesServiceStandard_service
 			    Utilities
 			    ${MAGNETICFIELD_SERVICE}
 			    ${SIMULATIONBASE}

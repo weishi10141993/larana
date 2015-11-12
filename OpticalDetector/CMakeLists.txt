@@ -51,7 +51,6 @@ art_make( BASENAME_ONLY
                         Geometry_service
                         PhotonVisibilityService_service
 		        OpDigiProperties_service
-			LArPropertiesServiceStandard_service
 		        Utilities
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
@@ -104,7 +103,6 @@ art_make( BASENAME_ONLY
        SERVICE_LIBRARIES
                         Geometry
                         Geometry_service
-			LArPropertiesServiceStandard_service
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
 			${ART_FRAMEWORK_SERVICES_REGISTRY}
