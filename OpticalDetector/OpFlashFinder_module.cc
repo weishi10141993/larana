@@ -16,11 +16,15 @@
 #include "Geometry/Geometry.h"
 #include "Geometry/OpDetGeo.h"
 #include "RawData/OpDetWaveform.h"
-#include "OpticalDetector/AlgoThreshold.h"
-#include "OpticalDetector/AlgoSiPM.h"
-#include "OpticalDetector/AlgoPedestal.h"
-#include "OpticalDetector/AlgoSlidingWindow.h"
-#include "OpticalDetector/PulseRecoManager.h"
+#include "OpHitFinder/AlgoThreshold.h"
+#include "OpHitFinder/AlgoFixedWindow.h"
+#include "OpHitFinder/AlgoSlidingWindow.h"
+#include "OpHitFinder/AlgoCFD.h"
+#include "OpHitFinder/AlgoSiPM.h"
+#include "OpHitFinder/PedAlgoEdges.h"
+#include "OpHitFinder/PedAlgoRollingMean.h"
+#include "OpHitFinder/PedAlgoUB.h"
+#include "OpHitFinder/PulseRecoManager.h"
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
 #include "Utilities/AssociationUtil.h"
@@ -78,10 +82,12 @@ namespace opdet {
     std::string fGenModule ;
     std::vector< std::string > fInputLabels;
     std::string fThreshAlgName;
+    std::string fPedAlgName;
     std::set<unsigned int> fChannelMasks;
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::PMTPulseRecoBase* fThreshAlg;
+    pmtana::PMTPedestalBase*  fPedAlg;
 
     Int_t    fBinWidth;
     Float_t  fFlashThreshold;
@@ -91,7 +97,6 @@ namespace opdet {
     Bool_t   fAreaToPE;
     Float_t  fSPEArea;
     
-
     unsigned int fNplanes;
     unsigned int fNOpChannels;
     unsigned int fMaxOpChannel;
@@ -115,31 +120,41 @@ namespace opdet {
 
   //-----------------------------------------------------------------------
   // Constructor
-  OpFlashFinder::OpFlashFinder(const fhicl::ParameterSet & pset):
+  OpFlashFinder::OpFlashFinder(const fhicl::ParameterSet & p):
     fPulseRecoMgr()
   {
 
-    reconfigure(pset);
+    reconfigure(p);
 
-    // Initialize the hit finder
-    if      (fThreshAlgName == "Threshold") 
-      fThreshAlg = new pmtana::AlgoThreshold(pset.get< fhicl::ParameterSet >("algo_threshold"));
-    else if (fThreshAlgName == "SiPM") 
-      fThreshAlg = new pmtana::AlgoSiPM(pset.get< fhicl::ParameterSet >("algo_threshold"));
-    else if (fThreshAlgName == "SlidingWindow") {
-      fThreshAlg = new pmtana::AlgoSlidingWindow(pset.get< fhicl::ParameterSet >("algo_threshold"));
-    }
-
+    auto const hit_alg_pset = p.get<fhicl::ParameterSet>("HitAlgoPset");
+    std::string fThreshAlgName = hit_alg_pset.get<std::string>("Name");
+    if      (fThreshAlgName == "Threshold")
+      fThreshAlg = new pmtana::AlgoThreshold(hit_alg_pset);
+    else if (fThreshAlgName == "SiPM")
+      fThreshAlg = new pmtana::AlgoSiPM(hit_alg_pset);
+    else if (fThreshAlgName == "SlidingWindow")
+      fThreshAlg = new pmtana::AlgoSlidingWindow(hit_alg_pset);
+    else if (fThreshAlgName == "CFD" )
+      fThreshAlg = new pmtana::AlgoCFD(hit_alg_pset);
     else throw art::Exception(art::errors::UnimplementedFeature)
-                    << "Cannot find implementation for " 
-                    << fThreshAlgName << " algorithm.\n";   
+	   << "Cannot find implementation for "
+	   << fThreshAlgName << " algorithm.\n";
+
+    auto const ped_alg_pset = p.get<fhicl::ParameterSet>("PedAlgoPset");
+    std::string fPedAlgName = ped_alg_pset.get<std::string>("Name");
+    if      (fPedAlgName == "Edges")
+      fPedAlg = new pmtana::PedAlgoEdges(ped_alg_pset);
+    else if (fPedAlgName == "RollingMean")
+      fPedAlg = new pmtana::PedAlgoRollingMean(ped_alg_pset);
+    else if (fPedAlgName == "UB"   )
+      fPedAlg = new pmtana::PedAlgoUB(ped_alg_pset);
 
     produces<std::vector< recob::OpFlash> >();
     produces<std::vector< recob::OpHit> >();
     produces<art::Assns<recob::OpFlash, recob::OpHit> >();
 
     fPulseRecoMgr.AddRecoAlgo(fThreshAlg);
-    fPulseRecoMgr.SetPedAlgo(pmtana::kHEAD);
+    fPulseRecoMgr.SetDefaultPedAlgo(fPedAlg);
 
   }
 
