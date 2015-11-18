@@ -127,13 +127,15 @@ namespace opdet {
     reconfigure(p);
 
     auto const hit_alg_pset = p.get<fhicl::ParameterSet>("HitAlgoPset");
-    std::string fThreshAlgName = hit_alg_pset.get<std::string>("Name");
+    fThreshAlgName = hit_alg_pset.get<std::string>("Name");
     if      (fThreshAlgName == "Threshold")
       fThreshAlg = new pmtana::AlgoThreshold(hit_alg_pset);
     else if (fThreshAlgName == "SiPM")
       fThreshAlg = new pmtana::AlgoSiPM(hit_alg_pset);
     else if (fThreshAlgName == "SlidingWindow")
       fThreshAlg = new pmtana::AlgoSlidingWindow(hit_alg_pset);
+    else if (fThreshAlgName == "FixedWindow")
+      fThreshAlg = new pmtana::AlgoFixedWindow(hit_alg_pset);
     else if (fThreshAlgName == "CFD" )
       fThreshAlg = new pmtana::AlgoCFD(hit_alg_pset);
     else throw art::Exception(art::errors::UnimplementedFeature)
@@ -166,7 +168,6 @@ namespace opdet {
     fInputModule    = pset.get<std::string>("InputModule");
     fGenModule      = pset.get<std::string>("GenModule");
     fInputLabels    = pset.get<std::vector<std::string> >("InputLabels");
-    fThreshAlgName  = pset.get< fhicl::ParameterSet >("algo_threshold").get< std::string >("HitFinder");
       
     for(auto const& ch : pset.get<std::vector<unsigned int> >("ChannelMasks",std::vector<unsigned int>()))
       fChannelMasks.insert(ch);

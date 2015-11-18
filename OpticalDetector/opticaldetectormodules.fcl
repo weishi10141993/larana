@@ -167,7 +167,6 @@ standard_algo_pedestal_ub:
 standard_preco_manager:
 {
     module_type: "PulseRecoManager"
-    ped_algo:    @local::standard_ped_algo
 }
 
 ###################################################################
@@ -371,7 +370,7 @@ microboone_opflashtruth:     @local::standard_opflashtruth
 microboone_opdigiana:        @local::standard_opdigiana
 microboone_opflashana:       @local::standard_opflashana
 
-microboone_optdetdigitizer:  @local::standard_optdetdigitizer
-microboone_optical_readout:  @local::standard_optical_readout
+#microboone_optdetdigitizer:  @local::standard_optdetdigitizer
+#microboone_optical_readout:  @local::standard_optical_readout
 
 END_PROLOG

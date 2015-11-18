@@ -61,6 +61,8 @@ namespace pmtana{
   {
     this->Reset();
 
+    if( _index_start >= wf.size() ) return true;
+
     _pulse_v[0].t_start = (double)(_index_start);
 
     _pulse_v[0].ped_mean  = mean_v.front();
@@ -71,15 +73,19 @@ namespace pmtana{
 
       _pulse_v[0].t_end = (double)(wf.size() - 1);
 
-    else
+    else if(_index_end < wf.size())
 
       _pulse_v[0].t_end = (double)_index_end;
 
-    _pulse_v[0].t_max = PMTPulseRecoBase::Max(wf, _pulse_v[0].peak, _index_start, _index_end);
+    else
+
+      _pulse_v[0].t_end = wf.size() - 1;
+
+    _pulse_v[0].t_max = PMTPulseRecoBase::Max(wf, _pulse_v[0].peak, _index_start, _pulse_v[0].t_end);
 
     _pulse_v[0].peak -= mean_v.front();
 
-    PMTPulseRecoBase::Integral(wf, _pulse_v[0].area, _index_start, _index_end);
+    PMTPulseRecoBase::Integral(wf, _pulse_v[0].area, _index_start, _pulse_v[0].t_end);
 
     _pulse_v[0].area = _pulse_v[0].area - ( _pulse_v[0].t_end - _pulse_v[0].t_start + 1) * mean_v.front();
 
