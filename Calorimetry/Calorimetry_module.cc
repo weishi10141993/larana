@@ -33,8 +33,8 @@ extern "C" {
 #include "AnalysisBase/Calorimetry.h"
 #include "AnalysisBase/T0.h"
 #include "Utilities/AssociationUtil.h"
-#include "CalibrationDBI/Interface/IChannelStatusService.h"
-#include "CalibrationDBI/Interface/IChannelStatusProvider.h"
+#include "CalibrationDBI/Interface/ChannelStatusService.h"
+#include "CalibrationDBI/Interface/ChannelStatusProvider.h"
 #include "Geometry/PlaneGeo.h"
 #include "Geometry/WireGeo.h"
 
@@ -248,8 +248,8 @@ void calo::Calorimetry::produce(art::Event& evt)
   TPCsize[2] = (geom->DetLength());
 
   // channel quality
-  lariov::IChannelStatusProvider const& channelStatus
-    = art::ServiceHandle<lariov::IChannelStatusService>()->GetProvider();
+  lariov::ChannelStatusProvider const& channelStatus
+    = art::ServiceHandle<lariov::ChannelStatusService>()->GetProvider();
 
   frun = evt.id().run();
   fevent = evt.id().event();
