@@ -24,7 +24,7 @@
 #include "RecoBase/OpFlash.h"
 #include "RecoBase/OpHit.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/DetectorClocksService.h"
+#include "DetectorInfoServices/DetectorClocksService.h"
 #include "OpFlashAlg.h"
 
 // Framework includes
@@ -214,7 +214,7 @@ namespace opdet {
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
 
-    const dataprov::DetectorClocks* ts = lar::providerFrom<util::DetectorClocksService>();
+    const detinfo::DetectorClocks* ts = lar::providerFrom<detinfo::DetectorClocksService>();
     
     //
     // Get the pulses from the event

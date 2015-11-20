@@ -25,7 +25,7 @@ extern "C" {
 
 #include "AnalysisAlg/CalorimetryAlg.h"
 #include "SimpleTypesAndConstants/PhysicalConstants.h"
-#include "Utilities/DetectorPropertiesService.h"
+#include "DetectorInfoServices/DetectorPropertiesService.h"
 
 #include "RecoBase/Hit.h"
 #include "RecoBase/SpacePoint.h"
@@ -232,7 +232,7 @@ void calo::Calorimetry::beginJob()
 //------------------------------------------------------------------------------------//
 void calo::Calorimetry::produce(art::Event& evt)
 { 
-  const dataprov::DetectorProperties* detprop = lar::providerFrom<util::DetectorPropertiesService>();
+  const detinfo::DetectorProperties* detprop = lar::providerFrom<detinfo::DetectorPropertiesService>();
 
   art::Handle< std::vector<recob::Track> > trackListHandle;
   std::vector<art::Ptr<recob::Track> > tracklist;
@@ -775,7 +775,7 @@ void calo::Calorimetry::GetPitch(art::Ptr<recob::Hit> hit, std::vector<double> t
 
   // Get services
   art::ServiceHandle<geo::Geometry> geom;
-  const dataprov::DetectorProperties* dp = lar::providerFrom<util::DetectorPropertiesService>();
+  const detinfo::DetectorProperties* dp = lar::providerFrom<detinfo::DetectorPropertiesService>();
   
   //save distance to each spacepoint sorted by distance
   std::map<double,size_t> sptmap;

@@ -98,7 +98,7 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
   geo::Geometry const& geom(*geomHandle);
   art::ServiceHandle<phot::PhotonVisibilityService> pvsHandle;
   phot::PhotonVisibilityService const& pvs(*pvsHandle);
-  const dataprov::LArProperties* larp = lar::providerFrom<util::LArPropertiesService>();
+  const detinfo::LArProperties* larp = lar::providerFrom<detinfo::LArPropertiesService>();
   art::ServiceHandle<opdet::OpDigiProperties> opdigipHandle;
   opdet::OpDigiProperties const& opdigip(*opdigipHandle);
 

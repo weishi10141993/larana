@@ -44,8 +44,8 @@
 #include "AnalysisBase/CosmicTag.h"
 #include "RecoAlg/Cluster3DAlgs/PrincipalComponentsAlg.h"
 #include "Utilities/AssociationUtil.h"
-#include "Utilities/DetectorPropertiesService.h"
-#include "Utilities/LArPropertiesService.h"
+#include "DetectorInfoServices/DetectorPropertiesService.h"
+#include "DetectorInfoServices/LArPropertiesService.h"
 
 #include "TVector3.h"
 
@@ -79,7 +79,7 @@ private:
     std::string                           fPFParticleModuleLabel;
     std::string                           fPCAxisModuleLabel;
     
-    const dataprov::DetectorProperties*   fDetector;              ///<  Pointer to the detector properties
+    const detinfo::DetectorProperties*   fDetector;              ///<  Pointer to the detector properties
     lar_cluster3d::PrincipalComponentsAlg fPcaAlg;                ///<  Principal Components algorithm
     
     int                                   fDetectorWidthTicks;
@@ -393,9 +393,9 @@ void cosmic::CosmicPCAxisTagger::reconfigure(fhicl::ParameterSet const & p)
     // Implementation of optional member function here.
   
     ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-    fDetector = lar::providerFrom<util::DetectorPropertiesService>();
-    const dataprov::DetectorProperties* detp = fDetector;
-    const dataprov::LArProperties* larp = lar::providerFrom<util::LArPropertiesService>();
+    fDetector = lar::providerFrom<detinfo::DetectorPropertiesService>();
+    const detinfo::DetectorProperties* detp = fDetector;
+    const detinfo::LArProperties* larp = lar::providerFrom<detinfo::LArPropertiesService>();
     art::ServiceHandle<geo::Geometry> geo;
     
     fDetHalfHeight = geo->DetHalfHeight();

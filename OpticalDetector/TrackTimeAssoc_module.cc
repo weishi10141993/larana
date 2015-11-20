@@ -125,7 +125,7 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "Utilities/LArPropertiesService.h"
+#include "DetectorInfoServices/LArPropertiesService.h"
 #include "TH2D.h"
 
 // C++ language includes
@@ -209,7 +209,7 @@ namespace opdet {
     double xyz[3];
     for (int b=0; b!=fBezierResolution; b++)
       {
-	const dataprov::LArProperties* larp = lar::providerFrom<util::LArPropertiesService>();
+	const detinfo::LArProperties* larp = lar::providerFrom<detinfo::LArPropertiesService>();
 
 	double MIPYield   = larp->ScintYield();
 	double QE         = 0.01;
