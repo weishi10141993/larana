@@ -56,7 +56,7 @@ namespace calo {
     private:
         
       std::string    fTrackModuleLabel; ///< module creating the track objects and assns to hits
-      double         fADCToElectrons;   ///< filled using the util::DetectorProperties service
+      double         fADCToElectrons;   ///< filled using the detinfo::DetectorPropertiesService service
       geo::View_t    fCollectionView;   ///< view of the collection plane
       unsigned int   fCollectionPlane;  ///< plane of the collection plane
       art::ServiceHandle<geo::Geometry> fGeo;
