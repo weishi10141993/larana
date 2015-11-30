@@ -36,7 +36,6 @@
 #include "RecoAlg/SpacePointAlg.h"
 #include "Utilities/AssociationUtil.h"
 #include "DetectorInfoServices/DetectorPropertiesService.h"
-#include "DetectorInfoServices/LArPropertiesService.h"
 
 #include "TMatrixD.h"
 #include "TDecompSVD.h"
@@ -214,13 +213,12 @@ void cosmic::CosmicClusterTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
  
   const detinfo::DetectorProperties* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
-  const detinfo::LArProperties* larp = lar::providerFrom<detinfo::LArPropertiesService>();
   art::ServiceHandle<geo::Geometry> geo;
 
   fSamplingRate = detp->SamplingRate();
   fClusterModuleLabel = p.get< std::string >("ClusterModuleLabel", "cluster");
   fTickLimit = p.get< int >("TickLimit", 0);
-  const double driftVelocity = detp->DriftVelocity( detp->Efield(), larp->Temperature() ); // cm/us
+  const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
 
   //  std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB

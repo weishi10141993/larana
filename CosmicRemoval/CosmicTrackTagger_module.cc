@@ -37,7 +37,6 @@
 #include "RecoAlg/SpacePointAlg.h"
 #include "Utilities/AssociationUtil.h"
 #include "DetectorInfoServices/DetectorPropertiesService.h"
-#include "DetectorInfoServices/LArPropertiesService.h"
 
 #include "TMatrixD.h"
 #include "TDecompSVD.h"
@@ -385,7 +384,6 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   
   ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
   const detinfo::DetectorProperties* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
-  const detinfo::LArProperties* larp = lar::providerFrom<detinfo::LArPropertiesService>();
   art::ServiceHandle<geo::Geometry> geo;
 
   fDetHalfHeight = geo->DetHalfHeight();
@@ -400,7 +398,7 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
   fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
 
-  const double driftVelocity = detp->DriftVelocity( detp->Efield(), larp->Temperature() ); // cm/us
+  const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
 
   //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB

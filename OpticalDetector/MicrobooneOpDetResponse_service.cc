@@ -39,7 +39,7 @@ namespace opdet{
          * electronics simulation.
          **
         // Correct out the prescaling applied during simulation
-        art::ServiceHandle<detinfo::LArPropertiesService>   LarProp;
+        auto const* LArProp = lar::providerFrom<detinfo::LArPropertiesService>();
         fQE = tempfQE / LarProp->ScintPreScale();
 
         if (fQE > 1.0001 ) {
