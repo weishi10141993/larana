@@ -83,7 +83,6 @@ namespace opdet{
     
     const size_t NHits_prev = HitVector.size();
 
-    //double min_time = ts.TriggerTime();
     double min_time = std::numeric_limits<float>::max();
     for(auto const& wf_ptr : OpDetWaveformVector)
       if(wf_ptr.TimeStamp() < min_time) min_time = wf_ptr.TimeStamp();
