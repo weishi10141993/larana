@@ -14,11 +14,11 @@
 
 
 #include "art/Framework/Core/EDProducer.h"
-#include "RawData/OpDetPulse.h"
-#include "Simulation/sim.h"
+#include "lardata/RawData/OpDetPulse.h"
+#include "larsim/Simulation/sim.h"
 //#include "Geometry/Geometry.h"
-#include "OpticalDetector/OpDigiProperties.h"
-#include "OpticalDetector/OpDetResponseInterface.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
+#include "larana/OpticalDetector/OpDetResponseInterface.h"
 
 
 #include "CLHEP/Random/RandFlat.h"
@@ -110,10 +110,10 @@ namespace opdet{
 #include "artextensions/SeedService/SeedService.hh"
 
 // LArSoft includes
-#include "Simulation/SimListUtils.h"
-#include "Simulation/SimPhotons.h"
-#include "Simulation/LArG4Parameters.h"
-#include "RawData/OpDetPulse.h"
+#include "larsim/Simulation/SimListUtils.h"
+#include "larsim/Simulation/SimPhotons.h"
+#include "larsim/Simulation/LArG4Parameters.h"
+#include "lardata/RawData/OpDetPulse.h"
 
 // ROOT includes
 #include <TH1D.h>

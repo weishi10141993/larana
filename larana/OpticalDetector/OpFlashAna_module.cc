@@ -23,11 +23,11 @@
 #include <climits>
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "RawData/OpDetPulse.h"
-#include "RecoBase/OpFlash.h"
-#include "RecoBase/OpHit.h"
-#include "DetectorInfoServices/DetectorClocksService.h"
+#include "larcore/Geometry/Geometry.h"
+#include "lardata/RawData/OpDetPulse.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "lardata/RecoBase/OpHit.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 //#include "OpticalDetector/OpDigiProperties.h"
 
 // ART includes.

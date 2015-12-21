@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////////////////////////
 
 // LArSoft includes
-#include "OpticalDetector/OpDigiProperties.h"
-#include "OpticalDetectorData/OpticalTypes.h"
-#include "Geometry/Geometry.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
+#include "lardata/OpticalDetectorData/OpticalTypes.h"
+#include "larcore/Geometry/Geometry.h"
 
 // Framework includes
 #include "messagefacility/MessageLogger/MessageLogger.h" 

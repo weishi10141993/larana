@@ -1,5 +1,5 @@
 
-# OpFlashFinder_module.cc is not built - it seems specific to uboone
+# larana_OpticalDetector_OpFlashFinder_module.cc is not built - it seems specific to uboone
 
 art_make_library( LIBRARY_NAME FlashHypothesis
 		  	     SOURCE FlashHypothesis.cxx
@@ -32,7 +32,7 @@ art_make_library( LIBRARY_NAME OpFlashAnaAlg
 )
 
 
-art_make( BASENAME_ONLY
+art_make( 
           EXCLUDE FlashHypothesis.cxx
 			 FlashHypothesisCalculator.cxx
 		         FlashUtilities.cxx
@@ -48,9 +48,9 @@ art_make( BASENAME_ONLY
 			OpFlashAnaAlg
 			MCBase
                         Geometry
-                        Geometry_service
-                        PhotonVisibilityService_service
-		        OpDigiProperties_service
+                        larcore_Geometry_Geometry_service
+                        larsim_PhotonPropagation_PhotonVisibilityService_service
+		        larana_OpticalDetector_OpDigiProperties_service
 		        Utilities
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
@@ -67,19 +67,19 @@ art_make( BASENAME_ONLY
 	                ${FHICLCPP}
 			${CETLIB}
                         ${ROOT_BASIC_LIB_LIST}
-          MODULE_LIBRARIES OpDigiProperties_service
+          MODULE_LIBRARIES larana_OpticalDetector_OpDigiProperties_service
 	                OpticalDetector
-                        PhotonVisibilityService_service
-			BackTracker_service
+                        larsim_PhotonPropagation_PhotonVisibilityService_service
+			larsim_MCCheater_BackTracker_service
                         Filters
                         RecoObjects
                         RecoBase
 			MCBase
                         RecoAlg
                         Geometry
-                        Geometry_service
+                        larcore_Geometry_Geometry_service
                         Simulation
-                        TriggerAlgoMicroBoone_service
+                        larsim_TriggerAlgo_TriggerAlgoMicroBoone_service
                         Utilities
                         RawData
                         AnalysisAlg
@@ -102,7 +102,7 @@ art_make( BASENAME_ONLY
                         ${ROOT_BASIC_LIB_LIST}
        SERVICE_LIBRARIES
                         Geometry
-                        Geometry_service
+                        larcore_Geometry_Geometry_service
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
 			${ART_FRAMEWORK_SERVICES_REGISTRY}

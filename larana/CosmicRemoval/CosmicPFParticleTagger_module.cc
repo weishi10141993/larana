@@ -29,18 +29,18 @@
 #include <numeric>
 #include <iterator>
 
-#include "Geometry/Geometry.h"
-#include "Geometry/geo.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/geo.h"
 
-#include "RecoBase/PFParticle.h"
-#include "RecoBase/SpacePoint.h"
-#include "RecoBase/Hit.h"
-#include "RecoBase/Track.h"
+#include "lardata/RecoBase/PFParticle.h"
+#include "lardata/RecoBase/SpacePoint.h"
+#include "lardata/RecoBase/Hit.h"
+#include "lardata/RecoBase/Track.h"
 
-#include "AnalysisBase/CosmicTag.h"
-#include "RecoAlg/SpacePointAlg.h"
-#include "Utilities/AssociationUtil.h"
-#include "DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/AnalysisBase/CosmicTag.h"
+#include "larreco/RecoAlg/SpacePointAlg.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 
 #include "TVector3.h"
 

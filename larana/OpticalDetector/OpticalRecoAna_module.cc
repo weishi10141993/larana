@@ -2,7 +2,7 @@
 #include "OpticalRecoAna.h"
 
 // LArSoft includes
-#include "OpticalDetector/OpDigiProperties.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
 // Framework includes
 #include "art/Framework/Core/ModuleMacros.h"

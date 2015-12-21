@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 
-#include "OpticalDetector/MicrobooneOpDetResponse.h"
+#include "larana/OpticalDetector/MicrobooneOpDetResponse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 //#include "DetectorInfoServices/LArPropertiesService.h"
 #include "CLHEP/Random/RandFlat.h"

@@ -9,8 +9,8 @@
 #define OpHitAna_H 1
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "RawData/OpDetPulse.h"
+#include "larcore/Geometry/Geometry.h"
+#include "lardata/RawData/OpDetPulse.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -91,9 +91,9 @@ namespace opdet {
 // OpHitAna.cxx
 
 // LArSoft includes
-#include "RawData/OpDetPulse.h"
-#include "RecoBase/OpHit.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "lardata/RawData/OpDetPulse.h"
+#include "lardata/RecoBase/OpHit.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
 
 // Framework includes

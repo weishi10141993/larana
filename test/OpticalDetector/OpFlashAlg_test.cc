@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE ( OpFlashAlg_test )
 #include "boost/test/auto_unit_test.hpp"
 
-#include "OpticalDetector/OpFlashAlg.h"
-#include "OpticalDetectorData/OpticalTypes.h"
+#include "larana/OpticalDetector/OpFlashAlg.h"
+#include "lardata/OpticalDetectorData/OpticalTypes.h"
 
 const float HitThreshold = 3;
 const float FlashThreshold = 50;

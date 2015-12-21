@@ -2,7 +2,7 @@
 #include "boost/test/auto_unit_test.hpp"
 
 #include "fhiclcpp/ParameterSet.h"
-#include "OpticalDetector/AlgoThreshold.h"
+#include "larana/OpticalDetector/AlgoThreshold.h"
 
 
 struct AlgoThresholdFixture{

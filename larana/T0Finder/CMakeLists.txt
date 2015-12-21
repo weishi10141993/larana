@@ -4,9 +4,9 @@ simple_plugin(MCTruthT0Matching "module"
 		      AnalysisBase
 		      RecoBase
 		        Geometry
-			Geometry_service
+			larcore_Geometry_Geometry_service
 			Utilities
-			BackTracker_service
+			larsim_MCCheater_BackTracker_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -27,9 +27,9 @@ simple_plugin(PhotonCounterT0Matching "module"
 		      AnalysisBase
 		      RecoBase
 		        Geometry
-			Geometry_service
+			larcore_Geometry_Geometry_service
 			Utilities
-			BackTracker_service
+			larsim_MCCheater_BackTracker_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}

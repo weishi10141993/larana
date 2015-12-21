@@ -1,5 +1,5 @@
 include_directories ( ${PROJECT_SOURCE_DIR} )
-art_make( BASENAME_ONLY
+art_make( 
 	  LIBRARY_NAME ParticleIdentification
 	  LIB_LIBRARIES
                         AnalysisBase
@@ -14,7 +14,7 @@ art_make( BASENAME_ONLY
 	  		ParticleIdentification
                         RecoBase
                         Geometry
-                        Geometry_service
+                        larcore_Geometry_Geometry_service
                         AnalysisAlg
                         AnalysisBase
                         ${ART_FRAMEWORK_CORE}

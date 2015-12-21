@@ -5,15 +5,15 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 
 # Add top level include
 include_directories ( ${PROJECT_SOURCE_DIR} )
-art_make(BASENAME_ONLY
+art_make(
 	LIBRARY_NAME CosmicRemoval
 	LIB_LIBRARIES 
 		     RecoBase
 		     AnalysisBase
 		     Geometry
-		     Geometry_service
-		     PhotonVisibilityService_service
-		     OpDigiProperties_service
+		     larcore_Geometry_Geometry_service
+		     larsim_PhotonPropagation_PhotonVisibilityService_service
+		     larana_OpticalDetector_OpDigiProperties_service
 		     Utilities
 		     ${SIMULATIONBASE}
 		     ${MF_MESSAGELOGGER}
@@ -25,7 +25,7 @@ art_make(BASENAME_ONLY
 		     ${G4_LIB_LIST}
 	MODULE_LIBRARIES  
 			    CosmicRemoval
-			    BackTracker_service
+			    larsim_MCCheater_BackTracker_service
 			    RecoAlg
                             Cluster3DAlgs
 			    Simulation
@@ -33,9 +33,9 @@ art_make(BASENAME_ONLY
 			    RecoBase
 			    MCBase
 			    Geometry
-			    Geometry_service
-			    PhotonVisibilityService_service
-		            OpDigiProperties_service
+			    larcore_Geometry_Geometry_service
+			    larsim_PhotonPropagation_PhotonVisibilityService_service
+		            larana_OpticalDetector_OpDigiProperties_service
 			    AnalysisAlg
 			    AnalysisBase
 			    Utilities

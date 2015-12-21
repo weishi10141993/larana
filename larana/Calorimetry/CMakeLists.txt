@@ -1,10 +1,10 @@
 include_directories ( ${PROJECT_SOURCE_DIR} )
-art_make( BASENAME_ONLY
+art_make( 
 	  LIBRARY_NAME Calorimetry
 	  LIB_LIBRARIES	Filters
 		        RecoBase
 		        Geometry
-		        Geometry_service
+		        larcore_Geometry_Geometry_service
 		        RecoAlg
                         AnalysisAlg
                         AnalysisBase
@@ -22,7 +22,7 @@ art_make( BASENAME_ONLY
                         RecoObjects
                         RecoBase
                         Geometry
-                        Geometry_service
+                        larcore_Geometry_Geometry_service
                         Simulation
                         RawData
                         AnalysisAlg

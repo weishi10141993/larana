@@ -10,12 +10,12 @@
 #define LEDCalibrationAna_H 1
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "RawData/OpDetWaveform.h"
-#include "OpticalDetector/AlgoThreshold.h"
-#include "OpticalDetector/AlgoPedestal.h"
-#include "OpticalDetector/PulseRecoManager.h"
-#include "DetectorInfoServices/DetectorClocksService.h"
+#include "larcore/Geometry/Geometry.h"
+#include "lardata/RawData/OpDetWaveform.h"
+#include "larana/OpticalDetector/AlgoThreshold.h"
+#include "larana/OpticalDetector/AlgoPedestal.h"
+#include "larana/OpticalDetector/PulseRecoManager.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 
 // Framework includes
 #include "art/Framework/Core/EDAnalyzer.h"

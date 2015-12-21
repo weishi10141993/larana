@@ -12,14 +12,14 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "RecoBase/Hit.h"
-#include "RecoBase/Track.h"
-#include "AnalysisBase/Calorimetry.h"
+#include "lardata/RecoBase/Hit.h"
+#include "lardata/RecoBase/Track.h"
+#include "lardata/AnalysisBase/Calorimetry.h"
 
-#include "Geometry/Geometry.h"
-#include "DetectorInfoServices/DetectorPropertiesService.h"
+#include "larcore/Geometry/Geometry.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 
-#include "AnalysisAlg/CalorimetryAlg.h"
+#include "lardata/AnalysisAlg/CalorimetryAlg.h"
 
 #include <set>
 #include "TTree.h"

@@ -13,18 +13,18 @@
 #define OpFlashFinder_H 1
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "Geometry/OpDetGeo.h"
-#include "RawData/OpDetWaveform.h"
-#include "OpticalDetector/AlgoThreshold.h"
-#include "OpticalDetector/AlgoSiPM.h"
-#include "OpticalDetector/AlgoPedestal.h"
-#include "OpticalDetector/AlgoSlidingWindow.h"
-#include "OpticalDetector/PulseRecoManager.h"
-#include "RecoBase/OpFlash.h"
-#include "RecoBase/OpHit.h"
-#include "Utilities/AssociationUtil.h"
-#include "DetectorInfoServices/DetectorClocksService.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/OpDetGeo.h"
+#include "lardata/RawData/OpDetWaveform.h"
+#include "larana/OpticalDetector/AlgoThreshold.h"
+#include "larana/OpticalDetector/AlgoSiPM.h"
+#include "larana/OpticalDetector/AlgoPedestal.h"
+#include "larana/OpticalDetector/AlgoSlidingWindow.h"
+#include "larana/OpticalDetector/PulseRecoManager.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "lardata/RecoBase/OpHit.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "OpFlashAlg.h"
 
 // Framework includes
@@ -109,7 +109,7 @@ namespace opdet {
 
 #endif 
 
-#include "TriggerAlgo/TriggerAlgoMicroBoone.h"
+#include "larsim/TriggerAlgo/TriggerAlgoMicroBoone.h"
 
 namespace opdet {
 
