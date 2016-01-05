@@ -1,14 +1,14 @@
 #include "OpticalDetector/OpFlashAnaAlg.h"
 #include <iostream>
 
-void opdet::OpFlashAnaAlg::SetOpFlashTree(TTree* tree,bool makeOpDetPEHist)
+void opdet::OpFlashAnaAlg::SetOpFlashTree(TTree* tree, bool makeOpDetPEHist)
 {
   fOpFlashTree = tree;
   fMakeOpDetPEHist = makeOpDetPEHist;
   
   fOpFlashTree->Branch(fOpFlashTree->GetName(),
-		       &fOpFlashAnaStruct,
-		       fOpFlashAnaStruct.LeafList.c_str());
+                            &fOpFlashAnaStruct,
+            fOpFlashAnaStruct.LeafList.c_str());
   if(fMakeOpDetPEHist){
     fOpFlashAnaStruct.FlashOpDetPEHist->SetName("hOpDetPEs");
     fOpFlashAnaStruct.FlashOpDetPEHist->SetTitle("PEs per Optical Detector; OpDet Number; PE");
@@ -21,8 +21,8 @@ void opdet::OpFlashAnaAlg::SetOpHitTree(TTree* tree)
 {
   fOpHitTree = tree;
   fOpHitTree->Branch(fOpHitTree->GetName(),
-		     &fOpHitAnaStruct,
-		     fOpHitAnaStruct.LeafList.c_str());
+                          &fOpHitAnaStruct,
+          fOpHitAnaStruct.LeafList.c_str());
 }
 
 void opdet::OpFlashAnaAlg::FillOpFlashes(const std::vector<recob::OpFlash>& flashVector)
@@ -56,7 +56,7 @@ void opdet::OpFlashAnaAlg::FillOpFlashTree(const std::vector<recob::OpFlash>& fl
       int n_opdets = flash.WireCenters().size();
       fOpFlashAnaStruct.FlashOpDetPEHist->SetBins(n_opdets,-0.5,(float)n_opdets-0.5);
       for(int i=0; i<n_opdets; i++)
-	fOpFlashAnaStruct.FlashOpDetPEHist->SetBinContent(i+1,flash.PE(i));
+        fOpFlashAnaStruct.FlashOpDetPEHist->SetBinContent(i+1,flash.PE(i));
     }
 
     fOpFlashTree->Fill();
