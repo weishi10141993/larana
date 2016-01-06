@@ -83,9 +83,8 @@ namespace opdet{
     
     const size_t NHits_prev = HitVector.size();
 
-    double min_time = ts.TriggerTime();
+    double min_time = std::numeric_limits<float>::max();
     for(auto const& wf_ptr : OpDetWaveformVector)
-
       if(wf_ptr.TimeStamp() < min_time) min_time = wf_ptr.TimeStamp();
 
     for(auto const& wf_ptr : OpDetWaveformVector){
@@ -126,7 +125,7 @@ namespace opdet{
 
         // Extend accumulators if needed (2 always larger than 1)
         if (AccumIndex2 >= Binned1.size()) {
-          std::cout << "Extending vectors to " << AccumIndex2*1.2 << std::endl;
+          std::cout << "Extending vectors to " << AccumIndex2*1.2 << " for " << min_time << " to " << TimeStamp << " times" << std::endl;
           Binned1.resize(AccumIndex2*1.2);
           Binned2.resize(AccumIndex2*1.2);
           Contributors1.resize(AccumIndex2*1.2);
