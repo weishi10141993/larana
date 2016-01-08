@@ -1,0 +1,60 @@
+#include "services_dune.fcl"
+
+process_name: LArPID
+
+services:
+{
+  # Load the service that manages root files for histograms.
+  TFileService: { fileName: "ntuple.root" }
+  Timing:       {}
+  SimpleMemoryCheck:     { ignoreTotal: 1 } # default is one
+  user:         @local::dune35t_services
+}
+
+
+### Define input file format
+source:
+{
+  module_type: RootInput
+}
+
+### Define output file format
+outputs:
+{
+ out1:
+ {
+   module_type: RootOutput
+   fileName:    "standard_pid.root" #default file name, can override from command line with -o or --output
+   dataTier:    "full-reconstructed"
+ }
+}
+
+### Define the modules and create chains
+physics:
+{
+  producers:{
+	pid: {
+    		module_type:		MVAPID
+		CalModuleName:		pandoracalo
+		CalAmpConstants:        [ 0.9033e-3, 1.0287e-3, 0.8800e-3 ]
+                CalAreaConstants:       [ 5.1822e-3, 5.2682e-3, 5.3962e-3 ]
+                CaloUseModBox:          true
+#		MVAMethods:		[ "ANN","BDT" ]
+#		WeightFiles:		[ "weights/MuEMVA_ANN.weights.xml", "weights/MuEMVA_BDT.weights.xml" ]
+		MVAMethods:		[ ]
+		WeightFiles:		[ ]
+   	}    				
+  }
+
+  ### Set up a chain of Producer modules
+  reco: [ pid ]
+
+  ### Set up the output stream
+  stream1: [ ]
+
+  ### Set up the trigger paths (these are the modules that modify the event) 
+  trigger_paths: [ reco ] 
+
+  ### Set up the end paths (these are the modules that do not modify the event)
+  end_paths: [ stream1 ]
+}
