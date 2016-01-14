@@ -80,11 +80,13 @@ namespace opdet {
     bool fMakeFlashPosHist;
     bool fMakePerFlashHists;
 
+    bool fMakePerEventFlashTree;
     bool fMakePerFlashTree;
     bool fMakePerOpHitTree;
     bool fMakeFlashBreakdownTree;
     bool fMakeFlashHitMatchTree;
       
+    TTree * fPerEventFlashTree;
     TTree * fPerFlashTree;
     TTree * fPerOpHitTree;
     TTree * fFlashBreakdownTree;
@@ -115,6 +117,21 @@ namespace opdet {
     Float_t fAmplitude;
     Float_t fPE;
     Float_t fFastToTotal;
+
+    int fNFlashes;
+    std::vector< int >   fFlashIDVector;
+    std::vector< float > fYCenterVector;
+    std::vector< float > fZCenterVector;
+    std::vector< float > fYWidthVector;
+    std::vector< float > fZWidthVector;
+    std::vector< float > fFlashTimeVector;
+    std::vector< float > fAbsTimeVector;
+    std::vector< int >   fFlashFrameVector;
+    std::vector< bool >  fInBeamFrameVector;
+    std::vector< int >   fOnBeamTimeVector;
+    std::vector< float > fTotalPEVector;
+    int fNChannels;
+    std::vector< float > fPEsPerFlashPerChannelVector;
   };
 
 } 
@@ -152,6 +169,7 @@ namespace opdet {
     fMakeFlashPosHist  = pset.get<bool>("MakeFlashPosHist");
     fMakePerFlashHists = pset.get<bool>("MakePerFlashHists");
 
+    fMakePerEventFlashTree  =  pset.get<bool>("MakePerEventFlashTree");
     fMakePerFlashTree       =  pset.get<bool>("MakePerFlashTree");
     fMakePerOpHitTree       =  pset.get<bool>("MakePerOpHitTree");
     fMakeFlashBreakdownTree =  pset.get<bool>("MakeFlashBreakdownTree");
@@ -215,6 +233,28 @@ namespace opdet {
       fPerFlashTree->Branch("TotalPE",    &fTotalPE,     "TotalPE/F");
     }
 
+    if(fMakePerEventFlashTree)
+    {
+      fPerEventFlashTree = tfs->make<TTree>("PerEventFlashTree","PerEventFlashTree");
+      fPerEventFlashTree->Branch("EventID",                     &fEventID,   "EventID/I");
+      fPerEventFlashTree->Branch("NFlashes",                    &fNFlashes,  "NFlashes/I");
+      fPerEventFlashTree->Branch("FlashIDVector",               &fFlashIDVector);
+      fPerEventFlashTree->Branch("YCenterVector",               &fYCenterVector);
+      fPerEventFlashTree->Branch("ZCenterVector",               &fZCenterVector);
+      fPerEventFlashTree->Branch("YWidthVector",                &fYWidthVector);
+      fPerEventFlashTree->Branch("ZWidthVector",                &fZWidthVector);
+      fPerEventFlashTree->Branch("FlashTimeVector",             &fFlashTimeVector);
+      fPerEventFlashTree->Branch("AbsTimeVector",               &fAbsTimeVector);
+      fPerEventFlashTree->Branch("FlashFrameVector",            &fFlashFrameVector);
+      fPerEventFlashTree->Branch("InBeamFrameVector",           &fInBeamFrameVector);
+      fPerEventFlashTree->Branch("OnBeamTimeVector",            &fOnBeamTimeVector);
+      fPerEventFlashTree->Branch("TotalPEVector",               &fTotalPEVector);
+      fPerEventFlashTree->Branch("NChannels",                   &fNChannels, "NChannels/I");
+      // The only way I can think of to record a two-dimensional variable-size array in a TTree 
+      // is by flattening it into a one-dimension variable-size array
+      fPerEventFlashTree->Branch("PEsPerFlashPerChannelVector", &fPEsPerFlashPerChannelVector);
+    }
+
     if(fMakeFlashHitMatchTree)
     {
       fFlashHitMatchTree = tfs->make<TTree>("FlashHitMatchTree","FlashHitMatchTree");
@@ -253,7 +293,7 @@ namespace opdet {
     evt.getByLabel(fOpFlashModuleLabel, FlashHandle);
 
     // Get assosciations between flashes and hits
-    art::FindManyP<recob::OpHit> Assns(FlashHandle, evt, fOpFlashModuleLabel);
+    art::FindManyP< recob::OpHit > Assns(FlashHandle, evt, fOpFlashModuleLabel);
 
     // Create string for histogram name
     char HistName[50];
@@ -288,8 +328,14 @@ namespace opdet {
                                 PosHistZRes, fZMin, fZMax);
     }
     
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle< geo::Geometry > geom;
     unsigned int NOpChannels = geom->NOpChannels();
+
+    if(fMakePerEventFlashTree) 
+    {
+      fNFlashes  = FlashHandle->size();
+      fNChannels = NOpChannels;
+    }
 
     // For every OpFlash in the vector
     for(unsigned int i = 0; i < FlashHandle->size(); ++i)
@@ -325,11 +371,29 @@ namespace opdet {
       fFlashFrame  = TheFlash.Frame();
       fTotalPE     = TheFlash.TotalPE();
 
+      if(fMakePerEventFlashTree)
+      {
+        fFlashIDVector    .emplace_back(i);
+        fYCenterVector    .emplace_back(TheFlash.YCenter());
+        fZCenterVector    .emplace_back(TheFlash.ZCenter());
+        fYWidthVector     .emplace_back(TheFlash.YWidth());
+        fZWidthVector     .emplace_back(TheFlash.ZWidth());
+        fFlashTimeVector  .emplace_back(TheFlash.Time());
+        fAbsTimeVector    .emplace_back(TheFlash.AbsTime());
+        fFlashFrameVector .emplace_back(TheFlash.Frame());
+        fInBeamFrameVector.emplace_back(TheFlash.InBeamFrame());
+        fOnBeamTimeVector .emplace_back(TheFlash.OnBeamTime());
+        fTotalPEVector    .emplace_back(TheFlash.TotalPE());
+      }
+
       for(unsigned int j=0; j!=NOpChannels; ++j)
       {
         if(fMakePerFlashHists) FlashHist.at(FlashHist.size()-1)->Fill(j, TheFlash.PE(j));
         fNPe       = TheFlash.PE(j);
         fOpChannel = j;
+
+        if(fMakePerEventFlashTree) 
+          fPEsPerFlashPerChannelVector.emplace_back(TheFlash.PE(j));
           
         if((fMakeFlashBreakdownTree)&&(fNPe>0)) fFlashBreakdownTree->Fill();
       }
@@ -388,6 +452,23 @@ namespace opdet {
         fHitID       = i;
         fPerOpHitTree->Fill();
       }
+    }
+
+    if(fMakePerEventFlashTree) 
+    {
+      fPerEventFlashTree->Fill();
+      fFlashIDVector              .clear();
+      fYCenterVector              .clear();
+      fZCenterVector              .clear();
+      fYWidthVector               .clear();
+      fZWidthVector               .clear();
+      fFlashTimeVector            .clear();
+      fAbsTimeVector              .clear();
+      fFlashFrameVector           .clear();
+      fInBeamFrameVector          .clear();
+      fOnBeamTimeVector           .clear();
+      fTotalPEVector              .clear();
+      fPEsPerFlashPerChannelVector.clear();
     }
 
   }

@@ -250,6 +250,7 @@ standard_opflashana:
   MakePerOpHitTree:        true
   MakeFlashBreakdownTree:  true
   MakeFlashHitMatchTree:   true
+  MakePerEventFlashTree:   false
 
 }
 
