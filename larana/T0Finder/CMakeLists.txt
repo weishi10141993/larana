@@ -1,11 +1,11 @@
 
 simple_plugin(MCTruthT0Matching "module"
-		      RawData
-		      AnalysisBase
-		      RecoBase
-		        Geometry
+		      lardata_RawData
+		      lardata_AnalysisBase
+		      lardata_RecoBase
+		        larcore_Geometry
 			larcore_Geometry_Geometry_service
-			Utilities
+			lardata_Utilities
 			larsim_MCCheater_BackTracker_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
@@ -23,12 +23,12 @@ simple_plugin(MCTruthT0Matching "module"
 )
 
 simple_plugin(PhotonCounterT0Matching "module"
-		      RawData
-		      AnalysisBase
-		      RecoBase
-		        Geometry
+		      lardata_RawData
+		      lardata_AnalysisBase
+		      lardata_RecoBase
+		        larcore_Geometry
 			larcore_Geometry_Geometry_service
-			Utilities
+			lardata_Utilities
 			larsim_MCCheater_BackTracker_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}

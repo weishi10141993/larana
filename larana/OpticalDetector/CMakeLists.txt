@@ -1,7 +1,7 @@
 
 # larana_OpticalDetector_OpFlashFinder_module.cc is not built - it seems specific to uboone
 
-art_make_library( LIBRARY_NAME FlashHypothesis
+art_make_library( LIBRARY_NAME larana_OpticalDetector_FlashHypothesis
 		  	     SOURCE FlashHypothesis.cxx
 		                           FlashHypothesisCalculator.cxx
 		                           FlashUtilities.cxx
@@ -9,25 +9,25 @@ art_make_library( LIBRARY_NAME FlashHypothesis
 			                             ${ROOT_BASIC_LIB_LIST}
 )
 
-art_make_library( LIBRARY_NAME SimPhotonCounter
+art_make_library( LIBRARY_NAME larana_OpticalDetector_SimPhotonCounter
 		  	     SOURCE SimPhotonCounter.cxx
 			     LIBRARIES
 			                ${ROOT_BASIC_LIB_LIST}
 )
 
-art_make_library( LIBRARY_NAME FlashHypothesisComparison
+art_make_library( LIBRARY_NAME larana_OpticalDetector_FlashHypothesisComparison
 		  	     SOURCE FlashHypothesisComparison.cxx
 			     LIBRARIES
-					FlashHypothesis
-					SimPhotonCounter
-					MCSTReco
+					larana_OpticalDetector_FlashHypothesis
+					larana_OpticalDetector_SimPhotonCounter
+					larsim_MCSTReco
 			                ${ROOT_BASIC_LIB_LIST}
 )
 
-art_make_library( LIBRARY_NAME OpFlashAnaAlg
+art_make_library( LIBRARY_NAME larana_OpticalDetector_OpFlashAnaAlg
 		  	     SOURCE OpFlashAnaAlg.cxx
 			     LIBRARIES
-					RecoBase
+					lardata_RecoBase
 			                ${ROOT_BASIC_LIB_LIST}
 )
 
@@ -39,19 +39,19 @@ art_make(
 		         FlashHypothesisComparison.cxx
 			 SimPhotonCounter.cxx
 			 OpFlashAnaAlg.cxx
-          LIBRARY_NAME OpticalDetector
+          
           LIB_LIBRARIES 
-			RecoBase
-	  		FlashHypothesis
-			SimPhotonCounter
-	  		FlashHypothesisComparison
-			OpFlashAnaAlg
-			MCBase
-                        Geometry
+			lardata_RecoBase
+	  		larana_OpticalDetector_FlashHypothesis
+			larana_OpticalDetector_SimPhotonCounter
+	  		larana_OpticalDetector_FlashHypothesisComparison
+			larana_OpticalDetector_OpFlashAnaAlg
+			lardata_MCBase
+                        larcore_Geometry
                         larcore_Geometry_Geometry_service
                         larsim_PhotonPropagation_PhotonVisibilityService_service
 		        larana_OpticalDetector_OpDigiProperties_service
-		        Utilities
+		        lardata_Utilities
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -68,22 +68,22 @@ art_make(
 			${CETLIB}
                         ${ROOT_BASIC_LIB_LIST}
           MODULE_LIBRARIES larana_OpticalDetector_OpDigiProperties_service
-	                OpticalDetector
+	                larana_OpticalDetector
                         larsim_PhotonPropagation_PhotonVisibilityService_service
 			larsim_MCCheater_BackTracker_service
-                        Filters
-                        RecoObjects
-                        RecoBase
-			MCBase
-                        RecoAlg
-                        Geometry
+                        larevt_Filters
+                        lardata_RecoObjects
+                        lardata_RecoBase
+			lardata_MCBase
+                        larreco_RecoAlg
+                        larcore_Geometry
                         larcore_Geometry_Geometry_service
-                        Simulation
+                        larsim_Simulation
                         larsim_TriggerAlgo_TriggerAlgoMicroBoone_service
-                        Utilities
-                        RawData
-                        AnalysisAlg
-                        AnalysisBase
+                        lardata_Utilities
+                        lardata_RawData
+                        lardata_AnalysisAlg
+                        lardata_AnalysisBase
                         SeedService_service # artextensions
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
@@ -101,7 +101,7 @@ art_make(
 			${CETLIB}
                         ${ROOT_BASIC_LIB_LIST}
        SERVICE_LIBRARIES
-                        Geometry
+                        larcore_Geometry
                         larcore_Geometry_Geometry_service
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -123,4 +123,4 @@ install_headers()
 install_fhicl()
 install_source()
 install_fw( LIST toyWaveform.txt
-            SUBDIRNAME OpticalDetector )
+            SUBDIRNAME larana_OpticalDetector )

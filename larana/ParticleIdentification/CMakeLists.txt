@@ -1,9 +1,9 @@
 include_directories ( ${PROJECT_SOURCE_DIR} )
 art_make( 
-	  LIBRARY_NAME ParticleIdentification
+	  
 	  LIB_LIBRARIES
-                        AnalysisBase
-                        Utilities
+                        lardata_AnalysisBase
+                        lardata_Utilities
                         ${MF_MESSAGELOGGER}
 		        ${MF_UTILITIES}
 		        ${FHICLCPP}
@@ -11,12 +11,12 @@ art_make(
 		        ${CLHEP}
 		        ${ROOT_BASIC_LIB_LIST}
           MODULE_LIBRARIES 
-	  		ParticleIdentification
-                        RecoBase
-                        Geometry
+	  		larana_ParticleIdentification
+                        lardata_RecoBase
+                        larcore_Geometry
                         larcore_Geometry_Geometry_service
-                        AnalysisAlg
-                        AnalysisBase
+                        lardata_AnalysisAlg
+                        lardata_AnalysisBase
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
 			${ART_FRAMEWORK_SERVICES_REGISTRY}

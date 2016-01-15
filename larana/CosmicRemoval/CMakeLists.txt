@@ -6,15 +6,15 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 # Add top level include
 include_directories ( ${PROJECT_SOURCE_DIR} )
 art_make(
-	LIBRARY_NAME CosmicRemoval
+	
 	LIB_LIBRARIES 
-		     RecoBase
-		     AnalysisBase
-		     Geometry
+		     lardata_RecoBase
+		     lardata_AnalysisBase
+		     larcore_Geometry
 		     larcore_Geometry_Geometry_service
 		     larsim_PhotonPropagation_PhotonVisibilityService_service
 		     larana_OpticalDetector_OpDigiProperties_service
-		     Utilities
+		     lardata_Utilities
 		     ${SIMULATIONBASE}
 		     ${MF_MESSAGELOGGER}
 		     ${MF_UTILITIES}
@@ -24,21 +24,21 @@ art_make(
 		     ${ROOT_BASIC_LIB_LIST}
 		     ${G4_LIB_LIST}
 	MODULE_LIBRARIES  
-			    CosmicRemoval
+			    larana_CosmicRemoval
 			    larsim_MCCheater_BackTracker_service
-			    RecoAlg
-                            Cluster3DAlgs
-			    Simulation
-			    RecoObjects
-			    RecoBase
-			    MCBase
-			    Geometry
+			    larreco_RecoAlg
+                            larreco_RecoAlg_Cluster3DAlgs
+			    larsim_Simulation
+			    lardata_RecoObjects
+			    lardata_RecoBase
+			    lardata_MCBase
+			    larcore_Geometry
 			    larcore_Geometry_Geometry_service
 			    larsim_PhotonPropagation_PhotonVisibilityService_service
 		            larana_OpticalDetector_OpDigiProperties_service
-			    AnalysisAlg
-			    AnalysisBase
-			    Utilities
+			    lardata_AnalysisAlg
+			    lardata_AnalysisBase
+			    lardata_Utilities
 			    ${MAGNETICFIELD_SERVICE}
 			    ${SIMULATIONBASE}
 			    ${ART_FRAMEWORK_CORE}
