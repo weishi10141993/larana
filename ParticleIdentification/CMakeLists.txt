@@ -3,6 +3,7 @@ art_make( BASENAME_ONLY
 	  LIBRARY_NAME ParticleIdentification
 	  LIB_LIBRARIES
                         AnalysisBase
+			AnalysisAlg
                         Utilities
                         ${MF_MESSAGELOGGER}
 		        ${MF_UTILITIES}
@@ -10,6 +11,7 @@ art_make( BASENAME_ONLY
 		        ${CETLIB}
 		        ${CLHEP}
 		        ${ROOT_BASIC_LIB_LIST}
+			${ROOT_TMVA}
           MODULE_LIBRARIES 
 	  		ParticleIdentification
                         RecoBase
@@ -34,3 +36,5 @@ art_make( BASENAME_ONLY
 install_headers()
 install_fhicl()
 install_source()
+
+add_subdirectory(scripts)
