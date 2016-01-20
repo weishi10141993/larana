@@ -53,8 +53,8 @@ mvapid::MVAAlg::~MVAAlg(){}
     
 void mvapid::MVAAlg::reconfigure(fhicl::ParameterSet const& p){}
   
-void mvapid::MVAAlg::RunPID(art::Event& evt,std::vector<anab::MVAResult>& result,
-			    art::Assns<recob::Track, anab::MVAResult, void>& assns){
+void mvapid::MVAAlg::RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& result,
+			    art::Assns<recob::Track, anab::MVAPIDResult, void>& assns){
 
   //Need to get these from geometry really
   /*const double activeVolMinX = -35.18;

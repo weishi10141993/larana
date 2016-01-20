@@ -22,7 +22,7 @@
 #include "TTree.h"
 
 #include "MVAAlg.h"
-#include "AnalysisBase/MVAResult.h"
+#include "AnalysisBase/MVAPIDResult.h"
 #include "RecoBase/Track.h"
 #include "Utilities/AssociationUtil.h"
 
@@ -43,7 +43,7 @@ namespace mvapid {
  private:
 
     MVAAlg fAlg;
-    std::vector<anab::MVAResult>* fResult;
+    std::vector<anab::MVAPIDResult>* fResult;
     unsigned int fRun,fSubrun,fEvent;
     TTree* fTree;
     
@@ -55,9 +55,9 @@ namespace mvapid {
   MVAPID::MVAPID(fhicl::ParameterSet const& pset): fAlg(pset,this)
 {
   this->reconfigure(pset);
-  produces< std::vector<anab::MVAResult> >();
-  produces< art::Assns<recob::Track, anab::MVAResult, void> >();
-  fResult=new std::vector<anab::MVAResult>;
+  produces< std::vector<anab::MVAPIDResult> >();
+  produces< art::Assns<recob::Track, anab::MVAPIDResult, void> >();
+  fResult=new std::vector<anab::MVAPIDResult>;
 }
 
 //------------------------------------------------------------------------------
@@ -93,8 +93,8 @@ void MVAPID::beginRun(art::Run&)
 // ***************** //
 void MVAPID::produce(art::Event& evt)
 { 
-  std::unique_ptr<std::vector<anab::MVAResult> > result(new std::vector<anab::MVAResult>);
-  std::unique_ptr< art::Assns<recob::Track, anab::MVAResult> > assns(new art::Assns<recob::Track, anab::MVAResult>);
+  std::unique_ptr<std::vector<anab::MVAPIDResult> > result(new std::vector<anab::MVAPIDResult>);
+  std::unique_ptr< art::Assns<recob::Track, anab::MVAPIDResult> > assns(new art::Assns<recob::Track, anab::MVAPIDResult>);
 
   fRun = evt.id().run();
   fSubrun = evt.id().subRun();

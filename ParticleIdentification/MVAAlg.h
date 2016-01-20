@@ -34,7 +34,7 @@
 #include <Math/Vector3D.h>
 #include "TMVA/Reader.h"
 
-#include "AnalysisBase/MVAResult.h"
+#include "AnalysisBase/MVAPIDResult.h"
 
 
 namespace mvapid{
@@ -83,8 +83,8 @@ struct SumDistance2 {
     
     void reconfigure(fhicl::ParameterSet const& p);
 
-    void RunPID(art::Event& evt,std::vector<anab::MVAResult>& result,
-		art::Assns<recob::Track, anab::MVAResult, void>& assns);
+    void RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& result,
+		art::Assns<recob::Track, anab::MVAPIDResult, void>& assns);
 
   private:
  
@@ -126,7 +126,7 @@ struct SumDistance2 {
     std::map<art::Ptr<recob::Hit>,art::Ptr<recob::SpacePoint> > fHitsToSpacePoints;
     std::map<art::Ptr<recob::SpacePoint>,art::Ptr<recob::Hit > > fSpacePointsToHits;
 
-    anab::MVAResult fResHolder;
+    anab::MVAPIDResult fResHolder;
 
     TMVA::Reader fReader;
     

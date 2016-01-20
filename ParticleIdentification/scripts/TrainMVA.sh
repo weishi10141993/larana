@@ -34,12 +34,12 @@ echo "Job name is $JOBNAME"
 
 ##Build CINT dictionary for the MVAResult class
 echo '
-#pragma link C++ class anab::MVAResult+;
-#pragma link C++ class vector<anab::MVAResult>+;
+#pragma link C++ class anab::MVAPIDResult+;
+#pragma link C++ class vector<anab::MVAPIDResult>+;
 #pragma link C++ class map<string,double>+;
 ' > Linkdef.h
 
-rootcint -f MVAResultDict.cxx -c $LARDATA_DIR/source/AnalysisBase/MVAResult.h Linkdef.h
+rootcint -f MVAResultDict.cxx -c $LARDATA_DIR/source/AnalysisBase/MVAPIDResult.h Linkdef.h
 g++ -shared -o MVAResultDict.so `root-config --ldflags` -fPIC -I$ROOTSYS/include MVAResultDict.cxx
 rm -f MVAResultDict.cxx MVAResultDict.h Linkdef.h
 
