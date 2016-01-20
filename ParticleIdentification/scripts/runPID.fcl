@@ -50,7 +50,7 @@ physics:
   reco: [ pid ]
 
   ### Set up the output stream
-  stream1: [ ]
+  stream1: [ out1 ]
 
   ### Set up the trigger paths (these are the modules that modify the event) 
   trigger_paths: [ reco ] 
