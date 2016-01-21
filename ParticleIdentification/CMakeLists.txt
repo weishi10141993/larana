@@ -5,6 +5,17 @@ art_make( BASENAME_ONLY
                         AnalysisBase
 			AnalysisAlg
                         Utilities
+                        Geometry
+                        DetectorProperties_service
+                        ${ART_FRAMEWORK_CORE}
+			${ART_FRAMEWORK_PRINCIPAL}
+			${ART_FRAMEWORK_SERVICES_REGISTRY}
+			${ART_FRAMEWORK_SERVICES_BASIC}
+			${ART_FRAMEWORK_SERVICES_OPTIONAL}
+			${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+			${ART_PERSISTENCY_COMMON}
+			${ART_PERSISTENCY_PROVENANCE}
+			${ART_UTILITIES}
                         ${MF_MESSAGELOGGER}
 		        ${MF_UTILITIES}
 		        ${FHICLCPP}
@@ -12,6 +23,7 @@ art_make( BASENAME_ONLY
 		        ${CLHEP}
 		        ${ROOT_BASIC_LIB_LIST}
 			${ROOT_TMVA}
+                        ${Boost_SYSTEM_LIBRARY}
           MODULE_LIBRARIES 
 	  		ParticleIdentification
                         RecoBase
