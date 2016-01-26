@@ -38,6 +38,7 @@
 #include "Utilities/AssociationUtil.h"
 #include "Utilities/DetectorProperties.h"
 #include "Utilities/LArProperties.h"
+#include "Utilities/TimeService.h"
 
 #include "TMatrixD.h"
 #include "TDecompSVD.h"
@@ -84,6 +85,7 @@ private:
   //  int fDoTrackCheck;
   //  int fDoClusterCheck;
   //  int fClusterAssociatedToTracks;
+  int fEndTickPadding;
   int fDetectorWidthTicks;
   float fTPCXBoundary, fTPCYBoundary, fTPCZBoundary;
   float fDetHalfHeight, fDetWidth, fDetLength;
@@ -387,6 +389,7 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   art::ServiceHandle<util::DetectorProperties> detp;
   art::ServiceHandle<util::LArProperties> larp;
   art::ServiceHandle<geo::Geometry> geo;
+  art::ServiceHandle<util::TimeService> ts;
 
   fDetHalfHeight = geo->DetHalfHeight();
   fDetWidth      = 2.*geo->DetHalfWidth();
@@ -395,6 +398,7 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   float fSamplingRate = detp->SamplingRate();
 
   fTrackModuleLabel = p.get< std::string >("TrackModuleLabel", "track");
+  fEndTickPadding   = p.get<    int      >("EndTickPadding",   50);
 
   fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
   fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
@@ -405,8 +409,8 @@ void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
   fMinTickDrift = p.get("MinTickDrift", 3200);
-  fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks;
-
+  fMinTickDrift = ts->TPCTDC2Tick(0.); //ts->TriggerOffsetTPC() * -1.);
+  fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 }
 
 void cosmic::CosmicTrackTagger::endJob() {
