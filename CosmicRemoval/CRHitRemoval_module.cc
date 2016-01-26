@@ -15,6 +15,8 @@
 // PFParticleProducerLabel - the producer of the recob::PFParticles to consider
 // TrackProducerLabel      - the producer of the recob::Track objects
 // CosmicTagThresholds     - a vector of thresholds to apply to label as cosmic
+// EndTickPadding          - # ticks to "pad" the end tick to account for possible
+//                           uncertainty in drift velocity
 //
 // Created by Tracy Usher (usher@slac.stanford.edu) on September 18, 2014
 //
@@ -38,6 +40,8 @@
 #include "Utilities/AssociationUtil.h"
 #include "Utilities/TimeService.h"
 #include "Utilities/SimpleTimeService.h"
+#include "Utilities/DetectorProperties.h"
+#include "Utilities/LArProperties.h"
 
 // Local functions.
 namespace
@@ -102,6 +106,12 @@ private:
     
     bool                     fCorrelateToFlash;        ///< if true then correlate to flash
     std::vector<double>      fCosmicTagThresholds;     ///< Thresholds for tagging
+    
+    int                      fEndTickPadding;          ///< Padding the end tick
+    
+    int                      fDetectorWidthTicks;      ///< Effective drift time in ticks
+    int                      fMinTickDrift;            ///< Starting tick
+    int                      fMaxTickDrift;            ///< Ending tick
 
     // Statistics.
     int fNumEvent;        ///< Number of events seen.
@@ -148,12 +158,24 @@ void CRHitRemoval::reconfigure(fhicl::ParameterSet const & pset)
     fPFParticleProducerLabel = pset.get<std::string>("PFParticleProducerLabel");
     fTrackProducerLabel      = pset.get<std::string>("TrackProducerLabel");
     fCosmicTagThresholds     = pset.get<std::vector<double> >("CosmicTagThresholds");
+    fEndTickPadding          = pset.get<int>("EndTickPadding", 50);
 }
 
 //----------------------------------------------------------------------------
 /// Begin job method.
 void CRHitRemoval::beginJob()
 {
+    art::ServiceHandle<util::DetectorProperties> detp;
+    art::ServiceHandle<util::LArProperties>      larp;
+    art::ServiceHandle<geo::Geometry>            geo;
+    art::ServiceHandle<util::TimeService>        ts;
+    
+    float samplingRate  = detp->SamplingRate();
+    float driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
+    
+    fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*samplingRate/1000); 
+    fMinTickDrift       = ts->TPCTDC2Tick(0.);
+    fMaxTickDrift       = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 }
 
 //----------------------------------------------------------------------------
@@ -172,10 +194,6 @@ void CRHitRemoval::beginJob()
 void CRHitRemoval::produce(art::Event & evt)
 {
     ++fNumEvent;
-    
-    // get the time service for the identification of the spill window
-    util::SimpleTimeService const* time_service
-      = &(*(art::ServiceHandle<util::TimeService>()));
     
     // Start by looking up the original hits
     art::Handle< std::vector<recob::Hit> > hitHandle;
@@ -405,20 +423,9 @@ void CRHitRemoval::produce(art::Event & evt)
         // Now make the new list of output hits
         for (const auto& hit : originalHits)
         {
-            LOG_WARNING("CRHitRemoval")
-              << "This module has experiment-specific information hard-coded!";
-            // ... and yes, I want it printed this annoyingly
-            
-            // Kludge to remove out of time hits
-            const double start_time_since_trigger
-              = time_service->TPCTick2TrigTime(hit->PeakTimeMinusRMS());
-            const double end_time_since_trigger
-              = time_service->TPCTick2TrigTime(hit->PeakTimePlusRMS());
-            
-            if (end_time_since_trigger < 0.)
-              continue;
-            if (start_time_since_trigger > time_service->TPCClock().FramePeriod())
-              continue;
+            // Check on out of time hits
+            if (hit->PeakTimeMinusRMS() < fMinTickDrift) continue;
+            if (hit->PeakTimePlusRMS()  > fMaxTickDrift) continue;
             
             outputHits->emplace_back(*hit);
         }
