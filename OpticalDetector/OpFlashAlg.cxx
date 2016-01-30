@@ -125,7 +125,6 @@ namespace opdet{
 
         // Extend accumulators if needed (2 always larger than 1)
         if (AccumIndex2 >= Binned1.size()) {
-          std::cout << "Extending vectors to " << AccumIndex2*1.2 << " for " << min_time << " to " << TimeStamp << " times" << std::endl;
           Binned1.resize(AccumIndex2*1.2);
           Binned2.resize(AccumIndex2*1.2);
           Contributors1.resize(AccumIndex2*1.2);

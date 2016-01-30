@@ -42,6 +42,7 @@
 #include "Utilities/AssociationUtil.h"
 #include "Utilities/DetectorProperties.h"
 #include "Utilities/LArProperties.h"
+#include "Utilities/TimeService.h"
 
 #include "TVector3.h"
 
@@ -68,7 +69,9 @@ public:
 private:
     std::string fPFParticleModuleLabel;
     std::string fTrackModuleLabel;
+    int         fEndTickPadding;
     int         fDetectorWidthTicks;
+    int         fMinTickDrift, fMaxTickDrift;
     float       fTPCXBoundary, fTPCYBoundary, fTPCZBoundary;
     float       fDetHalfHeight, fDetWidth, fDetLength;
 };
@@ -217,7 +220,11 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
         /////////////////////////////////////
         for ( unsigned int p = 0; p < hitVec.size(); p++)
         {
-            if( hitVec[p]->PeakTimeMinusRMS() < fDetectorWidthTicks || hitVec[p]->PeakTimePlusRMS() > 2.*fDetectorWidthTicks)
+            int peakLessRms = hitVec[p]->PeakTimeMinusRMS();
+            int peakPlusRms = hitVec[p]->PeakTimePlusRMS();
+            
+            //if( hitVec[p]->PeakTimeMinusRMS() < fMinTickDrift || hitVec[p]->PeakTimePlusRMS() > fMaxTickDrift)
+            if( peakLessRms < fMinTickDrift || peakPlusRms > fMaxTickDrift)
             {
                 isCosmic = 1;
                 tag_id   = anab::CosmicTagID_t::kOutsideDrift_Partial;
@@ -332,6 +339,7 @@ void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
     art::ServiceHandle<util::DetectorProperties> detp;
     art::ServiceHandle<util::LArProperties> larp;
     art::ServiceHandle<geo::Geometry> geo;
+    art::ServiceHandle<util::TimeService> ts;
 
     fDetHalfHeight = geo->DetHalfHeight();
     fDetWidth      = 2.*geo->DetHalfWidth();
@@ -339,8 +347,9 @@ void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
 
     float fSamplingRate = detp->SamplingRate();
 
-    fPFParticleModuleLabel = p.get<std::string >("PFParticleModuleLabel");
+    fPFParticleModuleLabel = p.get< std::string >("PFParticleModuleLabel");
     fTrackModuleLabel      = p.get< std::string >("TrackModuleLabel", "track");
+    fEndTickPadding        = p.get<    int      >("EndTickPadding",   50);     // Fudge the TPC edge in ticks...
 
     fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
     fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
@@ -350,6 +359,8 @@ void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
 
     //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
     fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
+    fMinTickDrift = ts->TPCTDC2Tick(0.);
+    fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 }
 
 void cosmic::CosmicPFParticleTagger::endJob() {
