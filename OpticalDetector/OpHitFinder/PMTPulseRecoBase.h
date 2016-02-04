@@ -16,36 +16,41 @@
 #define PMTPULSERECOBASE_H
 
 // STL
-#include <set>
 #include <vector>
 #include <cmath>
 #include <functional>
 #include <numeric>
 #include <iostream>
 
-// ROOT
-#include <TString.h>
-#include <TTree.h>
-
+#include "OpticalRecoTypes.h"
 namespace pmtana
 {
-
+  
   struct pulse_param{
-  
-    double peak, area;
+  public:
+    double peak, area, ped_mean, ped_sigma;
     double t_start, t_max, t_end;
-  
+
+    //for vic
+    double t_cfdcross;
+    
     pulse_param(){
       reset_param();
-    };
+    }
+
+    ~pulse_param(){}
   
     void reset_param(){
       area = 0;
       peak = -1;
+      ped_mean = ped_sigma = -1;
       t_start = t_max = t_end = -1;
-    };
+      t_cfdcross = -1;
+    }
     
   };
+
+  typedef std::vector<pmtana::pulse_param> pulse_param_array;
 
   /**
    \class PMTPulseRecoBase
@@ -67,10 +72,16 @@ namespace pmtana
   public:
 
     /// Default constructor with fhicl parameters
-    PMTPulseRecoBase();
+    PMTPulseRecoBase(const std::string name="noname");
 
     /// Default destructor
     virtual ~PMTPulseRecoBase();
+
+    /// Name getter
+    const std::string& Name() const;
+
+    /// Status getter
+    const bool Status() const;
 
     /// A method to be called event-wise to reset parameters
     virtual void Reset();
@@ -78,7 +89,9 @@ namespace pmtana
     /** A core method: this executes the algorithm and stores reconstructed parameters
       in the pulse_param struct object.
     */
-    virtual bool RecoPulse(const std::vector<short> & /* wf */){return true;};
+    bool Reconstruct( const pmtana::Waveform_t&,
+		      const pmtana::PedestalMean_t&,
+		      const pmtana::PedestalSigma_t& );
 
     /** A getter for the pulse_param struct object. 
       Reconstruction algorithm may have more than one pulse reconstructed from an input waveform.
@@ -86,34 +99,31 @@ namespace pmtana
     */
     const pulse_param& GetPulse(size_t index=0) const;
 
+    /// A getter for the whole array of pulse_param struct object.
+    const pulse_param_array& GetPulses() const;
+
     /// A getter for the number of reconstructed pulses from the input waveform
     size_t GetNPulse() const {return _pulse_v.size();};
 
-    /// A setter for the pedestal mean value
-    void SetPedMean(double v) { _ped_mean = v; };
+  private:
 
-    /// A setter for the pedestal standard deviation
-    void SetPedRMS(double v) { _ped_rms = v; };
+    /// Unique name
+    std::string _name;
 
-    /// A getter for the set pedestal mean value
-    double PedMean() const {return _ped_mean; };
-
-    /// A getter for the set pedestal standard deviation
-    double PedRms() const {return _ped_rms; };
-
+    /// Status after pulse reconstruction
+    bool _status;
+    
   protected:
 
+    virtual bool RecoPulse( const pmtana::Waveform_t&,
+			    const pmtana::PedestalMean_t&,
+			    const pmtana::PedestalSigma_t&     ) = 0;
+    
     /// A container array of pulse_param struct objects to store (possibly multiple) reconstructed pulse(s).
-    std::vector<pulse_param> _pulse_v;
+    pulse_param_array _pulse_v;
 
     /// A subject pulse_param object to be filled with the last reconstructed pulse parameters
     pulse_param _pulse;
-
-    /// Pedestal mean value
-    double _ped_mean;
-
-    /// Pedestal standard deviation
-    double _ped_rms;
 
   protected:
 
