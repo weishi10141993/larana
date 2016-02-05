@@ -65,20 +65,19 @@ namespace opdet {
     void reconfigure(fhicl::ParameterSet const& pset);
 
     // The producer routine, called once per event. 
-    void produce (art::Event&); 
+    void produce(art::Event&); 
     
-    std::map<int, int>  GetChannelMap();
-    std::vector<double> GetSPEScales();
-
+    std::map< int, int >  GetChannelMap();
+    std::vector< double > GetSPEScales();
 
   private:
 
     // The parameters we'll read from the .fcl file.
     std::string fInputModule;              // Input tag for OpDet collection
-    std::string fGenModule ;
+    std::string fGenModule;
     std::vector< std::string > fInputLabels;
     std::string fThreshAlgName;
-    std::set<unsigned int> fChannelMasks;
+    std::set< unsigned int > fChannelMasks;
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::PMTPulseRecoBase* fThreshAlg;
@@ -96,10 +95,9 @@ namespace opdet {
     unsigned int fNOpChannels;
     unsigned int fMaxOpChannel;
    
-    std::vector<double> fSPESize;
+    std::vector< double > fSPESize;
 
   };
-
 
 } 
 
@@ -113,7 +111,7 @@ namespace opdet {
 
 namespace opdet {
 
-  //-----------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Constructor
   OpFlashFinder::OpFlashFinder(const fhicl::ParameterSet & pset):
     fPulseRecoMgr()
@@ -123,57 +121,60 @@ namespace opdet {
 
     // Initialize the hit finder
     if      (fThreshAlgName == "Threshold") 
-      fThreshAlg = new pmtana::AlgoThreshold(pset.get< fhicl::ParameterSet >("algo_threshold"));
+      fThreshAlg = new pmtana::AlgoThreshold
+        (pset.get< fhicl::ParameterSet >("algo_threshold"));
     else if (fThreshAlgName == "SiPM") 
-      fThreshAlg = new pmtana::AlgoSiPM(pset.get< fhicl::ParameterSet >("algo_threshold"));
-    else if (fThreshAlgName == "SlidingWindow") {
-      fThreshAlg = new pmtana::AlgoSlidingWindow(pset.get< fhicl::ParameterSet >("algo_threshold"));
-    }
-
+      fThreshAlg = new pmtana::AlgoSiPM
+        (pset.get< fhicl::ParameterSet >("algo_threshold"));
+    else if (fThreshAlgName == "SlidingWindow")
+      fThreshAlg = new pmtana::AlgoSlidingWindow
+        (pset.get< fhicl::ParameterSet >("algo_threshold"));
     else throw art::Exception(art::errors::UnimplementedFeature)
                     << "Cannot find implementation for " 
                     << fThreshAlgName << " algorithm.\n";   
 
-    produces<std::vector< recob::OpFlash> >();
-    produces<std::vector< recob::OpHit> >();
-    produces<art::Assns<recob::OpFlash, recob::OpHit> >();
+    produces< std::vector< recob::OpFlash > >();
+    produces< std::vector< recob::OpHit > >();
+    produces< art::Assns< recob::OpFlash, recob::OpHit > >();
 
     fPulseRecoMgr.AddRecoAlgo(fThreshAlg);
     fPulseRecoMgr.SetPedAlgo(pmtana::kHEAD);
 
   }
 
-  //-----------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   void OpFlashFinder::reconfigure(fhicl::ParameterSet const& pset)
   {
 
     // Indicate that the Input Module comes from .fcl
-    fInputModule    = pset.get<std::string>("InputModule");
-    fGenModule      = pset.get<std::string>("GenModule");
-    fInputLabels    = pset.get<std::vector<std::string> >("InputLabels");
-    fThreshAlgName  = pset.get< fhicl::ParameterSet >("algo_threshold").get< std::string >("HitFinder");
+    fInputModule    = pset.get< std::string >("InputModule");
+    fGenModule      = pset.get< std::string >("GenModule");
+    fInputLabels    = pset.get< std::vector< std::string > >("InputLabels");
+    fThreshAlgName  = pset.get< fhicl::ParameterSet >("algo_threshold")
+                          .get< std::string >("HitFinder");
       
-    for(auto const& ch : pset.get<std::vector<unsigned int> >("ChannelMasks",std::vector<unsigned int>()))
+    for (auto const& ch : pset.get< std::vector< unsigned int > >
+                            ("ChannelMasks", std::vector< unsigned int >()))
       fChannelMasks.insert(ch);
     
-    fBinWidth       = pset.get<int>          ("BinWidth");
-    fFlashThreshold = pset.get<float>        ("FlashThreshold");
-    fWidthTolerance = pset.get<float>        ("WidthTolerance");
-    fTrigCoinc      = pset.get<double>       ("TrigCoinc");
-    fHitThreshold   = pset.get<float>        ("HitThreshold");
-    fAreaToPE       = pset.get<bool>         ("AreaToPE");
-    fSPEArea        = pset.get<float>        ("SPEArea");
+    fBinWidth       = pset.get< int >        ("BinWidth");
+    fFlashThreshold = pset.get< float >      ("FlashThreshold");
+    fWidthTolerance = pset.get< float >      ("WidthTolerance");
+    fTrigCoinc      = pset.get< double >     ("TrigCoinc");
+    fHitThreshold   = pset.get< float >      ("HitThreshold");
+    fAreaToPE       = pset.get< bool >       ("AreaToPE");
+    fSPEArea        = pset.get< float >      ("SPEArea");
 
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle< geo::Geometry > geom;
     fNOpChannels  = geom->NOpChannels();
     fMaxOpChannel = geom->MaxOpChannel();
     fNplanes      = geom->Nplanes();
     
-    fSPESize     = GetSPEScales();
+    fSPESize      = GetSPEScales();
 
   }
 
-  //-----------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Destructor
   OpFlashFinder::~OpFlashFinder() 
   {
@@ -182,39 +183,46 @@ namespace opdet {
 
   }
    
-  //-----------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   void OpFlashFinder::beginJob()
   {
   }
 
-  //-----------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   void OpFlashFinder::endJob()
   { 
   }
 
-  //-----------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   void OpFlashFinder::produce(art::Event& evt) 
   {
 
     // These are the storage pointers we will put in the event
-    std::unique_ptr< std::vector< recob::OpHit > >   HitPtr (new std::vector<recob::OpHit >);
-    std::unique_ptr< std::vector< recob::OpFlash > > FlashPtr (new std::vector<recob::OpFlash >);
-    std::unique_ptr< art::Assns<recob::OpFlash, recob::OpHit > >  AssnPtr( new art::Assns<recob::OpFlash, recob::OpHit>);
+    std::unique_ptr< std::vector< recob::OpHit > >
+                      HitPtr(new std::vector< recob::OpHit >);
+    std::unique_ptr< std::vector< recob::OpFlash > > 
+                      FlashPtr(new std::vector< recob::OpFlash >);
+    std::unique_ptr< art::Assns< recob::OpFlash, recob::OpHit > >  
+                      AssnPtr(new art::Assns< recob::OpFlash, recob::OpHit >);
 
     // This will keep track of what flashes will assoc to what ophits
-    //  at the end of processing
-    std::vector<std::vector<int> > AssocList;
+    // at the end of processing
+    std::vector< std::vector< int > > AssocList;
 
-    std::vector<const sim::BeamGateInfo*> beamGateArray;
-    try { evt.getView(fGenModule, beamGateArray); }
-    catch ( art::Exception const& err ){ 
+    std::vector< const sim::BeamGateInfo* > beamGateArray;
+    try 
+    { 
+      evt.getView(fGenModule, beamGateArray); 
+    }
+    catch (art::Exception const& err) 
+    { 
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
-    art::ServiceHandle<geo::Geometry> GeometryHandle;
+    art::ServiceHandle< geo::Geometry > GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
 
-    art::ServiceHandle<util::TimeService> ts_ptr;
+    art::ServiceHandle< util::TimeService > ts_ptr;
     util::TimeService const& ts(*ts_ptr);
 
     //
@@ -223,7 +231,8 @@ namespace opdet {
 
     // Reserve a large enough array
     int totalsize = 0;
-    for ( auto label : fInputLabels) {
+    for (auto label : fInputLabels) 
+    {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
       evt.getByLabel(fInputModule, label, wfHandle);
       if (!wfHandle.isValid()) continue; // Skip non-existent collections
@@ -233,15 +242,19 @@ namespace opdet {
     // Load pulses into WaveformVector
     std::vector< raw::OpDetWaveform > WaveformVector;
     WaveformVector.reserve(totalsize);
-    for ( auto label : fInputLabels) {
+    for (auto label : fInputLabels) 
+    {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
       evt.getByLabel(fInputModule, label, wfHandle);
       if (!wfHandle.isValid()) continue; // Skip non-existent collections
 
-      //WaveformVector.insert(WaveformVector.end(), wfHandle->begin(), wfHandle->end());
-      for(auto const& wf : *wfHandle) {
-	if(fChannelMasks.find(wf.ChannelNumber()) != fChannelMasks.end()) continue;
-	WaveformVector.push_back(wf);
+      //WaveformVector.insert(WaveformVector.end(), 
+      //                      wfHandle->begin(), wfHandle->end());
+      for(auto const& wf : *wfHandle) 
+      {
+        if (fChannelMasks.find(wf.ChannelNumber()) 
+            != fChannelMasks.end()) continue;
+        WaveformVector.push_back(wf);
       }
     }
 
@@ -262,8 +275,9 @@ namespace opdet {
                    fTrigCoinc);
 
     // Make the associations which we noted we need
-    for(size_t i=0; i!=AssocList.size(); ++i)
-      util::CreateAssn(*this, evt, *(AssnPtr.get()), i, AssocList[i].begin(), AssocList[i].end());
+    for (size_t i = 0; i != AssocList.size(); ++i)
+      util::CreateAssn(*this, evt, *(AssnPtr.get()), i, 
+                       AssocList[i].begin(), AssocList[i].end());
     
     // Store results into the event
     evt.put(std::move(FlashPtr));
@@ -272,20 +286,18 @@ namespace opdet {
     
   }
 
-
-  //-----------------------------------------------------------------------
-  std::vector<double> OpFlashFinder::GetSPEScales()
+  //----------------------------------------------------------------------------
+  std::vector< double > OpFlashFinder::GetSPEScales()
   {
     // This will eventually interface to some kind of gain service
     // or database. For now all SPE scales are set to 20 ADC.
     // Alternatively all SPE scales are set to fSPEArea 
-    // if hit area is used to calculate number of PEs.
+    // if hit area is used to calculate number of PEs
     
-    if (fAreaToPE) return std::vector<double>(fMaxOpChannel+1,fSPEArea);
-    else           return std::vector<double>(fMaxOpChannel+1,20); // temp fix while we work out the expeiment-agnostic service that provides this info.
+    if (fAreaToPE) return std::vector< double >(fMaxOpChannel + 1, fSPEArea);
+    // temp fix while we work out the experiment-agnostic service 
+    // that provides this info
+    else           return std::vector< double >(fMaxOpChannel + 1, 20); 
   }
 
-
-
 } // namespace opdet
-
