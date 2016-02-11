@@ -14,7 +14,7 @@
 
 #include "art/Framework/Core/EDProducer.h"
 //#include "AnalysisBase/FlashMatch.h"
-#include "AnalysisBase/CosmicTag.h"
+#include "lardata/AnalysisBase/CosmicTag.h"
 
 
 // ROOT includes.
@@ -102,13 +102,13 @@ namespace opdet{
 //
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "PhotonPropagation/PhotonVisibilityService.h"
-#include "RecoObjects/BezierTrack.h"
-#include "RecoBase/OpFlash.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
+#include "lardata/RecoObjects/BezierTrack.h"
+#include "lardata/RecoBase/OpFlash.h"
 
 // FMWK includes
-#include "Utilities/AssociationUtil.h"
+#include "lardata/Utilities/AssociationUtil.h"
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
@@ -118,7 +118,7 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "Utilities/LArProperties.h"
+#include "lardata/Utilities/LArProperties.h"
 #include "TH2D.h"
 
 // C++ language includes

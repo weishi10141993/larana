@@ -30,9 +30,9 @@
 
 // LArSoft
 //#include "OpticalDetectorData/FIFOChannel.h"
-#include "RawData/OpDetWaveform.h"
-#include "Utilities/DetectorProperties.h"
-#include "Geometry/Geometry.h"
+#include "lardata/RawData/OpDetWaveform.h"
+#include "lardata/Utilities/DetectorProperties.h"
+#include "larcore/Geometry/Geometry.h"
 // STL
 #include <set>
 #include <vector>

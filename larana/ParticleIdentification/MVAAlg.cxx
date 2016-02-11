@@ -4,9 +4,9 @@
 ////////////////////////////////////////////////////////////////////
 
 #include "MVAAlg.h"
-#include "Geometry/Geometry.h"
-#include "Geometry/TPCGeo.h"
-#include "Utilities/DetectorProperties.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/TPCGeo.h"
+#include "lardata/Utilities/DetectorProperties.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "TPrincipal.h"
 #include "TFile.h"
@@ -19,7 +19,7 @@
 //#include "TVirtualFitter.h"
 #include "art/Framework/Core/FindManyP.h"
 #include "art/Framework/Core/FindOneP.h"
-#include "Utilities/AssociationUtil.h"
+#include "lardata/Utilities/AssociationUtil.h"
 
 mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule):
   fCaloAlg(pset), fParentModule(parentModule),fReader(""){

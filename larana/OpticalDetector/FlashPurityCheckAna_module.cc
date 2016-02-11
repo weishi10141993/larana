@@ -21,11 +21,11 @@
 #include <climits>
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "RawData/OpDetPulse.h"
-#include "RecoBase/OpFlash.h"
-#include "RecoBase/OpHit.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "larcore/Geometry/Geometry.h"
+#include "lardata/RawData/OpDetPulse.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "lardata/RecoBase/OpHit.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -40,9 +40,9 @@
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "RecoObjects/BezierTrack.h"
-#include "Utilities/AssociationUtil.h"
-#include "AnalysisBase/FlashMatch.h"
+#include "lardata/RecoObjects/BezierTrack.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardata/AnalysisBase/FlashMatch.h"
 
 
 #include "SimulationBase/MCTruth.h"

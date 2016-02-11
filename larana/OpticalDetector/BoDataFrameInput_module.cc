@@ -10,9 +10,9 @@
 #include <fstream>
 
 #include "art/Framework/Core/EDProducer.h"
-#include "RawData/OpDetPulse.h"
-#include "Simulation/sim.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "lardata/RawData/OpDetPulse.h"
+#include "larsim/Simulation/sim.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
 
 // ROOT includes.
@@ -78,9 +78,9 @@ namespace opdet{
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // LArSoft includes
-#include "Simulation/SimListUtils.h"
-#include "Simulation/SimPhotons.h"
-#include "RawData/OpDetPulse.h"
+#include "larsim/Simulation/SimListUtils.h"
+#include "larsim/Simulation/SimPhotons.h"
+#include "lardata/RawData/OpDetPulse.h"
 
 // ROOT includes
 #include <TH1D.h>

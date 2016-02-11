@@ -9,10 +9,10 @@
 #define OpDigiAna_H 1
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "RawData/OpDetPulse.h"
-#include "RecoBase/OpHit.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "larcore/Geometry/Geometry.h"
+#include "lardata/RawData/OpDetPulse.h"
+#include "lardata/RecoBase/OpHit.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
 // Framework includes
 #include "art/Framework/Core/EDAnalyzer.h"

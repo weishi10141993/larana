@@ -5,17 +5,17 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 
 # Add top level include
 include_directories ( ${PROJECT_SOURCE_DIR} )
-art_make(BASENAME_ONLY
-	LIBRARY_NAME CosmicRemoval
+art_make(
+	
 	LIB_LIBRARIES 
-		     RecoBase
-		     AnalysisBase
-		     Geometry
-		     Geometry_service
-		     PhotonVisibilityService_service
-		     LArProperties_service
-		     OpDigiProperties_service
-		     Utilities
+		     lardata_RecoBase
+		     lardata_AnalysisBase
+		     larcore_Geometry
+		     larcore_Geometry_Geometry_service
+		     larsim_PhotonPropagation_PhotonVisibilityService_service
+		     lardata_Utilities_LArProperties_service
+		     larana_OpticalDetector_OpDigiProperties_service
+		     lardata_Utilities
 		     ${SIMULATIONBASE}
 		     ${MF_MESSAGELOGGER}
 		     ${MF_UTILITIES}
@@ -25,23 +25,23 @@ art_make(BASENAME_ONLY
 		     ${ROOT_BASIC_LIB_LIST}
 		     ${G4_LIB_LIST}
 	MODULE_LIBRARIES  
-			    CosmicRemoval
-			    BackTracker_service
-			    RecoAlg
-                            Cluster3DAlgs
-			    Simulation
-			    RecoObjects
-			    RecoBase
-			    MCBase
-			    Geometry
-			    Geometry_service
-			    PhotonVisibilityService_service
-		            OpDigiProperties_service
-			    AnalysisAlg
-			    AnalysisBase
-                            LArProperties_service
-			    DetectorProperties_service
-			    Utilities
+			    larana_CosmicRemoval
+			    larsim_MCCheater_BackTracker_service
+			    larreco_RecoAlg
+                            larreco_RecoAlg_Cluster3DAlgs
+			    larsim_Simulation
+			    lardata_RecoObjects
+			    lardata_RecoBase
+			    lardata_MCBase
+			    larcore_Geometry
+			    larcore_Geometry_Geometry_service
+			    larsim_PhotonPropagation_PhotonVisibilityService_service
+		            larana_OpticalDetector_OpDigiProperties_service
+			    lardata_AnalysisAlg
+			    lardata_AnalysisBase
+                            lardata_Utilities_LArProperties_service
+			    lardata_Utilities_DetectorProperties_service
+			    lardata_Utilities
 			    ${MAGNETICFIELD_SERVICE}
 			    ${SIMULATIONBASE}
 			    ${ART_FRAMEWORK_CORE}

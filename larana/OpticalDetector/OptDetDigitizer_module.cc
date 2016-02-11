@@ -7,14 +7,14 @@
 // and produces a digitized waveform.
 
 // LArSoft includes
-#include "Simulation/SimListUtils.h"
-#include "Simulation/SimPhotons.h"
-#include "Simulation/sim.h"
-#include "OpticalDetectorData/OpticalTypes.h"
-#include "OpticalDetectorData/ChannelData.h"
-#include "OpticalDetectorData/ChannelDataGroup.h"
-#include "OpticalDetector/OpDigiProperties.h"
-#include "Geometry/Geometry.h"
+#include "larsim/Simulation/SimListUtils.h"
+#include "larsim/Simulation/SimPhotons.h"
+#include "larsim/Simulation/sim.h"
+#include "lardata/OpticalDetectorData/OpticalTypes.h"
+#include "lardata/OpticalDetectorData/ChannelData.h"
+#include "lardata/OpticalDetectorData/ChannelDataGroup.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
+#include "larcore/Geometry/Geometry.h"
 
 // ART includes
 #include "art/Framework/Core/EDProducer.h"

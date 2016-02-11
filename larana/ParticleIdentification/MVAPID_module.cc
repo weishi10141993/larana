@@ -22,9 +22,9 @@
 #include "TTree.h"
 
 #include "MVAAlg.h"
-#include "AnalysisBase/MVAPIDResult.h"
-#include "RecoBase/Track.h"
-#include "Utilities/AssociationUtil.h"
+#include "lardata/AnalysisBase/MVAPIDResult.h"
+#include "lardata/RecoBase/Track.h"
+#include "lardata/Utilities/AssociationUtil.h"
 
 namespace mvapid {
 

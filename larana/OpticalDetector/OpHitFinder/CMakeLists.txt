@@ -1,7 +1,7 @@
 
 # OpFlashFinder_module.cc is not built - it seems specific to uboone
-art_make( BASENAME_ONLY
-          LIBRARY_NAME OpHitFinder
+art_make( 
+          
           LIB_LIBRARIES 
 	                ${FHICLCPP}
 			${CETLIB}

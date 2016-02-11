@@ -48,11 +48,11 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // LArSoft includes
-#include "PhotonPropagation/PhotonVisibilityService.h"
-#include "OpticalDetector/OpDetResponseInterface.h"
-#include "Simulation/SimListUtils.h"
-#include "Simulation/sim.h"
-#include "Simulation/LArG4Parameters.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
+#include "larana/OpticalDetector/OpDetResponseInterface.h"
+#include "larsim/Simulation/SimListUtils.h"
+#include "larsim/Simulation/sim.h"
+#include "larsim/Simulation/LArG4Parameters.h"
 
 // ROOT includes
 #include <TH1D.h>

@@ -9,8 +9,8 @@
 #define FIFOHistogramAna_H 1
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "OpticalDetectorData/FIFOChannel.h"
+#include "larcore/Geometry/Geometry.h"
+#include "lardata/OpticalDetectorData/FIFOChannel.h"
 
 // Framework includes
 #include "art/Framework/Core/EDAnalyzer.h"

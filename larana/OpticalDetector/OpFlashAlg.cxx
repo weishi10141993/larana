@@ -14,10 +14,10 @@
 #include <functional>
 
 #include "OpFlashAlg.h"
-#include "RecoBase/OpHit.h"
+#include "lardata/RecoBase/OpHit.h"
 #include "cetlib/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "Geometry/OpDetGeo.h"
+#include "larcore/Geometry/OpDetGeo.h"
 #include "TH1D.h"
 #include "TFile.h"
 

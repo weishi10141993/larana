@@ -13,15 +13,15 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "Geometry/Geometry.h"
-#include "Geometry/OpDetGeo.h"
-#include "PhotonPropagation/PhotonVisibilityService.h"
-#include "Utilities/LArProperties.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/OpDetGeo.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
+#include "lardata/Utilities/LArProperties.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
-#include "Simulation/SimPhotons.h"
-#include "MCBase/MCTrack.h"
-#include "MCSTReco/MCTrackCollectionAnaAlg.h"
+#include "larsim/Simulation/SimPhotons.h"
+#include "lardata/MCBase/MCTrack.h"
+#include "larsim/MCSTReco/MCTrackCollectionAnaAlg.h"
 
 #include "FlashHypothesis.h"
 #include "FlashHypothesisCreator.h"

@@ -5,8 +5,8 @@
 ////////////////////////////////////////////////////////////////////////
 
 
-#include "OpticalDetector/DefaultOpDetResponse.h"
-#include "Utilities/LArProperties.h"
+#include "larana/OpticalDetector/DefaultOpDetResponse.h"
+#include "lardata/Utilities/LArProperties.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace opdet{

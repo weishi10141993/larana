@@ -6,9 +6,9 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/FindManyP.h"
-#include "AnalysisBase/CosmicTag.h"
-#include "RecoAlg/SpacePointAlg.h"
-#include "AnalysisAlg/CalorimetryAlg.h"
+#include "lardata/AnalysisBase/CosmicTag.h"
+#include "larreco/RecoAlg/SpacePointAlg.h"
+#include "lardata/AnalysisAlg/CalorimetryAlg.h"
 
 // ROOT includes.
 #include <Rtypes.h>
@@ -80,16 +80,16 @@ namespace opdet{
 
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "PhotonPropagation/PhotonVisibilityService.h"
-#include "RecoBase/Cluster.h"
-#include "RecoBase/Hit.h"
-#include "RecoBase/OpFlash.h"
-#include "RecoBase/SpacePoint.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
+#include "lardata/RecoBase/Cluster.h"
+#include "lardata/RecoBase/Hit.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "lardata/RecoBase/SpacePoint.h"
 
 
 // FMWK includes
-#include "Utilities/AssociationUtil.h"
+#include "lardata/Utilities/AssociationUtil.h"
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
@@ -99,8 +99,8 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "Utilities/LArProperties.h"
-#include "AnalysisAlg/CalorimetryAlg.h"
+#include "lardata/Utilities/LArProperties.h"
+#include "lardata/AnalysisAlg/CalorimetryAlg.h"
 
 // C++ language includes
 #include <iostream>

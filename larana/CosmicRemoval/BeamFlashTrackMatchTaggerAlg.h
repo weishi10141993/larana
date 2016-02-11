@@ -14,16 +14,16 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "RecoBase/OpFlash.h"
-#include "RecoBase/Track.h"
-#include "AnalysisBase/CosmicTag.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "lardata/RecoBase/Track.h"
+#include "lardata/AnalysisBase/CosmicTag.h"
 
 #include "SimulationBase/MCParticle.h"
 
-#include "Geometry/Geometry.h"
-#include "PhotonPropagation/PhotonVisibilityService.h"
-#include "Utilities/LArProperties.h"
-#include "OpticalDetector/OpDigiProperties.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
+#include "lardata/Utilities/LArProperties.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include "TTree.h"
 #include "TH1F.h"

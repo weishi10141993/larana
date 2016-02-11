@@ -1,12 +1,12 @@
 include_directories ( ${PROJECT_SOURCE_DIR} )
-art_make( BASENAME_ONLY
-	  LIBRARY_NAME ParticleIdentification
+art_make( 
+	  
 	  LIB_LIBRARIES
-                        AnalysisBase
-			AnalysisAlg
-                        Utilities
-                        Geometry
-                        DetectorProperties_service
+                        lardata_AnalysisBase
+			lardata_AnalysisAlg
+                        lardata_Utilities
+                        larcore_Geometry
+                        lardata_Utilities_DetectorProperties_service
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
 			${ART_FRAMEWORK_SERVICES_REGISTRY}
@@ -25,12 +25,12 @@ art_make( BASENAME_ONLY
 			${ROOT_TMVA}
                         ${Boost_SYSTEM_LIBRARY}
           MODULE_LIBRARIES 
-	  		ParticleIdentification
-                        RecoBase
-                        Geometry
-                        Geometry_service
-                        AnalysisAlg
-                        AnalysisBase
+	  		larana_ParticleIdentification
+                        lardata_RecoBase
+                        larcore_Geometry
+                        larcore_Geometry_Geometry_service
+                        lardata_AnalysisAlg
+                        lardata_AnalysisBase
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
 			${ART_FRAMEWORK_SERVICES_REGISTRY}

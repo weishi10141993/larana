@@ -13,9 +13,9 @@
 #define OpFlashFinder_H 1
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
-#include "Geometry/OpDetGeo.h"
-#include "RawData/OpDetWaveform.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/OpDetGeo.h"
+#include "lardata/RawData/OpDetWaveform.h"
 #include "OpHitFinder/AlgoThreshold.h"
 #include "OpHitFinder/AlgoFixedWindow.h"
 #include "OpHitFinder/AlgoSlidingWindow.h"
@@ -25,10 +25,10 @@
 #include "OpHitFinder/PedAlgoRollingMean.h"
 #include "OpHitFinder/PedAlgoUB.h"
 #include "OpHitFinder/PulseRecoManager.h"
-#include "RecoBase/OpFlash.h"
-#include "RecoBase/OpHit.h"
-#include "Utilities/AssociationUtil.h"
-#include "Utilities/TimeService.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "lardata/RecoBase/OpHit.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardata/Utilities/TimeService.h"
 #include "OpFlashAlg.h"
 
 // Framework includes
@@ -114,7 +114,7 @@ namespace opdet {
 
 #endif 
 
-#include "TriggerAlgo/TriggerAlgoMicroBoone.h"
+#include "larsim/TriggerAlgo/TriggerAlgoMicroBoone.h"
 
 namespace opdet {
 

@@ -24,17 +24,17 @@
 #include "messagefacility/MessageLogger/MessageLogger.h" 
 
 // LArSoft Includes
-#include "Geometry/Geometry.h"
+#include "larcore/Geometry/Geometry.h"
 #include "SimulationBase/MCTruth.h"
 #include "SimulationBase/MCParticle.h"
-#include "Utilities/AssociationUtil.h"
-#include "Utilities/TimeService.h"
-#include "RecoBase/Track.h"
-#include "RecoBase/Cluster.h"
-#include "RecoBase/Hit.h"
-#include "RawData/RawDigit.h"
-#include "MCBase/MCHitCollection.h"
-#include "AnalysisBase/CosmicTag.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardata/Utilities/TimeService.h"
+#include "lardata/RecoBase/Track.h"
+#include "lardata/RecoBase/Cluster.h"
+#include "lardata/RecoBase/Hit.h"
+#include "lardata/RawData/RawDigit.h"
+#include "lardata/MCBase/MCHitCollection.h"
+#include "lardata/AnalysisBase/CosmicTag.h"
 
 
 // ROOT Includes

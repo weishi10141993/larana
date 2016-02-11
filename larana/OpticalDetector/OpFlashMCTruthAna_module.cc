@@ -9,7 +9,7 @@
 #define OpFlashMCTruthAna_H 1
 
 // LArSoft includes
-#include "Geometry/Geometry.h"
+#include "larcore/Geometry/Geometry.h"
 
 #include "TTree.h"
 
@@ -92,8 +92,8 @@ namespace opdet {
 // OpFlashMCTruthAna.cxx
 
 // LArSoft includes
-#include "RawData/OpDetPulse.h"
-#include "RecoBase/OpFlash.h"
+#include "lardata/RawData/OpDetPulse.h"
+#include "lardata/RecoBase/OpFlash.h"
 
 
 // Framework includes

@@ -1,2 +1,6 @@
 
-
+add_subdirectory(Calorimetry)
+add_subdirectory(OpticalDetector)
+add_subdirectory(ParticleIdentification)
+add_subdirectory(CosmicRemoval)
+add_subdirectory(T0Finder)

@@ -19,12 +19,12 @@
 //#include "SimpleTypesAndConstants/geo_types.h"
 //#include "SimpleTypesAndConstants/RawTypes.h" // raw::ChannelID_t
 //#include "RecoBase/Wire.h"
-#include "RecoBase/Hit.h"
-#include "RecoBase/Cluster.h"
-#include "RecoBase/Track.h"
-#include "RecoBase/SpacePoint.h"
+#include "lardata/RecoBase/Hit.h"
+#include "lardata/RecoBase/Cluster.h"
+#include "lardata/RecoBase/Track.h"
+#include "lardata/RecoBase/SpacePoint.h"
 //#include "RecoAlg/APAGeometryAlg.h"
-#include "AnalysisAlg/CalorimetryAlg.h"
+#include "lardata/AnalysisAlg/CalorimetryAlg.h"
 //#include "MCCheater/BackTracker.h"
 
 //#include "TMatrixD.h"
@@ -34,7 +34,7 @@
 #include <Math/Vector3D.h>
 #include "TMVA/Reader.h"
 
-#include "AnalysisBase/MVAPIDResult.h"
+#include "lardata/AnalysisBase/MVAPIDResult.h"
 
 
 namespace mvapid{

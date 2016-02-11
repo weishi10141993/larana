@@ -21,10 +21,10 @@
 #include <climits>
 
 // LArSoft includes
-#include "RawData/OpDetPulse.h"
-#include "RecoBase/OpFlash.h"
-#include "RecoBase/Track.h"
-#include "AnalysisBase/FlashMatch.h"
+#include "lardata/RawData/OpDetPulse.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "lardata/RecoBase/Track.h"
+#include "lardata/AnalysisBase/FlashMatch.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -39,7 +39,7 @@
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "Utilities/AssociationUtil.h"
+#include "lardata/Utilities/AssociationUtil.h"
 
 
 namespace opdet {

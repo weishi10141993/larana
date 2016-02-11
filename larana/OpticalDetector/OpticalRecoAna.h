@@ -13,11 +13,11 @@
 #include "art/Persistency/Common/Ptr.h"
 
 //LArSoft includes
-#include "MCCheater/BackTracker.h"
+#include "larsim/MCCheater/BackTracker.h"
 #include "SimulationBase/MCParticle.h"
-#include "RecoBase/Track.h"
-#include "RecoBase/OpFlash.h"
-#include "Geometry/Geometry.h"
+#include "lardata/RecoBase/Track.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "larcore/Geometry/Geometry.h"
 
 #include "TH1.h"
 #include "TTree.h"

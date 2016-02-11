@@ -10,15 +10,15 @@
  */
 
 #include <functional>
-#include "Simulation/BeamGateInfo.h"
-#include "OpticalDetectorData/OpticalTypes.h"
-#include "RawData/OpDetWaveform.h"
+#include "larsim/Simulation/BeamGateInfo.h"
+#include "lardata/OpticalDetectorData/OpticalTypes.h"
+#include "lardata/RawData/OpDetWaveform.h"
 #include "OpHitFinder/PulseRecoManager.h"
 #include "OpHitFinder/PMTPulseRecoBase.h"
-#include "RecoBase/OpHit.h"
-#include "RecoBase/OpFlash.h"
-#include "Geometry/Geometry.h"
-#include "Utilities/TimeService.h"
+#include "lardata/RecoBase/OpHit.h"
+#include "lardata/RecoBase/OpFlash.h"
+#include "larcore/Geometry/Geometry.h"
+#include "lardata/Utilities/TimeService.h"
 
 namespace opdet{
 

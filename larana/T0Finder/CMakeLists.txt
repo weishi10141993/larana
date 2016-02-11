@@ -1,14 +1,14 @@
 
 simple_plugin(MCTruthT0Matching "module"
-		      RawData
-		      AnalysisBase
-		      RecoBase
-		        Geometry
-			Geometry_service
-			Utilities
-			DetectorProperties_service
-			BackTracker_service
-			LArProperties_service
+		      lardata_RawData
+		      lardata_AnalysisBase
+		      lardata_RecoBase
+		        larcore_Geometry
+			larcore_Geometry_Geometry_service
+			lardata_Utilities
+			lardata_Utilities_DetectorProperties_service
+			larsim_MCCheater_BackTracker_service
+			lardata_Utilities_LArProperties_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -25,15 +25,15 @@ simple_plugin(MCTruthT0Matching "module"
 )
 
 simple_plugin(PhotonCounterT0Matching "module"
-		      RawData
-		      AnalysisBase
-		      RecoBase
-		        Geometry
-			Geometry_service
-			Utilities
-			DetectorProperties_service
-			BackTracker_service
-			LArProperties_service
+		      lardata_RawData
+		      lardata_AnalysisBase
+		      lardata_RecoBase
+		        larcore_Geometry
+			larcore_Geometry_Geometry_service
+			lardata_Utilities
+			lardata_Utilities_DetectorProperties_service
+			larsim_MCCheater_BackTracker_service
+			lardata_Utilities_LArProperties_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}

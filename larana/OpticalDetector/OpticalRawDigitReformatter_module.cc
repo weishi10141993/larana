@@ -8,12 +8,12 @@
 #define OpticalRawDigitReformatter_H 1
 
 // LArSoft includes
-#include "OpticalDetectorData/OpticalRawDigit.h"
-#include "OpticalDetectorData/FIFOChannel.h"
-#include "OpticalDetectorData/OpticalTypes.h"
-#include "RawData/OpDetWaveform.h"
-#include "Utilities/TimeService.h"
-#include "Simulation/BeamGateInfo.h"
+#include "lardata/OpticalDetectorData/OpticalRawDigit.h"
+#include "lardata/OpticalDetectorData/FIFOChannel.h"
+#include "lardata/OpticalDetectorData/OpticalTypes.h"
+#include "lardata/RawData/OpDetWaveform.h"
+#include "lardata/Utilities/TimeService.h"
+#include "larsim/Simulation/BeamGateInfo.h"
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"

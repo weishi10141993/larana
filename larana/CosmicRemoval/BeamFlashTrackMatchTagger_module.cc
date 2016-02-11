@@ -26,8 +26,8 @@
 
 #include <memory>
 
-#include "Utilities/AssociationUtil.h"
-#include "RecoBase/Hit.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardata/RecoBase/Hit.h"
 #include "BeamFlashTrackMatchTaggerAlg.h"
 #include "HitTagAssociatorAlg.h"
 

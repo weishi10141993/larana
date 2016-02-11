@@ -3,58 +3,17 @@ add_subdirectory(OpHitFinder)
 
 # OpFlashFinder_module.cc is not built - it seems specific to uboone
 
-art_make_library( LIBRARY_NAME FlashHypothesis
-		  	     SOURCE FlashHypothesis.cxx
-		                           FlashHypothesisCalculator.cxx
-		                           FlashUtilities.cxx
-			     LIBRARIES
-			                             ${ROOT_BASIC_LIB_LIST}
-)
-
-art_make_library( LIBRARY_NAME SimPhotonCounter
-		  	     SOURCE SimPhotonCounter.cxx
-			     LIBRARIES
-			                ${ROOT_BASIC_LIB_LIST}
-)
-
-art_make_library( LIBRARY_NAME FlashHypothesisComparison
-		  	     SOURCE FlashHypothesisComparison.cxx
-			     LIBRARIES
-					FlashHypothesis
-					SimPhotonCounter
-					MCSTReco
-			                ${ROOT_BASIC_LIB_LIST}
-)
-
-art_make_library( LIBRARY_NAME OpFlashAnaAlg
-		  	     SOURCE OpFlashAnaAlg.cxx
-			     LIBRARIES
-					RecoBase
-			                ${ROOT_BASIC_LIB_LIST}
-)
-
-
-art_make( BASENAME_ONLY
-          EXCLUDE FlashHypothesis.cxx
-			 FlashHypothesisCalculator.cxx
-		         FlashUtilities.cxx
-		         FlashHypothesisComparison.cxx
-			 SimPhotonCounter.cxx
-			 OpFlashAnaAlg.cxx
-          LIBRARY_NAME OpticalDetector
+art_make( 
           LIB_LIBRARIES 
-			RecoBase
-	  		FlashHypothesis
-			SimPhotonCounter
-	  		FlashHypothesisComparison
-			OpFlashAnaAlg
-			OpHitFinder
-			MCBase
-                        Geometry
-                        Geometry_service
-                        PhotonVisibilityService_service
-		        OpDigiProperties_service
-		        Utilities
+			lardata_RecoBase
+			larana_OpticalDetector_OpHitFinder
+			larsim_MCSTReco
+			lardata_MCBase
+                        larcore_Geometry
+                        larcore_Geometry_Geometry_service
+                        larsim_PhotonPropagation_PhotonVisibilityService_service
+		        larana_OpticalDetector_OpDigiProperties_service
+		        lardata_Utilities
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -70,24 +29,24 @@ art_make( BASENAME_ONLY
 	                ${FHICLCPP}
 			${CETLIB}
                         ${ROOT_BASIC_LIB_LIST}
-          MODULE_LIBRARIES OpDigiProperties_service
-	  		OpHitFinder
-	                OpticalDetector
-                        PhotonVisibilityService_service
-			BackTracker_service
-                        Filters
-                        RecoObjects
-                        RecoBase
-			MCBase
-                        RecoAlg
-                        Geometry
-                        Geometry_service
-                        Simulation
-                        TriggerAlgoMicroBoone_service
-                        Utilities
-                        RawData
-                        AnalysisAlg
-                        AnalysisBase
+          MODULE_LIBRARIES larana_OpticalDetector_OpDigiProperties_service
+	  		larana_OpticalDetector_OpHitFinder
+	                larana_OpticalDetector
+                        larsim_PhotonPropagation_PhotonVisibilityService_service
+			larsim_MCCheater_BackTracker_service
+                        larevt_Filters
+                        lardata_RecoObjects
+                        lardata_RecoBase
+			lardata_MCBase
+                        larreco_RecoAlg
+                        larcore_Geometry
+                        larcore_Geometry_Geometry_service
+                        larsim_Simulation
+                        larsim_TriggerAlgo_TriggerAlgoMicroBoone_service
+                        lardata_Utilities
+                        lardata_RawData
+                        lardata_AnalysisAlg
+                        lardata_AnalysisBase
                         SeedService_service # artextensions
                         ${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
@@ -105,8 +64,8 @@ art_make( BASENAME_ONLY
 			${CETLIB}
                         ${ROOT_BASIC_LIB_LIST}
        SERVICE_LIBRARIES
-                        Geometry
-                        Geometry_service
+                        larcore_Geometry
+                        larcore_Geometry_Geometry_service
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
 			${ART_FRAMEWORK_SERVICES_REGISTRY}
