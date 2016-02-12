@@ -56,7 +56,7 @@ namespace opdet{
 		    float const& HitThreshold,
 		    float const& FlashThreshold,
 		    float const& WidthTolerance,
-		    util::TimeService const& ts,
+		    detinfo::DetectorClocks const& ts,
 		    std::vector<double> const& SPESize, 
 		    bool const& AreaToPE,
 		    float const& TrigCoinc)
@@ -207,7 +207,7 @@ namespace opdet{
 		     int const& Channel,
 		     double const& TimeStamp,
 		     pmtana::pulse_param const& pulse,
-		     util::TimeService const& ts,
+		     detinfo::DetectorClocks const& ts,
 		     double const& SPESize,
 		     bool const& AreaToPE,
 		     std::vector<recob::OpHit>& HitVector)
@@ -613,7 +613,7 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-		      util::TimeService const& ts,
+		      detinfo::DetectorClocks const& ts,
 		      float const& TrigCoinc)
   {
 

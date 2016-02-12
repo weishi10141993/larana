@@ -6,7 +6,7 @@
 
 
 #include "larana/OpticalDetector/DefaultOpDetResponse.h"
-#include "lardata/Utilities/LArProperties.h"
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace opdet{
@@ -27,7 +27,7 @@ namespace opdet{
     //--------------------------------------------------------------------
     void DefaultOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
     {
-        art::ServiceHandle<util::LArProperties>   LarProp;
+        auto const* LarProp = lar::providerFrom<detinfo::LArPropertiesService>();
 
         if ( LarProp->ScintPreScale() < 1 ) {
             mf::LogWarning("DefaultOpDetResponse_service") << "A prescale of " << LarProp->ScintPreScale() << " has been applied during optical MC production, "

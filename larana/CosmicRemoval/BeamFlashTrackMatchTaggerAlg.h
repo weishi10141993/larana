@@ -21,8 +21,9 @@
 #include "SimulationBase/MCParticle.h"
 
 #include "larcore/Geometry/Geometry.h"
+#include "lardata/DetectorInfo/ProviderPack.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardata/Utilities/LArProperties.h"
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include "TTree.h"
@@ -37,6 +38,10 @@ namespace cosmic{
 
 class cosmic::BeamFlashTrackMatchTaggerAlg{
  public:
+  
+  /// Pack of provider-interface supporting services we need
+  using Providers_t = lar::ProviderPack<geo::GeometryCore, detinfo::LArProperties>;
+  
   BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p);
   void reconfigure(fhicl::ParameterSet const& p);
 
@@ -45,9 +50,8 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			     std::vector<recob::Track> const&,
 			     std::vector<anab::CosmicTag>&,
 			     std::vector<size_t>&,
-			     geo::Geometry const&,
+			     Providers_t,
 			     phot::PhotonVisibilityService const&,
-			     util::LArProperties const&,
 			     opdet::OpDigiProperties const&);
 
   void SetHypothesisComparisonTree(TTree*,TH1F*,TH1F*);
@@ -56,18 +60,16 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			       unsigned int const,
 			       std::vector<recob::OpFlash> const&,
 			       std::vector<recob::Track> const&,
-			       geo::Geometry const&,
+			       Providers_t,
 			       phot::PhotonVisibilityService const&,
-			       util::LArProperties const&,
 			       opdet::OpDigiProperties const&);
 
   void RunHypothesisComparison(unsigned int const,
 			       unsigned int const,
 			       std::vector<recob::OpFlash> const&,
 			       std::vector<simb::MCParticle> const&,
-			       geo::Geometry const&,
+			       Providers_t,
 			       phot::PhotonVisibilityService const&,
-			       util::LArProperties const&,
 			       opdet::OpDigiProperties const&);
 
  private:
@@ -142,18 +144,16 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 
   //core functions
   std::vector<float> GetMIPHypotheses(recob::Track const& track, 
-				      geo::Geometry const& geom,
+				      Providers_t providers,
 				      phot::PhotonVisibilityService const& pvs,
-				      util::LArProperties const&,
 				      opdet::OpDigiProperties const&,
 				      float XOffset=0);
 
   std::vector<float> GetMIPHypotheses(simb::MCParticle const& particle, 
 				      size_t start_i,
 				      size_t end_i,
-				      geo::Geometry const& geom,
+				      Providers_t providers,
 				      phot::PhotonVisibilityService const& pvs,
-				      util::LArProperties const&,
 				      opdet::OpDigiProperties const&,
 				      float XOffset=0);
 
@@ -161,27 +161,27 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
 			   TVector3 const& pt2,
 			   std::vector<float> & lightHypothesis,
 			   float & totalHypothesisPE,
-			   geo::Geometry const& geom,
+			   geo::GeometryCore const& geom,
 			   phot::PhotonVisibilityService const& pvs,
 			   float const& PromptMIPScintYield,
 			   float XOffset);
 
   void NormalizeLightHypothesis(std::vector<float> & lightHypothesis,
 				float const& totalHypothesisPE,
-				geo::Geometry const& geom);
+				geo::GeometryCore const& geom);
   
   CompatibilityResultType CheckCompatibility(std::vector<float> const& lightHypothesis, 
 					     const recob::OpFlash* flashPointer,
-                                             geo::Geometry const& geom);
+                                             geo::GeometryCore const& geom);
 
-  bool InDetector(TVector3 const&, geo::Geometry const&);
-  bool InDriftWindow(double, double, geo::Geometry const&);
+  bool InDetector(TVector3 const&, geo::GeometryCore const&);
+  bool InDriftWindow(double, double, geo::GeometryCore const&);
   
   void FillFlashProperties(std::vector<float> const& opdetVector,
 			   float&,
 			   float&, float&,
 			   float&, float&,
-			   geo::Geometry const& geom);
+			   geo::GeometryCore const& geom);
 
   float CalculateChi2(std::vector<float> const&,std::vector<float> const&);
   
@@ -190,7 +190,7 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   void PrintFlashProperties(recob::OpFlash const&, std::ostream* output=&std::cout);
   void PrintHypothesisFlashComparison(std::vector<float> const&,
 				      const recob::OpFlash*,
-                                      geo::Geometry const& geom,
+                                      geo::GeometryCore const& geom,
 				      CompatibilityResultType,
 				      std::ostream* output=&std::cout);
 

@@ -57,11 +57,12 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
 								 std::vector<recob::Track> const& trackVector,
 								 std::vector<anab::CosmicTag>& cosmicTagVector,
 								 std::vector<size_t>& assnTrackTagVector,
-								 geo::Geometry const& geom,
+								 Providers_t providers,
 								 phot::PhotonVisibilityService const& pvs,
-								 util::LArProperties const& larp,
 								 opdet::OpDigiProperties const& opdigip){
 
+  auto const& geom = *(providers.get<geo::GeometryCore>());
+  
   std::vector< const recob::OpFlash* > flashesOnBeamTime;
   for(auto const& flash : flashVector){
     if(!flash.OnBeamTime()) continue;
@@ -94,7 +95,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
     }
 
     //get light hypothesis for track
-    std::vector<float> lightHypothesis = GetMIPHypotheses(track,geom,pvs,larp,opdigip);
+    std::vector<float> lightHypothesis = GetMIPHypotheses(track,providers,pvs,opdigip);
 
     //check compatibility with beam flash
     bool compatible=false;
@@ -122,11 +123,12 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 								   unsigned int const event,
 								   std::vector<recob::OpFlash> const& flashVector,
 								   std::vector<recob::Track> const& trackVector,
-								   geo::Geometry const& geom,
+								   Providers_t providers,
 								   phot::PhotonVisibilityService const& pvs,
-								   util::LArProperties const& larp,
 								   opdet::OpDigiProperties const& opdigip){
 
+  auto const& geom = *(providers.get<geo::GeometryCore>());
+  
   cFlashComparison_p.run = run;
   cFlashComparison_p.event = event;
 
@@ -160,7 +162,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
     cFlashComparison_p.trk_endz = pt_end.z();
 
     //get light hypothesis for track
-    cOpDetVector_hyp = GetMIPHypotheses(track,geom,pvs,larp,opdigip);
+    cOpDetVector_hyp = GetMIPHypotheses(track,providers,pvs,opdigip);
 
     cFlashComparison_p.hyp_index = track_i;
     FillFlashProperties(cOpDetVector_hyp,
@@ -203,11 +205,12 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
 								   unsigned int const event,
 								   std::vector<recob::OpFlash> const& flashVector,
 								   std::vector<simb::MCParticle> const& mcParticleVector,
-								   geo::Geometry const& geom,
+								   Providers_t providers,
 								   phot::PhotonVisibilityService const& pvs,
-								   util::LArProperties const& larp,
 								   opdet::OpDigiProperties const& opdigip){
 
+  auto const& geom = *(providers.get<geo::GeometryCore>());
+  
   cFlashComparison_p.run = run;
   cFlashComparison_p.event = event;
 
@@ -249,7 +252,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
     cFlashComparison_p.trk_endz = pt_end.z();
 
     //get light hypothesis for track
-    cOpDetVector_hyp = GetMIPHypotheses(particle,start_i,end_i,geom,pvs,larp,opdigip);
+    cOpDetVector_hyp = GetMIPHypotheses(particle,start_i,end_i,providers,pvs,opdigip);
 
     cFlashComparison_p.hyp_index = particle_i;
     FillFlashProperties(cOpDetVector_hyp,
@@ -305,7 +308,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::FillFlashProperties(std::vector<float
 							       float& sum,
 							       float& y, float& sigmay,
 							       float& z, float& sigmaz,
-							       geo::Geometry const& geom){
+							       geo::GeometryCore const& geom){
   y=0; sigmay=0; z=0; sigmaz=0; sum=0;
   double xyz[3];
   for(unsigned int opdet=0; opdet<opdetVector.size(); opdet++){
@@ -328,14 +331,14 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::FillFlashProperties(std::vector<float
 
 }
 
-bool cosmic::BeamFlashTrackMatchTaggerAlg::InDetector(TVector3 const& pt, geo::Geometry const& geom){
+bool cosmic::BeamFlashTrackMatchTaggerAlg::InDetector(TVector3 const& pt, geo::GeometryCore const& geom){
   if(pt.x() < 0 || pt.x() > 2*geom.DetHalfWidth()) return false;
   if(std::abs(pt.y()) > geom.DetHalfHeight()) return false;
   if(pt.z() < 0 || pt.z() > geom.DetLength()) return false;
   return true;
 }
 
-bool cosmic::BeamFlashTrackMatchTaggerAlg::InDriftWindow(double start_x, double end_x, geo::Geometry const& geom){
+bool cosmic::BeamFlashTrackMatchTaggerAlg::InDriftWindow(double start_x, double end_x, geo::GeometryCore const& geom){
   if(start_x < 0. || end_x < 0.) return false;
   if(start_x > 2*geom.DetHalfWidth() || end_x > 2*geom.DetHalfWidth()) return false;
   return true;
@@ -345,7 +348,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::AddLightFromSegment(TVector3 const& p
 							       TVector3 const& pt2,
 							       std::vector<float> & lightHypothesis,
 							       float & totalHypothesisPE,
-							       geo::Geometry const& geom,
+							       geo::GeometryCore const& geom,
 							       phot::PhotonVisibilityService const& pvs,
 							       float const& PromptMIPScintYield,
 							       float XOffset){
@@ -379,7 +382,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::AddLightFromSegment(TVector3 const& p
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::NormalizeLightHypothesis(std::vector<float> & lightHypothesis,
 								    float const& totalHypothesisPE,
-								    geo::Geometry const& geom){
+								    geo::GeometryCore const& geom){
   for(size_t opdet_i=0; opdet_i<geom.NOpDets(); opdet_i++)
     lightHypothesis[opdet_i] /= totalHypothesisPE;
 }
@@ -387,12 +390,13 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::NormalizeLightHypothesis(std::vector<
 
 // Get a hypothesis for the light collected for a track
 std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob::Track const& track, 
-									  geo::Geometry const& geom,
+									  Providers_t providers,
 									  phot::PhotonVisibilityService const& pvs,
-									  util::LArProperties const& larp,
 									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {
+  auto const& geom = *(providers.get<geo::GeometryCore>());
+  auto const& larp = *(providers.get<detinfo::LArProperties>());
   std::vector<float> lightHypothesis(geom.NOpDets(),0);  
   float totalHypothesisPE=0;
   const float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
@@ -417,12 +421,13 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob:
 // Get a hypothesis for the light collected for a particle trajectory
 std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(simb::MCParticle const& particle, 
 									  size_t start_i, size_t end_i,
-									  geo::Geometry const& geom,
+									  Providers_t providers,
 									  phot::PhotonVisibilityService const& pvs,
-									  util::LArProperties const& larp,
 									  opdet::OpDigiProperties const& opdigip,
 									  float XOffset)
 {
+  auto const& geom = *(providers.get<geo::GeometryCore>());
+  auto const& larp = *(providers.get<detinfo::LArProperties>());
   std::vector<float> lightHypothesis(geom.NOpDets(),0);  
   float totalHypothesisPE=0;
   const float PromptMIPScintYield = larp.ScintYield()*larp.ScintYieldRatio()*opdigip.QE()*fMIPdQdx;
@@ -451,7 +456,7 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(simb::
 cosmic::BeamFlashTrackMatchTaggerAlg::CompatibilityResultType 
 cosmic::BeamFlashTrackMatchTaggerAlg::CheckCompatibility(std::vector<float> const& lightHypothesis, 
 							 const recob::OpFlash* flashPointer,
-                                                         geo::Geometry const& geom)
+                                                         geo::GeometryCore const& geom)
 {
   float hypothesis_integral=0;
   float flash_integral=0;
@@ -547,7 +552,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintFlashProperties(recob::OpFlash c
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::PrintHypothesisFlashComparison(std::vector<float> const& lightHypothesis,
 									  const recob::OpFlash* flashPointer,
-                                                                          geo::Geometry const& geom,
+                                                                          geo::GeometryCore const& geom,
 									  CompatibilityResultType result,
 									  std::ostream* output)
 {

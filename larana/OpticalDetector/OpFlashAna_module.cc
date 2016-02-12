@@ -27,7 +27,7 @@
 #include "lardata/RawData/OpDetPulse.h"
 #include "lardata/RecoBase/OpFlash.h"
 #include "lardata/RecoBase/OpHit.h"
-#include "lardata/Utilities/TimeService.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 //#include "OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
@@ -155,7 +155,7 @@ namespace opdet {
 //    fTimeEnd    = odp->TimeEnd();
 //    fSampleFreq = odp->SampleFreq();
 
-    art::ServiceHandle< util::TimeService > timeService;
+    auto const* timeService = lar::providerFrom<detinfo::DetectorClocksService>();
     fTimeBegin  = timeService->OpticalClock().Time();
     fTimeEnd    = timeService->OpticalClock().FramePeriod();
     fSampleFreq = timeService->OpticalClock().Frequency();

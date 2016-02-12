@@ -13,7 +13,7 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/GeometryCore.h"
 #include "OpDigiProperties.h"
 
 namespace opdet{
@@ -23,7 +23,7 @@ namespace opdet{
   public:
     SimPhotonCounterAlg(fhicl::ParameterSet const&);
 
-    void InitializeCounters(geo::Geometry const&,
+    void InitializeCounters(geo::GeometryCore const&,
 			    opdet::OpDigiProperties const&);
     
     void AddSimPhotonCollection(sim::SimPhotonsCollection const&);

@@ -40,9 +40,9 @@
 #include "lardata/AnalysisBase/CosmicTag.h"
 #include "larreco/RecoAlg/SpacePointAlg.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/Utilities/DetectorProperties.h"
-#include "lardata/Utilities/LArProperties.h"
-#include "lardata/Utilities/TimeService.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 
 #include "TVector3.h"
 
@@ -336,10 +336,9 @@ void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
     // Implementation of optional member function here.
   
     ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-    art::ServiceHandle<util::DetectorProperties> detp;
-    art::ServiceHandle<util::LArProperties> larp;
-    art::ServiceHandle<geo::Geometry> geo;
-    art::ServiceHandle<util::TimeService> ts;
+    auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
+    auto const* geo = lar::providerFrom<geo::Geometry>();
+    auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
 
     fDetHalfHeight = geo->DetHalfHeight();
     fDetWidth      = 2.*geo->DetHalfWidth();
@@ -355,7 +354,7 @@ void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
     fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
     fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
 
-    const double driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
+    const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
 
     //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
     fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB

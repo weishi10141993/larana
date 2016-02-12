@@ -26,7 +26,10 @@
 
 #include <memory>
 
+#include "larcore/Geometry/Geometry.h"
 #include "lardata/Utilities/AssociationUtil.h"
+#include "lardata/DetectorInfoServices/ServicePack.h" // lar::extractProviders()
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "lardata/RecoBase/Hit.h"
 #include "BeamFlashTrackMatchTaggerAlg.h"
 #include "HitTagAssociatorAlg.h"
@@ -93,13 +96,14 @@ void cosmic::BeamFlashTrackMatchTagger::reconfigure(fhicl::ParameterSet const& p
 
 void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
 {
-  //services we'll be using
-  art::ServiceHandle<geo::Geometry> geomHandle;
-  geo::Geometry const& geom(*geomHandle);
+  // services and providers we'll be using
+  auto providers = lar::extractProviders<
+    geo::Geometry,
+    detinfo::LArPropertiesService
+    >();
+  
   art::ServiceHandle<phot::PhotonVisibilityService> pvsHandle;
   phot::PhotonVisibilityService const& pvs(*pvsHandle);
-  art::ServiceHandle<util::LArProperties> larpHandle;
-  util::LArProperties const& larp(*larpHandle);
   art::ServiceHandle<opdet::OpDigiProperties> opdigipHandle;
   opdet::OpDigiProperties const& opdigip(*opdigipHandle);
 
@@ -125,7 +129,7 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
   //run the alg!
   fAlg.RunCompatibilityCheck(flashVector, trackVector, 
 			     cosmicTagVector, assnTrackTagVector,
-			     geom, pvs, larp, opdigip);
+			     providers, pvs, opdigip);
 
 
   //Make the associations for ART

@@ -35,8 +35,8 @@
 
 #include "larreco/RecoAlg/SpacePointAlg.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/Utilities/DetectorProperties.h"
-#include "lardata/Utilities/LArProperties.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
 
 #include "TMatrixD.h"
 #include "TDecompSVD.h"
@@ -213,14 +213,13 @@ void cosmic::CosmicClusterTagger::beginJob() {
 void cosmic::CosmicClusterTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
  
-  art::ServiceHandle<util::DetectorProperties> detp;
-  art::ServiceHandle<util::LArProperties> larp;
-  art::ServiceHandle<geo::Geometry> geo;
+  auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
+  auto const* geo = lar::providerFrom<geo::Geometry>();
 
   fSamplingRate = detp->SamplingRate();
   fClusterModuleLabel = p.get< std::string >("ClusterModuleLabel", "cluster");
   fTickLimit = p.get< int >("TickLimit", 0);
-  const double driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
+  const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
 
   //  std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB

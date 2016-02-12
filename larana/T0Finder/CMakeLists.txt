@@ -6,9 +6,7 @@ simple_plugin(MCTruthT0Matching "module"
 		        larcore_Geometry
 			larcore_Geometry_Geometry_service
 			lardata_Utilities
-			lardata_Utilities_DetectorProperties_service
 			larsim_MCCheater_BackTracker_service
-			lardata_Utilities_LArProperties_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
@@ -31,9 +29,7 @@ simple_plugin(PhotonCounterT0Matching "module"
 		        larcore_Geometry
 			larcore_Geometry_Geometry_service
 			lardata_Utilities
-			lardata_Utilities_DetectorProperties_service
 			larsim_MCCheater_BackTracker_service
-			lardata_Utilities_LArProperties_service
 			${SIMULATIONBASE}
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}

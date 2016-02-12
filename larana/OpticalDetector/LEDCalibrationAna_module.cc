@@ -15,7 +15,7 @@
 #include "larana/OpticalDetector/OpHitFinder/AlgoThreshold.h"
 #include "larana/OpticalDetector/OpHitFinder/PedAlgoEdges.h"
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
-#include "lardata/Utilities/TimeService.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 
 // Framework includes
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -250,7 +250,7 @@ namespace opdet {
   void LEDCalibrationAna::analyze(const art::Event& evt) 
   {
 
-    art::ServiceHandle<util::TimeService> ts;
+    auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
 
 
     fRunID=evt.run();

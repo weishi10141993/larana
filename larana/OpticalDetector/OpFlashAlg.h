@@ -18,7 +18,7 @@
 #include "lardata/RecoBase/OpHit.h"
 #include "lardata/RecoBase/OpFlash.h"
 #include "larcore/Geometry/Geometry.h"
-#include "lardata/Utilities/TimeService.h"
+#include "lardata/DetectorInfo/DetectorClocks.h"
 
 namespace opdet{
 
@@ -33,7 +33,7 @@ namespace opdet{
 		      float const&,
 		      float const&,
 		      float const&,
-		      util::TimeService const&,
+		      detinfo::DetectorClocks const&,
 		      std::vector<double> const&,
           bool const&,
 		      float const&);
@@ -42,7 +42,7 @@ namespace opdet{
 		     int const&,
 		     double const&,
 		     pmtana::pulse_param const&,
-		     util::TimeService const&,
+		     detinfo::DetectorClocks const&,
 		     double const&,
          bool const&,
 		     std::vector<recob::OpHit>&);
@@ -122,7 +122,7 @@ namespace opdet{
 		      std::vector<recob::OpHit> const& HitVector,
 		      std::vector<recob::OpFlash>& FlashVector,
 		      geo::Geometry const& geom,
-		      util::TimeService const& ts,
+		      detinfo::DetectorClocks const& ts,
 		      float const& TrigCoinc);
 
   void AddHitContribution( recob::OpHit const& currentHit,

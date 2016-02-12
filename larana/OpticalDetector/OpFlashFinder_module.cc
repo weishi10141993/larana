@@ -28,8 +28,8 @@
 #include "lardata/RecoBase/OpFlash.h"
 #include "lardata/RecoBase/OpHit.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/Utilities/TimeService.h"
-#include "OpFlashAlg.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
+#include "larana/OpticalDetector/OpFlashAlg.h"
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
@@ -230,8 +230,7 @@ namespace opdet {
     art::ServiceHandle<geo::Geometry> GeometryHandle;
     geo::Geometry const& Geometry(*GeometryHandle);
 
-    art::ServiceHandle<util::TimeService> ts_ptr;
-    util::TimeService const& ts(*ts_ptr);
+    auto const& ts(*lar::providerFrom<detinfo::DetectorClocksService>());
 
     //
     // Get the pulses from the event

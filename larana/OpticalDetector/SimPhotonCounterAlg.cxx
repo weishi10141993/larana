@@ -50,7 +50,7 @@ void opdet::SimPhotonCounterAlg::FillRanges(fhicl::ParameterSet const& p)
 
 }
 
-void opdet::SimPhotonCounterAlg::InitializeCounters(geo::Geometry const& geo,
+void opdet::SimPhotonCounterAlg::InitializeCounters(geo::GeometryCore const& geo,
 						    opdet::OpDigiProperties const& opdigip)
 {
   fCounters.resize(fTimeRanges.size());

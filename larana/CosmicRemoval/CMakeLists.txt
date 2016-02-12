@@ -13,7 +13,6 @@ art_make(
 		     larcore_Geometry
 		     larcore_Geometry_Geometry_service
 		     larsim_PhotonPropagation_PhotonVisibilityService_service
-		     lardata_Utilities_LArProperties_service
 		     larana_OpticalDetector_OpDigiProperties_service
 		     lardata_Utilities
 		     ${SIMULATIONBASE}
@@ -39,8 +38,6 @@ art_make(
 		            larana_OpticalDetector_OpDigiProperties_service
 			    lardata_AnalysisAlg
 			    lardata_AnalysisBase
-                            lardata_Utilities_LArProperties_service
-			    lardata_Utilities_DetectorProperties_service
 			    lardata_Utilities
 			    ${MAGNETICFIELD_SERVICE}
 			    ${SIMULATIONBASE}

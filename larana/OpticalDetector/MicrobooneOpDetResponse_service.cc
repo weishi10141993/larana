@@ -7,7 +7,7 @@
 
 #include "larana/OpticalDetector/MicrobooneOpDetResponse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "lardata/Utilities/LArProperties.h"
+#include "lardata/DetectorInfo/LArProperties.h"
 #include "CLHEP/Random/RandFlat.h"
 
 
@@ -39,7 +39,7 @@ namespace opdet{
          * electronics simulation.
          **
         // Correct out the prescaling applied during simulation
-        art::ServiceHandle<util::LArProperties>   LarProp;
+        auto const* LarProp = lar::providerFrom<detinfo::LArPropertiesService>();
         fQE = tempfQE / LarProp->ScintPreScale();
 
         if (fQE > 1.0001 ) {

@@ -16,7 +16,7 @@
 #include "larcore/Geometry/Geometry.h"
 #include "larcore/Geometry/OpDetGeo.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardata/Utilities/LArProperties.h"
+#include "lardata/DetectorInfo/LArProperties.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include "larsim/Simulation/SimPhotons.h"
@@ -36,6 +36,9 @@ namespace opdet{
   class FlashHypothesisAnaAlg{
 
   public:
+  
+  using Providers_t = FlashHypothesisCreator::Providers_t;
+  
   FlashHypothesisAnaAlg(fhicl::ParameterSet const& p):
     fCounterIndex(p.get<unsigned int>("SimPhotonCounterIndex",0)),
       fdEdx(p.get<float>("dEdx",2.1)),
@@ -55,10 +58,9 @@ namespace opdet{
 		       const unsigned int event,
 		       std::vector<sim::MCTrack> const&, 
 		       std::vector<sim::SimPhotons> const&,
-		       geo::Geometry const& geom,
+		       Providers_t providers,
 		       opdet::OpDigiProperties const& opdigip,
-		       phot::PhotonVisibilityService const& pvs,
-		       util::LArProperties const& larp);
+		       phot::PhotonVisibilityService const& pvs);
     
     
   private:

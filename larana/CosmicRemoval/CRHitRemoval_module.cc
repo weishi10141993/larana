@@ -38,10 +38,9 @@
 #include "lardata/RecoBase/PFParticle.h"
 #include "lardata/AnalysisBase/CosmicTag.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/Utilities/TimeService.h"
-#include "lardata/Utilities/SimpleTimeService.h"
-#include "lardata/Utilities/DetectorProperties.h"
-#include "lardata/Utilities/LArProperties.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
 
 // Local functions.
 namespace
@@ -165,13 +164,12 @@ void CRHitRemoval::reconfigure(fhicl::ParameterSet const & pset)
 /// Begin job method.
 void CRHitRemoval::beginJob()
 {
-    art::ServiceHandle<util::DetectorProperties> detp;
-    art::ServiceHandle<util::LArProperties>      larp;
-    art::ServiceHandle<geo::Geometry>            geo;
-    art::ServiceHandle<util::TimeService>        ts;
+    auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
+    auto const* geo = lar::providerFrom<geo::Geometry>();
+    auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
     
     float samplingRate  = detp->SamplingRate();
-    float driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
+    float driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
     
     fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*samplingRate/1000); 
     fMinTickDrift       = ts->TPCTDC2Tick(0.);

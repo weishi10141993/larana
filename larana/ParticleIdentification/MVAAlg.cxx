@@ -6,7 +6,7 @@
 #include "MVAAlg.h"
 #include "larcore/Geometry/Geometry.h"
 #include "larcore/Geometry/TPCGeo.h"
-#include "lardata/Utilities/DetectorProperties.h"
+#include "lardata/DetectorInfo/DetectorProperties.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "TPrincipal.h"
 #include "TFile.h"
@@ -119,7 +119,7 @@ void mvapid::MVAAlg::PrepareEvent(const art::Event& evt){
   fTracksToHits.clear();
   fTracksToSpacePoints.clear();
 
-  art::ServiceHandle<util::DetectorProperties> detProp;
+  auto const* detProp = lar::providerFrom<detinfo::DetectorPropertiesService>();
   fEventT0=detProp->TriggerOffset();
 
   art::Handle< std::vector<recob::Hit> > hitsHandle;

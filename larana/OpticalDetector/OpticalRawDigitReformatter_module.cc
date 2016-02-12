@@ -12,7 +12,7 @@
 #include "lardata/OpticalDetectorData/FIFOChannel.h"
 #include "lardata/OpticalDetectorData/OpticalTypes.h"
 #include "lardata/RawData/OpDetWaveform.h"
-#include "lardata/Utilities/TimeService.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "larsim/Simulation/BeamGateInfo.h"
 
 // Framework includes
@@ -152,7 +152,7 @@ namespace opdet {
         evt.getByLabel(fInputModule, ordHandle);
         std::vector<optdata::OpticalRawDigit> const& ord_vec(*ordHandle);
 
-        art::ServiceHandle<util::TimeService> ts;
+        auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
 
         for (auto ord: ord_vec) {
             optdata::Channel_t    channel = ord.ChannelNumber();

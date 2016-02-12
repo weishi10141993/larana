@@ -46,25 +46,25 @@ void opdet::FlashHypothesisAnaAlg::RunComparison(const unsigned int run,
 						 const unsigned int event,
 						 std::vector<sim::MCTrack> const& mctrackVec,
 						 std::vector<sim::SimPhotons> const& simPhotonsVec,
-						 geo::Geometry const& geom,
+						 Providers_t providers,
 						 opdet::OpDigiProperties const& opdigip,
-						 phot::PhotonVisibilityService const& pvs,
-						 util::LArProperties const& larp)
+						 phot::PhotonVisibilityService const& pvs)
 {
-  FlashHypothesisCollection fhc(geom.NOpDets());
+  auto const* geom = providers.get<geo::GeometryCore>();
+
+  FlashHypothesisCollection fhc(geom->NOpDets());
   for(auto const& mctrack : mctrackVec){
     if(mctrack.size()==0) continue;
     std::vector<float> dEdxVector(mctrack.size()-1,fdEdx);
     fhc = fhc + fFHCreator.GetFlashHypothesisCollection(mctrack, 
 							dEdxVector,
-							geom,
+							providers,
 							pvs,
-							larp,
 							opdigip,
 							fXOffset);
   }
   
-  fSPCAlg.InitializeCounters(geom,opdigip);
+  fSPCAlg.InitializeCounters(*geom,opdigip);
   fSPCAlg.AddSimPhotonsVector(simPhotonsVec);
 
   fFHCompare.RunComparison(run,event,

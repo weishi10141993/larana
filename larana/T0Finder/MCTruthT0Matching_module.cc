@@ -64,8 +64,8 @@
 #include "lardata/RecoBase/Track.h"
 #include "lardata/RecoBase/Shower.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/Utilities/LArProperties.h"
-#include "lardata/Utilities/DetectorProperties.h"
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "SimulationBase/MCParticle.h"
 #include "SimulationBase/MCTruth.h"
 #include "larsim/MCCheater/BackTracker.h"
@@ -156,8 +156,6 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 
   // Access art services...
   art::ServiceHandle<geo::Geometry> geom;
-  art::ServiceHandle<util::LArProperties> larprop;
-  art::ServiceHandle<util::DetectorProperties> detprop;
   art::ServiceHandle<cheat::BackTracker> bt;
 
   //TrackList handle

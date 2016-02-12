@@ -21,6 +21,10 @@
 
 #include "FlashHypothesisAnaAlg.h"
 
+#include "lardata/DetectorInfoServices/ServicePack.h" // lar::extractProviders()
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
+
+
 namespace opdet{
   class FlashHypothesisAna;
 }
@@ -75,19 +79,16 @@ namespace opdet{
     std::vector<sim::SimPhotons> const& simPhotonsVec(*simPhotonsHandle);
 
 
-    art::ServiceHandle<geo::Geometry> geoHandle;
     art::ServiceHandle<opdet::OpDigiProperties> opdigiHandle;
     art::ServiceHandle<phot::PhotonVisibilityService> pvsHandle;
-    art::ServiceHandle<util::LArProperties> larpHandle;
 
-    geo::Geometry const& geo(*geoHandle);
     opdet::OpDigiProperties const& opdigi(*opdigiHandle);
     phot::PhotonVisibilityService const& pvs(*pvsHandle);
-    util::LArProperties const& larp(*larpHandle);
 
     fAlg.RunComparison((unsigned int)e.run(),(unsigned int)e.id().event(),
 		       mctrackVec,simPhotonsVec,
-		       geo,opdigi,pvs,larp);
+		       lar::extractProviders<geo::Geometry, detinfo::LArPropertiesService>(),
+		       opdigi,pvs);
 
   }
   

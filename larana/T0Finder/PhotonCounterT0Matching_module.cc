@@ -62,8 +62,9 @@
 #include "lardata/RecoBase/Shower.h"
 #include "lardata/RecoBase/OpFlash.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/Utilities/LArProperties.h"
-#include "lardata/Utilities/DetectorProperties.h"
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "SimulationBase/MCParticle.h"
 #include "SimulationBase/MCTruth.h"
 #include "larsim/MCCheater/BackTracker.h"
@@ -226,9 +227,8 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 {
   // Access art services...
   art::ServiceHandle<geo::Geometry> geom;
-  art::ServiceHandle<util::LArProperties> larprop;
-  art::ServiceHandle<util::DetectorProperties> detprop;
-  art::ServiceHandle<util::TimeService> timeservice;
+  auto const* detprop = lar::providerFrom<detinfo::DetectorPropertiesService>();
+  auto const* timeservice = lar::providerFrom<detinfo::DetectorClocksService>();
   art::ServiceHandle<cheat::BackTracker> bt;
 
   //TrackList handle
@@ -316,7 +316,7 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	// Work out some quantities for this flash...
 	// PredictedX = ( A / x^n ) + exp ( B + Cx )
 	PredictedX   = (fPredictedXConstant / pow ( flashlist[iFlash]->TotalPE(), fPredictedXPower ) ) + ( exp ( fPredictedExpConstant + ( fPredictedExpGradient * flashlist[iFlash]->TotalPE() ) ) );
-	TimeSepPredX = TimeSep * larprop->DriftVelocity(); // us * cm/us = cm!
+	TimeSepPredX = TimeSep * detprop->DriftVelocity(); // us * cm/us = cm!
 	DeltaPredX   = fabs(TimeSepPredX-PredictedX);
 	// Dependant on each point...
 	for ( size_t Point = 1; Point < tracklist[iTrk]->NumberTrajectoryPoints(); ++Point ) {

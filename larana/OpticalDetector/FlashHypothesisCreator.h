@@ -18,9 +18,10 @@
 #include "lardata/RecoBase/Track.h"
 #include "lardata/MCBase/MCTrack.h"
 
-#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/GeometryCore.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardata/Utilities/LArProperties.h"
+#include "lardata/DetectorInfo/LArProperties.h"
+#include "lardata/DetectorInfo/ProviderPack.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include "TVector3.h"
@@ -33,46 +34,45 @@ namespace opdet{
   class FlashHypothesisCreator{
     
   public:
+    
+    /// Set of service providers used in the common(est) interface
+    using Providers_t = lar::ProviderPack<geo::GeometryCore, detinfo::LArProperties>;
+    
     FlashHypothesisCreator() {}
     
     FlashHypothesisCollection GetFlashHypothesisCollection(recob::Track const& track, 
 							   std::vector<float> const& dEdxVector,
-							   geo::Geometry const& geom,
+							   Providers_t providers,
 							   phot::PhotonVisibilityService const& pvs,
-							   util::LArProperties const& larp,
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
     
     FlashHypothesisCollection GetFlashHypothesisCollection(sim::MCTrack const& mctrack, 
 							   std::vector<float> const& dEdxVector,
-							   geo::Geometry const& geom,
+							   Providers_t providers,
 							   phot::PhotonVisibilityService const& pvs,
-							   util::LArProperties const& larp,
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
 
     FlashHypothesisCollection GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
 							   std::vector<float> const& dEdxVector,
-							   geo::Geometry const& geom,
+							   Providers_t providers,
 							   phot::PhotonVisibilityService const& pvs,
-							   util::LArProperties const& larp,
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
     
     FlashHypothesisCollection GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
 							   float const& dEdx,
-							   geo::Geometry const& geom,
+							   Providers_t providers,
 							   phot::PhotonVisibilityService const& pvs,
-							   util::LArProperties const& larp,
 							   opdet::OpDigiProperties const& opdigip,
 							   float XOffset=0);
     
   private: 
     FlashHypothesisCollection CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
 							       float const& dEdx,
-							       geo::Geometry const& geom,
+							       Providers_t providers,
 							       phot::PhotonVisibilityService const& pvs,
-							       util::LArProperties const& larp,
 							       opdet::OpDigiProperties const& opdigip,
 							       float XOffset);
     

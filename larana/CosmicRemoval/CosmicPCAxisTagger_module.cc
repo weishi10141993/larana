@@ -44,8 +44,8 @@
 #include "lardata/AnalysisBase/CosmicTag.h"
 #include "larreco/RecoAlg/Cluster3DAlgs/PrincipalComponentsAlg.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/Utilities/DetectorProperties.h"
-#include "lardata/Utilities/LArProperties.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/DetectorInfoServices/LArPropertiesService.h"
 
 #include "TVector3.h"
 
@@ -79,7 +79,7 @@ private:
     std::string                           fPFParticleModuleLabel;
     std::string                           fPCAxisModuleLabel;
     
-    util::DetectorProperties*             fDetector;              ///<  Pointer to the detector properties
+    detinfo::DetectorProperties const*    fDetector;              ///<  Pointer to the detector properties
     lar_cluster3d::PrincipalComponentsAlg fPcaAlg;                ///<  Principal Components algorithm
     
     int                                   fDetectorWidthTicks;
@@ -89,6 +89,7 @@ private:
 
 
 cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const & p) :
+        fDetector(lar::providerFrom<detinfo::DetectorPropertiesService>()),
         fPcaAlg(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"))
 // :
 // Initialize member data here.
@@ -393,17 +394,14 @@ void cosmic::CosmicPCAxisTagger::reconfigure(fhicl::ParameterSet const & p)
     // Implementation of optional member function here.
   
     ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-    art::ServiceHandle<util::DetectorProperties> detp;
-    art::ServiceHandle<util::LArProperties> larp;
+    fDetector = lar::providerFrom<detinfo::DetectorPropertiesService>();
     art::ServiceHandle<geo::Geometry> geo;
     
-    fDetector      = &*detp;
-
     fDetHalfHeight = geo->DetHalfHeight();
     fDetWidth      = 2.*geo->DetHalfWidth();
     fDetLength     = geo->DetLength();
 
-    float fSamplingRate = detp->SamplingRate();
+    float fSamplingRate = fDetector->SamplingRate();
 
     fPFParticleModuleLabel = p.get<std::string >("PFParticleModuleLabel");
     fPCAxisModuleLabel     = p.get< std::string >("PCAxisModuleLabel");
@@ -414,7 +412,7 @@ void cosmic::CosmicPCAxisTagger::reconfigure(fhicl::ParameterSet const & p)
     fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
     fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
 
-    const double driftVelocity = larp->DriftVelocity( larp->Efield(), larp->Temperature() ); // cm/us
+    const double driftVelocity = fDetector->DriftVelocity( fDetector->Efield(), fDetector->Temperature() ); // cm/us
 
     //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
     fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
