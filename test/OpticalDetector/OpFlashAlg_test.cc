@@ -111,12 +111,12 @@ BOOST_AUTO_TEST_CASE(checkGetAccumIndex)
   BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,0,2,0),5ul);
   BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,0,3,0),3ul);
 
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,1,0),15ul);
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,2,0),7ul);
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,3,0),5ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,1,0),15ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,2,0),7ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,3,0),5ul);
 
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,1,0.5),15ul);
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,5,2,1),8ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,1,0.5),15ul);
+  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,2,1),8ul);
 
 }
 

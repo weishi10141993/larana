@@ -39,6 +39,16 @@ namespace opdet{
                       bool const&,
                       float const&);
 
+  void RunHitFinder(std::vector< raw::OpDetWaveform > const&,
+                    std::vector< recob::OpHit >&,
+                    pmtana::PulseRecoManager const&,
+                    pmtana::PMTPulseRecoBase const&,
+                    geo::Geometry const&,
+                    float const&,
+                    util::TimeService const&,
+                    std::vector< double > const&,
+                    bool const&);
+
   void ConstructHit(float const&, 
                     int const&,
                     double const&,
@@ -48,8 +58,8 @@ namespace opdet{
                     bool const&,
                     std::vector< recob::OpHit >&);
 
-  unsigned int GetAccumIndex(double const& TMax, 
-                             double const& TimeStamp,
+  unsigned int GetAccumIndex(double const& PeakTime, 
+                             double const& MinTime, 
                              double const& BinWidth, 
                              double const& BinOffset);
 

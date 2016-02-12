@@ -68,8 +68,6 @@ namespace opdet{
                       bool const&                        AreaToPE,
                       float const&                       TrigCoinc) {
 
-    auto const& pmt_clock = ts.OpticalClock();
-
     // Initial size for accumulators - will be automatically extended if needed
     int initialsize = 6400; 
     
@@ -86,86 +84,67 @@ namespace opdet{
     std::vector< int > FlashesInAccumulator1;
     std::vector< int > FlashesInAccumulator2;
     
-    const size_t NHits_prev = HitVector.size();
+    RunHitFinder(OpDetWaveformVector,
+                 HitVector,
+                 PulseRecoMgr,
+                 ThreshAlg,
+                 geom,
+                 HitThreshold,
+                 ts,
+                 SPESize,
+                 AreaToPE);
 
-    double min_time = std::numeric_limits< float >::max();
-    for (auto const& wf_ptr : OpDetWaveformVector)
-      if (wf_ptr.TimeStamp() < min_time) min_time = wf_ptr.TimeStamp();
+    double minTime = std::numeric_limits< float >::max();
+    for (auto const& hit : HitVector)
+      if (hit.PeakTime() < minTime) minTime = hit.PeakTime();
 
-    for (auto const& wf_ptr : OpDetWaveformVector) {
+    for (auto const& hit : HitVector) {
 
-      const int    Channel   = static_cast< int >(wf_ptr.ChannelNumber());
-      const double TimeStamp = wf_ptr.TimeStamp();
+      double peakTime = hit.PeakTime();
 
-      if (!geom.IsValidOpChannel(Channel)) {
-        mf::LogError("OpFlashFinder") << "Error! unrecognized channel number " 
-                           << Channel << ". Ignoring pulse";
-        continue;
+      unsigned int AccumIndex1 = GetAccumIndex(peakTime,
+                                               minTime,
+                                               BinWidth, 
+                                               0.0);
+
+      unsigned int AccumIndex2 = GetAccumIndex(peakTime,
+                                               minTime,
+                                               BinWidth, 
+                                               BinWidth/2.0);
+
+      // Extend accumulators if needed (2 always larger than 1)
+      if (AccumIndex2 >= Binned1.size()) {
+        std::cout << "Extending vectors to " << AccumIndex2*1.2 << std::endl;
+        Binned1.resize(AccumIndex2*1.2);
+        Binned2.resize(AccumIndex2*1.2);
+        Contributors1.resize(AccumIndex2*1.2);
+        Contributors2.resize(AccumIndex2*1.2);
       }
+
+      size_t const hitIndex = &hit - &HitVector[0];
       
-      PulseRecoMgr.RecoPulse(wf_ptr);
-      
-      const size_t NPulses = ThreshAlg.GetNPulse();
-      for (size_t k = 0; k < NPulses; ++k) {
+      FillAccumulator(AccumIndex1,
+                      hitIndex,
+                      hit.PE(),
+                      FlashThreshold,
+                      Binned1,
+                      Contributors1,
+                      FlashesInAccumulator1);
 
-        ConstructHit(HitThreshold,
-                     Channel,
-                     TimeStamp,
-                     ThreshAlg.GetPulse(k),
-                     ts,
-                     SPESize.at(Channel),
-                     AreaToPE,
-                     HitVector);
+      FillAccumulator(AccumIndex2,
+                      hitIndex,
+                      hit.PE(),
+                      FlashThreshold,
+                      Binned2,
+                      Contributors2,
+                      FlashesInAccumulator2);
 
-        // Convert ticks to time 
-        double pulseTMax = ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency();
+    } // End loop over hits
 
-        unsigned int AccumIndex1 = GetAccumIndex(pulseTMax,
-                                                 (TimeStamp - min_time),
-                                                 BinWidth, 
-                                                 0.0);
-
-        unsigned int AccumIndex2 = GetAccumIndex(pulseTMax,
-                                                 (TimeStamp - min_time),
-                                                 BinWidth, 
-                                                 BinWidth/2.0);
-
-        // Extend accumulators if needed (2 always larger than 1)
-        if (AccumIndex2 >= Binned1.size()) {
-          std::cout << "Extending vectors to " << AccumIndex2*1.2 
-                    << " for "                 << min_time 
-                    << " to "                  << TimeStamp 
-                    << " times"                << std::endl;
-          Binned1.resize(AccumIndex2*1.2);
-          Binned2.resize(AccumIndex2*1.2);
-          Contributors1.resize(AccumIndex2*1.2);
-          Contributors2.resize(AccumIndex2*1.2);
-        }
-        
-        FillAccumulator(AccumIndex1,
-                        HitVector.size() - 1,
-                        HitVector[HitVector.size() - 1].PE(),
-                        FlashThreshold,
-                        Binned1,
-                        Contributors1,
-                        FlashesInAccumulator1);
-
-        FillAccumulator(AccumIndex2,
-                        HitVector.size() - 1,
-                        HitVector[HitVector.size() - 1].PE(),
-                        FlashThreshold,
-                        Binned2,
-                        Contributors2,
-                        FlashesInAccumulator2);
-
-      }
-      
-    } // End loop over FIFO channels in frame
-    
     // Now start to create flashes.
     // First, need vector to keep track of which hits belong to which flashes
     std::vector< std::vector< int > > HitsPerFlash;
-    size_t NHitsThisFrame = HitVector.size() - NHits_prev;
+    size_t NHits = HitVector.size();
     
     //if (Frame == 1) writeHistogram(Binned1);
 
@@ -175,7 +154,7 @@ namespace opdet{
                       Binned2,
                       Contributors1,
                       Contributors2,
-                      NHitsThisFrame,
+                      NHits,
                       HitVector,
                       HitsPerFlash,
                       FlashThreshold);
@@ -211,7 +190,47 @@ namespace opdet{
     for (auto& HitIndicesThisFlash : RefinedHitsPerFlash)
       AssocList.push_back(HitIndicesThisFlash);
     
-  } // End ProcessFrame
+  } // End RunFlashFinder
+
+  //----------------------------------------------------------------------------
+  void RunHitFinder(std::vector< raw::OpDetWaveform > const& 
+                                                    OpDetWaveformVector,
+                    std::vector< recob::OpHit >&    HitVector,
+                    pmtana::PulseRecoManager const& PulseRecoMgr,
+                    pmtana::PMTPulseRecoBase const& ThreshAlg,
+                    geo::Geometry const&            geom,
+                    float const&                    HitThreshold,
+                    util::TimeService const&        ts,
+                    std::vector< double > const&    SPESize,
+                    bool const&                     AreaToPE) {
+
+    for (auto const& wf_ptr : OpDetWaveformVector) {
+
+      const int    Channel   = static_cast< int >(wf_ptr.ChannelNumber());
+      const double TimeStamp = wf_ptr.TimeStamp();
+
+      if (!geom.IsValidOpChannel(Channel)) {
+        mf::LogError("OpFlashFinder") << "Error! unrecognized channel number " 
+                           << Channel << ". Ignoring pulse";
+        continue;
+      }
+      
+      PulseRecoMgr.RecoPulse(wf_ptr);
+      
+      const size_t NPulses = ThreshAlg.GetNPulse();
+      for (size_t k = 0; k < NPulses; ++k)
+        ConstructHit(HitThreshold,
+                     Channel,
+                     TimeStamp,
+                     ThreshAlg.GetPulse(k),
+                     ts,
+                     SPESize.at(Channel),
+                     AreaToPE,
+                     HitVector);
+      
+    }
+
+  }
 
   //----------------------------------------------------------------------------
   void ConstructHit(float const&                 HitThreshold,
@@ -250,14 +269,13 @@ namespace opdet{
 
   }
 
-
   //----------------------------------------------------------------------------
-  unsigned int GetAccumIndex(double const& TMax, 
-                             double const& TimeStamp, 
+  unsigned int GetAccumIndex(double const& PeakTime, 
+                             double const& MinTime, 
                              double const& BinWidth, 
                              double const& BinOffset) {
 
-    return static_cast< int >(((TMax + TimeStamp) + BinOffset)/BinWidth);
+    return static_cast< int >((PeakTime - MinTime + BinOffset)/BinWidth);
 
   }
 
@@ -487,8 +505,10 @@ namespace opdet{
     if (HitsThisRefinedFlash.size() == 1) return;
 
     // We need to release all other hits (allow possible reuse)
-    for (int const& hitIndex : HitsThisRefinedFlash)
-      HitsUsed.at(hitIndex) = false;
+    for (std::vector< int >::const_iterator hitIterator = 
+                          std::next(HitsThisRefinedFlash.begin()); 
+         hitIterator != HitsThisRefinedFlash.end(); ++hitIterator)
+      HitsUsed.at(*hitIterator) = false;
 
   } // End CheckAndStoreFlash
 
