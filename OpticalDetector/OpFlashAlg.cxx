@@ -51,21 +51,14 @@ namespace opdet{
   }
 
   //----------------------------------------------------------------------------
-  void RunFlashFinder(std::vector< raw::OpDetWaveform > const& 
-                                                 OpDetWaveformVector,
-                      std::vector< recob::OpHit >&       HitVector,
+  void RunFlashFinder(std::vector< recob::OpHit > const& HitVector,
                       std::vector< recob::OpFlash >&     FlashVector,
                       std::vector< std::vector< int > >& AssocList,
                       double const&                      BinWidth,
-                      pmtana::PulseRecoManager const&    PulseRecoMgr,
-                      pmtana::PMTPulseRecoBase const&    ThreshAlg,
                       geo::Geometry const&               geom,
-                      float const&                       HitThreshold,
                       float const&                       FlashThreshold,
                       float const&                       WidthTolerance,
                       util::TimeService const&           ts,
-                      std::vector< double > const&       SPESize, 
-                      bool const&                        AreaToPE,
                       float const&                       TrigCoinc) {
 
     // Initial size for accumulators - will be automatically extended if needed
@@ -84,16 +77,6 @@ namespace opdet{
     std::vector< int > FlashesInAccumulator1;
     std::vector< int > FlashesInAccumulator2;
     
-    RunHitFinder(OpDetWaveformVector,
-                 HitVector,
-                 PulseRecoMgr,
-                 ThreshAlg,
-                 geom,
-                 HitThreshold,
-                 ts,
-                 SPESize,
-                 AreaToPE);
-
     double minTime = std::numeric_limits< float >::max();
     for (auto const& hit : HitVector)
       if (hit.PeakTime() < minTime) minTime = hit.PeakTime();

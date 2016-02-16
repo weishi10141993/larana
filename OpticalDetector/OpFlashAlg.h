@@ -23,20 +23,14 @@
 
 namespace opdet{
 
-  void RunFlashFinder(std::vector< raw::OpDetWaveform > const&,
-                      std::vector< recob::OpHit >&,
+  void RunFlashFinder(std::vector< recob::OpHit > const&,
                       std::vector< recob::OpFlash >&,
                       std::vector< std::vector< int > >&,
                       double const&,
-                      pmtana::PulseRecoManager const&,
-                      pmtana::PMTPulseRecoBase const&,
                       geo::Geometry const&,
                       float const&,
                       float const&,
-                      float const&,
                       util::TimeService const&,
-                      std::vector< double > const&,
-                      bool const&,
                       float const&);
 
   void RunHitFinder(std::vector< raw::OpDetWaveform > const&,
