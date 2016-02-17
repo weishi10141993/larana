@@ -162,8 +162,17 @@ namespace opdet {
 
     // Make the associations which we noted we need
     for (size_t i = 0; i != AssocList.size(); ++i)
-      util::CreateAssn(*this, evt, *(AssnPtr.get()), i, 
-                       AssocList[i].begin(), AssocList[i].end());
+    {
+      art::PtrVector< recob::OpHit > opHitPtrVector;
+      for (int const& hitIndex : AssocList.at(i))
+      {
+        art::Ptr< recob::OpHit > opHitPtr(OpHitHandle, hitIndex);
+        opHitPtrVector.push_back(opHitPtr);
+      }
+
+      util::CreateAssn(*this, evt, *FlashPtr, opHitPtrVector, 
+                                        *(AssnPtr.get()), i);
+    }
     
     // Store results into the event
     evt.put(std::move(FlashPtr));
