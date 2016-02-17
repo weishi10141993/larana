@@ -781,12 +781,11 @@ namespace opdet{
                                 std::vector< std::vector< int > >& 
                                                        RefinedHitsPerFlash) {
 
-    for (int iFlash = MarkedForRemoval.size() - 1; iFlash != -1; --iFlash) {
+    for (int iFlash = MarkedForRemoval.size() - 1; iFlash != -1; --iFlash)
       if (MarkedForRemoval.at(iFlash)) {
         RefinedHitsPerFlash.erase(RefinedHitsPerFlash.begin() + iFlash);
         FlashVector.erase(FlashVector.begin() + BeginFlash + iFlash);
       }
-    }
 
   }
 
