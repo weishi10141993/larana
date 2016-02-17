@@ -117,7 +117,6 @@ namespace opdet{
     // Now start to create flashes.
     // First, need vector to keep track of which hits belong to which flashes
     std::vector< std::vector< int > > HitsPerFlash;
-    size_t NHits = HitVector.size();
     
     //if (Frame == 1) writeHistogram(Binned1);
 
@@ -127,7 +126,6 @@ namespace opdet{
                       Binned2,
                       Contributors1,
                       Contributors2,
-                      NHits,
                       HitVector,
                       HitsPerFlash,
                       FlashThreshold);
@@ -212,14 +210,13 @@ namespace opdet{
   void FillHitsThisFlash(std::vector< std::vector< int > > const& 
                                                              Contributors,
                          int const&                          Bin,
-                         size_t const&                       NHits_prev,
                          std::vector< int > const&           HitClaimedByFlash,
                          std::vector< int >&                 HitsThisFlash) {
     
     // For each hit in the flash
     for (auto const& HitIndex : Contributors.at(Bin))
       // If unclaimed, claim it
-      if (HitClaimedByFlash.at(HitIndex - NHits_prev) == -1)
+      if (HitClaimedByFlash.at(HitIndex) == -1)
         HitsThisFlash.push_back(HitIndex);
 
   }
@@ -229,7 +226,6 @@ namespace opdet{
                  std::vector< int > const&          HitsThisFlash,
                  float const&                       FlashThreshold,
                  std::vector< std::vector< int > >& HitsPerFlash,
-                 size_t const&                      NHits_prev,
                  std::vector< int >&                HitClaimedByFlash) {
 
     // Check for newly claimed hits
@@ -244,8 +240,8 @@ namespace opdet{
     
     // And claim all the hits
     for (auto const& Hit : HitsThisFlash)
-      if (HitClaimedByFlash.at(Hit - NHits_prev) == -1)
-        HitClaimedByFlash.at(Hit - NHits_prev) = HitsPerFlash.size() - 1;
+      if (HitClaimedByFlash.at(Hit) == -1)
+        HitClaimedByFlash.at(Hit) = HitsPerFlash.size() - 1;
     
   }
 
@@ -256,12 +252,9 @@ namespace opdet{
                          std::vector< double > const&             Binned2,
                          std::vector< std::vector< int > > const& Contributors1,
                          std::vector< std::vector< int > > const& Contributors2,
-                         size_t const&                            NHits,
                          std::vector< recob::OpHit > const&       HitVector,
                          std::vector< std::vector< int > >&       HitsPerFlash,
                          float const&                          FlashThreshold) {
-
-    size_t NHits_prev = HitVector.size() - NHits;
 
     // Sort all the flashes found by size. The structure is:
     // FlashesBySize[flash size][accumulator_num] = [flash_index1, flash_index2...]     
@@ -280,7 +273,7 @@ namespace opdet{
                          FlashesBySize);
 
     // This keeps track of which hits are claimed by which flash
-    std::vector< int > HitClaimedByFlash(NHits, -1);
+    std::vector< int > HitClaimedByFlash(HitVector.size(), -1);
 
     // Walk from largest to smallest, claiming hits. 
     // The biggest flash always gets dibbs,
@@ -299,13 +292,11 @@ namespace opdet{
           if (Accumulator == 1)
             FillHitsThisFlash(Contributors1,
                               Bin,
-                              NHits_prev,
                               HitClaimedByFlash,
                               HitsThisFlash);
           else if (Accumulator == 2)
             FillHitsThisFlash(Contributors2,
                               Bin,
-                              NHits_prev,
                               HitClaimedByFlash,
                               HitsThisFlash);
 
@@ -313,7 +304,6 @@ namespace opdet{
                     HitsThisFlash,
                     FlashThreshold,
                     HitsPerFlash,
-                    NHits_prev,
                     HitClaimedByFlash);
           
         } // End loop over this accumulator

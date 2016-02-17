@@ -54,7 +54,6 @@ namespace opdet{
                          std::vector< double > const&,
                          std::vector< std::vector< int > > const&,
                          std::vector< std::vector< int > > const&,
-                         size_t const&,
                          std::vector< recob::OpHit > const&,
                          std::vector< std::vector< int > >&,
                          float const&);
@@ -69,7 +68,6 @@ namespace opdet{
   void FillHitsThisFlash(std::vector< std::vector< int > > const& 
                                                              Contributors,
                          int const&                          Bin,
-                         size_t const&                       NHits_prev,
                          std::vector< int > const&           HitClaimedByFlash,
                          std::vector< int >&                 HitsThisFlash);
   
@@ -77,7 +75,6 @@ namespace opdet{
                  std::vector< int > const&          HitsThisFlash,
                  float const&                       FlashThreshold,
                  std::vector< std::vector< int > >& HitsPerFlash,
-                 size_t const&                      NHits_prev,
                  std::vector< int >&                HitClaimedByFlash);
   
   void RefineHitsInFlash(std::vector< int > const&          HitsThisFlash,
