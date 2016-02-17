@@ -29,20 +29,13 @@
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
-#include "art/Utilities/Exception.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // ROOT includes
 
 // C++ Includes
-#include <map>
 #include <vector>
-#include <cstring>
-#include <sstream>
-#include "math.h"
-#include <climits>
+#include <string>
+#include <memory>
 
 namespace opdet {
  
@@ -79,8 +72,6 @@ namespace opdet {
 }
 
 #endif 
-
-#include "TriggerAlgo/TriggerAlgoMicroBoone.h"
 
 namespace opdet {
 
