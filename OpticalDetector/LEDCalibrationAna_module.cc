@@ -12,9 +12,9 @@
 // LArSoft includes
 #include "Geometry/Geometry.h"
 #include "RawData/OpDetWaveform.h"
-#include "OpticalDetector/AlgoThreshold.h"
-#include "OpticalDetector/AlgoPedestal.h"
-#include "OpticalDetector/PulseRecoManager.h"
+#include "OpticalDetector/OpHitFinder/AlgoThreshold.h"
+#include "OpticalDetector/OpHitFinder/PedAlgoEdges.h"
+#include "OpticalDetector/OpHitFinder/PulseRecoManager.h"
 #include "Utilities/TimeService.h"
 
 // Framework includes
@@ -36,6 +36,7 @@
 #include "TF1.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
+#include <TTree.h>
 
 // C++ Includes
 #include <map>
@@ -77,7 +78,7 @@ namespace opdet {
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::AlgoThreshold     fThreshAlg;
-
+    pmtana::PedAlgoEdges      fPedAlg;
     TTree * fPulseTree;
     TTree * fPulseTreeNonCoinc;
     Float_t fPeak;
@@ -115,7 +116,8 @@ namespace opdet {
   LEDCalibrationAna::LEDCalibrationAna(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset),
       fPulseRecoMgr(),
-      fThreshAlg()
+      fThreshAlg(),
+      fPedAlg()
   {
     // Indicate that the Input Module comes from .fcl
     fInputModule    = pset.get<std::string>("InputModule");
@@ -130,7 +132,7 @@ namespace opdet {
     fMakeNonCoincTree=pset.get<bool>       ("MakeNonCoincTree");
     
     fPulseRecoMgr.AddRecoAlgo(&fThreshAlg);
-    fPulseRecoMgr.SetPedAlgo(pmtana::kHEAD);
+    fPulseRecoMgr.SetDefaultPedAlgo(&fPedAlg);
 
     art::ServiceHandle<art::TFileService> tfs;
 
@@ -301,13 +303,14 @@ namespace opdet {
 		   
 		    const raw::OpDetWaveform& wf = OpDetWaveformHandle->at(i);
 
-		    fPulseRecoMgr.RecoPulse(wf);
+		    //fPulseRecoMgr.RecoPulse(wf);
+		    fPulseRecoMgr.Reconstruct(wf);
 		    
 		    size_t NPulses = fThreshAlg.GetNPulse();
 
 		    fOffset  = TimeSlice-TimeSlicesForTrig.at(j);
-		    fPedMean = fThreshAlg.PedMean();
-		    fPedRMS  = fThreshAlg.PedRms();
+		    //fPedMean = fThreshAlg.PedMean();
+		    //fPedRMS  = fThreshAlg.PedRms();
 		    
 		    for(size_t k=0; k!=NPulses; ++k)
 		      {
@@ -319,7 +322,9 @@ namespace opdet {
 			    fTBegin  = fThreshAlg.GetPulse(k).t_start;
 			    fTEnd    = fThreshAlg.GetPulse(k).t_end;
 			    fTMax    = fThreshAlg.GetPulse(k).t_max;
-			    
+			    fPedMean = fThreshAlg.GetPulse(k).ped_mean;
+			    fPedRMS  = fThreshAlg.GetPulse(k).ped_sigma;
+
 			    fPulseTree->Fill();
 			    
 			    fAreas[fChannel].push_back(fArea);

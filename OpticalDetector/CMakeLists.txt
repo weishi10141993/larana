@@ -1,4 +1,6 @@
 
+add_subdirectory(OpHitFinder)
+
 # OpFlashFinder_module.cc is not built - it seems specific to uboone
 
 art_make_library( LIBRARY_NAME FlashHypothesis
@@ -46,6 +48,7 @@ art_make( BASENAME_ONLY
 			SimPhotonCounter
 	  		FlashHypothesisComparison
 			OpFlashAnaAlg
+			OpHitFinder
 			MCBase
                         Geometry
                         Geometry_service
@@ -68,6 +71,7 @@ art_make( BASENAME_ONLY
 			${CETLIB}
                         ${ROOT_BASIC_LIB_LIST}
           MODULE_LIBRARIES OpDigiProperties_service
+	  		OpHitFinder
 	                OpticalDetector
                         PhotonVisibilityService_service
 			BackTracker_service

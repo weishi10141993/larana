@@ -45,9 +45,10 @@
 #include <TString.h>
 #include <TTree.h>
 // My modules
-#include "AlgoThreshold.h"
-#include "AlgoFixedWindow.h"
-#include "PulseRecoManager.h"
+#include "OpHitFinder/AlgoThreshold.h"
+#include "OpHitFinder/AlgoFixedWindow.h"
+#include "OpHitFinder/PulseRecoManager.h"
+#include "OpHitFinder/PedAlgoEdges.h"
 
 namespace pmtana {
 
@@ -86,6 +87,7 @@ namespace pmtana {
     PulseRecoManager _preco_man;
     AlgoThreshold     _th_algo;
     AlgoFixedWindow   _fw_algo;
+    PedAlgoEdges      _ped_algo;
   };
   
 }
@@ -108,7 +110,8 @@ namespace pmtana {
     EDAnalyzer(pset), 
     _preco_man(),
     _th_algo(),
-    _fw_algo()
+    _fw_algo(),
+    _ped_algo()
   //#######################################################################################################
   {
 
@@ -126,7 +129,7 @@ namespace pmtana {
     //
     _preco_man.AddRecoAlgo(&_th_algo);
     _preco_man.AddRecoAlgo(&_fw_algo);
-    _preco_man.SetPedAlgo(kHEAD);
+    _preco_man.SetDefaultPedAlgo(&_ped_algo);
 
   }
 
@@ -166,7 +169,7 @@ namespace pmtana {
 //      const optdata::FIFOChannel* fifo_ptr(pmtArray.at(i));
       const raw::OpDetWaveform* fifo_ptr(pmtArray.at(i));
 
-      _preco_man.RecoPulse(*fifo_ptr);
+      _preco_man.Reconstruct(*fifo_ptr);
 
       //
       // here I add code to store reco-ed pulse w/ channel number

@@ -96,34 +96,35 @@ namespace opdet{
 	mf::LogError("OpFlashFinder")<<"Error! unrecognized channel number " << Channel<<". Ignoring pulse";
 	continue;
       }
+
+      PulseRecoMgr.Reconstruct(wf_ptr);
+
+      /// Get the result
+      auto const& pulses = ThreshAlg.GetPulses();
       
-      PulseRecoMgr.RecoPulse(wf_ptr);
-      
-      const size_t NPulses = ThreshAlg.GetNPulse();
-      for(size_t k=0; k<NPulses; ++k){
+      for(auto const& p : pulses) {
 	
 	ConstructHit( HitThreshold,
 		      Channel,
 		      TimeStamp,
-		      ThreshAlg.GetPulse(k),
+		      p,
 		      ts,
 		      SPESize.at(Channel),
 		      AreaToPE,
 		      HitVector );
 
-	unsigned int AccumIndex1 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
+	unsigned int AccumIndex1 = GetAccumIndex(p.t_max/pmt_clock.Frequency(), // Convert ticks to time 
 						 (TimeStamp - min_time),
 						 BinWidth, 
 						 0);
 
-	unsigned int AccumIndex2 = GetAccumIndex(ThreshAlg.GetPulse(k).t_max/pmt_clock.Frequency(), // Convert ticks to time 
+	unsigned int AccumIndex2 = GetAccumIndex(p.t_max/pmt_clock.Frequency(), // Convert ticks to time 
 						 (TimeStamp - min_time),
 						 BinWidth, 
 						 BinWidth/2.);
 
         // Extend accumulators if needed (2 always larger than 1)
         if (AccumIndex2 >= Binned1.size()) {
-          std::cout << "Extending vectors to " << AccumIndex2*1.2 << " for " << min_time << " to " << TimeStamp << " times" << std::endl;
           Binned1.resize(AccumIndex2*1.2);
           Binned2.resize(AccumIndex2*1.2);
           Contributors1.resize(AccumIndex2*1.2);
