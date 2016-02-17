@@ -22,7 +22,8 @@
 #include "OpticalDetector/PulseRecoManager.h"
 #include "RecoBase/OpHit.h"
 #include "Utilities/TimeService.h"
-#include "OpFlashAlg.h"
+#include "OpHitAlg.h"
+#include "Simulation/BeamGateInfo.h"
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"

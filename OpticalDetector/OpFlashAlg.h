@@ -9,17 +9,19 @@
  * These are the algorithms used by OpFlashFinder to produce flashes.
  */
 
-#include <functional>
-
-#include "Simulation/BeamGateInfo.h"
-#include "OpticalDetectorData/OpticalTypes.h"
-#include "RawData/OpDetWaveform.h"
-#include "OpticalDetector/PulseRecoManager.h"
-#include "OpticalDetector/PMTPulseRecoBase.h"
 #include "RecoBase/OpHit.h"
 #include "RecoBase/OpFlash.h"
 #include "Geometry/Geometry.h"
 #include "Utilities/TimeService.h"
+#include "Geometry/OpDetGeo.h"
+
+#include "TH1D.h"
+#include "TFile.h"
+
+#include <functional>
+#include <vector>
+#include <map>
+#include <iostream>
 
 namespace opdet{
 
@@ -32,25 +34,6 @@ namespace opdet{
                       float const&,
                       util::TimeService const&,
                       float const&);
-
-  void RunHitFinder(std::vector< raw::OpDetWaveform > const&,
-                    std::vector< recob::OpHit >&,
-                    pmtana::PulseRecoManager const&,
-                    pmtana::PMTPulseRecoBase const&,
-                    geo::Geometry const&,
-                    float const&,
-                    util::TimeService const&,
-                    std::vector< double > const&,
-                    bool const&);
-
-  void ConstructHit(float const&, 
-                    int const&,
-                    double const&,
-                    pmtana::pulse_param const&,
-                    util::TimeService const&,
-                    double const&,
-                    bool const&,
-                    std::vector< recob::OpHit >&);
 
   unsigned int GetAccumIndex(double const& PeakTime, 
                              double const& MinTime, 

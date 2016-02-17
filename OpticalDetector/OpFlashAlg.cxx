@@ -10,17 +10,7 @@
  * These are the algorithms used by OpFlashFinder to produce flashes.
  */
 
-#include <algorithm>
-#include <functional>
-
 #include "OpFlashAlg.h"
-#include "RecoBase/OpHit.h"
-#include "cetlib/exception.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-#include "Geometry/OpDetGeo.h"
-
-#include "TH1D.h"
-#include "TFile.h"
 
 namespace opdet{
 
@@ -174,83 +164,6 @@ namespace opdet{
       AssocList.push_back(HitIndicesThisFlash);
     
   } // End RunFlashFinder
-
-  //----------------------------------------------------------------------------
-  void RunHitFinder(std::vector< raw::OpDetWaveform > const& 
-                                                    OpDetWaveformVector,
-                    std::vector< recob::OpHit >&    HitVector,
-                    pmtana::PulseRecoManager const& PulseRecoMgr,
-                    pmtana::PMTPulseRecoBase const& ThreshAlg,
-                    geo::Geometry const&            geom,
-                    float const&                    HitThreshold,
-                    util::TimeService const&        ts,
-                    std::vector< double > const&    SPESize,
-                    bool const&                     AreaToPE) {
-
-    for (auto const& wf_ptr : OpDetWaveformVector) {
-
-      const int    Channel   = static_cast< int >(wf_ptr.ChannelNumber());
-      const double TimeStamp = wf_ptr.TimeStamp();
-
-      if (!geom.IsValidOpChannel(Channel)) {
-        mf::LogError("OpFlashFinder") << "Error! unrecognized channel number " 
-                           << Channel << ". Ignoring pulse";
-        continue;
-      }
-      
-      PulseRecoMgr.RecoPulse(wf_ptr);
-      
-      const size_t NPulses = ThreshAlg.GetNPulse();
-      for (size_t k = 0; k < NPulses; ++k)
-        ConstructHit(HitThreshold,
-                     Channel,
-                     TimeStamp,
-                     ThreshAlg.GetPulse(k),
-                     ts,
-                     SPESize.at(Channel),
-                     AreaToPE,
-                     HitVector);
-      
-    }
-
-  }
-
-  //----------------------------------------------------------------------------
-  void ConstructHit(float const&                 HitThreshold,
-                    int const&                   Channel,
-                    double const&                TimeStamp,
-                    pmtana::pulse_param const&   pulse,
-                    util::TimeService const&     ts,
-                    double const&                SPESize,
-                    bool const&                  AreaToPE,
-                    std::vector< recob::OpHit >& HitVector) {
-
-    if (pulse.peak < HitThreshold) return;
-
-    double AbsTime = TimeStamp + pulse.t_max*ts.OpticalClock().TickPeriod();
-
-    double RelTime = AbsTime - ts.BeamGateTime();
-    if (ts.BeamGateTime() < 0.0) RelTime = AbsTime - ts.TriggerTime();
-    
-    int Frame = ts.OpticalClock().Frame(TimeStamp);
-
-    double PE = 0.0;
-    if (AreaToPE) PE = pulse.area/SPESize;
-    else          PE = pulse.peak/SPESize;
-    
-    double width = (pulse.t_end - pulse.t_start)*ts.OpticalClock().TickPeriod();
-
-    HitVector.emplace_back(Channel,
-                           RelTime,
-                           AbsTime,
-                           Frame,
-                           width,
-                           pulse.area,
-                           pulse.peak,
-                           PE,
-                           0.0);
-
-  }
 
   //----------------------------------------------------------------------------
   unsigned int GetAccumIndex(double const& PeakTime, 
