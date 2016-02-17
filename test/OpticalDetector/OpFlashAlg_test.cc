@@ -314,7 +314,6 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkTwoAccumulators)
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_EmptyContributors)
 {
 
-  size_t NHits_prev = 0;
   size_t NHits = 10;
 
   const size_t vector_size = 1;
@@ -326,7 +325,6 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_EmptyContributors)
 
   opdet::FillHitsThisFlash(Contributors,
 			   Bin,
-			   NHits_prev,
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
@@ -336,7 +334,6 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_EmptyContributors)
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_NoPrevClaimedHits)
 {
 
-  size_t NHits_prev = 0;
   size_t NHits = 10;
 
   const size_t vector_size = 1;
@@ -349,7 +346,6 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_NoPrevClaimedHits)
 
   opdet::FillHitsThisFlash(Contributors,
 			   Bin,
-			   NHits_prev,
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
@@ -361,7 +357,6 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_NoPrevClaimedHits)
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevClaimedHits)
 {
 
-  size_t NHits_prev = 0;
   size_t NHits = 10;
 
   const size_t vector_size = 1;
@@ -376,14 +371,13 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevClaimedHits)
 
   opdet::FillHitsThisFlash(Contributors,
 			   Bin,
-			   NHits_prev,
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
   BOOST_CHECK_EQUAL( HitsThisFlash.size() , 1U );
   BOOST_CHECK_EQUAL( HitsThisFlash[0] , 3 );
 }
-
+/*
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevHitsOffset)
 {
 
@@ -409,11 +403,10 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevHitsOffset)
   BOOST_CHECK_EQUAL( HitsThisFlash.size() , 1U );
   BOOST_CHECK_EQUAL( HitsThisFlash[0] , 13 );
 }
-
+*/
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_MultipleContributorVectors)
 {
 
-  size_t NHits_prev = 0;
   size_t NHits = 10;
 
   const size_t vector_size = 2;
@@ -428,7 +421,6 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_MultipleContributorVectors)
 
   opdet::FillHitsThisFlash(Contributors,
 			   1,
-			   NHits_prev,
 			   HitClaimedByFlash,
 			   HitsThisFlash);
 
@@ -439,7 +431,6 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_MultipleContributorVectors)
 
 BOOST_AUTO_TEST_CASE(ClaimHits_NoHitsThisFlash)
 {
-  size_t NHits_prev = 0;
   size_t NHits = 1;
 
   //need this part to make a hit...
@@ -457,7 +448,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_NoHitsThisFlash)
 		   HitsThisFlash,
 		   FlashThreshold,
 		   HitsPerFlash,
-		   NHits_prev,
 		   HitClaimedByFlash);
 
   BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
@@ -466,7 +456,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_NoHitsThisFlash)
 
 BOOST_AUTO_TEST_CASE(ClaimHits_BelowFlashThreshold)
 {
-  size_t NHits_prev = 0;
   size_t NHits = 1;
 
   //need this part to make a hit...
@@ -484,7 +473,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_BelowFlashThreshold)
 		   HitsThisFlash,
 		   FlashThreshold,
 		   HitsPerFlash,
-		   NHits_prev,
 		   HitClaimedByFlash);
 
   BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
@@ -493,7 +481,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_BelowFlashThreshold)
 
 BOOST_AUTO_TEST_CASE(ClaimHits_AboveFlashThreshold)
 {
-  size_t NHits_prev = 0;
   size_t NHits = 1;
 
   //need this part to make a hit...
@@ -511,7 +498,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_AboveFlashThreshold)
 		   HitsThisFlash,
 		   FlashThreshold,
 		   HitsPerFlash,
-		   NHits_prev,
 		   HitClaimedByFlash);
 
   BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
@@ -521,7 +507,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_AboveFlashThreshold)
 
 BOOST_AUTO_TEST_CASE(ClaimHits_OneHitThisFlash)
 {
-  size_t NHits_prev = 0;
   size_t NHits = 2;
 
   //need this part to make a hit...
@@ -539,7 +524,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_OneHitThisFlash)
 		   HitsThisFlash,
 		   FlashThreshold,
 		   HitsPerFlash,
-		   NHits_prev,
 		   HitClaimedByFlash);
 
   BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
@@ -550,7 +534,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_OneHitThisFlash)
 
 BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_BelowThreshold)
 {
-  size_t NHits_prev = 0;
   size_t NHits = 2;
 
   //need this part to make a hit...
@@ -569,7 +552,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_BelowThreshold)
 		   HitsThisFlash,
 		   FlashThreshold,
 		   HitsPerFlash,
-		   NHits_prev,
 		   HitClaimedByFlash);
 
   BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
@@ -579,7 +561,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_BelowThreshold)
 
 BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_AboveThreshold)
 {
-  size_t NHits_prev = 0;
   size_t NHits = 2;
 
   //need this part to make a hit...
@@ -598,7 +579,6 @@ BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_AboveThreshold)
 		   HitsThisFlash,
 		   FlashThreshold,
 		   HitsPerFlash,
-		   NHits_prev,
 		   HitClaimedByFlash);
 
   BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
@@ -607,7 +587,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_AboveThreshold)
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[1], 0);
 }
-
+/*
 BOOST_AUTO_TEST_CASE(ClaimHits_WithPrevHits)
 {
   size_t NHits_prev = 10;
@@ -638,7 +618,7 @@ BOOST_AUTO_TEST_CASE(ClaimHits_WithPrevHits)
   BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
   BOOST_CHECK_EQUAL( HitClaimedByFlash[1], 0);
 }
-
+*/
 BOOST_AUTO_TEST_CASE(FindSeedHit_AllUsed)
 {
 
