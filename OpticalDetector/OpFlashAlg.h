@@ -19,6 +19,8 @@
 #include "TFile.h"
 
 #include <functional>
+#include <algorithm>
+#include <limits>
 #include <vector>
 #include <map>
 #include <iostream>
