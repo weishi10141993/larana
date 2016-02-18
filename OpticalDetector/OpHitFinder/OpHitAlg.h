@@ -10,8 +10,8 @@
  */
 
 #include "RawData/OpDetWaveform.h"
-#include "OpticalDetector/PulseRecoManager.h"
-#include "OpticalDetector/PMTPulseRecoBase.h"
+#include "OpticalDetector/OpHitFinder/PulseRecoManager.h"
+#include "OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 #include "RecoBase/OpHit.h"
 #include "Geometry/Geometry.h"
 #include "Utilities/TimeService.h"

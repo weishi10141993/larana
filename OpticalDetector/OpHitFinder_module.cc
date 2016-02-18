@@ -15,14 +15,18 @@
 // LArSoft includes
 #include "Geometry/Geometry.h"
 #include "RawData/OpDetWaveform.h"
-#include "OpticalDetector/AlgoThreshold.h"
-#include "OpticalDetector/AlgoSiPM.h"
-#include "OpticalDetector/AlgoPedestal.h"
-#include "OpticalDetector/AlgoSlidingWindow.h"
-#include "OpticalDetector/PulseRecoManager.h"
+#include "OpHitFinder/AlgoThreshold.h"
+#include "OpHitFinder/AlgoSiPM.h"
+#include "OpHitFinder/AlgoSlidingWindow.h"
+#include "OpHitFinder/AlgoFixedWindow.h"
+#include "OpHitFinder/AlgoCFD.h"
+#include "OpHitFinder/PedAlgoEdges.h"
+#include "OpHitFinder/PedAlgoRollingMean.h"
+#include "OpHitFinder/PedAlgoUB.h"
+#include "OpHitFinder/PulseRecoManager.h"
 #include "RecoBase/OpHit.h"
 #include "Utilities/TimeService.h"
-#include "OpHitAlg.h"
+#include "OpHitFinder/OpHitAlg.h"
 #include "Simulation/BeamGateInfo.h"
 
 // Framework includes
@@ -67,11 +71,11 @@ namespace opdet {
     std::string fInputModule; // Input tag for OpDetWaveform collection
     std::string fGenModule;
     std::vector< std::string > fInputLabels;
-    std::string fThreshAlgName;
     std::set< unsigned int > fChannelMasks;
     
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::PMTPulseRecoBase* fThreshAlg;
+    pmtana::PMTPedestalBase*  fPedAlg;
 
     Float_t  fHitThreshold;
     Bool_t   fAreaToPE;
@@ -102,23 +106,38 @@ namespace opdet {
     reconfigure(pset);
 
     // Initialize the hit finder algorithm
-    if      (fThreshAlgName == "Threshold") 
-      fThreshAlg = new pmtana::AlgoThreshold
-        (pset.get< fhicl::ParameterSet >("algo_threshold"));
-    else if (fThreshAlgName == "SiPM") 
-      fThreshAlg = new pmtana::AlgoSiPM
-        (pset.get< fhicl::ParameterSet >("algo_threshold"));
-    else if (fThreshAlgName == "SlidingWindow")
-      fThreshAlg = new pmtana::AlgoSlidingWindow
-        (pset.get< fhicl::ParameterSet >("algo_threshold"));
+    auto const hit_alg_pset = pset.get< fhicl::ParameterSet >("HitAlgoPset");
+    std::string threshAlgName = hit_alg_pset.get< std::string >("Name");
+    if      (threshAlgName == "Threshold") 
+      fThreshAlg = new pmtana::AlgoThreshold(hit_alg_pset);
+    else if (threshAlgName == "SiPM") 
+      fThreshAlg = new pmtana::AlgoSiPM(hit_alg_pset);
+    else if (threshAlgName == "SlidingWindow")
+      fThreshAlg = new pmtana::AlgoSlidingWindow(hit_alg_pset);
+    else if (threshAlgName == "FixedWindow")
+      fThreshAlg = new pmtana::AlgoFixedWindow(hit_alg_pset);
+    else if (threshAlgName == "CFD" )
+      fThreshAlg = new pmtana::AlgoCFD(hit_alg_pset);
     else throw art::Exception(art::errors::UnimplementedFeature)
                     << "Cannot find implementation for " 
-                    << fThreshAlgName << " algorithm.\n";   
+                    << threshAlgName << " algorithm.\n";   
+
+    auto const ped_alg_pset = pset.get< fhicl::ParameterSet >("PedAlgoPset");
+    std::string pedAlgName = ped_alg_pset.get< std::string >("Name");
+    if      (pedAlgName == "Edges")
+      fPedAlg = new pmtana::PedAlgoEdges(ped_alg_pset);
+    else if (pedAlgName == "RollingMean")
+      fPedAlg = new pmtana::PedAlgoRollingMean(ped_alg_pset);
+    else if (pedAlgName == "UB"   )
+      fPedAlg = new pmtana::PedAlgoUB(ped_alg_pset);
+    else throw art::Exception(art::errors::UnimplementedFeature)
+                    << "Cannot find implementation for " 
+                    << pedAlgName << " algorithm.\n";   
 
     produces< std::vector< recob::OpHit > >();
 
     fPulseRecoMgr.AddRecoAlgo(fThreshAlg);
-    fPulseRecoMgr.SetPedAlgo(pmtana::kHEAD);
+    fPulseRecoMgr.SetDefaultPedAlgo(fPedAlg);
 
   }
 
@@ -130,8 +149,6 @@ namespace opdet {
     fInputModule   = pset.get< std::string >("InputModule");
     fGenModule     = pset.get< std::string >("GenModule");
     fInputLabels   = pset.get< std::vector< std::string > >("InputLabels");
-    fThreshAlgName = pset.get< fhicl::ParameterSet >("algo_threshold")
-                         .get< std::string >("HitFinder");
       
     for (auto const& ch : pset.get< std::vector< unsigned int > >
                             ("ChannelMasks", std::vector< unsigned int >()))
@@ -154,6 +171,7 @@ namespace opdet {
   {
   
     delete fThreshAlg;
+    delete fPedAlg;
 
   }
    

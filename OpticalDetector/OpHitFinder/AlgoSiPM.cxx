@@ -10,7 +10,8 @@
 namespace pmtana {
 
   //---------------------------------------------------------------------------
-  AlgoSiPM::AlgoSiPM(const fhicl::ParameterSet &pset)
+  AlgoSiPM::AlgoSiPM(const fhicl::ParameterSet &pset,const std::string name)
+    : PMTPulseRecoBase(name)
   {
 
     _adc_thres = pset.get< float >("ADCThreshold"   );
@@ -37,15 +38,17 @@ namespace pmtana {
   }
 
   //---------------------------------------------------------------------------
-  bool AlgoSiPM::RecoPulse(const std::vector< short > &wf)
+  bool AlgoSiPM::RecoPulse( const pmtana::Waveform_t& wf,
+			    const pmtana::PedestalMean_t& ped_mean,
+			    const pmtana::PedestalSigma_t& ped_rms )
   {
     
     bool   fire          = false;
     bool   first_found   = false;
     bool   record_hit    = false;
     int    counter       = 0;
-//    double threshold   = (_2nd_thres > (_nsigma*_ped_rms) ? _2nd_thres 
-//                                                    : (_nsigma*_ped_rms));
+    //    double threshold   = (_2nd_thres > (_nsigma*_ped_rms) ? _2nd_thres 
+    //                                                    : (_nsigma*_ped_rms));
     double pedestal      = _pedestal;
     double threshold     = _adc_thres;
     threshold           += pedestal;

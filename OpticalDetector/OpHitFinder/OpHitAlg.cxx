@@ -37,14 +37,16 @@ namespace opdet{
         continue;
       }
       
-      PulseRecoMgr.RecoPulse(wf_ptr);
+      PulseRecoMgr.Reconstruct(wf_ptr);
       
-      const size_t NPulses = ThreshAlg.GetNPulse();
-      for (size_t k = 0; k < NPulses; ++k)
+      // Get the result
+      auto const& pulses = ThreshAlg.GetPulses();
+
+      for (auto const& pulse : pulses)
         ConstructHit(HitThreshold,
                      Channel,
                      TimeStamp,
-                     ThreshAlg.GetPulse(k),
+                     pulse,
                      ts,
                      SPESize.at(Channel),
                      AreaToPE,

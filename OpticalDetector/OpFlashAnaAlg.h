@@ -26,7 +26,7 @@ namespace opdet{
   public:
 
     OpFlashAnaAlg(){ fMakeOpDetPEHist=false; }
-    void SetOpFlashTree(TTree*,bool makeOpDetPEHist=true);
+    void SetOpFlashTree(TTree*, bool makeOpDetPEHist=true);
     void SetOpHitTree(TTree*);
     
     void FillOpFlashes(const std::vector<recob::OpFlash>&);
@@ -88,6 +88,5 @@ namespace opdet{
   };
   
 }
-
 
 #endif
