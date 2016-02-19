@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE ( OpFlashAlg_test )
 #include "boost/test/auto_unit_test.hpp"
 
-#include "OpticalDetector/OpFlashAlg.h"
-#include "OpticalDetectorData/OpticalTypes.h"
+#include "larana/OpticalDetector/OpFlashAlg.h"
+#include "lardata/OpticalDetectorData/OpticalTypes.h"
 
 const float HitThreshold = 3;
 const float FlashThreshold = 50;
@@ -24,8 +24,8 @@ BOOST_AUTO_TEST_CASE(ConstructHit_checkDefaultPulse)
 {
   pmtana::pulse_param pulse;
   std::vector<recob::OpHit> HitVector;
-  art::Service<util::TimeService> ts;
-  //::util::TimeService ts;
+  art::Service<detinfo::DetectorClocksService> ts;
+  //::detinfo::DetectorClocksService ts;
 
   opdet::ConstructHit(HitThreshold,
 		      Channel,
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(ConstructHit_checkPulseBelowThreshold)
   pulse.area = 4; pulse.peak = 2;
 
   std::vector<recob::OpHit> HitVector;
-  art::Service<util::TimeService> ts;
+  art::Service<detinfo::DetectorClocksService> ts;
 
   opdet::ConstructHit(HitThreshold,
 		      Channel,
