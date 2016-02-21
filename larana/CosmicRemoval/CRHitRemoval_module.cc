@@ -36,6 +36,7 @@
 #include "lardata/RecoBase/Cluster.h"
 #include "lardata/RecoBase/Track.h"
 #include "lardata/RecoBase/PFParticle.h"
+#include "lardata/RecoBaseArt/HitCreator.h"
 #include "lardata/AnalysisBase/CosmicTag.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
@@ -131,7 +132,11 @@ CRHitRemoval::CRHitRemoval(fhicl::ParameterSet const & pset) :
   fNumCRRejects(0)
 {
     reconfigure(pset);
-    produces<std::vector<recob::Hit> >();
+
+    // let HitCollectionCreator declare that we are going to produce
+    // hits and associations with wires and raw digits
+    // (with no particular product label)
+    recob::HitCollectionCreator::declare_products(*this);
 
     // Report.
     mf::LogInfo("CRHitRemoval") << "CRHitRemoval configured\n";
@@ -196,17 +201,27 @@ void CRHitRemoval::produce(art::Event & evt)
     // Start by looking up the original hits
     art::Handle< std::vector<recob::Hit> > hitHandle;
     evt.getByLabel(fHitProducerLabel, hitHandle);
+
+    // also get the associated wires and raw digits;
+    // we assume they have been created by the same module as the hits
+    art::FindOneP<raw::RawDigit> ChannelHitRawDigits
+      (hitHandle, evt, fHitProducerLabel);
+    art::FindOneP<recob::Wire> ChannelHitWires
+      (hitHandle, evt, fHitProducerLabel);
     
     // If there are no hits then there should be no output
     if (!hitHandle.isValid()) return;
     
-    // If there are hits then we are going to output something so get a new
-    // output hit vector
-    std::unique_ptr<std::vector<recob::Hit> > outputHits(new std::vector<recob::Hit>);
+    std::vector< art::Ptr<recob::Hit> >  ChHits;
+    art::fill_ptr_vector(ChHits, hitHandle);
     
-    // And fill it with the complete original list of hits
-    *outputHits = *hitHandle;
-    
+    // this object contains the hit collection
+    // and its associations to wires and raw digits:
+    recob::HitCollectionCreator hcol(*this, evt,
+      /* doWireAssns */ ChannelHitWires.isValid(),
+      /* doRawDigitAssns */ ChannelHitRawDigits.isValid()
+      );
+
     // Now recover thre remaining collections of objects in the event store that we need
     // Start with tracks
     art::Handle<std::vector<recob::Track> > trackHandle;
@@ -215,8 +230,19 @@ void CRHitRemoval::produce(art::Event & evt)
     // If no tracks then no point in continuing here
     if (!trackHandle.isValid())
     {
-        evt.put(std::move(outputHits));
-        return;
+      for( size_t h = 0; h < ChHits.size(); h++ ){
+      
+	art::Ptr<recob::Wire> wire = ChannelHitWires.at(h);
+	art::Ptr<raw::RawDigit> rawdigits = ChannelHitRawDigits.at(h);
+	
+	// just copy it
+	hcol.emplace_back(*ChHits[h], wire, rawdigits);      
+      } // for      
+      
+      // put the hit collection and associations into the event
+      hcol.put_into(evt);
+      
+      return;
     }
     
     // Recover the PFParticles that are responsible for making the tracks
@@ -226,8 +252,19 @@ void CRHitRemoval::produce(art::Event & evt)
     // Without a valid collection of PFParticles we can't do the hit removal
     if (!pfParticleHandle.isValid())
     {
-        evt.put(std::move(outputHits));
-        return;
+      for( size_t h = 0; h < ChHits.size(); h++ ){
+      
+	art::Ptr<recob::Wire> wire = ChannelHitWires.at(h);
+	art::Ptr<raw::RawDigit> rawdigits = ChannelHitRawDigits.at(h);
+	
+	// just copy it
+	hcol.emplace_back(*ChHits[h], wire, rawdigits);      
+      } // for      
+      
+      // put the hit collection and associations into the event
+      hcol.put_into(evt);
+      
+      return;
     }
     
     // Recover the clusters so we can do associations to the hits
@@ -238,8 +275,19 @@ void CRHitRemoval::produce(art::Event & evt)
     // If there are no clusters then something is really wrong
     if (!clusterHandle.isValid())
     {
-        evt.put(std::move(outputHits));
-        return;
+      for( size_t h = 0; h < ChHits.size(); h++ ){
+      
+	art::Ptr<recob::Wire> wire = ChannelHitWires.at(h);
+	art::Ptr<raw::RawDigit> rawdigits = ChannelHitRawDigits.at(h);
+	
+	// just copy it
+	hcol.emplace_back(*ChHits[h], wire, rawdigits);      
+      } // for      
+      
+      // put the hit collection and associations into the event
+      hcol.put_into(evt);
+      
+      return;
     }
     
     // Build the list of cosmic tag producers, associations and thresholds
@@ -271,8 +319,19 @@ void CRHitRemoval::produce(art::Event & evt)
     // No cosmic tags then nothing to do here
     if (cosmicHandleVec.empty())
     {
-        evt.put(std::move(outputHits));
-        return;
+      for( size_t h = 0; h < ChHits.size(); h++ ){
+      
+	art::Ptr<recob::Wire> wire = ChannelHitWires.at(h);
+	art::Ptr<raw::RawDigit> rawdigits = ChannelHitRawDigits.at(h);
+	
+	// just copy it
+	hcol.emplace_back(*ChHits[h], wire, rawdigits);      
+      } // for      
+      
+      // put the hit collection and associations into the event
+      hcol.put_into(evt);
+      
+      return;
     }
     
     // Let's do a test of the flash backing up the cosmic
@@ -415,22 +474,23 @@ void CRHitRemoval::produce(art::Event & evt)
         // Remove the cosmic ray tagged hits
         FilterHits(originalHits, taggedHits);
         
-        // Clear the current outputHits vector since we're going to refill...
-        outputHits->clear();
-        
         // Now make the new list of output hits
         for (const auto& hit : originalHits)
         {
             // Check on out of time hits
             if (hit->PeakTimeMinusRMS() < fMinTickDrift) continue;
             if (hit->PeakTimePlusRMS()  > fMaxTickDrift) continue;
-            
-            outputHits->emplace_back(*hit);
+
+	    art::Ptr<recob::Hit>::key_type hit_index = hit.key();
+	    art::Ptr<recob::Wire> wire = ChannelHitWires.at(hit_index);
+	    art::Ptr<raw::RawDigit> rawdigits = ChannelHitRawDigits.at(hit_index);
+	    
+	    hcol.emplace_back(*hit, wire, rawdigits);
         }
     }
-    
-    // Add tracks and associations to event.
-    evt.put(std::move(outputHits));
+    // put the hit collection and associations into the event
+    hcol.put_into(evt);
+ 
 }
 
 //----------------------------------------------------------------------------
