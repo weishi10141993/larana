@@ -31,6 +31,7 @@ art_make(
 			    larsim_Simulation
 			    lardata_RecoObjects
 			    lardata_RecoBase
+			    lardata_RecoBaseArt
 			    lardata_MCBase
 			    larcore_Geometry
 			    larcore_Geometry_Geometry_service
