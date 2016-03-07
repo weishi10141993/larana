@@ -488,6 +488,16 @@ void CRHitRemoval::produce(art::Event & evt)
 	    hcol.emplace_back(*hit, wire, rawdigits);
         }
     }
+    else{
+      for( size_t h = 0; h < ChHits.size(); h++ ){
+	
+	art::Ptr<recob::Wire> wire = ChannelHitWires.at(h);
+	art::Ptr<raw::RawDigit> rawdigits = ChannelHitRawDigits.at(h);
+	
+	// just copy it
+	hcol.emplace_back(*ChHits[h], wire, rawdigits);      
+      } // for      
+    }
     // put the hit collection and associations into the event
     hcol.put_into(evt);
  
