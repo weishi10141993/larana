@@ -13,7 +13,7 @@
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 #include "lardata/RecoBase/OpHit.h"
-#include "larcore/Geometry/Geometry.h"
+#include "larcore/Geometry/GeometryCore.h"
 #include "lardata/DetectorInfo/DetectorClocks.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -25,7 +25,7 @@ namespace opdet{
                     std::vector< recob::OpHit >&,
                     pmtana::PulseRecoManager const&,
                     pmtana::PMTPulseRecoBase const&,
-                    geo::Geometry const&,
+                    geo::GeometryCore const&,
                     float const&,
                     detinfo::DetectorClocks const&,
                     std::vector< double > const&,

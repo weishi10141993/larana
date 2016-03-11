@@ -16,75 +16,79 @@ namespace opdet{
 
   //----------------------------------------------------------------------------
   void RunHitFinder(std::vector< raw::OpDetWaveform > const& 
-                                                    OpDetWaveformVector,
-                    std::vector< recob::OpHit >&    HitVector,
-                    pmtana::PulseRecoManager const& PulseRecoMgr,
-                    pmtana::PMTPulseRecoBase const& ThreshAlg,
-                    geo::Geometry const&            geom,
-                    float const&                    HitThreshold,
-                    detinfo::DetectorClocks const&  ts,
+                                                    opDetWaveformVector,
+                    std::vector< recob::OpHit >&    hitVector,
+                    pmtana::PulseRecoManager const& pulseRecoMgr,
+                    pmtana::PMTPulseRecoBase const& threshAlg,
+                    geo::GeometryCore const&        geometry,
+                    float const&                    hitThreshold,
+                    detinfo::DetectorClocks const&  detectorClocks,
                     std::vector< double > const&    SPESize,
-                    bool const&                     AreaToPE) {
+                    bool const&                     areaToPE) {
 
-    for (auto const& wf_ptr : OpDetWaveformVector) {
+    for (auto const& waveform : opDetWaveformVector) {
 
-      const int    Channel   = static_cast< int >(wf_ptr.ChannelNumber());
-      const double TimeStamp = wf_ptr.TimeStamp();
+      const int channel = static_cast< int >(waveform.ChannelNumber());
 
-      if (!geom.IsValidOpChannel(Channel)) {
+      if (!geometry.IsValidOpChannel(channel)) {
         mf::LogError("OpHitFinder") << "Error! unrecognized channel number " 
-                         << Channel << ". Ignoring pulse";
+                         << channel << ". Ignoring pulse";
         continue;
       }
-      
-      PulseRecoMgr.Reconstruct(wf_ptr);
+
+      pulseRecoMgr.Reconstruct(waveform);
       
       // Get the result
-      auto const& pulses = ThreshAlg.GetPulses();
+      auto const& pulses = threshAlg.GetPulses();
 
+      const double timeStamp = waveform.TimeStamp();
+      
       for (auto const& pulse : pulses)
-        ConstructHit(HitThreshold,
-                     Channel,
-                     TimeStamp,
+        ConstructHit(hitThreshold,
+                     channel,
+                     timeStamp,
                      pulse,
-                     ts,
-                     SPESize.at(Channel),
-                     AreaToPE,
-                     HitVector);
+                     detectorClocks,
+                     SPESize.at(channel),
+                     areaToPE,
+                     hitVector);
       
     }
 
   }
 
   //----------------------------------------------------------------------------
-  void ConstructHit(float const&                   HitThreshold,
-                    int const&                     Channel,
-                    double const&                  TimeStamp,
+  void ConstructHit(float const&                   hitThreshold,
+                    int const&                     channel,
+                    double const&                  timeStamp,
                     pmtana::pulse_param const&     pulse,
-                    detinfo::DetectorClocks const& ts,
+                    detinfo::DetectorClocks const& detectorClocks,
                     double const&                  SPESize,
-                    bool const&                    AreaToPE,
-                    std::vector< recob::OpHit >&   HitVector) {
+                    bool const&                    areaToPE,
+                    std::vector< recob::OpHit >&   hitVector) {
 
-    if (pulse.peak < HitThreshold) return;
+    if (pulse.peak < hitThreshold) return;
 
-    double AbsTime = TimeStamp + pulse.t_max*ts.OpticalClock().TickPeriod();
+    double absTime = timeStamp 
+                   + pulse.t_max*detectorClocks.OpticalClock().TickPeriod();
 
-    double RelTime = AbsTime - ts.BeamGateTime();
-    if (ts.BeamGateTime() < 0.0) RelTime = AbsTime - ts.TriggerTime();
+    double relTime = absTime - detectorClocks.BeamGateTime();
+    if (detectorClocks.BeamGateTime() < 0.0) 
+      relTime = absTime - detectorClocks.TriggerTime();
     
-    int Frame = ts.OpticalClock().Frame(TimeStamp);
+    int frame = detectorClocks.OpticalClock().Frame(timeStamp);
 
     double PE = 0.0;
-    if (AreaToPE) PE = pulse.area/SPESize;
+    if (areaToPE) PE = pulse.area/SPESize;
     else          PE = pulse.peak/SPESize;
     
-    double width = (pulse.t_end - pulse.t_start)*ts.OpticalClock().TickPeriod();
+    double width = (pulse.t_end - pulse.t_start)
+                     *detectorClocks.OpticalClock().TickPeriod();
 
-    HitVector.emplace_back(Channel,
-                           RelTime,
-                           AbsTime,
-                           Frame,
+    hitVector.emplace_back(channel,
+                           relTime,
+                           absTime,
+                           frame,
                            width,
                            pulse.area,
                            pulse.peak,

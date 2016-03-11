@@ -15,6 +15,7 @@
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 #include "lardata/RawData/OpDetWaveform.h"
+#include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoThreshold.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoSiPM.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoSlidingWindow.h"
@@ -158,8 +159,8 @@ namespace opdet {
     fAreaToPE     = pset.get< bool > ("AreaToPE");
     fSPEArea      = pset.get< float >("SPEArea");
 
-    art::ServiceHandle< geo::Geometry > geom;
-    fMaxOpChannel = geom->MaxOpChannel();
+    auto const& geometry(*lar::providerFrom< geo::Geometry >());
+    fMaxOpChannel = geometry.MaxOpChannel();
     
     fSPESize = GetSPEScales();
 
@@ -203,10 +204,9 @@ namespace opdet {
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
-    art::ServiceHandle< geo::Geometry > GeometryHandle;
-    geo::Geometry const& Geometry(*GeometryHandle);
-
-    auto const& ts(*lar::providerFrom< detinfo::DetectorClocksService >());
+    auto const& geometry(*lar::providerFrom< geo::Geometry >());
+    auto const& detectorClocks
+                  (*lar::providerFrom< detinfo::DetectorClocksService >());
 
     //
     // Get the pulses from the event
@@ -245,9 +245,9 @@ namespace opdet {
                  *HitPtr,
                  fPulseRecoMgr,
                  *fThreshAlg,
-                 Geometry,
+                 geometry,
                  fHitThreshold,
-                 ts,
+                 detectorClocks,
                  fSPESize,
                  fAreaToPE);
 

@@ -11,9 +11,9 @@
 
 #include "lardata/RecoBase/OpHit.h"
 #include "lardata/RecoBase/OpFlash.h"
-#include "larcore/Geometry/Geometry.h"
-#include "lardata/DetectorInfo/DetectorClocks.h"
+#include "larcore/Geometry/GeometryCore.h"
 #include "larcore/Geometry/OpDetGeo.h"
+#include "lardata/DetectorInfo/DetectorClocks.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -31,7 +31,7 @@ namespace opdet{
                       std::vector< recob::OpFlash >&,
                       std::vector< std::vector< int > >&,
                       double const&,
-                      geo::Geometry const&,
+                      geo::GeometryCore const&,
                       float const&,
                       float const&,
                       detinfo::DetectorClocks const&,
@@ -114,7 +114,7 @@ namespace opdet{
   void ConstructFlash(std::vector< int > const&          HitsPerFlashVec,
                       std::vector< recob::OpHit > const& HitVector,
                       std::vector< recob::OpFlash >&     FlashVector,
-                      geo::Geometry const&               geom,
+                      geo::GeometryCore const&           geom,
                       detinfo::DetectorClocks const&     ts,
                       float const&                       TrigCoinc);
 
@@ -127,14 +127,14 @@ namespace opdet{
                           double&                TotalPE,
                           std::vector< double >& PEs);
 
-  void GetHitGeometryInfo(recob::OpHit const&    currentHit,
-                          geo::Geometry const&   geom,
-                          std::vector< double >& sumw,
-                          std::vector< double >& sumw2,
-                          double&                sumy, 
-                          double&                sumy2,
-                          double&                sumz, 
-                          double&                sumz2);
+  void GetHitGeometryInfo(recob::OpHit const&      currentHit,
+                          geo::GeometryCore const& geom,
+                          std::vector< double >&   sumw,
+                          std::vector< double >&   sumw2,
+                          double&                  sumy, 
+                          double&                  sumy2,
+                          double&                  sumz, 
+                          double&                  sumz2);
 
   void RemoveLateLight(std::vector< recob::OpFlash >&,
                        std::vector< std::vector< int > >&);

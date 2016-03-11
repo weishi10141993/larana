@@ -45,7 +45,7 @@ namespace opdet{
                       std::vector< recob::OpFlash >&     FlashVector,
                       std::vector< std::vector< int > >& AssocList,
                       double const&                      BinWidth,
-                      geo::Geometry const&               geom,
+                      geo::GeometryCore const&           geom,
                       float const&                       FlashThreshold,
                       float const&                       WidthTolerance,
                       detinfo::DetectorClocks const&     ts,
@@ -498,14 +498,14 @@ namespace opdet{
   }
 
   //----------------------------------------------------------------------------
-  void GetHitGeometryInfo(recob::OpHit const&    currentHit,
-                          geo::Geometry const&   geom,
-                          std::vector< double >& sumw,
-                          std::vector< double >& sumw2,
-                          double&                sumy, 
-                          double&                sumy2,
-                          double&                sumz, 
-                          double&                sumz2) {
+  void GetHitGeometryInfo(recob::OpHit const&      currentHit,
+                          geo::GeometryCore const& geom,
+                          std::vector< double >&   sumw,
+                          std::vector< double >&   sumw2,
+                          double&                  sumy, 
+                          double&                  sumy2,
+                          double&                  sumz, 
+                          double&                  sumz2) {
 
     double xyz[3];
     geom.OpDetGeoFromOpChannel(currentHit.OpChannel()).GetCenter(xyz);
@@ -538,7 +538,7 @@ namespace opdet{
   void ConstructFlash(std::vector< int > const&          HitsPerFlashVec,
                       std::vector< recob::OpHit > const& HitVector,
                       std::vector< recob::OpFlash >&     FlashVector,
-                      geo::Geometry const&               geom,
+                      geo::GeometryCore const&           geom,
                       detinfo::DetectorClocks const&     ts,
                       float const&                       TrigCoinc) {
 

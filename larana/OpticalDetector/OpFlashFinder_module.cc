@@ -123,50 +123,50 @@ namespace opdet {
 
     // These are the storage pointers we will put in the event
     std::unique_ptr< std::vector< recob::OpFlash > > 
-                      FlashPtr(new std::vector< recob::OpFlash >);
+                      flashPtr(new std::vector< recob::OpFlash >);
     std::unique_ptr< art::Assns< recob::OpFlash, recob::OpHit > >  
-                      AssnPtr(new art::Assns< recob::OpFlash, recob::OpHit >);
+                      assnPtr(new art::Assns< recob::OpFlash, recob::OpHit >);
 
     // This will keep track of what flashes will assoc to what ophits
     // at the end of processing
-    std::vector< std::vector< int > > AssocList;
+    std::vector< std::vector< int > > assocList;
 
-    art::ServiceHandle< geo::Geometry > GeometryHandle;
-    geo::Geometry const& Geometry(*GeometryHandle);
+    auto const& geometry(*lar::providerFrom< geo::Geometry >());
 
-    auto const& ts(*lar::providerFrom< detinfo::DetectorClocksService >());
+    auto const& detectorClocks
+       (*lar::providerFrom< detinfo::DetectorClocksService >());
 
     // Get OpHits from the event
-    art::Handle< std::vector< recob::OpHit > > OpHitHandle;
-    evt.getByLabel(fInputModule, OpHitHandle);
+    art::Handle< std::vector< recob::OpHit > > opHitHandle;
+    evt.getByLabel(fInputModule, opHitHandle);
 
-    RunFlashFinder(*OpHitHandle,
-                   *FlashPtr,
-                   AssocList,
+    RunFlashFinder(*opHitHandle,
+                   *flashPtr,
+                   assocList,
                    fBinWidth,
-                   Geometry,
+                   geometry,
                    fFlashThreshold,
                    fWidthTolerance,
-                   ts,
+                   detectorClocks,
                    fTrigCoinc);
 
     // Make the associations which we noted we need
-    for (size_t i = 0; i != AssocList.size(); ++i)
+    for (size_t i = 0; i != assocList.size(); ++i)
     {
       art::PtrVector< recob::OpHit > opHitPtrVector;
-      for (int const& hitIndex : AssocList.at(i))
+      for (int const& hitIndex : assocList.at(i))
       {
-        art::Ptr< recob::OpHit > opHitPtr(OpHitHandle, hitIndex);
+        art::Ptr< recob::OpHit > opHitPtr(opHitHandle, hitIndex);
         opHitPtrVector.push_back(opHitPtr);
       }
 
-      util::CreateAssn(*this, evt, *FlashPtr, opHitPtrVector, 
-                                        *(AssnPtr.get()), i);
+      util::CreateAssn(*this, evt, *flashPtr, opHitPtrVector, 
+                                        *(assnPtr.get()), i);
     }
     
     // Store results into the event
-    evt.put(std::move(FlashPtr));
-    evt.put(std::move(AssnPtr));
+    evt.put(std::move(flashPtr));
+    evt.put(std::move(assnPtr));
     
   }
 
