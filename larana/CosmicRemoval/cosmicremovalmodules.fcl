@@ -29,18 +29,18 @@ standard_cosmicclustertagger:
 standard_cosmictracktagger:
 {
     module_type: "CosmicTrackTagger"
-    TPCXBoundary: 5
-    TPCYBoundary: 5
-    TPCZBoundary: 5
+    TPCXBoundary: 10
+    TPCYBoundary: 20
+    TPCZBoundary: 10
     TrackModuleLabel: "track" #"beziertracker"
 }
 
 standard_cosmicpfparticletagger:
 {
     module_type: "CosmicPFParticleTagger"
-    TPCXBoundary: 5
-    TPCYBoundary: 5
-    TPCZBoundary: 5
+    TPCXBoundary: 10
+    TPCYBoundary: 20
+    TPCZBoundary: 10
     PFParticleModuleLabel: "pfparticle"
     TrackModuleLabel:      "track"
 }
@@ -48,9 +48,9 @@ standard_cosmicpfparticletagger:
 standard_cosmicpcaxistagger:
 {
     module_type:             "CosmicPCAxisTagger"
-    TPCXBoundary:            5
-    TPCYBoundary:            5
-    TPCZBoundary:            5
+    TPCXBoundary:            10
+    TPCYBoundary:            20
+    TPCZBoundary:            10
     PFParticleModuleLabel:   "pfparticle"
     PCAxisModuleLabel:       "pfparticle"
     PrincipalComponentsAlg:  @local::standard_cluster3dprincipalcomponentsalg
