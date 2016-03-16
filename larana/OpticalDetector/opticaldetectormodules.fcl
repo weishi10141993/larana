@@ -360,7 +360,7 @@ standard_opflashsimpleanamodule:
 {
     module_type: "OpFlashSimpleAna"
     OpFlashModuleLabel: "opflash"
-    OpHitModuleLabel:   "opflash"
+    OpHitModuleLabel:   "ophit"
     MakeOpDetPEHist:    "true"
 }
 
