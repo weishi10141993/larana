@@ -8,6 +8,9 @@
 */
 
 #include "TrackCalorimetryAlg.h"
+
+#include "lardata/RecoBaseArt/TrackUtils.h" // lar::utils::TrackPitchInView()
+
 #include <limits>
 
 calo::TrackCalorimetryAlg::TrackCalorimetryAlg(fhicl::ParameterSet const& p):
@@ -124,7 +127,7 @@ void calo::TrackCalorimetryAlg::AnalyzeHit(recob::Hit const& hit,
 				   std::min_element(traj_points_in_plane.begin(),
 						    traj_points_in_plane.end(),
 						    dist_projected(hit,geom)));
-  float pitch = track.PitchInView(geom.View(hit.WireID().Plane),traj_iter);
+  float pitch = lar::utils::TrackPitchInView(track, geom.View(hit.WireID().Plane),traj_iter);
 
   HitPropertiesMultiset.emplace(hit.Integral(),
 				hit.Integral()/pitch,

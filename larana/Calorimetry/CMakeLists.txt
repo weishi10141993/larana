@@ -3,9 +3,9 @@ art_make(
 	  
 	  LIB_LIBRARIES	larevt_Filters
 		        lardata_RecoBase
+		        lardata_RecoBaseArt
 		        larcore_Geometry
 		        larcore_Geometry_Geometry_service
-		        larreco_RecoAlg
                         lardata_AnalysisAlg
                         lardata_AnalysisBase
                         lardata_Utilities
@@ -21,6 +21,7 @@ art_make(
                         larevt_Filters
                         lardata_RecoObjects
                         lardata_RecoBase
+		        lardata_RecoBaseArt
                         larcore_Geometry
                         larcore_Geometry_Geometry_service
                         larsim_Simulation
@@ -28,6 +29,7 @@ art_make(
                         lardata_AnalysisAlg
                         lardata_AnalysisBase
                         lardata_Utilities
+		        larreco_RecoAlg
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
 			${ART_FRAMEWORK_SERVICES_REGISTRY}
