@@ -3,7 +3,7 @@
 
 #include "TrackContainmentAlg.hh"
 
-#include "Geometry/GeometryCore.h"
+#include "larcore/Geometry/GeometryCore.h"
 #include <iostream>
 
 trk::TrackContainmentAlg::TrackContainmentAlg(){}

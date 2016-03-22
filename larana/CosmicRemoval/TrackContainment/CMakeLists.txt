@@ -2,9 +2,9 @@
 
 art_make( 
 	LIB_LIBRARIES
-		Geometry
-		RecoBase
-                AnalysisBase
+		larcore_Geometry
+		lardata_RecoBase
+                lardata_AnalysisBase
                 ${FHICLCPP}
                 ${ROOT_BASIC_LIB_LIST}
                 ${CETLIB}
