@@ -314,7 +314,7 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
                 // Check y extents (note coordinate system change)
                 // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
                 if (fDetHalfHeight - trackEndPt1_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt1_Y < fTPCYBoundary) nBdY[0] = true;  // one end of track exits out top
-                if (fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary) nBdY[1] = true;  // one end of track exist out bottom
+                if (fDetHalfHeight - trackEndPt2_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary) nBdY[1] = true;  // one end of track exist out bottom
                 
                 // Check z extents
                 // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
@@ -322,12 +322,14 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
                 if (fDetLength - trackEndPt2_Z < fTPCZBoundary || trackEndPt2_Z < fTPCZBoundary ) nBdZ[1] = true;
                 
                 // Endpoints exiting?
-                bool exitEnd1 = nBdX[0] || nBdY[0] || nBdZ[0];
-                bool exitEnd2 = nBdX[1] || nBdY[1] || nBdZ[1];
+                bool exitEnd1  = nBdX[0] || nBdY[0];   // end point 1 enters/exits top/bottom or x sides
+                bool exitEnd2  = nBdX[1] || nBdY[1];   // end point 2 enters/exits top/bottom or x sides
+                bool exitEndZ1 = exitEnd1 && nBdZ[1];  // end point 1 enters/exits top/bottom and exits/enters z
+                bool exitEndZ2 = exitEnd1 && nBdZ[0];  // end point 2 enters/exits top/bottom and exits/enters z
                 
                 // This should check for the case of a track which is both entering and exiting
                 // but we consider entering and exiting the z boundaries to be a special case (should it be?)
-                if(exitEnd1 && exitEnd2 && nBdZ[0] != nBdZ[1])
+                if((exitEnd1 && exitEnd2) || exitEndZ1 || exitEndZ2)
                 {
                     isCosmic = 2;
                     if      (nBdX[0] && nBdX[1])                           tag_id = anab::CosmicTagID_t::kGeometry_XX;
