@@ -257,7 +257,7 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
             // Check y extents (note coordinate system change)
             // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
             if (fDetHalfHeight - trackEndPt1_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt1_Y < fTPCYBoundary) nBdY[0] = true;  // one end of track exits out top
-            if (fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary) nBdY[1] = true;  // one end of track exist out bottom
+            if (fDetHalfHeight - trackEndPt2_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary) nBdY[1] = true;  // one end of track exist out bottom
             
             // Check z extents
             // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
