@@ -5,6 +5,9 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 
 # Add top level include
 include_directories ( ${PROJECT_SOURCE_DIR} )
+
+add_subdirectory(TrackContainment)
+
 art_make(BASENAME_ONLY
 	LIBRARY_NAME CosmicRemoval
 	LIB_LIBRARIES 
@@ -26,6 +29,7 @@ art_make(BASENAME_ONLY
 		     ${G4_LIB_LIST}
 	MODULE_LIBRARIES  
 			    CosmicRemoval
+			    CosmicRemoval_TrackContainment
 			    BackTracker_service
 			    RecoAlg
                             Cluster3DAlgs
