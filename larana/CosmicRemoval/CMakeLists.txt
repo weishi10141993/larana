@@ -5,8 +5,10 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 
 # Add top level include
 include_directories ( ${PROJECT_SOURCE_DIR} )
+
+add_subdirectory(TrackContainment)
+
 art_make(
-	
 	LIB_LIBRARIES 
 		     lardata_RecoBase
 		     lardata_AnalysisBase
@@ -25,6 +27,7 @@ art_make(
 		     ${G4_LIB_LIST}
 	MODULE_LIBRARIES  
 			    larana_CosmicRemoval
+			    larana_CosmicRemoval_TrackContainment
 			    larsim_MCCheater_BackTracker_service
 			    larreco_RecoAlg
                             larreco_RecoAlg_Cluster3DAlgs
