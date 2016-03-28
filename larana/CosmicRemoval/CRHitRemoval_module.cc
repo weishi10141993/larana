@@ -243,14 +243,10 @@ void CRHitRemoval::produce(art::Event & evt)
         art::Handle<std::vector<anab::CosmicTag>> cosmicHandle;
         evt.getByLabel(handleLabel, cosmicHandle);
         
-        std::cout << "***Handle label: " << handleLabel << ", # tags: " << cosmicHandle->size() << std::endl;
-        
         if (cosmicHandle.isValid())
         {
             // Look up the associations to tracks
             art::FindManyP<recob::Track> cosmicTrackAssns(cosmicHandle, evt, handleLabel);
-            
-            std::cout << "   size of CR to Trck assns: " << cosmicTrackAssns.size() << std::endl;
             
             // Get the handle to the tracks
             art::Handle<std::vector<recob::Track>> trackHandle;
@@ -270,8 +266,6 @@ void CRHitRemoval::produce(art::Event & evt)
                     std::vector<art::Ptr<recob::Track>> cosmicToTrackVec = cosmicTrackAssns.at(cosmicTag.key());
                     
                     cosmicToTrackVecMap[cosmicTag.key()] = cosmicToTrackVec;
-                
-                    std::cout << "   ==> # tracks: " << cosmicToTrackVec.size() << std::endl;
 
                     art::FindManyP<recob::PFParticle> trackPFParticleAssns(trackHandle, evt, fAssnProducerLabels[idx]);
                 
@@ -280,10 +274,7 @@ void CRHitRemoval::produce(art::Event & evt)
                         std::vector<art::Ptr<recob::PFParticle>> trackToPFParticleVec = trackPFParticleAssns.at(track.key());
                     
                         for(auto& pfParticle : trackToPFParticleVec)
-                        {
                             trackToPFParticleVecMap[track.key()].push_back(pfParticle);
-                            std::cout << "cosmicIdx: " << cosmicIdx << ", track: " << track.key() << ", pfparticle: " << pfParticle.key() << std::endl;
-                        }
                     }
                 }
             
@@ -337,8 +328,6 @@ void CRHitRemoval::produce(art::Event & evt)
                 // Recover the associated track
                 std::vector<art::Ptr<recob::Track>> trackVec(crTagTrackVec.at(cosmicTag.key()));
                 
-                std::cout << "--> crIdx: " << crIdx << ", trackVec size: " << trackVec.size() << std::endl;
-                
                 // Loop over the tracks (almost always only 1)
                 for(const auto& track : trackVec)
                 {
@@ -346,8 +335,6 @@ void CRHitRemoval::produce(art::Event & evt)
                     
                     if (trackToPFParticleVecItr != trackToPFParticleVecMap.end())
                     {
-                        std::cout << "   --> Track: " << track.key() << " has " << trackToPFParticleVecItr->second.size() << " pfparticles to related" << std::endl;
-                    
                         // Loop through them
                         for(const auto& pfParticlePtr : trackToPFParticleVecItr->second)
                         {
