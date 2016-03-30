@@ -17,12 +17,11 @@ void opdet::FlashHypothesisCalculator::FillFlashHypothesis(const float& yield,
 							   const TVector3& pt1,
 							   const TVector3& pt2,
 							   const std::vector<float>& qe_vector,
-							   const std::vector<float>& vis_vector,
+							   const float* vis_vector,
 							   FlashHypothesis& hyp)
 {
 
-  if(qe_vector.size()!=hyp.GetVectorSize() ||
-     vis_vector.size()!=hyp.GetVectorSize())
+  if(qe_vector.size()!=hyp.GetVectorSize() || !vis_vector)
     throw std::runtime_error("ERROR in FlashHypothesisCalculator: vector sizes not equal!");
 
   const float total_yield = yield*dEdx*(pt2-pt1).Mag();
