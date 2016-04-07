@@ -265,14 +265,12 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
             if (fDetLength - trackEndPt2_Z < fTPCZBoundary || trackEndPt2_Z < fTPCZBoundary ) nBdZ[1] = true;
             
             // Endpoints exiting?
-            bool exitEnd1  = nBdX[0] || nBdY[0];   // end point 1 enters/exits top/bottom or x sides
-            bool exitEnd2  = nBdX[1] || nBdY[1];   // end point 2 enters/exits top/bottom or x sides
-            bool exitEndZ1 = exitEnd1 && nBdZ[1];  // end point 1 enters/exits top/bottom and exits/enters z
-            bool exitEndZ2 = exitEnd1 && nBdZ[0];  // end point 2 enters/exits top/bottom and exits/enters z
+            bool exitEnd1  = nBdX[0] || nBdY[0] || nBdZ[0];   // end point 1 enters/exits
+            bool exitEnd2  = nBdX[1] || nBdY[1] || nBdZ[1];   // end point 2 enters/exits
 
             // This should check for the case of a track which is both entering and exiting
             // but we consider entering and exiting the z boundaries to be a special case (should it be?)
-            if((exitEnd1 && exitEnd2) || (exitEnd1 && exitEndZ2) || (exitEnd2 && exitEndZ1))
+            if(exitEnd1 && exitEnd2 && !(nBdZ[0] && nBdZ[1]))
             {
                 isCosmic = 2;
                 if      (nBdX[0] && nBdX[1])                           tag_id = anab::CosmicTagID_t::kGeometry_XX;
