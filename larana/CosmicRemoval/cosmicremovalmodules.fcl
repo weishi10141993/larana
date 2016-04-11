@@ -107,10 +107,10 @@ standard_crhitremoval:
 {
   module_type:             "CRHitRemoval"
   HitProducerLabel:        "gaushit"
-  CosmicProducerLabels:    ["cosmicpfparticleKHit", "cosmictaggerKHit"]
-  FlashProducerLabel:      "FlashTrackMatchkHit"
+  CosmicProducerLabels:    ["pandoraCosmicKHitPFPart"]
   PFParticleProducerLabel: "pandoraCosmic"
-  TrackProducerLabel:      "track3dkalmanhitCosmic"
+  TrackProducerLabels:     ["pandoraCosmicKHit"]
+  AssnProducerLabels:      ["pandoraCosmicKHit"]
   CosmicTagThresholds:     [0.6, 0.6]
 }
 
@@ -123,6 +123,13 @@ standard_crhitremovalbypca:
   CosmicTagThreshold:      0.6
 }
 
+standard_trackpfparticlematch:
+{
+  module_type:              "TrackPFParticleMatch"
+  PFParticleModuleLabel:    "pandoraCosmic"
+  TrackModuleLabel:         "trackkalmanhit"
+}
+
 microboone_cosmictagger:               @local::standard_cosmictagger
 microboone_cosmictracktagger:          @local::standard_cosmictracktagger
 microboone_cosmicpfparticletagger:     @local::standard_cosmicpfparticletagger
@@ -131,6 +138,7 @@ microboone_cosmicclustertagger:        @local::standard_cosmicclustertagger
 microboone_beamflashtrackmatchtagger:  @local::standard_beamflashtrackmatchtagger
 microboone_crhitremoval:               @local::standard_crhitremoval
 microboone_crhitremovalbypca:          @local::standard_crhitremovalbypca
+microboone_trackpfparticlematch:       @local::standard_trackpfparticlematch
 
 microboone_cosmicremovalana:
 {
