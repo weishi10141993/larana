@@ -355,7 +355,7 @@ namespace opdet {
 	
 	for(size_t i=0; i!=3; ++i) xyz[i] = spts.at(s).XYZ()[i];
 	
-        const std::vector<float>* PointVisibility = pvs->GetAllVisibilities(xyz);
+        const float* PointVisibility = pvs->GetAllVisibilities(xyz);
 	const art::PtrVector<recob::Hit>& assochits = fSptalg->getAssociatedHits(spts.at(s));
 	
 	double Charge     = 0;
@@ -366,9 +366,9 @@ namespace opdet {
 	
 	
 	
-        for(size_t OpDet =0; OpDet!=PointVisibility->size();  OpDet++)
+        for(size_t OpDet =0; OpDet!=pvs->NOpChannels();  OpDet++)
           {
-            ReturnVector.at(OpDet)+= PointVisibility->at(OpDet);
+            ReturnVector.at(OpDet)+= PointVisibility[OpDet];
           }
       }
     double PhotonYield = 24000;
