@@ -351,11 +351,6 @@ namespace opdet {
 
     for (size_t s=0; s!=spts.size(); s++)
       {
-      	double xyz[3];
-	
-	for(size_t i=0; i!=3; ++i) xyz[i] = spts.at(s).XYZ()[i];
-	
-        const float* PointVisibility = pvs->GetAllVisibilities(xyz);
 	const art::PtrVector<recob::Hit>& assochits = fSptalg->getAssociatedHits(spts.at(s));
 	
 	double Charge     = 0;
@@ -365,7 +360,12 @@ namespace opdet {
 	  if(assochits.at(iHit)->View()==2) Charge += WirePitch * fCaloAlg->dEdx_AMP(assochits.at(iHit), 1);
 	
 	
+      	double xyz[3];
 	
+	for(size_t i=0; i!=3; ++i) xyz[i] = spts.at(s).XYZ()[i];
+	
+        const float* PointVisibility = pvs->GetAllVisibilities(xyz);
+	if (!PointVisibility) continue; // point not covered by the service
         for(size_t OpDet =0; OpDet!=pvs->NOpChannels();  OpDet++)
           {
             ReturnVector.at(OpDet)+= PointVisibility[OpDet];

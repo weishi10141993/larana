@@ -204,6 +204,8 @@ namespace opdet {
 	Btrack->GetTrackPoint(s,xyz);
 	xyz[0]+=XOffset;
 	const float* PointVisibility = pvs->GetAllVisibilities(xyz);
+	if (!PointVisibility) continue; // point not covered by the service
+	
 	float LightAmount = PromptMIPScintYield*TrackLength/float(fBezierResolution);
 	
 	for(size_t OpDet =0; OpDet!=pvs->NOpChannels();  OpDet++)

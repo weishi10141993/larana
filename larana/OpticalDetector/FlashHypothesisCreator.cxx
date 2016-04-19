@@ -139,8 +139,8 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
   //get the visibility vector
   const float* PointVisibility = pvs.GetAllVisibilities(&xyz_segment[0]);
   
-  //check vector size, as it may be zero if given a y/z outside some range
-  if(pvs.NOpChannels()!=nOpDets) return fhc;
+  //check visibility pointer, as it may be null if given a y/z outside some range
+  if (!PointVisibility) return fhc;
   
   //klugey ... right now, set a qe_vector that gives constant qe across all opdets
   std::vector<float> qe_vector(nOpDets,opdigip.QE());
