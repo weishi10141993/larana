@@ -28,7 +28,7 @@ namespace opdet{
 			     const TVector3& pt1,
 			     const TVector3& pt2,
 			     const std::vector<float>& qe_vector,
-			     const std::vector<float>& vis_vector,
+			     const float* vis_vector,
 			     FlashHypothesis& hyp);
 
   };

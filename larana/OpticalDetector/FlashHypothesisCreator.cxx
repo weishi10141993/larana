@@ -137,10 +137,10 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
   std::vector<double> xyz_segment(_calc.SegmentMidpoint(pt1,pt2,XOffset));
   
   //get the visibility vector
-  const std::vector<float>* PointVisibility = pvs.GetAllVisibilities(&xyz_segment[0]);
+  const float* PointVisibility = pvs.GetAllVisibilities(&xyz_segment[0]);
   
-  //check vector size, as it may be zero if given a y/z outside some range
-  if(PointVisibility->size()!=nOpDets) return fhc;
+  //check visibility pointer, as it may be null if given a y/z outside some range
+  if (!PointVisibility) return fhc;
   
   //klugey ... right now, set a qe_vector that gives constant qe across all opdets
   std::vector<float> qe_vector(nOpDets,opdigip.QE());
@@ -148,7 +148,7 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
 			    dEdx,
 			    pt1,pt2,
 			    qe_vector,
-			    *PointVisibility,
+			    PointVisibility,
 			    prompt_hyp);
   
   fhc.SetPromptHypAndPromptFraction(prompt_hyp,larp->ScintYieldRatio());

@@ -2,6 +2,7 @@ include_directories ( ${PROJECT_SOURCE_DIR} )
 art_make( 
 	  
 	  LIB_LIBRARIES
+			SimulationBase
                         lardata_AnalysisBase
 			lardata_AnalysisAlg
                         lardata_Utilities
@@ -24,6 +25,7 @@ art_make(
 			${ROOT_TMVA}
                         ${Boost_SYSTEM_LIBRARY}
           MODULE_LIBRARIES 
+			SimulationBase
 	  		larana_ParticleIdentification
                         lardata_RecoBase
                         larcore_Geometry

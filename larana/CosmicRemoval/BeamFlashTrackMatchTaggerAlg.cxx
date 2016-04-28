@@ -359,17 +359,17 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::AddLightFromSegment(TVector3 const& p
   xyz_segment[2] = 0.5*(pt2.z()+pt1.z());
     
   //get the visibility vector
-  const std::vector<float>* PointVisibility = pvs.GetAllVisibilities(xyz_segment);
+  const float* PointVisibility = pvs.GetAllVisibilities(xyz_segment);
   
-  //check vector size, as it may be zero if given a y/z outside some range
-  if(PointVisibility->size()!=geom.NOpDets()) return;
+  //check pointer, as it may be null if given a y/z outside some range
+  if(!PointVisibility) return;
   
   //get the amount of light
   float LightAmount = PromptMIPScintYield*(pt2-pt1).Mag();
   
-  for(size_t opdet_i=0; opdet_i<geom.NOpDets(); opdet_i++){
-    lightHypothesis[opdet_i] += PointVisibility->at(opdet_i)*LightAmount;
-    totalHypothesisPE += PointVisibility->at(opdet_i)*LightAmount;
+  for(size_t opdet_i=0; opdet_i<pvs.NOpChannels(); opdet_i++){
+    lightHypothesis[opdet_i] += PointVisibility[opdet_i]*LightAmount;
+    totalHypothesisPE += PointVisibility[opdet_i]*LightAmount;
    
     //apply saturation limit
     if(lightHypothesis[opdet_i]>fOpDetSaturation){
