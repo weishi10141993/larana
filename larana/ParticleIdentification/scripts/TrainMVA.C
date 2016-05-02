@@ -7,18 +7,20 @@
 #include <map>
 #include <iostream>
 
-#include "MVAResult.h"
+#include "MVAPIDResult.h"
 
 void BuildTree(std::string inFile,std::string outFile){
   TFile* fIn=new TFile(inFile.c_str());
   TTree* tr=(TTree*)fIn->Get("pid/MVAPID");
-  std::vector<mvapid::MVAResult>* mvares=0;
+  std::vector<anab::MVAPIDResult>* mvares=0;
   tr->SetBranchAddress("MVAResult",&mvares);
   TFile* fOut=new TFile(outFile.c_str(),"RECREATE");
   TTree* mvaTree = new TTree("mvaTree","mvaTree");
 
   float evalRatio, concentration, coreHaloRatio, conicalness;
-  float dEdxStart, dEdxEnd, dEdxPenultimate;
+  float dEdxStart, dEdxEnd, dEdxEndRatio;
+  float length;
+  int isTrack, isStoppingReco;
 
   mvaTree->Branch("evalRatio",&evalRatio,"evalRatio/F");
   mvaTree->Branch("concentration",&concentration,"concentration/F");
@@ -26,13 +28,16 @@ void BuildTree(std::string inFile,std::string outFile){
   mvaTree->Branch("conicalness",&conicalness,"conicalness/F");
   mvaTree->Branch("dEdxStart",&dEdxStart,"dEdxStart/F");
   mvaTree->Branch("dEdxEnd",&dEdxEnd,"dEdxEnd/F");
-  mvaTree->Branch("dEdxPenultimate",&dEdxPenultimate,"dEdxPenultimate/F");
+  mvaTree->Branch("dEdxEndRatio",&dEdxEndRatio,"dEdxEndRatio/F");
+  mvaTree->Branch("length",&length,"length/F");
+  mvaTree->Branch("isTrack",&isTrack,"isTrack/I");
+  mvaTree->Branch("isStoppingReco",&isStoppingReco,"isStoppingReco/I");
 
  for(int iEntry=0;iEntry<tr->GetEntries();++iEntry){
    tr->GetEntry(iEntry);
    if(!mvares->size()) continue;
 
-   mvapid::MVAResult* biggestTrack=&((*mvares)[0]);
+   anab::MVAPIDResult* biggestTrack=&((*mvares)[0]);
    for(unsigned int iRes=0;iRes!=mvares->size();++iRes){
      if((((*mvares)[iRes]).nSpacePoints)>(biggestTrack->nSpacePoints)){
        biggestTrack=&((*mvares)[iRes]);
@@ -45,7 +50,10 @@ void BuildTree(std::string inFile,std::string outFile){
    conicalness=biggestTrack->conicalness;
    dEdxStart=biggestTrack->dEdxStart;
    dEdxEnd=biggestTrack->dEdxEnd;
-   dEdxPenultimate=biggestTrack->dEdxPenultimate;
+   dEdxEndRatio=biggestTrack->dEdxEndRatio;
+   length=biggestTrack->length;
+   isTrack=biggestTrack->isTrack;
+   isStoppingReco=biggestTrack->isStoppingReco;
 
    mvaTree->Fill();
  }
@@ -78,7 +86,7 @@ void TrainMVA(std::vector<std::string> signalFiles,std::vector<std::string> back
    factory->AddVariable("conicalness",'F');
    factory->AddVariable("dEdxStart",'F');
    factory->AddVariable("dEdxEnd",'F');
-   factory->AddVariable("dEdxPenultimate",'F');	       
+   factory->AddVariable("dEdxEndRatio",'F');	       
 
    factory->BookMethod( TMVA::Types::kTMlpANN, "ANN", "" );
    factory->BookMethod( TMVA::Types::kBDT, "BDT", "" );
@@ -93,15 +101,15 @@ void TrainMVA(std::vector<std::string> signalFiles,std::vector<std::string> back
 void PrintRes(std::string inFile){
 
   TFile* fIn=new TFile(inFile.c_str());
-  TTree* tr=(TTree*)fIn->Get("pid/MVAPID");
-  std::vector<mvapid::MVAResult>* mvares=0;
+  TTree* tr=(TTree*)fIn->Get("pid/ANAB");
+  std::vector<anab::MVAPIDResult>* mvares=0;
   tr->SetBranchAddress("MVAResult",&mvares);
 
  for(int iEntry=0;iEntry<tr->GetEntries();++iEntry){
    tr->GetEntry(iEntry);
    if(!mvares->size()) continue;
 
-   mvapid::MVAResult* biggestTrack=&((*mvares)[0]);
+   anab::MVAPIDResult* biggestTrack=&((*mvares)[0]);
    for(unsigned int iRes=0;iRes!=mvares->size();++iRes){
      if((((*mvares)[iRes]).nSpacePoints)>(biggestTrack->nSpacePoints)){
        biggestTrack=&((*mvares)[iRes]);
