@@ -47,7 +47,7 @@ art_make(
                            lardata_RawData
                            lardata_AnalysisAlg
                            lardata_AnalysisBase
-                           SeedService_service # artextensions
+                           larsim_RandomUtils_LArSeedService_service
                            ${SIMULATIONBASE}
                            ${ART_FRAMEWORK_CORE}
                            ${ART_FRAMEWORK_PRINCIPAL}
