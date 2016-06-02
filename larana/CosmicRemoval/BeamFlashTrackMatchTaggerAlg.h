@@ -18,7 +18,7 @@
 #include "lardata/RecoBase/Track.h"
 #include "lardata/AnalysisBase/CosmicTag.h"
 
-#include "SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 
 #include "larcore/Geometry/Geometry.h"
 #include "lardata/DetectorInfo/ProviderPack.h"

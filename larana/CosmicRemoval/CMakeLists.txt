@@ -17,7 +17,7 @@ art_make(
 		     larsim_PhotonPropagation_PhotonVisibilityService_service
 		     larana_OpticalDetector_OpDigiProperties_service
 		     lardata_Utilities
-		     ${SIMULATIONBASE}
+		     nusimdata_SimulationBase
 		     ${MF_MESSAGELOGGER}
 		     ${MF_UTILITIES}
 		     ${FHICLCPP}
@@ -43,8 +43,8 @@ art_make(
 			    lardata_AnalysisAlg
 			    lardata_AnalysisBase
 			    lardata_Utilities
-			    ${MAGNETICFIELD_SERVICE}
-			    ${SIMULATIONBASE}
+			    nutools_MagneticField_MagneticField_service
+			    nusimdata_SimulationBase
 			    ${ART_FRAMEWORK_CORE}
 			    ${ART_FRAMEWORK_PRINCIPAL}
 			    ${ART_FRAMEWORK_SERVICES_REGISTRY}
@@ -52,8 +52,8 @@ art_make(
 			    ${ART_FRAMEWORK_SERVICES_OPTIONAL}
 			    ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
 			    ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
-			    ${ART_PERSISTENCY_COMMON}
-			    ${ART_UTILITIES}
+			    art_Persistency_Common canvas_Persistency_Common
+			    art_Utilities canvas_Utilities
 			    ${MF_MESSAGELOGGER}
 			    ${MF_UTILITIES}
 			    ${FHICLCPP}

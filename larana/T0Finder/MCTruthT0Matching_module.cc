@@ -35,17 +35,17 @@
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/FindManyP.h"
+#include "canvas/Persistency/Common/FindManyP.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Event.h" 
-#include "art/Persistency/Common/Ptr.h" 
-#include "art/Persistency/Common/PtrVector.h" 
+#include "canvas/Persistency/Common/Ptr.h" 
+#include "canvas/Persistency/Common/PtrVector.h" 
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Services/Optional/TFileService.h" 
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -66,11 +66,11 @@
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
-#include "SimulationBase/MCParticle.h"
-#include "SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
 #include "larsim/MCCheater/BackTracker.h"
 #include "lardata/RawData/ExternalTrigger.h"
-#include "larcore/SimpleTypesAndConstants/PhysicalConstants.h"
+#include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h"
 #include "lardata/AnalysisBase/ParticleID.h"
 
 // ROOT

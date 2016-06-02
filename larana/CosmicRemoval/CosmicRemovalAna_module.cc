@@ -25,8 +25,8 @@
 
 // LArSoft Includes
 #include "larcore/Geometry/Geometry.h"
-#include "SimulationBase/MCTruth.h"
-#include "SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/RecoBase/Track.h"
