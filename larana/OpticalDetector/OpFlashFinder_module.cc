@@ -14,8 +14,8 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
-#include "lardata/RecoBase/OpFlash.h"
-#include "lardata/RecoBase/OpHit.h"
+#include "lardataobj/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/OpHit.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "larana/OpticalDetector/OpFlashAlg.h"

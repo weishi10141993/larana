@@ -14,7 +14,7 @@
 
 #include "art/Framework/Core/EDProducer.h"
 //#include "AnalysisBase/FlashMatch.h"
-#include "lardata/AnalysisBase/CosmicTag.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
 
 
 // ROOT includes.
@@ -105,7 +105,7 @@ namespace opdet{
 #include "larcore/Geometry/Geometry.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "lardata/RecoObjects/BezierTrack.h"
-#include "lardata/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/OpFlash.h"
 
 // FMWK includes
 #include "lardata/Utilities/AssociationUtil.h"

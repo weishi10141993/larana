@@ -11,7 +11,7 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
-#include "lardata/RawData/OpDetWaveform.h"
+#include "lardataobj/RawData/OpDetWaveform.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoThreshold.h"
 #include "larana/OpticalDetector/OpHitFinder/PedAlgoEdges.h"
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"

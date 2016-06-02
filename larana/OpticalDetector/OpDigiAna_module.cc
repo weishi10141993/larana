@@ -10,8 +10,8 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
-#include "lardata/RawData/OpDetPulse.h"
-#include "lardata/RecoBase/OpHit.h"
+#include "lardataobj/RawData/OpDetPulse.h"
+#include "lardataobj/RecoBase/OpHit.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 // Framework includes

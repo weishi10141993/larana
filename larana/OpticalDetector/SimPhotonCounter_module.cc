@@ -51,7 +51,7 @@
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "larana/OpticalDetector/OpDetResponseInterface.h"
 #include "larsim/Simulation/SimListUtils.h"
-#include "larsim/Simulation/sim.h"
+#include "larsimobj/Simulation/sim.h"
 #include "larsim/Simulation/LArG4Parameters.h"
 
 // ROOT includes

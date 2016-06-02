@@ -9,7 +9,7 @@
  *              comparisons with flashes and flash hypotheses.
 */
 
-#include "larsim/Simulation/SimPhotons.h"
+#include "larsimobj/Simulation/SimPhotons.h"
 #include <numeric>
 
 namespace opdet{

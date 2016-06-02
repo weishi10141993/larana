@@ -3,8 +3,8 @@
 art_make( 
           
           LIB_LIBRARIES 
-                       lardata_RawData
-                       lardata_RecoBase
+                       lardataobj_RawData
+                       lardataobj_RecoBase
                        larcore_Geometry
                        lardata_Utilities
                        ${MF_MESSAGELOGGER}

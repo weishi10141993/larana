@@ -12,7 +12,7 @@
 #define OPDET_OPDIGIPROPERTIES_H
 
 // LArSoft includes
-#include "lardata/OpticalDetectorData/OpticalTypes.h"
+#include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 #include "larcore/Geometry/Geometry.h"
 
 // ART includes

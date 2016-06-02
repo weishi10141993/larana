@@ -13,7 +13,7 @@
 // LArSoft includes
 //#include "OpticalDetectorData/OpticalTypes.h"
 #include "larcore/Geometry/Geometry.h"
-#include "larsim/Simulation/SimPhotons.h"
+#include "larsimobj/Simulation/SimPhotons.h"
 
 // ART includes
 #include "fhiclcpp/ParameterSet.h"

@@ -6,7 +6,7 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "canvas/Persistency/Common/FindManyP.h"
-#include "lardata/AnalysisBase/CosmicTag.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "larreco/RecoAlg/SpacePointAlg.h"
 #include "lardata/AnalysisAlg/CalorimetryAlg.h"
 
@@ -82,10 +82,10 @@ namespace opdet{
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardata/RecoBase/Cluster.h"
-#include "lardata/RecoBase/Hit.h"
-#include "lardata/RecoBase/OpFlash.h"
-#include "lardata/RecoBase/SpacePoint.h"
+#include "lardataobj/RecoBase/Cluster.h"
+#include "lardataobj/RecoBase/Hit.h"
+#include "lardataobj/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/SpacePoint.h"
 
 
 // FMWK includes

@@ -22,9 +22,9 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
-#include "lardata/RawData/OpDetPulse.h"
-#include "lardata/RecoBase/OpFlash.h"
-#include "lardata/RecoBase/OpHit.h"
+#include "lardataobj/RawData/OpDetPulse.h"
+#include "lardataobj/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/OpHit.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
@@ -42,7 +42,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "lardata/RecoObjects/BezierTrack.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/AnalysisBase/FlashMatch.h"
+#include "lardataobj/AnalysisBase/FlashMatch.h"
 
 
 #include "nusimdata/SimulationBase/MCTruth.h"

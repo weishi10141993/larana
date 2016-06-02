@@ -3,8 +3,8 @@
 art_make( 
 	LIB_LIBRARIES
 		larcore_Geometry
-		lardata_RecoBase
-                lardata_AnalysisBase
+		lardataobj_RecoBase
+                lardataobj_AnalysisBase
                 ${FHICLCPP}
                 ${ROOT_BASIC_LIB_LIST}
                 ${CETLIB}

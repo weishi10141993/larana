@@ -5,10 +5,10 @@ add_subdirectory(OpHitFinder)
 
 art_make( 
           LIB_LIBRARIES 
-                           lardata_RecoBase
+                           lardataobj_RecoBase
                            larana_OpticalDetector_OpHitFinder
                            larsim_MCSTReco
-                           lardata_MCBase
+                           lardataobj_MCBase
                            larcore_Geometry
                            larcore_Geometry_Geometry_service
                            larsim_PhotonPropagation_PhotonVisibilityService_service
@@ -36,17 +36,17 @@ art_make(
                            larsim_MCCheater_BackTracker_service
                            larevt_Filters
                            lardata_RecoObjects
-                           lardata_RecoBase
-                           lardata_MCBase
+                           lardataobj_RecoBase
+                           lardataobj_MCBase
                            larreco_RecoAlg
                            larcore_Geometry
                            larcore_Geometry_Geometry_service
-                           larsim_Simulation
+                           larsim_Simulation larsimobj_Simulation
                            larsim_TriggerAlgo_TriggerAlgoMicroBoone_service
                            lardata_Utilities
-                           lardata_RawData
+                           lardataobj_RawData
                            lardata_AnalysisAlg
-                           lardata_AnalysisBase
+                           lardataobj_AnalysisBase
                            larsim_RandomUtils_LArSeedService_service
                            nusimdata_SimulationBase
                            ${ART_FRAMEWORK_CORE}

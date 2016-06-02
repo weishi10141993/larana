@@ -21,10 +21,10 @@
 #include <climits>
 
 // LArSoft includes
-#include "lardata/RawData/OpDetPulse.h"
-#include "lardata/RecoBase/OpFlash.h"
-#include "lardata/RecoBase/Track.h"
-#include "lardata/AnalysisBase/FlashMatch.h"
+#include "lardataobj/RawData/OpDetPulse.h"
+#include "lardataobj/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/AnalysisBase/FlashMatch.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"

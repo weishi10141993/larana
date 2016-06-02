@@ -2,7 +2,7 @@
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "larana/OpticalDetector/OpFlashAlg.h"
-#include "lardata/OpticalDetectorData/OpticalTypes.h"
+#include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 
 const float HitThreshold = 3;
 const float FlashThreshold = 50;

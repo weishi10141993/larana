@@ -92,8 +92,8 @@ namespace opdet {
 // OpFlashMCTruthAna.cxx
 
 // LArSoft includes
-#include "lardata/RawData/OpDetPulse.h"
-#include "lardata/RecoBase/OpFlash.h"
+#include "lardataobj/RawData/OpDetPulse.h"
+#include "lardataobj/RecoBase/OpFlash.h"
 
 
 // Framework includes

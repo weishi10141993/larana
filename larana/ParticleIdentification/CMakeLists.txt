@@ -3,7 +3,7 @@ art_make(
 	  
 	  LIB_LIBRARIES
 			nusimdata_SimulationBase
-                        lardata_AnalysisBase
+                        lardataobj_AnalysisBase
 			lardata_AnalysisAlg
                         lardata_Utilities
                         larcore_Geometry
@@ -27,11 +27,11 @@ art_make(
           MODULE_LIBRARIES 
 			nusimdata_SimulationBase
 	  		larana_ParticleIdentification
-                        lardata_RecoBase
+                        lardataobj_RecoBase
                         larcore_Geometry
                         larcore_Geometry_Geometry_service
                         lardata_AnalysisAlg
-                        lardata_AnalysisBase
+                        lardataobj_AnalysisBase
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
 			${ART_FRAMEWORK_SERVICES_REGISTRY}

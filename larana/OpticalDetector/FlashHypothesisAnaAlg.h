@@ -19,8 +19,8 @@
 #include "lardata/DetectorInfo/LArProperties.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
-#include "larsim/Simulation/SimPhotons.h"
-#include "lardata/MCBase/MCTrack.h"
+#include "larsimobj/Simulation/SimPhotons.h"
+#include "lardataobj/MCBase/MCTrack.h"
 #include "larsim/MCSTReco/MCTrackCollectionAnaAlg.h"
 
 #include "FlashHypothesis.h"

@@ -10,8 +10,8 @@ add_subdirectory(TrackContainment)
 
 art_make(
 	LIB_LIBRARIES 
-		     lardata_RecoBase
-		     lardata_AnalysisBase
+		     lardataobj_RecoBase
+		     lardataobj_AnalysisBase
 		     larcore_Geometry
 		     larcore_Geometry_Geometry_service
 		     larsim_PhotonPropagation_PhotonVisibilityService_service
@@ -31,17 +31,17 @@ art_make(
 			    larsim_MCCheater_BackTracker_service
 			    larreco_RecoAlg
                             larreco_RecoAlg_Cluster3DAlgs
-			    larsim_Simulation
+			    larsim_Simulation larsimobj_Simulation
 			    lardata_RecoObjects
-			    lardata_RecoBase
+			    lardataobj_RecoBase
 			    lardata_RecoBaseArt
-			    lardata_MCBase
+			    lardataobj_MCBase
 			    larcore_Geometry
 			    larcore_Geometry_Geometry_service
 			    larsim_PhotonPropagation_PhotonVisibilityService_service
 		            larana_OpticalDetector_OpDigiProperties_service
 			    lardata_AnalysisAlg
-			    lardata_AnalysisBase
+			    lardataobj_AnalysisBase
 			    lardata_Utilities
 			    nutools_MagneticField_MagneticField_service
 			    nusimdata_SimulationBase

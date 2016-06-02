@@ -22,8 +22,8 @@
 #include "TTree.h"
 
 #include "MVAAlg.h"
-#include "lardata/AnalysisBase/MVAPIDResult.h"
-#include "lardata/RecoBase/Track.h"
+#include "lardataobj/AnalysisBase/MVAPIDResult.h"
+#include "lardataobj/RecoBase/Track.h"
 #include "lardata/Utilities/AssociationUtil.h"
 
 namespace mvapid {

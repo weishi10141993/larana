@@ -14,9 +14,9 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "lardata/RecoBase/OpFlash.h"
-#include "lardata/RecoBase/Track.h"
-#include "lardata/AnalysisBase/CosmicTag.h"
+#include "lardataobj/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
 
 #include "nusimdata/SimulationBase/MCParticle.h"
 

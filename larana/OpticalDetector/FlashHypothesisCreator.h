@@ -15,8 +15,8 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "lardata/RecoBase/Track.h"
-#include "lardata/MCBase/MCTrack.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/MCBase/MCTrack.h"
 
 #include "larcore/Geometry/GeometryCore.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"

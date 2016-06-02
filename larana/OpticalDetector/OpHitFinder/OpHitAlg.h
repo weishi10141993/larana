@@ -9,10 +9,10 @@
  * These are the algorithms used by OpHit to produce optical hits.
  */
 
-#include "lardata/RawData/OpDetWaveform.h"
+#include "lardataobj/RawData/OpDetWaveform.h"
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
-#include "lardata/RecoBase/OpHit.h"
+#include "lardataobj/RecoBase/OpHit.h"
 #include "larcore/Geometry/GeometryCore.h"
 #include "lardata/DetectorInfo/DetectorClocks.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"

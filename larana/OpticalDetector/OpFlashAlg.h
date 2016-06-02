@@ -9,8 +9,8 @@
  * These are the algorithms used by OpFlashFinder to produce flashes.
  */
 
-#include "lardata/RecoBase/OpHit.h"
-#include "lardata/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/OpHit.h"
+#include "lardataobj/RecoBase/OpFlash.h"
 #include "larcore/Geometry/GeometryCore.h"
 #include "larcore/Geometry/OpDetGeo.h"
 #include "lardata/DetectorInfo/DetectorClocks.h"

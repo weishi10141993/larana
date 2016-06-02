@@ -6,7 +6,7 @@
 
 // LArSoft includes
 #include "larana/OpticalDetector/OpDigiProperties.h"
-#include "lardata/OpticalDetectorData/OpticalTypes.h"
+#include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 #include "larcore/Geometry/Geometry.h"
 
 // Framework includes

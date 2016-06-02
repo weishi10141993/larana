@@ -14,7 +14,7 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
-#include "lardata/RawData/OpDetWaveform.h"
+#include "lardataobj/RawData/OpDetWaveform.h"
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoThreshold.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoSiPM.h"
@@ -25,10 +25,10 @@
 #include "larana/OpticalDetector/OpHitFinder/PedAlgoRollingMean.h"
 #include "larana/OpticalDetector/OpHitFinder/PedAlgoUB.h"
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
-#include "lardata/RecoBase/OpHit.h"
+#include "lardataobj/RecoBase/OpHit.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "larana/OpticalDetector/OpHitFinder/OpHitAlg.h"
-#include "larsim/Simulation/BeamGateInfo.h"
+#include "larsimobj/Simulation/BeamGateInfo.h"
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"

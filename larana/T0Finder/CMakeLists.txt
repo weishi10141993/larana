@@ -1,8 +1,8 @@
 
 simple_plugin(MCTruthT0Matching "module"
-		      lardata_RawData
-		      lardata_AnalysisBase
-		      lardata_RecoBase
+		      lardataobj_RawData
+		      lardataobj_AnalysisBase
+		      lardataobj_RecoBase
 		        larcore_Geometry
 			larcore_Geometry_Geometry_service
 			lardata_Utilities
@@ -23,9 +23,9 @@ simple_plugin(MCTruthT0Matching "module"
 )
 
 simple_plugin(PhotonCounterT0Matching "module"
-		      lardata_RawData
-		      lardata_AnalysisBase
-		      lardata_RecoBase
+		      lardataobj_RawData
+		      lardataobj_AnalysisBase
+		      lardataobj_RecoBase
 		        larcore_Geometry
 			larcore_Geometry_Geometry_service
 			lardata_Utilities

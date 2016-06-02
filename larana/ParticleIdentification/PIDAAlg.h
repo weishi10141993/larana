@@ -9,7 +9,7 @@
  * Output:      PIDA information 
 */
 #include "fhiclcpp/ParameterSet.h"
-#include "lardata/AnalysisBase/Calorimetry.h"
+#include "lardataobj/AnalysisBase/Calorimetry.h"
 
 #include "TTree.h"
 #include "TH1F.h"

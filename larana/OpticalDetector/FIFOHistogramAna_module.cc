@@ -10,7 +10,7 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
-#include "lardata/OpticalDetectorData/FIFOChannel.h"
+#include "lardataobj/OpticalDetectorData/FIFOChannel.h"
 
 // Framework includes
 #include "art/Framework/Core/EDAnalyzer.h"

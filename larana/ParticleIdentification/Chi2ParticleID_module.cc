@@ -13,8 +13,8 @@ extern "C" {
 }
 #include <iostream>
 
-#include "lardata/RecoBase/Track.h"
-#include "lardata/AnalysisBase/ParticleID.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/AnalysisAlg/Chi2PIDAlg.h"
 
