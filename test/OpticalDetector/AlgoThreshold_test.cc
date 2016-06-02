@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE ( AlgoThreshold_test )
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "fhiclcpp/ParameterSet.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoThreshold.h"
