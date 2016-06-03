@@ -3,7 +3,7 @@
 //  m.haigh@warwick.ac.uk
 ////////////////////////////////////////////////////////////////////
 
-#include "MVAAlg.h"
+#include "larana/ParticleIdentification/MVAAlg.h"
 #include "larcore/Geometry/Geometry.h"
 //#include "larcore/Geometry/TPCGeo.h"
 #include "lardata/DetectorInfo/DetectorProperties.h"
