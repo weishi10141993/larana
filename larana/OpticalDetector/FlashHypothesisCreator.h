@@ -21,7 +21,7 @@
 #include "larcore/Geometry/GeometryCore.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "lardata/DetectorInfo/LArProperties.h"
-#include "lardata/DetectorInfo/ProviderPack.h"
+#include "larcore/CoreUtils/ProviderPack.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include "TVector3.h"
