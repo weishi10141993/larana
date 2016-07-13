@@ -65,6 +65,7 @@ namespace opdet {
     
     std::map< int, int >  GetChannelMap();
     std::vector< double > GetSPEScales();
+    std::vector< double > GetSPEShifts();
 
   private:
 
@@ -81,10 +82,12 @@ namespace opdet {
     Float_t  fHitThreshold;
     Bool_t   fAreaToPE;
     Float_t  fSPEArea;
+    Float_t  fSPEShift;
 
     unsigned int fMaxOpChannel;
    
     std::vector< double > fSPESize;
+    std::vector< double > fSPEShiftPerChan;
 
   };
 
@@ -158,11 +161,13 @@ namespace opdet {
     fHitThreshold = pset.get< float >("HitThreshold");
     fAreaToPE     = pset.get< bool > ("AreaToPE");
     fSPEArea      = pset.get< float >("SPEArea");
+    fSPEShift     = pset.get< float >("SPEShift");
 
     auto const& geometry(*lar::providerFrom< geo::Geometry >());
     fMaxOpChannel = geometry.MaxOpChannel();
     
     fSPESize = GetSPEScales();
+    fSPEShiftPerChan = GetSPEShifts();
 
   }
 
@@ -249,7 +254,8 @@ namespace opdet {
                  fHitThreshold,
                  detectorClocks,
                  fSPESize,
-                 fAreaToPE);
+                 fAreaToPE,
+	         fSPEShiftPerChan);
 
     // Store results into the event
     evt.put(std::move(HitPtr));
@@ -268,6 +274,16 @@ namespace opdet {
     // temp fix while we work out the experiment-agnostic service 
     // that provides this info
     else           return std::vector< double >(fMaxOpChannel + 1, 20); 
+  }
+
+  std::vector< double > OpHitFinder::GetSPEShifts()
+  {
+    // For now every channel will have the same shift factor in the calibration.
+    // This function assigns the appropriate shift value for calibration to each
+    // channel.  For now, every channel will have the same corresponding shift
+    // factor, which is configurable.
+    return std::vector< double >(fMaxOpChannel + 1, fSPEShift);
+
   }
 
 } // namespace opdet

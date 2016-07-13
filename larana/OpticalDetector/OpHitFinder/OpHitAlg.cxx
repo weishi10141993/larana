@@ -5,6 +5,7 @@
  *                    Wes Ketchum wketchum@lanl.gov
  *                    Gleb Sinev  gleb.sinev@duke.edu
  *                    Alex Himmel ahimmel@fnal.gov
+ *                    Kevin Wood  kevin.wood@stonybrook.edu
  *
  * Description:
  * These are the algorithms used by OpHitFinder to produce optical hits.
@@ -24,7 +25,8 @@ namespace opdet{
                     float const&                    hitThreshold,
                     detinfo::DetectorClocks const&  detectorClocks,
                     std::vector< double > const&    SPESize,
-                    bool const&                     areaToPE) {
+                    bool const&                     areaToPE,
+		    std::vector< double > const&    SPEShiftPerChan) {
 
     for (auto const& waveform : opDetWaveformVector) {
 
@@ -51,6 +53,7 @@ namespace opdet{
                      detectorClocks,
                      SPESize.at(channel),
                      areaToPE,
+		     SPEShiftPerChan.at(channel),
                      hitVector);
       
     }
@@ -65,6 +68,7 @@ namespace opdet{
                     detinfo::DetectorClocks const& detectorClocks,
                     double const&                  SPESize,
                     bool const&                    areaToPE,
+		    double const&                  SPEShift,
                     std::vector< recob::OpHit >&   hitVector) {
 
     if (pulse.peak < hitThreshold) return;
@@ -79,8 +83,8 @@ namespace opdet{
     int frame = detectorClocks.OpticalClock().Frame(timeStamp);
 
     double PE = 0.0;
-    if (areaToPE) PE = pulse.area/SPESize;
-    else          PE = pulse.peak/SPESize;
+    if (areaToPE) PE = pulse.area/SPESize + SPEShift;
+    else          PE = pulse.peak/SPESize + SPEShift;
     
     double width = (pulse.t_end - pulse.t_start)
                      *detectorClocks.OpticalClock().TickPeriod();

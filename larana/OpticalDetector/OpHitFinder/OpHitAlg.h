@@ -3,7 +3,8 @@
 #define OPHITALG_H
 /*!
  * Title:   OpHit Algorithims
- * Author:  Ben Jones, MIT (Edited by wketchum@lanl.gov and gleb.sinev@duke.edu)
+ * Author:  Ben Jones, MIT ( Edited by wketchum@lanl.gov, gleb.sinev@duke.edu
+ *                           and kevin.wood@stonybrook.edu )
  *
  * Description:
  * These are the algorithms used by OpHit to produce optical hits.
@@ -29,7 +30,8 @@ namespace opdet{
                     float const&,
                     detinfo::DetectorClocks const&,
                     std::vector< double > const&,
-                    bool const&);
+                    bool const&,
+		    std::vector< double > const&);
 
   void ConstructHit(float const&, 
                     int const&,
@@ -38,6 +40,7 @@ namespace opdet{
                     detinfo::DetectorClocks const&,
                     double const&,
                     bool const&,
+		    double const&,
                     std::vector< recob::OpHit >&);
 
 } // End opdet namespace
