@@ -182,6 +182,7 @@ standard_ophit:
   AreaToPE:       false  # Use area to calculate number of PEs
   SPEArea:        1330   # If AreaToPE is true, this number is 
                          # used as single PE area (in ADC counts)
+  SPEShift:       0
   reco_man:       @local::standard_preco_manager
   HitAlgoPset:    @local::standard_algo_threshold
   PedAlgoPset:    @local::standard_algo_pedestal_edges
