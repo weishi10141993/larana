@@ -27,21 +27,32 @@ namespace opdet{
                     pmtana::PulseRecoManager const&,
                     pmtana::PMTPulseRecoBase const&,
                     geo::GeometryCore const&,
-                    float const&,
+                    float,
                     detinfo::DetectorClocks const&,
-                    std::vector< double > const&,
-                    bool const&,
-		    std::vector< double > const&);
+                    std::vector< double >,
+                    bool,
+		    std::vector< double >);
 
-  void ConstructHit(float const&, 
-                    int const&,
-                    double const&,
+  // For backwards compatibility
+  void RunHitFinder(std::vector< raw::OpDetWaveform > const&,
+                    std::vector< recob::OpHit >&,
+                    pmtana::PulseRecoManager const&,
+                    pmtana::PMTPulseRecoBase const&,
+                    geo::GeometryCore const&,
+                    float,
+                    detinfo::DetectorClocks const&,
+                    std::vector< double >,
+                    bool);
+
+  void ConstructHit(float, 
+                    int,
+                    double,
                     pmtana::pulse_param const&,
                     detinfo::DetectorClocks const&,
-                    double const&,
-                    bool const&,
-		    double const&,
-                    std::vector< recob::OpHit >&);
+                    double,
+                    bool,
+                    std::vector< recob::OpHit >&,
+		    double);
 
 } // End opdet namespace
 

@@ -14,7 +14,6 @@
 #include "OpHitAlg.h"
 
 namespace opdet{
-
   //----------------------------------------------------------------------------
   void RunHitFinder(std::vector< raw::OpDetWaveform > const& 
                                                     opDetWaveformVector,
@@ -22,11 +21,11 @@ namespace opdet{
                     pmtana::PulseRecoManager const& pulseRecoMgr,
                     pmtana::PMTPulseRecoBase const& threshAlg,
                     geo::GeometryCore const&        geometry,
-                    float const&                    hitThreshold,
+                    float                           hitThreshold,
                     detinfo::DetectorClocks const&  detectorClocks,
-                    std::vector< double > const&    SPESize,
-                    bool const&                     areaToPE,
-		    std::vector< double > const&    SPEShiftPerChan) {
+                    std::vector< double >           SPESize,
+                    bool                            areaToPE,
+		    std::vector< double >           SPEShiftPerChan ) {
 
     for (auto const& waveform : opDetWaveformVector) {
 
@@ -44,7 +43,8 @@ namespace opdet{
       auto const& pulses = threshAlg.GetPulses();
 
       const double timeStamp = waveform.TimeStamp();
-      
+
+
       for (auto const& pulse : pulses)
         ConstructHit(hitThreshold,
                      channel,
@@ -53,23 +53,50 @@ namespace opdet{
                      detectorClocks,
                      SPESize.at(channel),
                      areaToPE,
-		     SPEShiftPerChan.at(channel),
-                     hitVector);
+                     hitVector,
+		     SPEShiftPerChan.at(channel) );
       
     }
 
   }
-
   //----------------------------------------------------------------------------
-  void ConstructHit(float const&                   hitThreshold,
-                    int const&                     channel,
-                    double const&                  timeStamp,
+  // For backward compatibility
+  void RunHitFinder(std::vector< raw::OpDetWaveform > const&
+                                                    opDetWaveformVector,
+                    std::vector< recob::OpHit >&    hitVector,
+                    pmtana::PulseRecoManager const& pulseRecoMgr,
+                    pmtana::PMTPulseRecoBase const& threshAlg,
+                    geo::GeometryCore const&        geometry,
+                    float                           hitThreshold,
+                    detinfo::DetectorClocks const&  detectorClocks,
+                    std::vector< double >           SPESize,
+                    bool                            areaToPE) {
+
+    // if no SPEShiftPerChan vec is given, use one with no shift for all channels
+    std::vector< double > noSPEShift(geometry.NOpChannels() , 0. );
+
+    RunHitFinder(opDetWaveformVector,
+                 hitVector,
+                 pulseRecoMgr,
+                 threshAlg,
+                 geometry,
+                 hitThreshold,
+                 detectorClocks,
+                 SPESize,
+                 areaToPE,
+                 noSPEShift);
+
+  }
+  //----------------------------------------------------------------------------
+  void ConstructHit(float                          hitThreshold,
+                    int                            channel,
+                    double                         timeStamp,
                     pmtana::pulse_param const&     pulse,
                     detinfo::DetectorClocks const& detectorClocks,
-                    double const&                  SPESize,
-                    bool const&                    areaToPE,
-		    double const&                  SPEShift,
-                    std::vector< recob::OpHit >&   hitVector) {
+                    double                         SPESize,
+                    bool                           areaToPE,
+                    std::vector< recob::OpHit >&   hitVector,
+		    double                         SPEShift=0.) {
 
     if (pulse.peak < hitThreshold) return;
 
@@ -100,5 +127,5 @@ namespace opdet{
                            0.0);
 
   }
-    
+
 } // End namespace opdet

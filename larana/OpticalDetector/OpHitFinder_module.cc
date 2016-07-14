@@ -161,7 +161,7 @@ namespace opdet {
     fHitThreshold = pset.get< float >("HitThreshold");
     fAreaToPE     = pset.get< bool > ("AreaToPE");
     fSPEArea      = pset.get< float >("SPEArea");
-    fSPEShift     = pset.get< float >("SPEShift");
+    fSPEShift     = pset.get< float >("SPEShift", 0.);
 
     auto const& geometry(*lar::providerFrom< geo::Geometry >());
     fMaxOpChannel = geometry.MaxOpChannel();
