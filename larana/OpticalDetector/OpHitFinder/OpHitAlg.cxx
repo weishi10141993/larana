@@ -23,9 +23,9 @@ namespace opdet{
                     geo::GeometryCore const&        geometry,
                     float                           hitThreshold,
                     detinfo::DetectorClocks const&  detectorClocks,
-                    std::vector< double >           SPESize,
+                    std::vector< double > const&    SPESize,
                     bool                            areaToPE,
-		    std::vector< double >           SPEShiftPerChan ) {
+		    std::vector< double > const&    SPEShiftPerChan ) {
 
     for (auto const& waveform : opDetWaveformVector) {
 
@@ -69,7 +69,7 @@ namespace opdet{
                     geo::GeometryCore const&        geometry,
                     float                           hitThreshold,
                     detinfo::DetectorClocks const&  detectorClocks,
-                    std::vector< double >           SPESize,
+                    std::vector< double > const&    SPESize,
                     bool                            areaToPE) {
 
     // if no SPEShiftPerChan vec is given, use one with no shift for all channels

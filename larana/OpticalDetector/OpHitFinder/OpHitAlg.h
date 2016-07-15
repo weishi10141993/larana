@@ -29,9 +29,9 @@ namespace opdet{
                     geo::GeometryCore const&,
                     float,
                     detinfo::DetectorClocks const&,
-                    std::vector< double >,
+                    std::vector< double > const&,
                     bool,
-		    std::vector< double >);
+		    std::vector< double > const&);
 
   // For backwards compatibility
   void RunHitFinder(std::vector< raw::OpDetWaveform > const&,
@@ -41,7 +41,7 @@ namespace opdet{
                     geo::GeometryCore const&,
                     float,
                     detinfo::DetectorClocks const&,
-                    std::vector< double >,
+                    std::vector< double > const&,
                     bool);
 
   void ConstructHit(float, 
