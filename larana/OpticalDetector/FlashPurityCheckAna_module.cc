@@ -22,19 +22,19 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
-#include "lardata/RawData/OpDetPulse.h"
-#include "lardata/RecoBase/OpFlash.h"
-#include "lardata/RecoBase/OpHit.h"
+#include "lardataobj/RawData/OpDetPulse.h"
+#include "lardataobj/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/OpHit.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/FindManyP.h"
+#include "canvas/Persistency/Common/FindManyP.h"
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
@@ -42,10 +42,10 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "lardata/RecoObjects/BezierTrack.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/AnalysisBase/FlashMatch.h"
+#include "lardataobj/AnalysisBase/FlashMatch.h"
 
 
-#include "SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
 
 namespace opdet {
  

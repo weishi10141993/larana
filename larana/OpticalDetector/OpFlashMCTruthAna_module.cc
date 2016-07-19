@@ -21,8 +21,8 @@
 #include <cstring>
 #include <vector>
 
-#include "SimulationBase/MCTruth.h"
-#include "SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 
 namespace opdet {
  
@@ -92,16 +92,16 @@ namespace opdet {
 // OpFlashMCTruthAna.cxx
 
 // LArSoft includes
-#include "lardata/RawData/OpDetPulse.h"
-#include "lardata/RecoBase/OpFlash.h"
+#include "lardataobj/RawData/OpDetPulse.h"
+#include "lardataobj/RecoBase/OpFlash.h"
 
 
 // Framework includes
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"

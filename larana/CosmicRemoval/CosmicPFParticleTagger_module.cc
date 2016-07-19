@@ -32,12 +32,12 @@
 #include "larcore/Geometry/Geometry.h"
 #include "larcore/Geometry/geo.h"
 
-#include "lardata/RecoBase/PFParticle.h"
-#include "lardata/RecoBase/SpacePoint.h"
-#include "lardata/RecoBase/Hit.h"
-#include "lardata/RecoBase/Track.h"
+#include "lardataobj/RecoBase/PFParticle.h"
+#include "lardataobj/RecoBase/SpacePoint.h"
+#include "lardataobj/RecoBase/Hit.h"
+#include "lardataobj/RecoBase/Track.h"
 
-#include "lardata/AnalysisBase/CosmicTag.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "larreco/RecoAlg/SpacePointAlg.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"

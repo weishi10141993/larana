@@ -3,13 +3,13 @@
 //  m.haigh@warwick.ac.uk
 ////////////////////////////////////////////////////////////////////
 
-#include "MVAAlg.h"
+#include "larana/ParticleIdentification/MVAAlg.h"
 #include "larcore/Geometry/Geometry.h"
 //#include "larcore/Geometry/TPCGeo.h"
 #include "lardata/DetectorInfo/DetectorProperties.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 #include "TPrincipal.h"
 #include "TFile.h"
 //#include "TF1.h"
@@ -19,8 +19,8 @@
 #include <Math/Functor.h>
 #include <Fit/Fitter.h>
 //#include "TVirtualFitter.h"
-#include "art/Framework/Core/FindManyP.h"
-#include "art/Framework/Core/FindOneP.h"
+#include "canvas/Persistency/Common/FindManyP.h"
+#include "canvas/Persistency/Common/FindOneP.h"
 #include "lardata/Utilities/AssociationUtil.h"
 
 #include <cmath>

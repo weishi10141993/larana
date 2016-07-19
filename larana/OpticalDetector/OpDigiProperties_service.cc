@@ -6,7 +6,7 @@
 
 // LArSoft includes
 #include "larana/OpticalDetector/OpDigiProperties.h"
-#include "lardata/OpticalDetectorData/OpticalTypes.h"
+#include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 #include "larcore/Geometry/Geometry.h"
 
 // Framework includes
@@ -176,7 +176,7 @@ namespace opdet{
   std::vector<double> OpDigiProperties::WaveformInit(std::string fWaveformFile)
   {
     // Read in waveform vector from text file
-    ifstream WaveformFile (fWaveformFile.c_str());
+    std::ifstream WaveformFile (fWaveformFile.c_str());
     std::string line;
 
     mf::LogInfo("OpDigiProperties")<<"OpDigiProperties opening OpDet waveform at " << fWaveformFile.c_str();
@@ -216,7 +216,7 @@ namespace opdet{
 	  throw cet::exception("OpDigiProperties") << "Unable to find high gain spread file in " << sp.to_string() << "\n";
 
 	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening high gain spread file at " << FullPath.c_str();
-	ifstream HighGainFile(FullPath.c_str());
+	std::ifstream HighGainFile(FullPath.c_str());
 	if(HighGainFile.is_open()) {
 	  std::string line;
 	  while ( HighGainFile.good() ){
@@ -230,7 +230,7 @@ namespace opdet{
 	  throw cet::exception("OpDigiProperties") << "Unable to find low gain spread file in " << sp.to_string() << "\n";
 
 	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening low gain spread file at " << FullPath.c_str();	
-	ifstream LowGainFile(FullPath.c_str());
+	std::ifstream LowGainFile(FullPath.c_str());
 	if(LowGainFile.is_open()) {
 	  std::string line;
 	  while ( LowGainFile.good() ){
@@ -244,7 +244,7 @@ namespace opdet{
 	  throw cet::exception("OpDigiProperties") << "Unable to find low gain spread file in " << sp.to_string() << "\n";
 
 	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening low gain spread file at " << FullPath.c_str();	
-	ifstream GainSpreadFile(FullPath.c_str());
+	std::ifstream GainSpreadFile(FullPath.c_str());
 	if(GainSpreadFile.is_open()) {
 	  std::string line;
 	  while ( GainSpreadFile.good() ){
@@ -305,7 +305,7 @@ namespace opdet{
   std::vector<double> OpDigiProperties::GenEmpiricalWF(std::string fWaveformFile)
   {
     // Read in waveform vector from text file
-    ifstream WaveformFile (fWaveformFile.c_str());
+    std::ifstream WaveformFile (fWaveformFile.c_str());
     std::string line;
 
     mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening OpDet waveform at " << fWaveformFile.c_str();

@@ -14,8 +14,8 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "lardata/RecoBase/Hit.h"
-#include "lardata/AnalysisBase/CosmicTag.h"
+#include "lardataobj/RecoBase/Hit.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
 
 namespace cosmic{
   class HitTagAssociatorAlg;

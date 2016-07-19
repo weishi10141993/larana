@@ -10,13 +10,13 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/Ptr.h"
 
 //LArSoft includes
 #include "larsim/MCCheater/BackTracker.h"
-#include "SimulationBase/MCParticle.h"
-#include "lardata/RecoBase/Track.h"
-#include "lardata/RecoBase/OpFlash.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/RecoBase/OpFlash.h"
 #include "larcore/Geometry/Geometry.h"
 
 #include "TH1.h"

@@ -16,8 +16,8 @@
 #include "TTree.h"
 #include "TH1.h"
 
-#include "lardata/RecoBase/OpHit.h"
-#include "lardata/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/OpHit.h"
+#include "lardataobj/RecoBase/OpFlash.h"
 
 namespace opdet{
 

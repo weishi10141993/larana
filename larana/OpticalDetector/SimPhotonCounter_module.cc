@@ -40,8 +40,8 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
@@ -51,7 +51,7 @@
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "larana/OpticalDetector/OpDetResponseInterface.h"
 #include "larsim/Simulation/SimListUtils.h"
-#include "larsim/Simulation/sim.h"
+#include "larsimobj/Simulation/sim.h"
 #include "larsim/Simulation/LArG4Parameters.h"
 
 // ROOT includes

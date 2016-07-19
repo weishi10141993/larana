@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "lardata/RecoBase/Track.h"
-#include "lardata/AnalysisBase/CosmicTag.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
 
 #include "TTree.h"
 #include "fhiclcpp/ParameterSet.h"

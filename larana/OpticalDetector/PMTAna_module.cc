@@ -23,14 +23,14 @@
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 // LArSoft
 //#include "OpticalDetectorData/FIFOChannel.h"
-#include "lardata/RawData/OpDetWaveform.h"
+#include "lardataobj/RawData/OpDetWaveform.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "larcore/Geometry/Geometry.h"
 // STL

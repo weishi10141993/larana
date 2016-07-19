@@ -8,11 +8,11 @@
 
 // LArSoft includes
 #include "larsim/Simulation/SimListUtils.h"
-#include "larsim/Simulation/SimPhotons.h"
-#include "larsim/Simulation/sim.h"
-#include "lardata/OpticalDetectorData/OpticalTypes.h"
-#include "lardata/OpticalDetectorData/ChannelData.h"
-#include "lardata/OpticalDetectorData/ChannelDataGroup.h"
+#include "larsimobj/Simulation/SimPhotons.h"
+#include "larsimobj/Simulation/sim.h"
+#include "lardataobj/OpticalDetectorData/OpticalTypes.h"
+#include "lardataobj/OpticalDetectorData/ChannelData.h"
+#include "lardataobj/OpticalDetectorData/ChannelDataGroup.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 #include "larcore/Geometry/Geometry.h"
 
@@ -22,8 +22,8 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

@@ -25,16 +25,16 @@
 
 // LArSoft Includes
 #include "larcore/Geometry/Geometry.h"
-#include "SimulationBase/MCTruth.h"
-#include "SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
-#include "lardata/RecoBase/Track.h"
-#include "lardata/RecoBase/Cluster.h"
-#include "lardata/RecoBase/Hit.h"
-#include "lardata/RawData/RawDigit.h"
-#include "lardata/MCBase/MCHitCollection.h"
-#include "lardata/AnalysisBase/CosmicTag.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/RecoBase/Cluster.h"
+#include "lardataobj/RecoBase/Hit.h"
+#include "lardataobj/RawData/RawDigit.h"
+#include "lardataobj/MCBase/MCHitCollection.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
 
 
 // ROOT Includes

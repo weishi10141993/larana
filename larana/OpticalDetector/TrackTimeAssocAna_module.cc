@@ -21,19 +21,19 @@
 #include <climits>
 
 // LArSoft includes
-#include "lardata/RawData/OpDetPulse.h"
-#include "lardata/RecoBase/OpFlash.h"
-#include "lardata/RecoBase/Track.h"
-#include "lardata/AnalysisBase/FlashMatch.h"
+#include "lardataobj/RawData/OpDetPulse.h"
+#include "lardataobj/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/AnalysisBase/FlashMatch.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/FindManyP.h"
+#include "canvas/Persistency/Common/FindManyP.h"
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"

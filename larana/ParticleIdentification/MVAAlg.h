@@ -11,19 +11,19 @@
 //#include <stdint.h>
 
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/EDProducer.h" 
 
 //#include "SimpleTypesAndConstants/geo_types.h"
 //#include "SimpleTypesAndConstants/RawTypes.h" // raw::ChannelID_t
 //#include "RecoBase/Wire.h"
-#include "lardata/RecoBase/Hit.h"
-#include "lardata/RecoBase/Cluster.h"
-#include "lardata/RecoBase/Track.h"
-#include "lardata/RecoBase/Shower.h"
-#include "lardata/RecoBase/SpacePoint.h"
+#include "lardataobj/RecoBase/Hit.h"
+#include "lardataobj/RecoBase/Cluster.h"
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/RecoBase/Shower.h"
+#include "lardataobj/RecoBase/SpacePoint.h"
 //#include "RecoAlg/APAGeometryAlg.h"
 #include "lardata/AnalysisAlg/CalorimetryAlg.h"
 //#include "MCCheater/BackTracker.h"
@@ -36,7 +36,7 @@
 #include <Math/Vector3D.h>
 #include "TMVA/Reader.h"
 
-#include "lardata/AnalysisBase/MVAPIDResult.h"
+#include "lardataobj/AnalysisBase/MVAPIDResult.h"
 
 
 namespace mvapid{
