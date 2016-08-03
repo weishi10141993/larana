@@ -8,7 +8,7 @@ services:
   TFileService: { fileName: "ntuple.root" }
   Timing:       {}
   SimpleMemoryCheck:     { ignoreTotal: 1 } # default is one
-  user:         @local::dune35t_services
+  user:         @local::dunefd_services
 }
 
 
@@ -43,12 +43,14 @@ physics:
 		CalAmpConstants:        [ 0.9033e-3, 1.0287e-3, 0.8800e-3 ]
                 CalAreaConstants:       [ 5.1822e-3, 5.2682e-3, 5.3962e-3 ]
                 CaloUseModBox:          true
-#		MVAMethods:		[ "ANN","BDT" ]
-#		WeightFiles:		[ "weights/MuEMVA_ANN.weights.xml", "weights/MuEMVA_BDT.weights.xml" ]
-		MVAMethods:		[ ]
-		WeightFiles:		[ ]
-   	}    				
+		MVAMethods:		[ "electron","muon","photon","pich","proton" ]
+		WeightFiles:		[ "mvapid_weights/electron_all_BDT.weights.xml",
+					  "mvapid_weights/muon_all_BDT.weights.xml",
+   	    				  "mvapid_weights/photon_all_BDT.weights.xml",
+					  "mvapid_weights/pich_all_BDT.weights.xml",
+					  "mvapid_weights/proton_all_BDT.weights.xml" ]
   }
+}
 
   ### Set up a chain of Producer modules
   reco: [ pid ]

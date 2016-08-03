@@ -36,15 +36,27 @@ mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* p
   fCheatVertex=pset.get<bool>("CheatVertex",false);
 
   fReader.AddVariable("evalRatio",&fResHolder.evalRatio);
-  fReader.AddVariable("concentration",&fResHolder.concentration);
   fReader.AddVariable("coreHaloRatio",&fResHolder.coreHaloRatio);
+  fReader.AddVariable("concentration",&fResHolder.concentration);
   fReader.AddVariable("conicalness",&fResHolder.conicalness);
   fReader.AddVariable("dEdxStart",&fResHolder.dEdxStart);
   fReader.AddVariable("dEdxEnd",&fResHolder.dEdxEnd);
   fReader.AddVariable("dEdxEndRatio",&fResHolder.dEdxEndRatio);
 
   fMVAMethods=pset.get<std::vector<std::string> >("MVAMethods");
-  fWeightFiles=pset.get<std::vector<std::string> >("WeightFiles");
+  std::vector<std::string> weightFileBnames=pset.get<std::vector<std::string> >("WeightFiles");
+
+  cet::search_path searchPath("FW_SEARCH_PATH");
+  for(auto fileIter=weightFileBnames.begin();fileIter!=weightFileBnames.end();++fileIter){
+    std::string fileWithPath;
+    if(!searchPath.find_file(*fileIter,fileWithPath)){
+	fWeightFiles.clear();
+	fMVAMethods.clear();
+	throw cet::exception("MVAPID")<<"Unable to find weight file "<<*fileIter<<" in search path "
+				      <<searchPath.to_string()<<std::endl;
+      }
+      fWeightFiles.push_back(fileWithPath);
+  }
 
   if(fMVAMethods.size()!=fWeightFiles.size()){
     std::cerr<<"Mismatch in number of MVA methods and weight files!"<<std::endl;
