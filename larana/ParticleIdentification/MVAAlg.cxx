@@ -16,7 +16,7 @@
 //#include "TF2.h"
 #include "TMatrix.h"
 #include "TVectorD.h"
-#include <Math/Functor.h>
+#include "larcore/CoreUtils/quiet_Math_Functor.h" // remove the wrapper when ROOT header is fixed
 #include <Fit/Fitter.h>
 //#include "TVirtualFitter.h"
 #include "canvas/Persistency/Common/FindManyP.h"
