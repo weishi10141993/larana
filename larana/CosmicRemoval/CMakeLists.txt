@@ -31,7 +31,7 @@ art_make(
 			    larsim_MCCheater_BackTracker_service
 			    larreco_RecoAlg
                             larreco_RecoAlg_Cluster3DAlgs
-			    larsim_Simulation larsimobj_Simulation
+			    larsim_Simulation lardataobj_Simulation
 			    lardata_RecoObjects
 			    lardataobj_RecoBase
 			    lardata_RecoBaseArt

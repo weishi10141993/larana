@@ -11,7 +11,7 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "lardataobj/RawData/OpDetPulse.h"
-#include "larsimobj/Simulation/sim.h"
+#include "lardataobj/Simulation/sim.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 
@@ -79,7 +79,7 @@ namespace opdet{
 
 // LArSoft includes
 #include "larsim/Simulation/SimListUtils.h"
-#include "larsimobj/Simulation/SimPhotons.h"
+#include "lardataobj/Simulation/SimPhotons.h"
 #include "lardataobj/RawData/OpDetPulse.h"
 
 // ROOT includes

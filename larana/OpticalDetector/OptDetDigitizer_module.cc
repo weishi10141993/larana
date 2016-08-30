@@ -8,8 +8,8 @@
 
 // LArSoft includes
 #include "larsim/Simulation/SimListUtils.h"
-#include "larsimobj/Simulation/SimPhotons.h"
-#include "larsimobj/Simulation/sim.h"
+#include "lardataobj/Simulation/SimPhotons.h"
+#include "lardataobj/Simulation/sim.h"
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 #include "lardataobj/OpticalDetectorData/ChannelData.h"
 #include "lardataobj/OpticalDetectorData/ChannelDataGroup.h"

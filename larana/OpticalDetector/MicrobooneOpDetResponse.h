@@ -11,7 +11,7 @@
 #define MICROBOONE_OPDET_RESPONSE_H
 
 // LArSoft includes
-#include "larsimobj/Simulation/SimPhotons.h"
+#include "lardataobj/Simulation/SimPhotons.h"
 #include "larana/OpticalDetector/OpDetResponseInterface.h"
 
 

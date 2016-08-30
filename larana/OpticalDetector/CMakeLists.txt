@@ -41,7 +41,7 @@ art_make(
                            larreco_RecoAlg
                            larcore_Geometry
                            larcore_Geometry_Geometry_service
-                           larsim_Simulation larsimobj_Simulation
+                           larsim_Simulation lardataobj_Simulation
                            larsim_TriggerAlgo_TriggerAlgoMicroBoone_service
                            lardata_Utilities
                            lardataobj_RawData

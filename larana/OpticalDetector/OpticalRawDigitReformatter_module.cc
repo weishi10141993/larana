@@ -13,7 +13,7 @@
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
-#include "larsimobj/Simulation/BeamGateInfo.h"
+#include "lardataobj/Simulation/BeamGateInfo.h"
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
