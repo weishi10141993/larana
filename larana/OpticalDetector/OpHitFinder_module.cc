@@ -271,8 +271,6 @@ namespace opdet {
     // if hit area is used to calculate number of PEs
     
     if (fAreaToPE) return std::vector< double >(fMaxOpChannel + 1, fSPEArea);
-    // temp fix while we work out the experiment-agnostic service 
-    // that provides this info
     else           return std::vector< double >(fMaxOpChannel + 1, 20); 
   }
 
