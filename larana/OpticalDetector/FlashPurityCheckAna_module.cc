@@ -40,7 +40,7 @@
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "lardata/RecoObjects/BezierTrack.h"
+#include "larreco/Deprecated/BezierTrack.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/AnalysisBase/FlashMatch.h"
 

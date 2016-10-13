@@ -4,7 +4,7 @@ art_make(
 	  LIB_LIBRARIES
 			nusimdata_SimulationBase
                         lardataobj_AnalysisBase
-			lardata_AnalysisAlg
+			larreco_Calorimetry
                         lardata_Utilities
                         larcore_Geometry
                         ${ART_FRAMEWORK_CORE}
@@ -30,7 +30,7 @@ art_make(
                         lardataobj_RecoBase
                         larcore_Geometry
                         larcore_Geometry_Geometry_service
-                        lardata_AnalysisAlg
+                        larreco_Calorimetry
                         lardataobj_AnalysisBase
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}

@@ -8,7 +8,7 @@
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "larreco/RecoAlg/SpacePointAlg.h"
-#include "lardata/AnalysisAlg/CalorimetryAlg.h"
+#include "larreco/Calorimetry/CalorimetryAlg.h"
 
 // ROOT includes.
 #include <Rtypes.h>
@@ -100,7 +100,7 @@ namespace opdet{
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
-#include "lardata/AnalysisAlg/CalorimetryAlg.h"
+#include "larreco/Calorimetry/CalorimetryAlg.h"
 
 // C++ language includes
 #include <iostream>

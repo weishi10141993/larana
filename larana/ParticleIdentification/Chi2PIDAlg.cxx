@@ -15,7 +15,7 @@ extern "C" {
 #include "lardataobj/AnalysisBase/Calorimetry.h"
 #include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/AnalysisAlg/Chi2PIDAlg.h"
+#include "larana/ParticleIdentification/Chi2PIDAlg.h"
 
 // ROOT includes
 #include "TFile.h"

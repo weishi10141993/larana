@@ -111,7 +111,7 @@ namespace opdet{
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardata/RecoObjects/BezierTrack.h"
+#include "larreco/Deprecated/BezierTrack.h"
 #include "lardataobj/RecoBase/OpFlash.h"
 
 // FMWK includes

@@ -31,8 +31,8 @@ art_make(
 			    larsim_MCCheater_BackTracker_service
 			    larreco_RecoAlg
                             larreco_RecoAlg_Cluster3DAlgs
-			    larsim_Simulation lardataobj_Simulation
-			    lardata_RecoObjects
+			    larsim_Simulation nutools_ParticleNavigation lardataobj_Simulation
+			    lardata_RecoObjects larreco_Deprecated
 			    lardataobj_RecoBase
 			    lardata_RecoBaseArt
 			    lardataobj_MCBase
@@ -40,7 +40,7 @@ art_make(
 			    larcore_Geometry_Geometry_service
 			    larsim_PhotonPropagation_PhotonVisibilityService_service
 		            larana_OpticalDetector_OpDigiProperties_service
-			    lardata_AnalysisAlg
+			    larreco_Calorimetry
 			    lardataobj_AnalysisBase
 			    lardata_Utilities
 			    nutools_MagneticField_MagneticField_service

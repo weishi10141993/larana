@@ -25,7 +25,7 @@
 #include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
 //#include "RecoAlg/APAGeometryAlg.h"
-#include "lardata/AnalysisAlg/CalorimetryAlg.h"
+#include "larreco/Calorimetry/CalorimetryAlg.h"
 //#include "MCCheater/BackTracker.h"
 
 //#include "TMatrixD.h"
