@@ -192,3 +192,5 @@ namespace pmtana {
   }
 
 }
+
+/** @}*/  // end of PMTAna group
