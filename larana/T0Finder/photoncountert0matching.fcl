@@ -23,5 +23,6 @@ standard_photoncountert0matching:
 }
 
 lbne35t_photoncountert0matching:    @local::standard_photoncountert0matching
+lbne35t_photoncountert0matching.DriftWindowSize: 5200
 
 END_PROLOG
