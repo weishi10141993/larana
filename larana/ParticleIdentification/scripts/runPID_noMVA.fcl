@@ -21,7 +21,7 @@ services:
 #  TFileService: { fileName: "ntuple.root" }
 #  Timing:       {}
 #  SimpleMemoryCheck:     { ignoreTotal: 1 } # default is one
-#  user:         @local::dunefd_services
+#                @table::dunefd_services
 #}
 
 

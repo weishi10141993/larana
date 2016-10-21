@@ -20,7 +20,7 @@ services:
   RandomNumberGenerator: {} #ART native random number generator
   message:      @local::standard_info
 #  message:      @local::standard_debug # If you turn this on, uncomment the debug lines below
-  user:         @local::microboone_services 	     
+                @table::microboone_services 	     
 }
 
 # If I want to see all the LogDebug messages from this program.
@@ -30,8 +30,8 @@ services:
 
 # Needed for the OpDigiProperties service and other digitizer parameters
 # Pick the "Nwindows" version to match the detector simulation.
-services.user.OpDigiProperties: @local::microboone_opdigiproperties
-#services.user.OpDigiProperties: @local::microboone_opdigiproperties_3windows
+services.OpDigiProperties: @local::microboone_opdigiproperties
+#services.OpDigiProperties: @local::microboone_opdigiproperties_3windows
 
 source:
 {
