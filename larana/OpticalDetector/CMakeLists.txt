@@ -42,7 +42,6 @@ art_make(
                            larcore_Geometry
                            larcore_Geometry_Geometry_service
                            larsim_Simulation nutools_ParticleNavigation lardataobj_Simulation
-                           larsim_TriggerAlgo_TriggerAlgoMicroBoone_service
                            lardata_Utilities
                            lardataobj_RawData
                            larreco_Calorimetry
