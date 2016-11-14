@@ -103,9 +103,7 @@ namespace opdet{
     double absTime = timeStamp 
                    + pulse.t_max*detectorClocks.OpticalClock().TickPeriod();
 
-    double relTime = absTime - detectorClocks.BeamGateTime();
-    if (detectorClocks.BeamGateTime() < 0.0) 
-      relTime = absTime - detectorClocks.TriggerTime();
+    double relTime = absTime - detectorClocks.TriggerTime();
     
     int frame = detectorClocks.OpticalClock().Frame(timeStamp);
 

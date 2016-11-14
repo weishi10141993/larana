@@ -601,9 +601,9 @@ namespace opdet{
     int Frame = ts.OpticalClock().Frame(AveAbsTime - 18.1);
     if (Frame == 0) Frame = 1;
     
-    int BeamFrame = ts.OpticalClock().Frame(ts.BeamGateTime());
+    int BeamFrame = ts.OpticalClock().Frame(ts.TriggerTime());
     bool InBeamFrame = false;
-    if (!(ts.BeamGateTime() < 0)) InBeamFrame = (Frame == BeamFrame);
+    if (!(ts.TriggerTime() < 0)) InBeamFrame = (Frame == BeamFrame);
 
     double TimeWidth = (MaxTime - MinTime)/2.0;
 
