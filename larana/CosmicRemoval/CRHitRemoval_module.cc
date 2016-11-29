@@ -88,6 +88,7 @@ private:
     int                      fDetectorWidthTicks;       ///< Effective drift time in ticks
     int                      fMinTickDrift;             ///< Starting tick
     int                      fMaxTickDrift;             ///< Ending tick
+    int                      fMaxOutOfTime;             ///< Max hits that can be out of time before rejecting
     
     // Statistics.
     int fNumEvent;        ///< Number of events seen.
@@ -139,6 +140,7 @@ void CRHitRemoval::reconfigure(fhicl::ParameterSet const & pset)
     fAssnProducerLabels      = pset.get<std::vector<std::string>>("AssnProducerLabels");
     fCosmicTagThresholds     = pset.get<std::vector<double> >("CosmicTagThresholds");
     fEndTickPadding          = pset.get<int>("EndTickPadding", 50);
+    fMaxOutOfTime            = pset.get<int>("MaxOutOfTime",    4);
 }
 
 //----------------------------------------------------------------------------
@@ -343,7 +345,7 @@ void CRHitRemoval::produce(art::Event & evt)
                     
                             // A cosmic ray must be a primary (by fiat)
                             while(!pfParticle->IsPrimary()) pfParticle = art::Ptr<recob::PFParticle>(pfParticleHandle,pfParticle->Parent()).get();
-                
+                            
                             // Add to our list of tagged PFParticles
                             taggedSet.insert(pfParticle);
                         }
@@ -389,10 +391,14 @@ void CRHitRemoval::produce(art::Event & evt)
 
             if (goodHits)
             {
+                int nOutOfTime(0);
+                
                 for(const auto& hit : tempHits)
                 {
                     // Check on out of time hits
-                    if (hit->PeakTimeMinusRMS() < fMinTickDrift || hit->PeakTimePlusRMS()  > fMaxTickDrift)
+                    if (hit->PeakTimeMinusRMS() < fMinTickDrift || hit->PeakTimePlusRMS()  > fMaxTickDrift) nOutOfTime++;
+                    
+                    if (nOutOfTime > fMaxOutOfTime)
                     {
                         goodHits = false;
                         break;
@@ -443,11 +449,20 @@ void CRHitRemoval::collectPFParticleHits(const recob::PFParticle*               
     // Recover the clusters associated to the input PFParticle
     std::vector<art::Ptr<recob::Cluster> > clusterVec = partToClusAssns.at(pfParticle->Self());
     
+    int minTick(fMinTickDrift);
+    int maxTick(fMaxTickDrift);
+    
     // Loop over the clusters and grab the associated hits
     for(const auto& cluster : clusterVec)
     {
         std::vector<art::Ptr<recob::Hit> > clusHitVec = clusToHitAssns.at(cluster.key());
         hitVec.insert(hitVec.end(), clusHitVec.begin(), clusHitVec.end());
+        
+        int minHitTick = (*std::min_element(clusHitVec.begin(),clusHitVec.end(),[](const auto& hit,const auto& min){return hit->PeakTimeMinusRMS() < min->PeakTimeMinusRMS();}))->PeakTimeMinusRMS();
+        int maxHitTick = (*std::max_element(clusHitVec.begin(),clusHitVec.end(),[](const auto& hit,const auto& max){return hit->PeakTimePlusRMS() > max->PeakTimePlusRMS();}))->PeakTimePlusRMS();
+        
+        if (minHitTick < minTick) minTick = minHitTick;
+        if (maxHitTick < maxTick) maxTick = maxHitTick;
     }
     
     // Loop over the daughters of this particle and remove their hits as well
