@@ -28,7 +28,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // art extensions
-#include "larsim/RandomUtils/LArSeedService.h"
+#include "nutools/RandomUtils/NuRandomService.h"
 
 // CLHEP includes
 #include "CLHEP/Random/RandFlat.h"
@@ -118,9 +118,9 @@ namespace opdet {
     // Initialize toy waveform vector fSinglePEWaveform
     fSinglePEWaveform = fOpDigiProperties->SinglePEWaveform();
     
-    // create a default random engine; obtain the random seed from LArSeedService,
+    // create a default random engine; obtain the random seed from NuRandomService,
     // unless overridden in configuration with key "Seed"
-    art::ServiceHandle<sim::LArSeedService>()
+    art::ServiceHandle<rndm::NuRandomService>()
       ->createEngine(*this, pset, "Seed");
 
     // Sample a random fraction of detected photons 
