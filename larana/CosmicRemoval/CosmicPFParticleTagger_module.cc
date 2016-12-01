@@ -242,56 +242,67 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
             // entering and exiting.
             // Also, in what follows we make no assumptions on which end point is the "start" or
             // "end" of the track being considered.
-            bool nBdX[] = {false,false};
-            bool nBdY[] = {false,false};
-            bool nBdZ[] = {false,false};
+            unsigned boundaryMask[] = {0,0};
             
             // Check x extents - note that uboone coordinaes system has x=0 at edge
             // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
             // Also note that, in theory, any cosmic ray entering or exiting the X surfaces will have presumably
             // been removed already by the checking of "out of time" hits... but this will at least label
             // neutrino interaction tracks which exit through the X surfaces of the TPC
-            if (fDetWidth - trackEndPt1_X < fTPCXBoundary || trackEndPt1_X < fTPCXBoundary) nBdX[0] = true;
-            if (fDetWidth - trackEndPt2_X < fTPCXBoundary || trackEndPt2_X < fTPCXBoundary) nBdX[1] = true;
+            if      (fDetWidth - trackEndPt1_X < fTPCXBoundary) boundaryMask[0] = 0x1;
+            else if (            trackEndPt1_X < fTPCXBoundary) boundaryMask[0] = 0x2;
+            
+            if      (fDetWidth - trackEndPt2_X < fTPCXBoundary) boundaryMask[1] = 0x1;
+            else if (            trackEndPt2_X < fTPCXBoundary) boundaryMask[1] = 0x2;
             
             // Check y extents (note coordinate system change)
             // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
-            if (fDetHalfHeight - trackEndPt1_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt1_Y < fTPCYBoundary) nBdY[0] = true;  // one end of track exits out top
-            if (fDetHalfHeight - trackEndPt2_Y < fTPCYBoundary || fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary) nBdY[1] = true;  // one end of track exist out bottom
+            if      (fDetHalfHeight - trackEndPt1_Y < fTPCYBoundary) boundaryMask[0] = 0x10;
+            else if (fDetHalfHeight + trackEndPt1_Y < fTPCYBoundary) boundaryMask[0] = 0x20;
+            
+            if      (fDetHalfHeight - trackEndPt2_Y < fTPCYBoundary) boundaryMask[1] = 0x10;
+            else if (fDetHalfHeight + trackEndPt2_Y < fTPCYBoundary) boundaryMask[1] = 0x20;
             
             // Check z extents
             // Note this counts the case where the track enters and exits the same surface as a "1", not a "2"
-            if (fDetLength - trackEndPt1_Z < fTPCZBoundary || trackEndPt1_Z < fTPCZBoundary ) nBdZ[0] = true;
-            if (fDetLength - trackEndPt2_Z < fTPCZBoundary || trackEndPt2_Z < fTPCZBoundary ) nBdZ[1] = true;
+            if      (fDetLength - trackEndPt1_Z < fTPCZBoundary) boundaryMask[0] = 0x100;
+            else if (             trackEndPt1_Z < fTPCZBoundary) boundaryMask[0] = 0x200;
             
-            // Endpoints exiting?
-            bool exitEnd1  = nBdX[0] || nBdY[0] || nBdZ[0];   // end point 1 enters/exits
-            bool exitEnd2  = nBdX[1] || nBdY[1] || nBdZ[1];   // end point 2 enters/exits
+            if      (fDetLength - trackEndPt2_Z < fTPCZBoundary) boundaryMask[1] = 0x100;
+            else if (             trackEndPt2_Z < fTPCZBoundary) boundaryMask[1] = 0x200;
+            
+            unsigned trackMask = boundaryMask[0] | boundaryMask[1];
+            int      nBitsSet(0);
+            
+            for(int idx=0; idx<12; idx++) if (trackMask & (0x1<<idx)) nBitsSet++;
 
             // This should check for the case of a track which is both entering and exiting
             // but we consider entering and exiting the z boundaries to be a special case (should it be?)
-            if(exitEnd1 && exitEnd2 && !(nBdZ[0] && nBdZ[1]))
+            if(nBitsSet > 1)
             {
-                isCosmic = 2;
-                if      (nBdX[0] && nBdX[1])                           tag_id = anab::CosmicTagID_t::kGeometry_XX;
-                else if (nBdY[0] && nBdY[1])                           tag_id = anab::CosmicTagID_t::kGeometry_YY;
-                else if ((nBdX[0] || nBdX[1]) && (nBdY[0] || nBdY[1])) tag_id = anab::CosmicTagID_t::kGeometry_XY;
-                else if ((nBdX[0] || nBdX[1]) && (nBdZ[0] || nBdZ[1])) tag_id = anab::CosmicTagID_t::kGeometry_XZ;
-                else                                                   tag_id = anab::CosmicTagID_t::kGeometry_YZ;
-            }
-            // This is the special case of track which appears to enter/exit z boundaries
-            else if ( nBdZ[0] && nBdZ[1])
-            {
-                isCosmic = 3;
-                tag_id   = anab::CosmicTagID_t::kGeometry_ZZ;
+                if ((trackMask & 0x300) != 0x300)
+                {
+                    isCosmic = 2;
+                    if      ((trackMask &  0x3) ==  0x3)                tag_id = anab::CosmicTagID_t::kGeometry_XX;
+                    else if ((trackMask & 0x30) == 0x30)                tag_id = anab::CosmicTagID_t::kGeometry_YY;
+                    else if ((trackMask &  0x3) && (trackMask &  0x30)) tag_id = anab::CosmicTagID_t::kGeometry_XY;
+                    else if ((trackMask &  0x3) && (trackMask & 0x300)) tag_id = anab::CosmicTagID_t::kGeometry_XZ;
+                    else                                                tag_id = anab::CosmicTagID_t::kGeometry_YZ;
+                }
+                // This is the special case of track which appears to enter/exit z boundaries
+                else
+                {
+                    isCosmic = 3;
+                    tag_id   = anab::CosmicTagID_t::kGeometry_ZZ;
+                }
             }
             // This looks for track which enters/exits a boundary but has other endpoint in TPC
-            else if ( (nBdX[0] || nBdY[0] || nBdZ[0]) != (nBdX[1] || nBdY[1] || nBdZ[1]))
+            else if (nBitsSet > 0)
             {
                 isCosmic = 4 ;
-                if      (nBdX[0] || nBdX[1]) tag_id = anab::CosmicTagID_t::kGeometry_X;
-                else if (nBdY[0] || nBdY[1]) tag_id = anab::CosmicTagID_t::kGeometry_Y;
-                else if (nBdZ[0] || nBdZ[1]) tag_id = anab::CosmicTagID_t::kGeometry_Z;
+                if      (trackMask &   0x3) tag_id = anab::CosmicTagID_t::kGeometry_X;
+                else if (trackMask &  0x30) tag_id = anab::CosmicTagID_t::kGeometry_Y;
+                else if (trackMask & 0x300) tag_id = anab::CosmicTagID_t::kGeometry_Z;
             }
         }
         
