@@ -125,6 +125,7 @@ private:
   double fWeightOfDeltaYZ;
   double fMatchCriteria;
   double fPEThreshold;
+  bool   fVerbosity;
 
   // Variables used in module.......
   std::vector<double> trackStart;
@@ -189,6 +190,8 @@ void lbne::PhotonCounterT0Matching::reconfigure(fhicl::ParameterSet const & p)
   fWeightOfDeltaYZ = (p.get< double > ("WeightOfDeltaYZ"   ) );
   fMatchCriteria   = (p.get< double > ("MatchCriteria"     ) );
   fPEThreshold     = (p.get< double > ("PEThreshold"       ) );
+
+  fVerbosity = (p.get< bool > ("Verbose",false) );
 }
 
 void lbne::PhotonCounterT0Matching::beginJob()
@@ -219,7 +222,7 @@ void lbne::PhotonCounterT0Matching::beginJob()
 				    20, 0, 100, 60, 0, 300); 
   hFitParam_Length = tfs->make<TH2D>("hFitParam_Length", "How fit correlates with track length; Fit correlation; Track Length (cm)", 50, 0, 250, 30, 0, 300);
   hPhotonT0_MCT0   = tfs->make<TH2D>("hPhotonT0_MCT0"  , "Comparing Photon Counter reconstructed T0 against MCTruth T0; Photon Counter T0 (us); MCTruthT0 T0 (us)", 1760, -1600, 16000, 1760, -1600, 16000);
-  hT0_diff_full    = tfs->make<TH1D>("hT0_diff_full"   , "Difference between MCTruth T0 and photon detector T0; Time difference (us); Number", 320, -1600, 1600);
+  hT0_diff_full    = tfs->make<TH1D>("hT0_diff_full"   , "Difference between MCTruth T0 and photon detector T0; Time difference (us); Number", 500, -2500, 2500);
   hT0_diff_zoom    = tfs->make<TH1D>("hT0_diff_zoom"   , "Difference between MCTruth T0 and photon detector T0; Time difference (us); Number", 320, -1.6, 1.6);
 }
 
@@ -269,11 +272,12 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
     size_t NTracks  = tracklist.size();
     size_t NFlashes = flashlist.size();
     
-    std::cout << "There were " << NTracks << " tracks and " << NFlashes << " flashes in this event." << std::endl;
+    if (fVerbosity)
+      std::cout << "There were " << NTracks << " tracks and " << NFlashes << " flashes in this event." << std::endl;
     
     // Now to access PhotonCounter for each track... 
     for(size_t iTrk=0; iTrk < NTracks; ++iTrk) { 
-      std::cout << "\n New Track " << (int)iTrk << std::endl;
+      if (fVerbosity) std::cout << "\n New Track " << (int)iTrk << std::endl;
       // Reset Variables.
       BestFlashTime = BestFitParam = BestTrackCentre_X = BestTrackLength = 9999;
       BestTimeSepPredX = BestPredictedX = BestDeltaPredX = BestminYZSep = MCTruthT0 = 9999;
@@ -292,13 +296,13 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 		  TrackLength);     
 
       // Some cout statement about track properties.
-      ///*
-      std::cout << trackStart[0] << " " << trackEnd[0] << " " << TrackLength_X << " " << TrackCentre_X 
-		<< "\n" << trackStart[1] << " " << trackEnd[1] << " " << TrackLength_Y << " " << TrackCentre_Y
-		<< "\n" << trackStart[2] << " " << trackEnd[2] << " " << TrackLength_Z << " " << TrackCentre_Z
-		<< "\n" << trkTimeStart  << " " << trkTimeEnd  << " " << trkTimeLengh  << " " << trkTimeCentre
-		<< std::endl;
-      //*/
+      if (fVerbosity) {
+	std::cout << trackStart[0] << " " << trackEnd[0] << " " << TrackLength_X << " " << TrackCentre_X 
+		  << "\n" << trackStart[1] << " " << trackEnd[1] << " " << TrackLength_Y << " " << TrackCentre_Y
+		  << "\n" << trackStart[2] << " " << trackEnd[2] << " " << TrackLength_Z << " " << TrackCentre_Z
+		  << "\n" << trkTimeStart  << " " << trkTimeEnd  << " " << trkTimeLengh  << " " << trkTimeCentre
+		  << std::endl;
+      }
       // ----- Loop over flashes ------
       for ( size_t iFlash=0; iFlash < NFlashes; ++iFlash ) {
 	//Reset some flash specific quantities
@@ -334,8 +338,10 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	else if (fMatchCriteria == 2) FitParam = DeltaPredX;
 	
 	//----FLASH INFO-----
-	std::cout << "\nFlash " << (int)iFlash << " " << TrackCentre_X << ", " << TimeSepPredX << " - " << PredictedX << " = " << DeltaPredX << ", " << minYZSep << " -> " << FitParam << std::endl; 
-	
+	if (fVerbosity) {
+	  std::cout << "\nFlash " << (int)iFlash << " " << TrackCentre_X << ", " << TimeSepPredX << " - " << PredictedX << " = " 
+		    << DeltaPredX << ", " << minYZSep << " -> " << FitParam << std::endl; 
+	}
 	//----Select best flash------
 	//double YFitRegion = (-1 * DeltaPredX ) + 80;
 	//if ( minYZSep > YFitRegion ) continue;
