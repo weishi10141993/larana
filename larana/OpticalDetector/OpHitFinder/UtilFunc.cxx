@@ -66,7 +66,7 @@ namespace pmtana {
     
     double bin_width = ((*res.second) - (*res.first)) / ((double)nbins);
     
-    if(nbins==1) return ((*res.first) + bin_width /2.);
+    if(nbins==1 || bin_width == 0) return ((*res.first) + bin_width /2.);
 
     //std::cout<<"Min: "<<(*res.first)<<" Max: "<<(*res.second)<<" Width: "<<bin_width<<std::endl;
 
