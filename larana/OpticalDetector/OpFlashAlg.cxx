@@ -509,14 +509,19 @@ namespace opdet{
 
     double xyz[3];
     geom.OpDetGeoFromOpChannel(currentHit.OpChannel()).GetCenter(xyz);
-    
     double PEThisHit = currentHit.PE();
-    for (size_t p = 0; p != geom.Nplanes(); ++p) {
-      unsigned int w = geom.NearestWire(xyz, p);
-      sumw.at(p)  += PEThisHit*w;
-      sumw2.at(p) += PEThisHit*w*w;
-    }
     
+    geo::TPCID tpc = geom.FindTPCAtPosition(xyz);
+    // if the point does not fall into any TPC,
+    // it does not contribute to the average wire position
+    if (tpc.isValid) {
+      for (size_t p = 0; p != geom.Nplanes(); ++p) {
+        geo::PlaneID const planeID(tpc, p);
+        unsigned int w = geom.NearestWire(xyz, planeID);
+        sumw.at(p)  += PEThisHit*w;
+        sumw2.at(p) += PEThisHit*w*w;
+      }
+    } // if we found the TPC
     sumy  += PEThisHit*xyz[1]; 
     sumy2 += PEThisHit*xyz[1]*xyz[1];
     sumz  += PEThisHit*xyz[2]; 
