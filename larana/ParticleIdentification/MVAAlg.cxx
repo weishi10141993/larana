@@ -26,7 +26,8 @@
 #include <cmath>
 
 mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule):
-  fCaloAlg(pset), fParentModule(parentModule),fReader(""){
+  fCaloAlg(pset.get<fhicl::ParameterSet>("CalorimetryAlg")), 
+  fParentModule(parentModule),fReader(""){
   fHitLabel=pset.get<std::string>("HitLabel");
   fTrackLabel=pset.get<std::string>("TrackLabel");
   fShowerLabel=pset.get<std::string>("ShowerLabel");

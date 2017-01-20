@@ -1,4 +1,5 @@
 #include "services_dune.fcl"
+#include "calorimetry_dune10kt.fcl"
 
 process_name: LArPID
 
@@ -47,16 +48,13 @@ physics:
 {
   producers:{
 	pid: {
-    		module_type:		MVAPID
-		HitLabel:		linecluster
-		TrackLabel:		pandorashowers
-		ShowerLabel:		pandorashowers
-		SpacePointLabel:	pandorashowers
-		TrackingLabel:		largeant		
-		CalModuleName:		pandoracalo
-		CalAmpConstants:        [ 0.9033e-3, 1.0287e-3, 0.8800e-3 ]
-                CalAreaConstants:       [ 5.1822e-3, 5.2682e-3, 5.3962e-3 ]
-                CaloUseModBox:          true
+    		module_type:		"MVAPID"
+		HitLabel:		"linecluster"
+		TrackLabel:		"pandorashowers"
+		ShowerLabel:		"pandorashowers"
+		SpacePointLabel:	"pandorashowers"
+		TrackingLabel:		"largeant"	
+                CalorimetryAlg:          @local::dune10kt_calorimetryalgmc
 #		MVAMethods:		[ "ANN","BDT" ]
 #		WeightFiles:		[ "weights/MuEMVA_ANN.weights.xml", "weights/MuEMVA_BDT.weights.xml" ]
 		MVAMethods:		[ ]
