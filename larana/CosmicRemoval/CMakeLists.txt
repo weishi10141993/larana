@@ -34,7 +34,7 @@ art_make(
 			    larsim_Simulation nutools_ParticleNavigation lardataobj_Simulation
 			    lardata_RecoObjects larreco_Deprecated
 			    lardataobj_RecoBase
-			    lardata_RecoBaseArt
+			    lardata_ArtDataHelper
 			    lardataobj_MCBase
 			    larcore_Geometry
 			    larcore_Geometry_Geometry_service
