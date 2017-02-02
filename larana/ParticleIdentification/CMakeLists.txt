@@ -6,6 +6,7 @@ art_make(
                         lardataobj_AnalysisBase
 			larreco_Calorimetry
                         lardata_Utilities
+                        lardataobj_RecoBase
                         larcore_Geometry
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_PRINCIPAL}
