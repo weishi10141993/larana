@@ -128,8 +128,6 @@ private:
   bool   fVerbosity;
 
   // Variables used in module.......
-  std::vector<double> trackStart;
-  std::vector<double> trackEnd;
   double TrackLength_X, TrackCentre_X, BestTrackCentre_X;
   double TrackLength_Y, TrackCentre_Y, BestTrackCentre_Y;
   double TrackLength_Z, TrackCentre_Z, BestTrackCentre_Z;
@@ -284,22 +282,23 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
       bool ValidTrack = false;
 
       // Work out Properties of the track.
-      tracklist[iTrk]->Extent(trackStart,trackEnd); 
+      recob::Track::Point_t trackStart, trackEnd;
+      std::tie(trackStart, trackEnd) = tracklist[iTrk]->Extent(); 
       std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
       size_t nHits = allHits.size();
       trkTimeStart = allHits[nHits-1]->PeakTime() / timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
       trkTimeEnd   = allHits[0]->PeakTime() / timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
-      TrackProp ( trackStart[0], trackEnd[0], TrackLength_X, TrackCentre_X,
-		  trackStart[1], trackEnd[1], TrackLength_Y, TrackCentre_Y,
-		  trackStart[2], trackEnd[2], TrackLength_Z, TrackCentre_Z,
+      TrackProp ( trackStart.X(), trackEnd.X(), TrackLength_X, TrackCentre_X,
+		  trackStart.Y(), trackEnd.Y(), TrackLength_Y, TrackCentre_Y,
+		  trackStart.Z(), trackEnd.Z(), TrackLength_Z, TrackCentre_Z,
 		  trkTimeStart , trkTimeEnd , trkTimeLengh , trkTimeCentre, // times in us!
 		  TrackLength);     
 
       // Some cout statement about track properties.
       if (fVerbosity) {
-	std::cout << trackStart[0] << " " << trackEnd[0] << " " << TrackLength_X << " " << TrackCentre_X 
-		  << "\n" << trackStart[1] << " " << trackEnd[1] << " " << TrackLength_Y << " " << TrackCentre_Y
-		  << "\n" << trackStart[2] << " " << trackEnd[2] << " " << TrackLength_Z << " " << TrackCentre_Z
+	std::cout << trackStart.X() << " " << trackEnd.X() << " " << TrackLength_X << " " << TrackCentre_X 
+		  << "\n" << trackStart.Y() << " " << trackEnd.Y() << " " << TrackLength_Y << " " << TrackCentre_Y
+		  << "\n" << trackStart.Z() << " " << trackEnd.Z() << " " << TrackLength_Z << " " << TrackCentre_Z
 		  << "\n" << trkTimeStart  << " " << trkTimeEnd  << " " << trkTimeLengh  << " " << trkTimeCentre
 		  << std::endl;
       }
