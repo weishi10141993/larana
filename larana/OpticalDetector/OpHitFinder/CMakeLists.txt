@@ -10,7 +10,7 @@ art_make(
                        ${MF_MESSAGELOGGER}
                        ${Boost_SYSTEM_LIBRARY}
                        ${FHICLCPP}
-                       ${CETLIB}
+                       cetlib cetlib_except
                        ${ROOT_BASIC_LIB_LIST}
          )
 
