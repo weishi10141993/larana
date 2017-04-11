@@ -12,6 +12,8 @@
 
 #include "OpFlashAlg.h"
 
+#include <numeric> // std::iota()
+
 namespace opdet{
 
   //----------------------------------------------------------------------------
