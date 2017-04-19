@@ -1,5 +1,5 @@
 /**
- * \file AlgoThreshold.hh
+ * \file AlgoThreshold.h
  *
  * \ingroup PulseReco
  * 
