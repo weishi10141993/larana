@@ -1,5 +1,4 @@
 ////////////////////////////////////////////////////////////////////////////
-// \version $Id$
 //
 // \brief A chisq-test based particle identification method using calorimetry information
 //
