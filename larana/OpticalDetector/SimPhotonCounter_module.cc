@@ -167,7 +167,7 @@ namespace opdet {
     fMakeDetectedPhotonsTree=  pset.get<bool>("MakeDetectedPhotonsTree");
     fMakeOpDetsTree=           pset.get<bool>("MakeOpDetsTree");
     fMakeOpDetEventsTree=      pset.get<bool>("MakeOpDetEventsTree");
-    fMakeLightAnalysisTree=    pset.get<bool>("MakeLightAnalysisTree");
+    fMakeLightAnalysisTree=    pset.get<bool>("MakeLightAnalysisTree", false);
     //fQE=                       pset.get<double>("QuantumEfficiency");
     //fWavelengthCutLow=         pset.get<double>("WavelengthCutLow");
     //fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");
