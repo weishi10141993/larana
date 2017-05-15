@@ -1,5 +1,5 @@
 /**
- * \file AlgoCFD.hh
+ * \file AlgoCFD.h
  *
  * \ingroup PulseReco
  * 

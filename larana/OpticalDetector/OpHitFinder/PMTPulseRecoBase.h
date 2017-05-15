@@ -1,5 +1,5 @@
 /**
- * \file PMTPulseRecoBase.hh
+ * \file PMTPulseRecoBase.h
  *
  * \ingroup PulseReco
  * 

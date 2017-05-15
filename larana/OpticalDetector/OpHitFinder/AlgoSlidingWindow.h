@@ -1,5 +1,5 @@
 /**
- * \file AlgoSlidingWindow.hh
+ * \file AlgoSlidingWindow.h
  *
  * \ingroup PulseReco
  * 

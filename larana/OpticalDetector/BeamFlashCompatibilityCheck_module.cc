@@ -72,9 +72,8 @@ namespace opdet {
 
 
 ////////////////////////////////////////////////////////////////////////
-/// \file  BeamFlashCompatabilityCheck_module.cc
+/// \file  BeamFlashCompatibilityCheck_module.cc
 ///
-/// \version $Id: SingleGen.cxx,v 1.4 2010/03/29 09:54:01 brebel Exp $
 /// \author  bjpjones
 ////////////////////////////////////////////////////////////////////////
 // Framework includes

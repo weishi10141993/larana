@@ -72,6 +72,7 @@ private:
     int         fEndTickPadding;
     int         fDetectorWidthTicks;
     int         fMinTickDrift, fMaxTickDrift;
+    int         fMaxOutOfTime;             ///< Max hits that can be out of time before rejecting
     float       fTPCXBoundary, fTPCYBoundary, fTPCZBoundary;
     float       fDetHalfHeight, fDetWidth, fDetLength;
 };
@@ -218,6 +219,8 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
         /////////////////////////////////////
         // Check that all hits on particle are "in time"
         /////////////////////////////////////
+        int nOutOfTime(0);
+        
         for ( unsigned int p = 0; p < hitVec.size(); p++)
         {
             int peakLessRms = hitVec[p]->PeakTimeMinusRMS();
@@ -226,9 +229,12 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
             //if( hitVec[p]->PeakTimeMinusRMS() < fMinTickDrift || hitVec[p]->PeakTimePlusRMS() > fMaxTickDrift)
             if( peakLessRms < fMinTickDrift || peakPlusRms > fMaxTickDrift)
             {
-                isCosmic = 1;
-                tag_id   = anab::CosmicTagID_t::kOutsideDrift_Partial;
-                break;     // If one hit is out of time it must be a cosmic ray
+                if (++nOutOfTime > fMaxOutOfTime)
+                {
+                    isCosmic = 1;
+                    tag_id   = anab::CosmicTagID_t::kOutsideDrift_Partial;
+                    break;     // If one hit is out of time it must be a cosmic ray
+                }
             }
         }
         
@@ -361,6 +367,7 @@ void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
     fPFParticleModuleLabel = p.get< std::string >("PFParticleModuleLabel");
     fTrackModuleLabel      = p.get< std::string >("TrackModuleLabel", "track");
     fEndTickPadding        = p.get<    int      >("EndTickPadding",   50);     // Fudge the TPC edge in ticks...
+    fMaxOutOfTime          = p.get<    int      >("MaxOutOfTime",      4);
 
     fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
     fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
