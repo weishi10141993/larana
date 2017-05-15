@@ -148,7 +148,7 @@ namespace opdet {
     std::vector<std::vector<double> > fSignalsvis;
     std::string fProcess;
     
-    
+    cheat::BackTracker* bt = nullptr;
   };
 }
 
@@ -180,6 +180,18 @@ namespace opdet {
     art::ServiceHandle<art::TFileService> tfs;
     art::ServiceHandle<phot::PhotonVisibilityService> pvs;
     art::ServiceHandle<geo::Geometry> geo;
+    
+    try {
+      bt = &*(art::ServiceHandle<cheat::BackTracker>());
+    }
+    catch (art::Exception const& e) {
+      if (e.categoryCode() != art::errors::ServiceNotFound) throw;
+      mf::LogError("SimPhotonCounter")
+        << "BackTracker service is not configured!"
+        " Please add it in the job configuration."
+        " In the meanwhile, some checks to particles will be skipped."
+        ;
+    }
     
     // Create and assign branch addresses to required tree
     if(fMakeAllPhotonsTree)
@@ -297,8 +309,7 @@ namespace opdet {
     //-------------------------stimation of dedx per trackID------------------------      
     
     //get the list of particles from this event                                           
-    art::ServiceHandle<cheat::BackTracker> bt;
-    const sim::ParticleList& plist = bt->ParticleList();
+    const sim::ParticleList* plist = bt? &(bt->ParticleList()): nullptr;
     
     // loop over all sim::SimChannels in the event and make sure there are no             
     // sim::IDEs with trackID values that are not in the sim::ParticleList                
@@ -320,9 +331,13 @@ namespace opdet {
         numIDEs += idevec.size();
 	//go over all of the IDEs in a given simchannel
         for(size_t iv = 0; iv < idevec.size(); ++iv){
-          if(plist.find( idevec[iv].trackID ) == plist.end()
-             && idevec[iv].trackID != sim::NoParticleId)
-	    mf::LogWarning("LArG4Ana") << idevec[iv].trackID << " is not in particle list";
+          if (plist) {
+            if(plist->find( idevec[iv].trackID ) == plist->end()
+               && idevec[iv].trackID != sim::NoParticleId)
+            {
+              mf::LogWarning("LArG4Ana") << idevec[iv].trackID << " is not in particle list";
+            }
+          }
           if(idevec[iv].trackID < 0) continue;
           totalCharge +=idevec[iv].numElectrons;
           scCharge += idevec[iv].numElectrons;
