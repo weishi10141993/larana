@@ -32,10 +32,14 @@ namespace pmtana{
       //############################################################
   {
 
-    _sample_size     = pset.get<size_t>("SampleSize",       7);
-    _threshold       = pset.get<double>("Threshold",        0.6);
-    _verbose         = pset.get<bool>  ("Verbose",          true);
-    _n_wf_to_csvfile = pset.get<int>   ("NWaveformsToFile", 12);
+    _sample_size     = pset.get<size_t>("SampleSize",       7    );
+    _threshold       = pset.get<double>("Threshold",        0.6  );
+    _max_sigma       = pset.get<float> ("MaxSigma",         0.5  );
+    _ped_range_max   = pset.get<float> ("PedRangeMax",      2150 );
+    _ped_range_min   = pset.get<float> ("PedRangeMin",      100  );
+
+    _verbose         = pset.get<bool>  ("Verbose",          true );
+    _n_wf_to_csvfile = pset.get<int>   ("NWaveformsToFile", 12   );
 
     if (_n_wf_to_csvfile > 0) {
       _csvfile.open ("wf_pedalgormsslider.csv", std::ofstream::out | std::ofstream::trunc);
@@ -323,10 +327,64 @@ namespace pmtana{
     }
 
 
-    return true;
+    bool is_sane = this->CheckSanity(mean_v, sigma_v);
+
+    return is_sane;
 
   }
 
+
+
+
+
+  //*******************************************
+  bool PedAlgoRmsSlider::CheckSanity(pmtana::PedestalMean_t& mean_v, pmtana::PedestalSigma_t& sigma_v)
+  //*******************************************
+  {
+
+    float  best_sigma = 1.1e9;
+    size_t best_sigma_index = 0;
+    size_t num_good_adc = 0;
+
+    for(size_t i=0; i<sigma_v.size(); ++i) {
+      // Only consider adcs which mean is in the allowed range
+      auto const& mean  = mean_v[i];
+
+      if( mean < _ped_range_min || mean > _ped_range_max ) continue;
+
+      auto const& sigma = sigma_v[i];
+      if(sigma < best_sigma) {
+        best_sigma = sigma;
+        best_sigma_index = i;
+      }
+
+      if(sigma < _max_sigma) num_good_adc += 1;
+    }
+
+
+    if( num_good_adc < 1 ) {
+      std::cerr << "\033[93m<<" << __FUNCTION__ << ">>\033[00m Could not find good pedestal at all..." << std::endl;
+      return false;
+    }
+
+    // If not enough # of good mean indices, use the best guess within this waveform
+    if(best_sigma > _max_sigma || num_good_adc < 3) {
+
+       if(_verbose) {
+         std::cout << "\033[93mPedAlgoRmsSlider\033[00m: Not enough number of good mean indices." 
+           << "Using the best guess within this waveform."
+           << std::endl; 
+       }
+
+      for(size_t i=0; i<mean_v.size(); ++i) {
+        mean_v[i]  = mean_v.at  ( best_sigma_index );
+        sigma_v[i] = sigma_v.at ( best_sigma_index );
+      }
+    }
+
+    return true;
+
+  }
 }
 
 #endif
