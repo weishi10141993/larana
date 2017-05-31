@@ -137,6 +137,18 @@ standard_algo_pedestal_rollingmean:
     PedRangeMin:     100
 }
 
+standard_algo_pedestal_rmsslider:
+{
+    Name: "RmsSlider"
+    SampleSize:       7
+    Threshold:        0.6
+    MaxSigma:         0.5
+    PedRangeMax:      2150
+    PedRangeMin:      100 
+    Verbose:          false
+    NWaveformsToFile: 12
+}
+
 standard_algo_pedestal_ub:
 {
     Name: "UB"
