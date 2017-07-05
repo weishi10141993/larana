@@ -21,7 +21,7 @@
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 #include "larcore/Geometry/Geometry.h"
-#include "larcore/CoreUtils/ProviderPack.h"
+#include "larcorealg/CoreUtils/ProviderPack.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"

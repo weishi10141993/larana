@@ -14,7 +14,7 @@
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 #include "lardataobj/RecoBase/OpHit.h"
-#include "larcore/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/GeometryCore.h"
 #include "lardata/DetectorInfo/DetectorClocks.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

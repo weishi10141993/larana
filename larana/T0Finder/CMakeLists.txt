@@ -3,7 +3,7 @@ simple_plugin(MCTruthT0Matching "module"
 		      lardataobj_RawData
 		      lardataobj_AnalysisBase
 		      lardataobj_RecoBase
-		        larcore_Geometry
+		        larcorealg_Geometry
 			larcore_Geometry_Geometry_service
 			lardata_Utilities
 			larsim_MCCheater_BackTracker_service
@@ -27,7 +27,7 @@ simple_plugin(PhotonCounterT0Matching "module"
 		      lardataobj_RawData
 		      lardataobj_AnalysisBase
 		      lardataobj_RecoBase
-		        larcore_Geometry
+		        larcorealg_Geometry
 			larcore_Geometry_Geometry_service
 			lardata_Utilities
 			larsim_MCCheater_BackTracker_service

@@ -14,7 +14,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include "larcore/Geometry/Geometry.h"
-#include "larcore/Geometry/OpDetGeo.h"
+#include "larcorealg/Geometry/OpDetGeo.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "lardata/DetectorInfo/LArProperties.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
