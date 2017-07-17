@@ -22,7 +22,7 @@
 #include <algorithm> // std::minmax() ...
 
 #include "larcore/Geometry/Geometry.h"
-#include "larcore/Geometry/geo.h"
+#include "larcorealg/Geometry/geo.h"
 
 #include "lardataobj/RecoBase/SpacePoint.h"
 #include "lardataobj/RecoBase/Hit.h"

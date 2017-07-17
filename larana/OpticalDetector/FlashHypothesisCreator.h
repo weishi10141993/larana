@@ -18,10 +18,10 @@
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/MCBase/MCTrack.h"
 
-#include "larcore/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/GeometryCore.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "lardata/DetectorInfo/LArProperties.h"
-#include "larcore/CoreUtils/ProviderPack.h"
+#include "larcorealg/CoreUtils/ProviderPack.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include "TVector3.h"

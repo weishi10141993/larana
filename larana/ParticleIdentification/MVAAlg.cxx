@@ -5,7 +5,7 @@
 
 #include "larana/ParticleIdentification/MVAAlg.h"
 #include "larcore/Geometry/Geometry.h"
-//#include "larcore/Geometry/TPCGeo.h"
+//#include "larcorealg/Geometry/TPCGeo.h"
 #include "lardata/DetectorInfo/DetectorProperties.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -16,7 +16,7 @@
 //#include "TF2.h"
 #include "TMatrix.h"
 #include "TVectorD.h"
-#include "larcore/CoreUtils/quiet_Math_Functor.h" // remove the wrapper when ROOT header is fixed
+#include "larcorealg/CoreUtils/quiet_Math_Functor.h" // remove the wrapper when ROOT header is fixed
 #include <Fit/Fitter.h>
 //#include "TVirtualFitter.h"
 #include "canvas/Persistency/Common/FindManyP.h"

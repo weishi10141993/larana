@@ -12,7 +12,7 @@ art_make(
 	LIB_LIBRARIES 
 		     lardataobj_RecoBase
 		     lardataobj_AnalysisBase
-		     larcore_Geometry
+		     larcorealg_Geometry
 		     larcore_Geometry_Geometry_service
 		     larsim_PhotonPropagation_PhotonVisibilityService_service
 		     larana_OpticalDetector_OpDigiProperties_service
@@ -36,7 +36,7 @@ art_make(
 			    lardataobj_RecoBase
 			    lardata_ArtDataHelper
 			    lardataobj_MCBase
-			    larcore_Geometry
+			    larcorealg_Geometry
 			    larcore_Geometry_Geometry_service
 			    larsim_PhotonPropagation_PhotonVisibilityService_service
 		            larana_OpticalDetector_OpDigiProperties_service

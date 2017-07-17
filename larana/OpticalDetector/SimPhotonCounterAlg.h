@@ -13,7 +13,7 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "larcore/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/GeometryCore.h"
 #include "OpDigiProperties.h"
 
 namespace opdet{

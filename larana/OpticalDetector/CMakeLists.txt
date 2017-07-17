@@ -9,7 +9,7 @@ art_make(
                            larana_OpticalDetector_OpHitFinder
                            larsim_MCSTReco
                            lardataobj_MCBase
-                           larcore_Geometry
+                           larcorealg_Geometry
                            larcore_Geometry_Geometry_service
                            larsim_PhotonPropagation_PhotonVisibilityService_service
                            larana_OpticalDetector_OpDigiProperties_service
@@ -40,7 +40,7 @@ art_make(
                            lardataobj_RecoBase
                            lardataobj_MCBase
                            larreco_RecoAlg
-                           larcore_Geometry
+                           larcorealg_Geometry
                            larcore_Geometry_Geometry_service
                            larsim_Simulation nutools_ParticleNavigation lardataobj_Simulation
                            lardata_Utilities
@@ -65,7 +65,7 @@ art_make(
                            cetlib cetlib_except
                            ${ROOT_BASIC_LIB_LIST}
           SERVICE_LIBRARIES
-                           larcore_Geometry
+                           larcorealg_Geometry
                            larcore_Geometry_Geometry_service
                            ${ART_FRAMEWORK_CORE}
                            ${ART_FRAMEWORK_PRINCIPAL}

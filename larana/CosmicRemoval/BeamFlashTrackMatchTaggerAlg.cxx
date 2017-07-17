@@ -10,7 +10,7 @@
 */
 
 #include "BeamFlashTrackMatchTaggerAlg.h"
-#include "larcore/Geometry/OpDetGeo.h"
+#include "larcorealg/Geometry/OpDetGeo.h"
 #include <limits>
 
 cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p) 

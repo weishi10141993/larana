@@ -2,7 +2,7 @@
 
 art_make( 
 	LIB_LIBRARIES
-		larcore_Geometry
+		larcorealg_Geometry
 		lardataobj_RecoBase
                 lardataobj_AnalysisBase
                 ${FHICLCPP}
