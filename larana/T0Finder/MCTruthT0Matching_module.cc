@@ -128,6 +128,7 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
   // Call appropriate produces<>() functions here.
   produces< std::vector<anab::T0>               >();
   produces< art::Assns<recob::Track , anab::T0> >();
+  produces< art::Assns<recob::Track , simb::MCParticle, std::pair<double, double> > >();
   produces< art::Assns<recob::Shower, anab::T0> > ();
   reconfigure(p);
 }
@@ -172,11 +173,19 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
     art::fill_ptr_vector(showerlist, showerListHandle); 
   //if (!showerListHandle.isValid()) showerListHandle.clear();
 
+  auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >("largeant");
+  simb::MCParticle const *firstParticle = &mcpartHandle->front();
   // Create anab::T0 objects and make association with recob::Track
   
   std::unique_ptr< std::vector<anab::T0> > T0col( new std::vector<anab::T0>);
   std::unique_ptr< art::Assns<recob::Track, anab::T0> > Trackassn( new art::Assns<recob::Track, anab::T0>);
+  std::unique_ptr< art::Assns<recob::Track, simb::MCParticle, std::pair<double, double> > > MCPartassn( new art::Assns<recob::Track, simb::MCParticle, std::pair<double, double> >);
   std::unique_ptr< art::Assns<recob::Shower, anab::T0> > Showerassn( new art::Assns<recob::Shower, anab::T0>);
+  
+//  std::pair<double, std::string> cleanliness(1,"cleanliness");
+//  std::pair<double, std::string> completeness(1,"completeness");
+//  cleanlinessCompleteness->push_back(cleanliness);
+//  cleanlinessCompleteness->push_back(completeness);
 
   if (trackListHandle.isValid()){
   //Access tracks and hits
@@ -226,8 +235,18 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 				TrueTrackID,
 				(*T0col).size()
 				));
+      auto diff = particle - firstParticle;
+      if (diff >= (int)mcpartHandle->size()){
+        std::cout << "Error, the backtracker is doing weird things to your pointers!" << std::endl;
+        throw std::exception();
+      }
+      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, particle - firstParticle);
+//      const std::vertex< std::pair<double, std::string> > cleanlinessCompleteness;
+      const std::pair<double, double> tmp(0.5, 0.5);
+      MCPartassn->addSingle(tracklist[iTrk], mcpartPtr, tmp);
       util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);    
-      fTree -> Fill();  
+//      util::CreateAssn(*this, evt, *particle, tracklist[iTrk], *MCPartassn);    
+      fTree -> Fill();
     } // Loop over tracks   
   }
   
@@ -278,6 +297,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
   
   evt.put(std::move(T0col));
   evt.put(std::move(Trackassn));
+  evt.put(std::move(MCPartassn));
   evt.put(std::move(Showerassn));
 
 } // Produce
