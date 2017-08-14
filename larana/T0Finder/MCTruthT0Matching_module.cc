@@ -174,13 +174,16 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
   //if (!showerListHandle.isValid()) showerListHandle.clear();
 
   auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >("largeant");
-  simb::MCParticle const *firstParticle = &mcpartHandle->front();
+  //std::cout << "got MCParticleHandle" << std::endl;
+//  simb::MCParticle const *firstParticle = &mcpartHandle->front();
+//  std::cout << "got firstParticle" << std::endl;
   // Create anab::T0 objects and make association with recob::Track
   
   std::unique_ptr< std::vector<anab::T0> > T0col( new std::vector<anab::T0>);
   std::unique_ptr< art::Assns<recob::Track, anab::T0> > Trackassn( new art::Assns<recob::Track, anab::T0>);
   std::unique_ptr< art::Assns<recob::Track, simb::MCParticle, std::pair<double, double> > > MCPartassn( new art::Assns<recob::Track, simb::MCParticle, std::pair<double, double> >);
   std::unique_ptr< art::Assns<recob::Shower, anab::T0> > Showerassn( new art::Assns<recob::Shower, anab::T0>);
+  //std::cout << "made assns to MCParticle" << std::endl;
   
 //  std::pair<double, std::string> cleanliness(1,"cleanliness");
 //  std::pair<double, std::string> completeness(1,"completeness");
@@ -222,11 +225,21 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       }
       
       // Now have trackID, so get PdG code and T0 etc.
-      const simb::MCParticle *particle = bt->TrackIDToParticle(TrackID);
-      if (!particle) continue;
-      TrueTrackT0 = particle->T();
-      TrueTrackID = particle->TrackId();
+      const simb::MCParticle *tmpParticle = bt->TrackIDToParticle(TrackID);
+      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
+      // Now, loop through the MCParticle's myself to find the correct match
+      int mcpart_i(-1);
+      for (auto const particle : *mcpartHandle){
+        mcpart_i++;
+        if (TrackID == particle.TrackId()){
+          break;
+        }
+      }
+      const simb::MCParticle particle = mcpartHandle.product()->at(mcpart_i);
+      TrueTrackT0 = particle.T();
+      TrueTrackID = particle.TrackId();
       TrueTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
+      //std::cout << "Got particle, PDG = " << particle.PdgCode() << std::endl;
       
       //std::cout << "Filling T0col with " << TrueTrackT0 << " " << TrueTriggerType << " " << TrueTrackID << " " << (*T0col).size() << std::endl;
       
@@ -235,12 +248,15 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 				TrueTrackID,
 				(*T0col).size()
 				));
-      auto diff = particle - firstParticle;
+      //auto diff = particle - firstParticle;
+      auto diff = mcpart_i; // check I have a sensible value for this counter
       if (diff >= (int)mcpartHandle->size()){
         std::cout << "Error, the backtracker is doing weird things to your pointers!" << std::endl;
         throw std::exception();
       }
-      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, particle - firstParticle);
+//      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, particle - firstParticle);
+      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
+      //std::cout << "made MCParticle Ptr" << std::endl;
 //      const std::vertex< std::pair<double, std::string> > cleanlinessCompleteness;
       const std::pair<double, double> tmp(0.5, 0.5);
       MCPartassn->addSingle(tracklist[iTrk], mcpartPtr, tmp);
