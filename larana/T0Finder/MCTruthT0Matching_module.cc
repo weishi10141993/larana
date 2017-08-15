@@ -72,6 +72,7 @@
 #include "lardataobj/RawData/ExternalTrigger.h"
 #include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h"
 #include "lardataobj/AnalysisBase/ParticleID.h"
+#include "lardataobj/AnalysisBase/anab::BackTrackerMatchingData.h"
 
 // ROOT
 #include "TTree.h"
@@ -128,7 +129,7 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
   // Call appropriate produces<>() functions here.
   produces< std::vector<anab::T0>               >();
   produces< art::Assns<recob::Track , anab::T0> >();
-  produces< art::Assns<recob::Track , simb::MCParticle, std::pair<double, double> > >();
+  produces< art::Assns<recob::Track , simb::MCParticle, anab::BackTrackerMatchingData > > ();
   produces< art::Assns<recob::Shower, anab::T0> > ();
   reconfigure(p);
 }
@@ -181,15 +182,10 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
   
   std::unique_ptr< std::vector<anab::T0> > T0col( new std::vector<anab::T0>);
   std::unique_ptr< art::Assns<recob::Track, anab::T0> > Trackassn( new art::Assns<recob::Track, anab::T0>);
-  std::unique_ptr< art::Assns<recob::Track, simb::MCParticle, std::pair<double, double> > > MCPartassn( new art::Assns<recob::Track, simb::MCParticle, std::pair<double, double> >);
+  std::unique_ptr< art::Assns<recob::Track, simb::MCParticle, anab::BackTrackerMatchingData > > MCPartassn( new art::Assns<recob::Track, simb::MCParticle, anab::BackTrackerMatchingData >);
   std::unique_ptr< art::Assns<recob::Shower, anab::T0> > Showerassn( new art::Assns<recob::Shower, anab::T0>);
   //std::cout << "made assns to MCParticle" << std::endl;
   
-//  std::pair<double, std::string> cleanliness(1,"cleanliness");
-//  std::pair<double, std::string> completeness(1,"completeness");
-//  cleanlinessCompleteness->push_back(cleanliness);
-//  cleanlinessCompleteness->push_back(completeness);
-
   if (trackListHandle.isValid()){
   //Access tracks and hits
     art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
@@ -201,6 +197,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       TrueTrackT0 = 0;
       TrackID     = 0;
       TrueTrackID = 0;
+      anab::BackTrackerMatchingData btdata;
       std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
       
       std::map<int,double> trkide;
@@ -223,6 +220,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	  TrackID = ii->first;
 	}
       }
+      btdata.cleanliness = maxe/tote;
       
       // Now have trackID, so get PdG code and T0 etc.
       const simb::MCParticle *tmpParticle = bt->TrackIDToParticle(TrackID);
@@ -254,15 +252,12 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
         std::cout << "Error, the backtracker is doing weird things to your pointers!" << std::endl;
         throw std::exception();
       }
-//      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, particle - firstParticle);
+      
       art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
-      //std::cout << "made MCParticle Ptr" << std::endl;
-//      const std::vertex< std::pair<double, std::string> > cleanlinessCompleteness;
-      const std::pair<double, double> tmp(0.5, 0.5);
-      MCPartassn->addSingle(tracklist[iTrk], mcpartPtr, tmp);
+      MCPartassn->addSingle(tracklist[iTrk], mcpartPtr, btdata);
       util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);    
-//      util::CreateAssn(*this, evt, *particle, tracklist[iTrk], *MCPartassn);    
       fTree -> Fill();
+    
     } // Loop over tracks   
   }
   
