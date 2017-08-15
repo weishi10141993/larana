@@ -5,6 +5,7 @@ standard_mctrutht0matching:
     module_type:              "MCTruthT0Matching"
     TrackModuleLabel:         ""
     ShowerModuleLabel:        ""
+    PFParticleModuleLabel:    ""
 #   TrackModuleLabel:         "track3d"
 
 }
