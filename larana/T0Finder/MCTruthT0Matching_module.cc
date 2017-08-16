@@ -63,6 +63,8 @@
 #include "lardataobj/RecoBase/SpacePoint.h"
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/RecoBase/Shower.h"
+#include "lardataobj/RecoBase/Cluster.h"
+#include "lardataobj/RecoBase/PFParticle.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
@@ -72,6 +74,7 @@
 #include "lardataobj/RawData/ExternalTrigger.h"
 #include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h"
 #include "lardataobj/AnalysisBase/ParticleID.h"
+#include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 
 // ROOT
 #include "TTree.h"
@@ -106,6 +109,9 @@ private:
   // Params got from fcl file
   std::string fTrackModuleLabel;
   std::string fShowerModuleLabel;
+  std::string fPFParticleModuleLabel;
+  bool fMakeT0Assns;
+  bool fMakePFParticleAssns;
 
   // Variable in TFS branches
   TTree* fTree;
@@ -126,10 +132,22 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
 // Initialize member data here, if know don't want to reconfigure on the fly
 {
   // Call appropriate produces<>() functions here.
-  produces< std::vector<anab::T0>               >();
-  produces< art::Assns<recob::Track , anab::T0> >();
-  produces< art::Assns<recob::Shower, anab::T0> > ();
   reconfigure(p);
+  if (fMakeT0Assns){ // T0 assns are deprecated - this allows one to use deprecated funcionality. Added 2017-08-15. Should not be kept around forever
+    std::cout << "WARNING - You are using deprecated functionality\n";
+    std::cout << "MCTruthT0Matching T0 assns will be removed soon\n";
+    std::cout << "set your fcl parameter makeT0Assns to false and use MCParticle direct associations instead" << std::endl;
+    produces< std::vector<anab::T0>               >();
+    produces< art::Assns<recob::Track , anab::T0> >();
+    produces< art::Assns<recob::Shower, anab::T0> > ();
+    if (fMakePFParticleAssns){produces< art::Assns<recob::PFParticle, anab::T0> > ();}// only do PFParticles if desired by the user
+  }
+  
+  produces< art::Assns<recob::Track , simb::MCParticle, anab::BackTrackerMatchingData > > ();
+  produces< art::Assns<recob::Shower, simb::MCParticle, anab::BackTrackerMatchingData > > ();
+  if (fMakePFParticleAssns){ // only do PFParticles if desired by the user
+    produces< art::Assns<recob::PFParticle, simb::MCParticle, anab::BackTrackerMatchingData > > ();
+  }
 }
 
 void t0::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
@@ -137,6 +155,9 @@ void t0::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
   // Implementation of optional member function here.
   fTrackModuleLabel  = (p.get< std::string > ("TrackModuleLabel" ) );
   fShowerModuleLabel = (p.get< std::string > ("ShowerModuleLabel") );
+  fPFParticleModuleLabel = (p.get< std::string > ("PFParticleModuleLabel", "pandoraNu") );
+  fMakeT0Assns = (p.get< bool > ("makeT0Assns", true) );
+  fMakePFParticleAssns =  (p.get< bool > ("makePFParticleAssns", false) );
 }
 
 void t0::MCTruthT0Matching::beginJob()
@@ -172,12 +193,34 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
     art::fill_ptr_vector(showerlist, showerListHandle); 
   //if (!showerListHandle.isValid()) showerListHandle.clear();
 
-  // Create anab::T0 objects and make association with recob::Track
-  
-  std::unique_ptr< std::vector<anab::T0> > T0col( new std::vector<anab::T0>);
-  std::unique_ptr< art::Assns<recob::Track, anab::T0> > Trackassn( new art::Assns<recob::Track, anab::T0>);
-  std::unique_ptr< art::Assns<recob::Shower, anab::T0> > Showerassn( new art::Assns<recob::Shower, anab::T0>);
+  //PFParticleList handle
+  art::Handle< std::vector<recob::PFParticle> > pfparticleListHandle;
+  std::vector<art::Ptr<recob::PFParticle> > pfparticlelist;
+  if (evt.getByLabel(fPFParticleModuleLabel,pfparticleListHandle))
+    art::fill_ptr_vector(pfparticlelist, pfparticleListHandle); 
+  //if (!pfparticleListHandle.isValid()) pfparticleListHandle.clear();
 
+
+  auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >("largeant");
+//  simb::MCParticle const *firstParticle = &mcpartHandle->front();
+  // Create anab::T0 objects and make association with recob::Track, recob::Shower, and recob::PFParticle objects
+  std::unique_ptr< std::vector<anab::T0> > T0col( new std::vector<anab::T0>);
+//  if (fMakeT0Assns){ // T0 assns are deprecated - this allows one to use deprecated funcionality. Added 2017-08-15. Should not be kept around forever
+    std::unique_ptr< art::Assns<recob::Track, anab::T0> > Trackassn( new art::Assns<recob::Track, anab::T0>);
+    std::unique_ptr< art::Assns<recob::Shower, anab::T0> > Showerassn( new art::Assns<recob::Shower, anab::T0>);
+//    if (fMakePFParticleAssns){
+      std::unique_ptr< art::Assns<recob::PFParticle, anab::T0> > PFParticleassn( new art::Assns<recob::PFParticle, anab::T0>);
+//    }
+//  }
+
+  // Create associations directly between MCParticle and either recob::Track, recob::Shower, or recob::PFParticle
+  // These associations contain metadata summarising the quality of the match
+  std::unique_ptr< art::Assns<recob::Track, simb::MCParticle, anab::BackTrackerMatchingData > > MCPartTrackassn( new art::Assns<recob::Track, simb::MCParticle, anab::BackTrackerMatchingData >);
+  std::unique_ptr< art::Assns<recob::Shower, simb::MCParticle, anab::BackTrackerMatchingData> > MCPartShowerassn( new art::Assns<recob::Shower, simb::MCParticle, anab::BackTrackerMatchingData>);
+//  if (fMakePFParticleAssns){
+    std::unique_ptr< art::Assns<recob::PFParticle, simb::MCParticle,anab::BackTrackerMatchingData> > MCPartPFParticleassn( new art::Assns<recob::PFParticle, simb::MCParticle, anab::BackTrackerMatchingData>);
+//  }
+  
   if (trackListHandle.isValid()){
   //Access tracks and hits
     art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
@@ -189,6 +232,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       TrueTrackT0 = 0;
       TrackID     = 0;
       TrueTrackID = 0;
+      anab::BackTrackerMatchingData btdata;
       std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
       
       std::map<int,double> trkide;
@@ -211,13 +255,24 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	  TrackID = ii->first;
 	}
       }
+      btdata.cleanliness = maxe/tote;
       
       // Now have trackID, so get PdG code and T0 etc.
-      const simb::MCParticle *particle = bt->TrackIDToParticle(TrackID);
-      if (!particle) continue;
-      TrueTrackT0 = particle->T();
-      TrueTrackID = particle->TrackId();
+      const simb::MCParticle *tmpParticle = bt->TrackIDToParticle(TrackID);
+      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
+      // Now, loop through the MCParticle's myself to find the correct match
+      int mcpart_i(-1);
+      for (auto const particle : *mcpartHandle){
+        mcpart_i++;
+        if (TrackID == particle.TrackId()){
+          break;
+        }
+      }
+      const simb::MCParticle particle = mcpartHandle.product()->at(mcpart_i);
+      TrueTrackT0 = particle.T();
+      TrueTrackID = particle.TrackId();
       TrueTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
+      //std::cout << "Got particle, PDG = " << particle.PdgCode() << std::endl;
       
       //std::cout << "Filling T0col with " << TrueTrackT0 << " " << TrueTriggerType << " " << TrueTrackID << " " << (*T0col).size() << std::endl;
       
@@ -226,8 +281,20 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 				TrueTrackID,
 				(*T0col).size()
 				));
-      util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);    
-      fTree -> Fill();  
+      //auto diff = particle - firstParticle;
+      auto diff = mcpart_i; // check I have a sensible value for this counter
+      if (diff >= (int)mcpartHandle->size()){
+        std::cout << "Error, the backtracker is doing weird things to your pointers!" << std::endl;
+        throw std::exception();
+      }
+      
+      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
+      MCPartTrackassn->addSingle(tracklist[iTrk], mcpartPtr, btdata);
+      if (fMakeT0Assns){
+        util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);
+      }
+      fTree -> Fill();
+    
     } // Loop over tracks   
   }
   
@@ -240,6 +307,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       ShowerID          = 0;
       ShowerT0          = 0;
       std::vector< art::Ptr<recob::Hit> > allHits = fmsht.at(Shower);
+      anab::BackTrackerMatchingData btdata;
       
       std::map<int,double> showeride;
       for(size_t h = 0; h < allHits.size(); ++h){
@@ -261,24 +329,151 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	  ShowerID = ii->first;
 	}
       }
+      btdata.cleanliness = maxe/tote;
+
+
+
+
       // Now have MCParticle trackID corresponding to shower, so get PdG code and T0 etc.
-      const simb::MCParticle *particle = bt->TrackIDToParticle(ShowerID);
-      if (!particle) continue;
-      ShowerT0 = particle->T();
-      ShowerID = particle->TrackId();
+      const simb::MCParticle *tmpParticle = bt->TrackIDToParticle(ShowerID);
+      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
+      // Now, loop through the MCParticle's myself to find the correct match
+      int mcpart_i(-1);
+      for (auto const particle : *mcpartHandle){
+        mcpart_i++;
+        if (ShowerID == particle.TrackId()){
+          break;
+        }
+      }
+      const simb::MCParticle particle = mcpartHandle.product()->at(mcpart_i);
+      ShowerT0 = particle.T();
+      ShowerID = particle.TrackId();
       ShowerTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
       T0col->push_back(anab::T0(ShowerT0,
 				ShowerTriggerType,
 				ShowerID,
 				(*T0col).size()
 				));
-      util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);    
+      
+      auto diff = mcpart_i; // check I have a sensible value for this counter
+      if (diff >= (int)mcpartHandle->size()){
+        std::cout << "Error, the backtracker is doing weird things to your pointers!" << std::endl;
+        throw std::exception();
+      }
+      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
+      if (fMakeT0Assns){
+        util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);    
+      }
+      MCPartShowerassn->addSingle(showerlist[Shower], mcpartPtr, btdata);
+    
     }// Loop over showers
   }
   
-  evt.put(std::move(T0col));
-  evt.put(std::move(Trackassn));
-  evt.put(std::move(Showerassn));
+
+  if (pfparticleListHandle.isValid()){
+    //Access pfparticles and hits
+    art::FindManyP<recob::Cluster> fmcp(pfparticleListHandle, evt, fPFParticleModuleLabel);
+      //art::FindManyP<recob::Hit> fmtht(pfparticleListHandle, evt, fPfparticleModuleLabel);
+    
+    size_t NPfparticles = pfparticlelist.size();
+    
+    // Now to access MCTruth for each pfparticle... 
+    for(size_t iPfp=0; iPfp < NPfparticles; ++iPfp) { 
+      TrueTrackT0 = 0;
+      TrackID     = 0;
+      TrueTrackID = 0;
+      anab::BackTrackerMatchingData btdata;
+      
+      std::vector< art::Ptr<recob::Hit> > allHits;
+      //Get all hits through associated clusters
+      std::vector< art::Ptr<recob::Cluster>> allClusters = fmcp.at(iPfp);
+      art::FindManyP<recob::Hit> fmhcl(allClusters, evt, fPFParticleModuleLabel);
+      for (size_t iclu = 0; iclu<allClusters.size(); ++iclu){
+        std::vector< art::Ptr<recob::Hit>> hits = fmhcl.at(iclu);
+        allHits.insert(allHits.end(), hits.begin(), hits.end());
+      }
+
+      std::map<int,double> trkide;
+      for(size_t h = 0; h < allHits.size(); ++h){
+	art::Ptr<recob::Hit> hit = allHits[h];
+	std::vector<sim::IDE> ides;
+	std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
+	
+	for(size_t e = 0; e < TrackIDs.size(); ++e){
+	  trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
+	}
+      }
+      // Work out which IDE despoited the most charge in the hit if there was more than one.
+      double maxe = -1;
+      double tote = 0;
+      for (std::map<int,double>::iterator ii = trkide.begin(); ii!=trkide.end(); ++ii){
+	tote += ii->second;
+	if ((ii->second)>maxe){
+	  maxe = ii->second;
+	  TrackID = ii->first;
+	}
+      }
+      btdata.cleanliness = maxe/tote;
+      
+      // Now have trackID, so get PdG code and T0 etc.
+      const simb::MCParticle *tmpParticle = bt->TrackIDToParticle(TrackID);
+      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
+      // Now, loop through the MCParticle's myself to find the correct match
+      int mcpart_i(-1);
+      for (auto const particle : *mcpartHandle){
+        mcpart_i++;
+        if (TrackID == particle.TrackId()){
+          break;
+        }
+      }
+      const simb::MCParticle particle = mcpartHandle.product()->at(mcpart_i);
+      TrueTrackT0 = particle.T();
+      TrueTrackID = particle.TrackId();
+      TrueTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
+      //std::cout << "Got particle, PDG = " << particle.PdgCode() << std::endl;
+      
+      //std::cout << "Filling T0col with " << TrueTrackT0 << " " << TrueTriggerType << " " << TrueTrackID << " " << (*T0col).size() << std::endl;
+      
+      T0col->push_back(anab::T0(TrueTrackT0,
+				TrueTriggerType,
+				TrueTrackID,
+				(*T0col).size()
+				));
+      //auto diff = particle - firstParticle;
+      auto diff = mcpart_i; // check I have a sensible value for this counter
+      if (diff >= (int)mcpartHandle->size()){
+        std::cout << "Error, the backtracker is doing weird things to your pointers!" << std::endl;
+        throw std::exception();
+      }
+//      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, particle - firstParticle);
+      art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
+      //std::cout << "made MCParticle Ptr" << std::endl;
+//      const std::vertex< std::pair<double, std::string> > cleanlinessCompleteness;
+//      const std::pair<double, double> tmp(0.5, 0.5);
+//      MCPartassn->addSingle(tracklist[iPfp], mcpartPtr, tmp);
+      if (fMakePFParticleAssns){
+        if (fMakeT0Assns){
+          util::CreateAssn(*this, evt, *T0col, pfparticlelist[iPfp], *PFParticleassn);
+        }
+        MCPartPFParticleassn->addSingle(pfparticlelist[iPfp], mcpartPtr, btdata);
+      }
+      fTree -> Fill();
+    } // Loop over tracks   
+  }
+
+  if (fMakeT0Assns){
+    evt.put(std::move(T0col));
+    evt.put(std::move(Trackassn));
+    evt.put(std::move(Showerassn));
+    if (fMakePFParticleAssns){
+      evt.put(std::move(PFParticleassn));
+    }
+  }
+  evt.put(std::move(MCPartTrackassn));
+  evt.put(std::move(MCPartShowerassn));
+  if (fMakePFParticleAssns){
+    evt.put(std::move(MCPartPFParticleassn));
+  }
 
 } // Produce
 
