@@ -308,47 +308,49 @@ namespace opdet {
     
     //-------------------------stimation of dedx per trackID------------------------      
     
-    //get the list of particles from this event                                           
-    const sim::ParticleList* plist = bt? &(bt->ParticleList()): nullptr;
-    
-    // loop over all sim::SimChannels in the event and make sure there are no             
-    // sim::IDEs with trackID values that are not in the sim::ParticleList                
-    std::vector<const sim::SimChannel*> sccol;
-    //evt.getView(fG4ModuleLabel, sccol);                                                 
-    evt.getView("largeant", sccol);
-    double totalCharge=0.0;
-    double totalEnergy=0.0;
+    //get the list of particles from this event       
     double totalEnergy_track[1000] = {0.};      
-    //loop over the sim channels collection  
-    for(size_t sc = 0; sc < sccol.size(); ++sc){
-      double numIDEs=0.0;
-      double scCharge=0.0;
-      double scEnergy=0.0;
-      const auto & tdcidemap = sccol[sc]->TDCIDEMap();
-      //loop over all of the tdc IDE map objects
-      for(auto mapitr = tdcidemap.begin(); mapitr != tdcidemap.end(); mapitr++){
-        const std::vector<sim::IDE> idevec = (*mapitr).second;
-        numIDEs += idevec.size();
-        //go over all of the IDEs in a given simchannel
-        for(size_t iv = 0; iv < idevec.size(); ++iv){
-          if (plist) {
-            if(plist->find( idevec[iv].trackID ) == plist->end()
-                && idevec[iv].trackID != sim::NoParticleId)
-            {
-              mf::LogWarning("LArG4Ana") << idevec[iv].trackID << " is not in particle list";
+    if(fMakeLightAnalysisTree){
+      const sim::ParticleList* plist = bt? &(bt->ParticleList()): nullptr;
+      
+      // loop over all sim::SimChannels in the event and make sure there are no             
+      // sim::IDEs with trackID values that are not in the sim::ParticleList                
+      std::vector<const sim::SimChannel*> sccol;
+      //evt.getView(fG4ModuleLabel, sccol);                                                 
+      evt.getView("largeant", sccol);
+      double totalCharge=0.0;
+      double totalEnergy=0.0;
+      //loop over the sim channels collection  
+      for(size_t sc = 0; sc < sccol.size(); ++sc){
+        double numIDEs=0.0;
+        double scCharge=0.0;
+        double scEnergy=0.0;
+        const auto & tdcidemap = sccol[sc]->TDCIDEMap();
+        //loop over all of the tdc IDE map objects
+        for(auto mapitr = tdcidemap.begin(); mapitr != tdcidemap.end(); mapitr++){
+          const std::vector<sim::IDE> idevec = (*mapitr).second;
+          numIDEs += idevec.size();
+          //go over all of the IDEs in a given simchannel
+          for(size_t iv = 0; iv < idevec.size(); ++iv){
+            if (plist) {
+              if(plist->find( idevec[iv].trackID ) == plist->end()
+                  && idevec[iv].trackID != sim::NoParticleId)
+              {
+                mf::LogWarning("LArG4Ana") << idevec[iv].trackID << " is not in particle list";
+              }
             }
+            if(idevec[iv].trackID < 0) continue;
+            totalCharge +=idevec[iv].numElectrons;
+            scCharge += idevec[iv].numElectrons;
+            totalEnergy +=idevec[iv].energy;
+            scEnergy += idevec[iv].energy;
+            
+            totalEnergy_track[idevec[iv].trackID] += idevec[iv].energy/3.;
           }
-          if(idevec[iv].trackID < 0) continue;
-          totalCharge +=idevec[iv].numElectrons;
-          scCharge += idevec[iv].numElectrons;
-          totalEnergy +=idevec[iv].energy;
-          scEnergy += idevec[iv].energy;
-          
-          totalEnergy_track[idevec[iv].trackID] += idevec[iv].energy/3.;
         }
       }
-    }
-    
+    }//End of if(fMakeLightAnalysisTree)
+
     
     if(!fUseLitePhotons)
     {
