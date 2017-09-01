@@ -356,10 +356,10 @@ namespace opdet {
       sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,fInputModule);
       
       //Reset counters
-	    fCountEventAll=0;
-	    fCountEventDetected=0;
-	
-	    if(TheHitCollection.size()>0)
+      fCountEventAll=0;
+      fCountEventDetected=0;
+  
+      if(TheHitCollection.size()>0)
       {
         if(fMakeLightAnalysisTree) {
           //resetting the signalt to save in the analysis tree per event
@@ -434,7 +434,7 @@ namespace opdet {
               {
                 // Calculate wavelength in nm
                 fWavelength= odresponse->wavelength(Phot.Energy);
-                fTime= Phot.Time;		
+                fTime= Phot.Time;    
                 
                 if(fMakeLightAnalysisTree) {
                   if(fWavelength <200)
@@ -481,7 +481,7 @@ namespace opdet {
                 pvs->SetLibraryReflT0Entry(VoxID, fOpChannel, fT0_vis);
             }
             
-            // Incremenent per event and fill Per OpDet trees	    
+            // Incremenent per event and fill Per OpDet trees      
             if(fMakeOpDetsTree) fTheOpDetTree->Fill();
             fCountEventAll+=fCountOpDetAll;
             fCountEventDetected+=fCountOpDetDetected;
@@ -494,7 +494,7 @@ namespace opdet {
           if(fMakeOpDetEventsTree) fTheEventTree->Fill();
           
           // Give per event output
-          if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 	
+          if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;   
           
         }
         else
@@ -557,7 +557,7 @@ namespace opdet {
             }
             //filling the tree per track
             fLightAnalysisTree->Fill();
-          }	
+          }  
         }
       }
       else
@@ -620,7 +620,7 @@ namespace opdet {
               {
                 // Calculate wavelength in nm
                 fWavelength= 128;
-                fTime= it->first;		
+                fTime= it->first;    
                 
                 for(int i = 0; i < it->second; i++)
                 {
@@ -636,7 +636,7 @@ namespace opdet {
               }
             }
             
-            // Incremenent per event and fill Per OpDet trees	    
+            // Incremenent per event and fill Per OpDet trees      
             if(fMakeOpDetsTree) fTheOpDetTree->Fill();
             fCountEventAll+=fCountOpDetAll;
             fCountEventDetected+=fCountOpDetDetected;
@@ -648,7 +648,7 @@ namespace opdet {
           if(fMakeOpDetEventsTree) fTheEventTree->Fill();
           
           // Give per event output
-          if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 	
+          if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;   
           
         }
         else
