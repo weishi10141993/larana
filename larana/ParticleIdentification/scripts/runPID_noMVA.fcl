@@ -13,7 +13,7 @@ services:
   message:              @local::dune_message_services_prod_debug
   FileCatalogMetadata:  @local::art_file_catalog_mc
                         @table::dunefd_services
-  Geometry: @local::dune10kt_workspace_geo	
+  Geometry: @local::dune10kt_1x2x6_geo
 }
 
 #services:
@@ -50,9 +50,9 @@ physics:
 	pid: {
     		module_type:		"MVAPID"
 		HitLabel:		"linecluster"
-		TrackLabel:		"pandorashowers"
-		ShowerLabel:		"pandorashowers"
-		SpacePointLabel:	"pandorashowers"
+		TrackLabel:		"pandora"
+		ShowerLabel:		"pandora"
+		SpacePointLabel:	"pandora"
 		TrackingLabel:		"largeant"	
                 CalorimetryAlg:          @local::dune10kt_calorimetryalgmc
 #		MVAMethods:		[ "ANN","BDT" ]

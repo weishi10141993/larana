@@ -82,6 +82,10 @@ struct SumDistance2 {
     MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule);
     
     virtual ~MVAAlg();
+
+    void GetDetectorEdges();
+
+    void GetWireNormals();
     
     void reconfigure(fhicl::ParameterSet const& p);
 
@@ -121,6 +125,11 @@ struct SumDistance2 {
     const calo::CalorimetryAlg fCaloAlg;
     
     double fEventT0;
+
+    double fDetMinX, fDetMaxX, fDetMinY, fDetMaxY, fDetMinZ, fDetMaxZ;
+
+    std::map<int,double> fNormToWiresY;
+    std::map<int,double> fNormToWiresZ;
 
     const art::EDProducer* fParentModule;
 
