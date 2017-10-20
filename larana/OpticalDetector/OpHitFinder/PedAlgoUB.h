@@ -18,7 +18,8 @@
 // STL
 #include "PMTPedestalBase.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "PedAlgoRollingMean.h"
+//m #include "PedAlgoRollingMean.h"
+#include "PedAlgoRmsSlider.h"
 //#include "FhiclLite/PSet.h"
 
 namespace pmtana
@@ -52,7 +53,8 @@ namespace pmtana
     
   private:
 
-    PedAlgoRollingMean _beamgatealgo;
+//m    PedAlgoRollingMean _beamgatealgo;
+    PedAlgoRmsSlider _beamgatealgo;
     unsigned int _beam_gate_samples;
   };
 }
