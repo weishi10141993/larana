@@ -13,7 +13,8 @@
 #include "canvas/Persistency/Common/Ptr.h"
 
 //LArSoft includes
-#include "larsim/MCCheater/BackTracker.h"
+#include "larsim/MCCheater/BackTrackerService.h"
+#include "larsim/MCCheater/ParticleInventoryService.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/RecoBase/OpFlash.h"

@@ -55,7 +55,7 @@
 #include "larsim/Simulation/LArG4Parameters.h"
 #include "lardataobj/MCBase/MCTrack.h"
 #include "lardataobj/Simulation/SimChannel.h"
-#include "larsim/MCCheater/BackTracker.h"
+#include "larsim/MCCheater/ParticleInventoryService.h"
 
 // ROOT includes
 #include <TH1D.h>
@@ -148,7 +148,7 @@ namespace opdet {
       std::vector<std::vector<double> > fSignalsvis;
       std::string fProcess;
       
-      cheat::BackTracker* bt = nullptr;
+      cheat::ParticleInventoryService* pi_serv = nullptr;
   };
 }
 
@@ -182,12 +182,12 @@ namespace opdet {
     art::ServiceHandle<geo::Geometry> geo;
     
     try {
-      bt = &*(art::ServiceHandle<cheat::BackTracker>());
+      pi_serv = &*(art::ServiceHandle<cheat::ParticleInventoryService>());
     }
     catch (art::Exception const& e) {
       if (e.categoryCode() != art::errors::ServiceNotFound) throw;
       mf::LogError("SimPhotonCounter")
-        << "BackTracker service is not configured!"
+        << "ParticleInventoryService service is not configured!"
         " Please add it in the job configuration."
         " In the meanwhile, some checks to particles will be skipped."
         ;
@@ -311,7 +311,7 @@ namespace opdet {
     //get the list of particles from this event       
     double totalEnergy_track[1000] = {0.};      
     if(fMakeLightAnalysisTree){
-      const sim::ParticleList* plist = bt? &(bt->ParticleList()): nullptr;
+      const sim::ParticleList* plist = pi_serv? &(pi_serv->ParticleList()): nullptr;
       
       // loop over all sim::SimChannels in the event and make sure there are no             
       // sim::IDEs with trackID values that are not in the sim::ParticleList                
