@@ -234,13 +234,13 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 //  if (fMakePFParticleAssns){
     std::unique_ptr< art::Assns<recob::PFParticle, simb::MCParticle,anab::BackTrackerMatchingData> > MCPartPFParticleassn( new art::Assns<recob::PFParticle, simb::MCParticle, anab::BackTrackerMatchingData>);
 //  }
-  
-
+   // Association block for the hits<-->MCParticles
+      std::unique_ptr< art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData > > MCPartHitassn( new art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData >);
 
 
     double maxe = -1;
     double tote = 0;
-    int    trkid = -1;
+   // int    trkid = -1;
     int    maxtrkid = -1;
     anab::BackTrackerHitMatchingData bthmd;
 
@@ -249,8 +249,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
     //if we want to make per-hit assns
     if(fMakeHitAssns){
 
-      // Association block for the hits<-->MCParticles
-      std::unique_ptr< art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData > > MCPartHitassn( new art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData >);
+     
 
       art::Handle< std::vector<recob::Hit> > hitListHandle;
       evt.getByLabel(fHitModuleLabel,hitListHandle);
@@ -259,7 +258,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 
 	auto const& hitList(*hitListHandle);
 	auto const& mcpartList(*mcpartHandle);
-	for(size_t i_h=0; i_h<hitList.size() ++i_h;){
+	for(size_t i_h=0; i_h<hitList.size(); ++i_h){
 	  auto const& hit = hitList[i_h];
 	  auto trkide_list = bt->HitToTrackID(hit);
 	  std::map<int,double> trkide_collector;
@@ -267,7 +266,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	  for(auto const& t : trkide_list){
 	    trkide_collector[t.trackID] += t.energy;
 	    tote += t.energy;
-	    if(trkide_collector[t.trackID]>maxe) { maxe = trkide_hit[t.trackID]; maxtrkid = t.trackID; }
+	    if(trkide_collector[t.trackID]>maxe) { maxe = trkide_collector[t.trackID]; maxtrkid = t.trackID; }
 
 	    //if not found, find mc particle...
 	    if(trkid_lookup.find(t.trackID)==trkid_lookup.end()){
@@ -555,7 +554,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
     evt.put(std::move(MCPartPFParticleassn));
   }
   if(fMakeHitAssns)
-    evt.put(std::move(MCPartHitassn);
+    evt.put(std::move(MCPartHitassn));
 } // Produce
 
 DEFINE_ART_MODULE(t0::MCTruthT0Matching)
