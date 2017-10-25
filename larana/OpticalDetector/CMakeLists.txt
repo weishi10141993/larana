@@ -34,7 +34,7 @@ art_make(
                            larana_OpticalDetector_OpHitFinder
                            larana_OpticalDetector
                            larsim_PhotonPropagation_PhotonVisibilityService_service
-                           larsim_MCCheater_BackTracker_service
+                           larsim_MCCheater_BackTrackerService_service
                            larevt_Filters
                            lardata_RecoObjects larreco_Deprecated
                            lardataobj_RecoBase

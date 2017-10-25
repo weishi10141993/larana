@@ -70,7 +70,8 @@
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
-#include "larsim/MCCheater/BackTracker.h"
+#include "larsim/MCCheater/BackTrackerService.h"
+#include "larsim/MCCheater/ParticleInventoryService.h"
 #include "lardataobj/RawData/ExternalTrigger.h"
 #include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h"
 #include "lardataobj/AnalysisBase/ParticleID.h"
@@ -177,7 +178,8 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 
   // Access art services...
   art::ServiceHandle<geo::Geometry> geom;
-  art::ServiceHandle<cheat::BackTracker> bt;
+  art::ServiceHandle<cheat::BackTrackerService> bt_serv;
+  art::ServiceHandle<cheat::ParticleInventoryService> pi_serv;
 
   //TrackList handle
   art::Handle< std::vector<recob::Track> > trackListHandle;
@@ -239,7 +241,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       for(size_t h = 0; h < allHits.size(); ++h){
 	art::Ptr<recob::Hit> hit = allHits[h];
 	std::vector<sim::IDE> ides;
-	std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
+	std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
 	
 	for(size_t e = 0; e < TrackIDs.size(); ++e){
 	  trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
@@ -258,8 +260,8 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       btdata.cleanliness = maxe/tote;
       
       // Now have trackID, so get PdG code and T0 etc.
-      const simb::MCParticle *tmpParticle = bt->TrackIDToParticle(TrackID);
-      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
+      const simb::MCParticle *tmpParticle = pi_serv->TrackIdToParticle_P(TrackID);
+      if (!tmpParticle) continue; // Retain this check that the BackTrackerService can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
       for (auto const particle : *mcpartHandle){
@@ -313,7 +315,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       for(size_t h = 0; h < allHits.size(); ++h){
 	art::Ptr<recob::Hit> hit = allHits[h];
 	std::vector<sim::IDE> ides;
-	std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
+	std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
 	
 	for(size_t e = 0; e < TrackIDs.size(); ++e){
 	  showeride[TrackIDs[e].trackID] += TrackIDs[e].energy;
@@ -335,8 +337,8 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 
 
       // Now have MCParticle trackID corresponding to shower, so get PdG code and T0 etc.
-      const simb::MCParticle *tmpParticle = bt->TrackIDToParticle(ShowerID);
-      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
+      const simb::MCParticle *tmpParticle = pi_serv->TrackIdToParticle_P(ShowerID);
+      if (!tmpParticle) continue; // Retain this check that the BackTrackerService can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
       for (auto const particle : *mcpartHandle){
@@ -397,7 +399,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       for(size_t h = 0; h < allHits.size(); ++h){
 	art::Ptr<recob::Hit> hit = allHits[h];
 	std::vector<sim::IDE> ides;
-	std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
+	std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
 	
 	for(size_t e = 0; e < TrackIDs.size(); ++e){
 	  trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
@@ -416,8 +418,8 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       btdata.cleanliness = maxe/tote;
       
       // Now have trackID, so get PdG code and T0 etc.
-      const simb::MCParticle *tmpParticle = bt->TrackIDToParticle(TrackID);
-      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
+      const simb::MCParticle *tmpParticle = pi_serv->TrackIdToParticle_P(TrackID);
+      if (!tmpParticle) continue; // Retain this check that the BackTrackerService can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
       for (auto const particle : *mcpartHandle){

@@ -28,7 +28,7 @@ art_make(
 	MODULE_LIBRARIES  
 			    larana_CosmicRemoval
 			    larana_CosmicRemoval_TrackContainment
-			    larsim_MCCheater_BackTracker_service
+			    larsim_MCCheater_BackTrackerService_service
 			    larreco_RecoAlg
                             larreco_RecoAlg_Cluster3DAlgs
 			    larsim_Simulation nutools_ParticleNavigation lardataobj_Simulation
