@@ -81,6 +81,8 @@ void MVAPID::beginJob()
   fTree->Branch("subrun",&fSubrun,"subrun/I");
   fTree->Branch("event",&fEvent,"event/I");
   fTree->Branch("MVAResult",&fResult);
+  fAlg.GetDetectorEdges();
+  fAlg.GetWireNormals();
 }
 
 

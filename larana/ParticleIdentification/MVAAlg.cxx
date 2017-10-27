@@ -75,24 +75,74 @@ void mvapid::MVAAlg::reconfigure(fhicl::ParameterSet const& p){}
 
 int mvapid::MVAAlg::IsInActiveVol(const TVector3& pos)
 {
-
-  //DUNE 10kt workspace geometry - see https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/DUNE_Geometries 
-  //Exact coordinates of edges of active volume from email from Tyler Alion on 15-3-2016
-  const double activeVolMinX = -363.376;
-  const double activeVolMaxX = 363.376;
-  const double activeVolMinY = -607.829;
-  const double activeVolMaxY = 607.829;
-  const double activeVolMinZ = -0.87625;
-  const double activeVolMaxZ = 463.904;
   const double fiducialDist = 5.0;
 
-  if(pos.X() > (activeVolMinX + fiducialDist) && pos.X() < (activeVolMaxX - fiducialDist)
-     && pos.Y() > (activeVolMinY + fiducialDist) && pos.Y() < (activeVolMaxY - fiducialDist)
-     && pos.Z() > (activeVolMinZ + fiducialDist) && pos.Z() < (activeVolMaxZ - fiducialDist))
+  if(pos.X() > (fDetMinX + fiducialDist) && pos.X() < (fDetMaxX - fiducialDist)
+     && pos.Y() > (fDetMinY + fiducialDist) && pos.Y() < (fDetMaxY - fiducialDist)
+     && pos.Z() > (fDetMinZ + fiducialDist) && pos.Z() < (fDetMaxZ - fiducialDist))
     return 1;
   else
     return 0;
 
+}
+
+void mvapid::MVAAlg::GetDetectorEdges()
+{
+
+  art::ServiceHandle<geo::Geometry> geom;
+
+  fDetMinX = 999999.9;
+  fDetMaxX = -999999.9;
+  fDetMinY = 999999.9;
+  fDetMaxY = -999999.9;
+  fDetMinZ = 999999.9;
+  fDetMaxZ = -999999.9;
+
+  for(unsigned int t=0; t<geom->TotalNTPC(); t++)
+    {
+      if(geom->TPC(t).MinX() < fDetMinX)
+	fDetMinX = geom->TPC(t).MinX();
+      if(geom->TPC(t).MaxX() > fDetMaxX)
+	fDetMaxX = geom->TPC(t).MaxX();
+      if(geom->TPC(t).MinY() < fDetMinY)
+	fDetMinY = geom->TPC(t).MinY();
+      if(geom->TPC(t).MaxY() > fDetMaxY)
+	fDetMaxY = geom->TPC(t).MaxY();
+      if(geom->TPC(t).MinZ() < fDetMinZ)
+	fDetMinZ = geom->TPC(t).MinZ();
+      if(geom->TPC(t).MaxZ() > fDetMaxZ)
+	fDetMaxZ = geom->TPC(t).MaxZ();
+    }
+}
+
+void mvapid::MVAAlg::GetWireNormals()
+{
+
+  art::ServiceHandle<geo::Geometry> geom;
+
+  fNormToWiresY.clear();
+  fNormToWiresZ.clear();
+
+  int planeKey;
+
+  //Get normals to wires for each plane in the detector
+  //This assumes equal numbers of TPCs in each cryostat and equal numbers of planes in each TPC
+  for (geo::PlaneGeo const& plane: geom->IteratePlanes()) {
+    std::string id = std::string(plane.ID());
+    int pcryo = id.find("C");
+    int ptpc = id.find("T");
+    int pplane = id.find("P");
+    std::string scryo = id.substr(pcryo+2,2);
+    std::string stpc = id.substr(ptpc+2,2);
+    std::string splane = id.substr(pplane+2,2);
+    int icryo = std::stoi(scryo);
+    int itpc = std::stoi(stpc);
+    int iplane = std::stoi(splane);
+    planeKey = icryo * geom->NTPC(0) * geom->Nplanes(0, 0) + itpc * geom->Nplanes(0, 0) + iplane;  //single index for all planes in detector
+    fNormToWiresY.insert(std::make_pair(planeKey, -plane.Wire(0).Direction().Z()));  //y component of normal 
+    fNormToWiresZ.insert(std::make_pair(planeKey, plane.Wire(0).Direction().Y()));   //z component of normal
+
+  }
 }
 
 void mvapid::MVAAlg::RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& result,
@@ -569,17 +619,6 @@ double mvapid::MVAAlg::CalcSegmentdEdxDist(const mvapid::MVAAlg::SortedObj& trac
 
   art::ServiceHandle<geo::Geometry> geom;
   
-  //Need to get these from geometry really
-  static const TVector3 normToWiresU(0.0, 0.7071, -0.7071);
-  static const TVector3 normToWiresV(0.0, 0.7071, 0.7071);
-  static const TVector3 normToWiresW(0.0, 0.0, 1.0);
-
-  //Calculate scalar product of unit fitted track vector with unit norm to wire planes
-  double scalarProdTrackWires[3] = {0};
-  scalarProdTrackWires[0] = track.dir.Unit().Dot(normToWiresU);
-  scalarProdTrackWires[1] = track.dir.Unit().Dot(normToWiresV);
-  scalarProdTrackWires[2] = track.dir.Unit().Dot(normToWiresW);
-
   double totaldEdx=0;
   unsigned int nHits=0;
 
@@ -592,21 +631,30 @@ double mvapid::MVAAlg::CalcSegmentdEdxDist(const mvapid::MVAAlg::SortedObj& trac
     art::Ptr<recob::Hit> hit=hitIter->second;
 
     //Pitch to use in dEdx calculation
-    double yzPitch, xComponent;
-    double pitch3D;
+    double yzPitch = geom->WirePitch(0,1,hit->WireID().Plane, hit->WireID().TPC); //pitch not taking into account angle of track or shower
+    double xComponent, pitch3D;
 
     TVector3 dir=track.dir;
 
-    yzPitch = geom->WirePitch(0,1,hit->WireID().Plane, hit->WireID().TPC) / fabs(scalarProdTrackWires[hit->WireID().Plane]);	
+    //This assumes equal numbers of TPCs in each cryostat and equal numbers of planes in each TPC
+    int planeKey = hit->WireID().Cryostat * geom->NTPC(0) * geom->Nplanes(0, 0) + hit->WireID().TPC * geom->Nplanes(0, 0) + hit->WireID().Plane;
+
+    if(fNormToWiresY.count(planeKey) && fNormToWiresZ.count(planeKey))
+      {
+	TVector3 normToWires(0.0, fNormToWiresY.at(planeKey), fNormToWiresZ.at(planeKey));
+	yzPitch = geom->WirePitch(0,1, hit->WireID().Plane, hit->WireID().TPC) / fabs(dir.Dot(normToWires));        
+      }
+
     xComponent = yzPitch * dir[0] / sqrt(dir[1] * dir[1] + dir[2] * dir[2]);
     pitch3D = sqrt(xComponent * xComponent + yzPitch * yzPitch);
-    
+
     double dEdx=fCaloAlg.dEdx_AREA(*hit, pitch3D, fEventT0);
     if( dEdx < 50.){
       ++nHits;
       totaldEdx += dEdx;
     }
   }
+
   return nHits?totaldEdx/nHits:0;
 }
 
