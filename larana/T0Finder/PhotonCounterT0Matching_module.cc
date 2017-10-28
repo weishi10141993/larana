@@ -67,8 +67,8 @@
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
-//Commenting this out since it doesn't appear to actually be used
-//i#include "larsim/MCCheater/BackTrackerService.h"
+//#include "larsim/MCCheater/BackTrackerService.h" //No BackTracker functions are actually used in this module (all commented out.
+// #include "larsim/MCCheater/ParticleInventoryService.h"
 #include "lardataobj/RawData/ExternalTrigger.h"
 #include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h"
 #include "lardataobj/AnalysisBase/ParticleID.h"
