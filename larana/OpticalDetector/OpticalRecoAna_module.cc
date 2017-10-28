@@ -134,9 +134,9 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
   //all this for the MC matching
   if(is_MC){
     
-    art::ServiceHandle<cheat::ParticleInventoryService> pi_serv;
+    art::ServiceHandle<cheat::BackTracker> bt;
     std::vector<simb::MCParticle> particle_list;
-    get_MC_particle_list(pi_serv->ParticleList(),particle_list);
+    get_MC_particle_list(bt->ParticleList(),particle_list);
     fParticle_match_vector.resize(particle_list.size());
     
     mf::LogInfo("OpticalRecoAna")  
@@ -172,8 +172,8 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
 }
 
 simb::Origin_t opreco::OpticalRecoAna::get_MC_particle_origin(simb::MCParticle const& particle){
-  art::ServiceHandle<cheat::ParticleInventoryService> pi_serv;
-  return (pi_serv->TrackIdToMCTruth_P(particle.TrackId()))->Origin();
+  art::ServiceHandle<cheat::BackTracker> bt;
+  return (bt->TrackIDToMCTruth(particle.TrackId()))->Origin();
 }
 
 void opreco::OpticalRecoAna::get_MC_particle_list(sim::ParticleList const& plist,std::vector<simb::MCParticle> & particle_vector) {
