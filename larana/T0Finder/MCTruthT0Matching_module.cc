@@ -34,6 +34,8 @@
 /// * Update (25 Oct 2017) --- wketchum@fnal.gov *
 ///   --Add option for storing hit, MCParticle associations.
 ///
+/// * Update (6 Nov 2017) --- yuntse@slac.stanford.edu
+///   --Add a few variables in the metadata of hit, MCParticle associations.
 ///
 /////////////////////////////////////////////////////////////////////////////
 
