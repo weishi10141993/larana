@@ -88,4 +88,4 @@ install_headers()
 install_fhicl()
 install_source()
 install_fw( LIST toyWaveform.txt
-            SUBDIRNAME OpticalDetector )
+  SUBDIRNAME OpticalDetector )
