@@ -6,8 +6,7 @@ standard_mctrutht0matching:
     TrackModuleLabel:         ""
     ShowerModuleLabel:        ""
     PFParticleModuleLabel:    ""
-#   TrackModuleLabel:         "track3d"
-
+    HitModuleLabel:           ""
 }
 
 dune35t_mctrutht0matching:    @local::standard_mctrutht0matching

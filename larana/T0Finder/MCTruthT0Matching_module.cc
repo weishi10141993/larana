@@ -259,8 +259,9 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	auto const& hitList(*hitListHandle);
 	auto const& mcpartList(*mcpartHandle);
 	for(size_t i_h=0; i_h<hitList.size(); ++i_h){
-	  auto const& hit = hitList[i_h];
-	  auto trkide_list = bt->HitToTrackID(hit);
+	  //auto const& hit = hitList[i_h];
+	  art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
+	  auto trkide_list = bt->HitToTrackID(hitPtr);
 	  std::map<int,double> trkide_collector;
 	  maxe = -1; tote = 0; maxtrkid = -1;
 	  for(auto const& t : trkide_list){
@@ -285,7 +286,6 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	    int mcpart_i = trkid_lookup[t.first];
 	    if(mcpart_i==-1) continue; //no mcparticle here
 	    art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
-	    art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
 	    bthmd.ideFraction = t.second / tote;
 	    bthmd.isMaxIDE = (t.first==maxtrkid);
 	    MCPartHitassn->addSingle(hitPtr, mcpartPtr, bthmd);
