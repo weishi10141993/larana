@@ -264,7 +264,6 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	auto const& hitList(*hitListHandle);
 	auto const& mcpartList(*mcpartHandle);
 	for(size_t i_h=0; i_h<hitList.size(); ++i_h){
-	  //auto const& hit = hitList[i_h];
 	  art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
 	  auto trkide_list = bt->HitToTrackID(hitPtr);
           struct TrackIDEinfo {
