@@ -34,6 +34,8 @@
 /// * Update (25 Oct 2017) --- wketchum@fnal.gov *
 ///   --Add option for storing hit, MCParticle associations.
 ///
+/// * Update (6 Nov 2017) --- yuntse@slac.stanford.edu
+///   --Add a few variables in the metadata of hit, MCParticle associations.
 ///
 /////////////////////////////////////////////////////////////////////////////
 
@@ -61,8 +63,8 @@
 
 // LArSoft
 #include "larcore/Geometry/Geometry.h"
-#include "larcore/Geometry/PlaneGeo.h"
-#include "larcore/Geometry/WireGeo.h"
+#include "larcorealg/Geometry/PlaneGeo.h"
+#include "larcorealg/Geometry/WireGeo.h"
 #include "lardataobj/AnalysisBase/T0.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
@@ -242,6 +244,9 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
     double tote = 0;
    // int    trkid = -1;
     int    maxtrkid = -1;
+    double maxn = -1;
+    double totn = 0;
+    int maxntrkid = -1;
     anab::BackTrackerHitMatchingData bthmd;
 
     std::unordered_map<int,int> trkid_lookup; //indexed by geant4trkid, delivers MC particle location
@@ -262,12 +267,23 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	  //auto const& hit = hitList[i_h];
 	  art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
 	  auto trkide_list = bt->HitToTrackID(hitPtr);
-	  std::map<int,double> trkide_collector;
+          struct TrackIDEinfo {
+            float E;
+            float NumElectrons;
+          };
+	  std::map<int, TrackIDEinfo> trkide_collector;
 	  maxe = -1; tote = 0; maxtrkid = -1;
+          maxn = -1; totn = 0; maxntrkid = -1;
 	  for(auto const& t : trkide_list){
-	    trkide_collector[t.trackID] += t.energy;
+	    trkide_collector[t.trackID].E += t.energy;
 	    tote += t.energy;
-	    if(trkide_collector[t.trackID]>maxe) { maxe = trkide_collector[t.trackID]; maxtrkid = t.trackID; }
+	    if(trkide_collector[t.trackID].E>maxe) { maxe = trkide_collector[t.trackID].E; maxtrkid = t.trackID; }
+            trkide_collector[t.trackID].NumElectrons += t.numElectrons;
+            totn += t.numElectrons;
+            if(trkide_collector[t.trackID].NumElectrons > maxn) {
+              maxn = trkide_collector[t.trackID].NumElectrons;
+              maxntrkid = t.trackID;
+            }
 
 	    //if not found, find mc particle...
 	    if(trkid_lookup.find(t.trackID)==trkid_lookup.end()){
@@ -286,8 +302,10 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	    int mcpart_i = trkid_lookup[t.first];
 	    if(mcpart_i==-1) continue; //no mcparticle here
 	    art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
-	    bthmd.ideFraction = t.second / tote;
+	    bthmd.ideFraction = t.second.E / tote;
 	    bthmd.isMaxIDE = (t.first==maxtrkid);
+            bthmd.ideNFraction = t.second.NumElectrons / totn;
+            bthmd.isMaxIDEN = ( t.first == maxntrkid );
 	    MCPartHitassn->addSingle(hitPtr, mcpartPtr, bthmd);
 	  }
 	  
