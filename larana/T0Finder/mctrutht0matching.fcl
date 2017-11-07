@@ -6,6 +6,9 @@ standard_mctrutht0matching:
     TrackModuleLabel:         ""
     ShowerModuleLabel:        ""
     PFParticleModuleLabel:    ""
+    makeT0Assns:              true
+    makePFParticleAssns:      false
+    makeHitAssns:             true
     HitModuleLabel:           ""
 }
 
