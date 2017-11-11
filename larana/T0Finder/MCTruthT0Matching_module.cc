@@ -30,6 +30,13 @@
 ///
 /// The module takes a reconstructed track as input.
 /// The module outputs an anab::T0 object
+///
+/// * Update (25 Oct 2017) --- wketchum@fnal.gov *
+///   --Add option for storing hit, MCParticle associations.
+///
+/// * Update (6 Nov 2017) --- yuntse@slac.stanford.edu
+///   --Add a few variables in the metadata of hit, MCParticle associations.
+///
 /////////////////////////////////////////////////////////////////////////////
 
 // Framework includes
@@ -108,12 +115,15 @@ public:
 private:
   
   // Params got from fcl file
-  std::string fTrackModuleLabel;
-  std::string fShowerModuleLabel;
-  std::string fPFParticleModuleLabel;
+  art::InputTag fTrackModuleLabel;
+  art::InputTag fShowerModuleLabel;
+  art::InputTag fPFParticleModuleLabel;
   bool fMakeT0Assns;
   bool fMakePFParticleAssns;
 
+  art::InputTag fHitModuleLabel;
+  bool fMakeHitAssns;
+  
   // Variable in TFS branches
   TTree* fTree;
   int    TrackID         = 0;
@@ -149,16 +159,22 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
   if (fMakePFParticleAssns){ // only do PFParticles if desired by the user
     produces< art::Assns<recob::PFParticle, simb::MCParticle, anab::BackTrackerMatchingData > > ();
   }
+
+  if(fMakeHitAssns)
+    produces< art::Assns<recob::Hit , simb::MCParticle, anab::BackTrackerHitMatchingData > > ();
 }
 
 void t0::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
 {
   // Implementation of optional member function here.
-  fTrackModuleLabel  = (p.get< std::string > ("TrackModuleLabel" ) );
-  fShowerModuleLabel = (p.get< std::string > ("ShowerModuleLabel") );
-  fPFParticleModuleLabel = (p.get< std::string > ("PFParticleModuleLabel", "pandoraNu") );
+  fTrackModuleLabel  = (p.get< art::InputTag > ("TrackModuleLabel" ) );
+  fShowerModuleLabel = (p.get< art::InputTag > ("ShowerModuleLabel") );
+  fPFParticleModuleLabel = (p.get< art::InputTag > ("PFParticleModuleLabel", "pandoraNu") );
   fMakeT0Assns = (p.get< bool > ("makeT0Assns", true) );
   fMakePFParticleAssns =  (p.get< bool > ("makePFParticleAssns", false) );
+
+  fMakeHitAssns = p.get<bool>("makeHitAssns",true);
+  if(fMakeHitAssns) fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
 }
 
 void t0::MCTruthT0Matching::beginJob()
@@ -222,34 +238,114 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 //  if (fMakePFParticleAssns){
     std::unique_ptr< art::Assns<recob::PFParticle, simb::MCParticle,anab::BackTrackerMatchingData> > MCPartPFParticleassn( new art::Assns<recob::PFParticle, simb::MCParticle, anab::BackTrackerMatchingData>);
 //  }
-  
-  if (trackListHandle.isValid()){
-  //Access tracks and hits
-    art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
+   // Association block for the hits<-->MCParticles
+      std::unique_ptr< art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData > > MCPartHitassn( new art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData >);
+
+
+    double maxe = -1;
+    double tote = 0;
+   // int    trkid = -1;
+    int    maxtrkid = -1;
+    double maxn = -1;
+    double totn = 0;
+    int maxntrkid = -1;
+    anab::BackTrackerHitMatchingData bthmd;
+
+    std::unordered_map<int,int> trkid_lookup; //indexed by geant4trkid, delivers MC particle location
+
+    //if we want to make per-hit assns
+    if(fMakeHitAssns){
+
+     
+
+      art::Handle< std::vector<recob::Hit> > hitListHandle;
+      evt.getByLabel(fHitModuleLabel,hitListHandle);
+
+      if(hitListHandle.isValid()){
+
+	auto const& hitList(*hitListHandle);
+	auto const& mcpartList(*mcpartHandle);
+	for(size_t i_h=0; i_h<hitList.size(); ++i_h){
+	  art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
+	  auto trkide_list = bt_serv->HitToTrackIDEs(hitPtr);
+          struct TrackIDEinfo {
+            float E;
+            float NumElectrons;
+          };
+	  std::map<int, TrackIDEinfo> trkide_collector;
+	  maxe = -1; tote = 0; maxtrkid = -1;
+          maxn = -1; totn = 0; maxntrkid = -1;
+	  for(auto const& t : trkide_list){
+	    trkide_collector[t.trackID].E += t.energy;
+	    tote += t.energy;
+	    if(trkide_collector[t.trackID].E>maxe) { maxe = trkide_collector[t.trackID].E; maxtrkid = t.trackID; }
+            trkide_collector[t.trackID].NumElectrons += t.numElectrons;
+            totn += t.numElectrons;
+            if(trkide_collector[t.trackID].NumElectrons > maxn) {
+              maxn = trkide_collector[t.trackID].NumElectrons;
+              maxntrkid = t.trackID;
+            }
+
+	    //if not found, find mc particle...
+	    if(trkid_lookup.find(t.trackID)==trkid_lookup.end()){
+	      size_t i_p=0;
+	      while(i_p<mcpartList.size()){
+		if(mcpartList[i_p].TrackId() == t.trackID) { trkid_lookup[t.trackID] = (int)i_p; break;}
+		++i_p;
+	      }
+	      if(i_p==mcpartList.size()) trkid_lookup[t.trackID] = -1;
+	    }
+	    
+	  }//end loop on TrackIDs
+
+	  //now find the mcparticle and loop back through ...
+	  for(auto const& t : trkide_collector){
+	    int mcpart_i = trkid_lookup[t.first];
+	    if(mcpart_i==-1) continue; //no mcparticle here
+	    art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
+	    bthmd.ideFraction = t.second.E / tote;
+	    bthmd.isMaxIDE = (t.first==maxtrkid);
+            bthmd.ideNFraction = t.second.NumElectrons / totn;
+            bthmd.isMaxIDEN = ( t.first == maxntrkid );
+	    MCPartHitassn->addSingle(hitPtr, mcpartPtr, bthmd);
+	  }
+	  
+	  
+	}//end loop on hits
+
+      }//end if handle valid
+
+    }//end if make hit/mcpart assns
+
     
-    size_t NTracks = tracklist.size();
+    if (trackListHandle.isValid()){
+      //Access tracks and hits
+      art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
     
-    // Now to access MCTruth for each track... 
-    for(size_t iTrk=0; iTrk < NTracks; ++iTrk) { 
-      TrueTrackT0 = 0;
-      TrackID     = 0;
-      TrueTrackID = 0;
-      anab::BackTrackerMatchingData btdata;
-      std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
+      size_t NTracks = tracklist.size();
       
-      std::map<int,double> trkide;
-      for(size_t h = 0; h < allHits.size(); ++h){
-	art::Ptr<recob::Hit> hit = allHits[h];
-	std::vector<sim::IDE> ides;
-	std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
+      // Now to access MCTruth for each track... 
+      for(size_t iTrk=0; iTrk < NTracks; ++iTrk) { 
+	TrueTrackT0 = 0;
+	TrackID     = 0;
+	TrueTrackID = 0;
+	anab::BackTrackerMatchingData btdata;
+	std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
 	
-	for(size_t e = 0; e < TrackIDs.size(); ++e){
-	  trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
+	std::map<int,double> trkide;
+	for(size_t h = 0; h < allHits.size(); ++h){
+	  art::Ptr<recob::Hit> hit = allHits[h];
+	  std::vector<sim::IDE> ides;
+	  std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
+	  
+	  for(size_t e = 0; e < TrackIDs.size(); ++e){
+	    trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
+	  }
+	  
 	}
-      }
-      // Work out which IDE despoited the most charge in the hit if there was more than one.
-      double maxe = -1;
-      double tote = 0;
+	// Work out which IDE despoited the most charge in the hit if there was more than one.
+	maxe = -1;
+	tote = 0;
       for (std::map<int,double>::iterator ii = trkide.begin(); ii!=trkide.end(); ++ii){
 	tote += ii->second;
 	if ((ii->second)>maxe){
@@ -258,10 +354,10 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	}
       }
       btdata.cleanliness = maxe/tote;
-      
+
       // Now have trackID, so get PdG code and T0 etc.
-      const simb::MCParticle *tmpParticle = pi_serv->TrackIdToParticle_P(TrackID);
-      if (!tmpParticle) continue; // Retain this check that the BackTrackerService can find the right particle
+      const simb::MCParticle *tmpParticle = bt_serv->TrackIdToParticle_P(TrackID);
+      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
       for (auto const particle : *mcpartHandle){
@@ -322,8 +418,8 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	}
       }
       // Work out which IDE despoited the most charge in the hit if there was more than one.
-      double maxe = -1;
-      double tote = 0;
+      maxe = -1;
+      tote = 0;
       for (std::map<int,double>::iterator ii = showeride.begin(); ii!=showeride.end(); ++ii){
 	tote += ii->second;
 	if ((ii->second)>maxe){
@@ -338,7 +434,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 
       // Now have MCParticle trackID corresponding to shower, so get PdG code and T0 etc.
       const simb::MCParticle *tmpParticle = pi_serv->TrackIdToParticle_P(ShowerID);
-      if (!tmpParticle) continue; // Retain this check that the BackTrackerService can find the right particle
+      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
       for (auto const particle : *mcpartHandle){
@@ -419,7 +515,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       
       // Now have trackID, so get PdG code and T0 etc.
       const simb::MCParticle *tmpParticle = pi_serv->TrackIdToParticle_P(TrackID);
-      if (!tmpParticle) continue; // Retain this check that the BackTrackerService can find the right particle
+      if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
       for (auto const particle : *mcpartHandle){
@@ -476,7 +572,8 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
   if (fMakePFParticleAssns){
     evt.put(std::move(MCPartPFParticleassn));
   }
-
+  if(fMakeHitAssns)
+    evt.put(std::move(MCPartHitassn));
 } // Produce
 
 DEFINE_ART_MODULE(t0::MCTruthT0Matching)
