@@ -134,6 +134,14 @@ private:
   int    ShowerMatchID     = 0;
   int    ShowerTriggerType = 0;
   double ShowerT0          = 0;
+
+  struct TrackIDEinfo {
+    float E;
+    float NumElectrons;
+  };
+  std::unordered_map<int, TrackIDEinfo> trkide_collector;
+
+
 };
 
 
@@ -264,17 +272,16 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	auto const& hitList(*hitListHandle);
 	auto const& mcpartList(*mcpartHandle);
 	for(size_t i_h=0; i_h<hitList.size(); ++i_h){
-	  //auto const& hit = hitList[i_h];
 	  art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
 	  auto trkide_list = bt->HitToTrackID(hitPtr);
-          struct TrackIDEinfo {
-            float E;
-            float NumElectrons;
-          };
-	  std::map<int, TrackIDEinfo> trkide_collector;
+
 	  maxe = -1; tote = 0; maxtrkid = -1;
           maxn = -1; totn = 0; maxntrkid = -1;
-	  for(auto const& t : trkide_list){
+	  trkide_collector.clear();
+
+	  //for(auto const& t : trkide_list){
+	  for(size_t i_t=0; i_t<trkide_list.size(); ++i_t){
+	    auto const& t(trkide_list[i_t]);
 	    trkide_collector[t.trackID].E += t.energy;
 	    tote += t.energy;
 	    if(trkide_collector[t.trackID].E>maxe) { maxe = trkide_collector[t.trackID].E; maxtrkid = t.trackID; }
@@ -284,7 +291,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
               maxn = trkide_collector[t.trackID].NumElectrons;
               maxntrkid = t.trackID;
             }
-
+	    
 	    //if not found, find mc particle...
 	    if(trkid_lookup.find(t.trackID)==trkid_lookup.end()){
 	      size_t i_p=0;
@@ -295,8 +302,10 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	      if(i_p==mcpartList.size()) trkid_lookup[t.trackID] = -1;
 	    }
 	    
-	  }//end loop on TrackIDs
+	  }
+	  //end loop on TrackIDs
 
+	  
 	  //now find the mcparticle and loop back through ...
 	  for(auto const& t : trkide_collector){
 	    int mcpart_i = trkid_lookup[t.first];
