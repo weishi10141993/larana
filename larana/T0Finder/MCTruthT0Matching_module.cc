@@ -356,7 +356,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       btdata.cleanliness = maxe/tote;
 
       // Now have trackID, so get PdG code and T0 etc.
-      const simb::MCParticle *tmpParticle = bt_serv->TrackIdToParticle_P(TrackID);
+      const simb::MCParticle *tmpParticle = pi_serv->TrackIdToParticle_P(TrackID);
       if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
