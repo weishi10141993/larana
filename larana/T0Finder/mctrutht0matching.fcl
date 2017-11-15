@@ -14,4 +14,28 @@ standard_mctrutht0matching:
 
 dune35t_mctrutht0matching:    @local::standard_mctrutht0matching
 
+standard_mcparticlehitmatching:
+{
+    module_type:              "MCParticleHitMatching"
+    HitModuleLabel:           ""
+}
+
+standard_mcparticletrackmatching:
+{
+    module_type:              "MCParticleTrackMatching"
+    TrackModuleLabel:           ""
+    #TrackHitAssnLabel:          ""
+    HitModuleLabel:           ""
+    HitParticleAssnLabel:       ""
+}
+
+standard_mcparticleshowermatching:
+{
+    module_type:              "MCParticleShowerMatching"
+    ShowerModuleLabel:           ""
+    #ShowerHitAssnLabel:          ""
+    HitModuleLabel:           ""
+    HitParticleAssnLabel:       ""
+}
+
 END_PROLOG
