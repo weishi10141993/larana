@@ -168,7 +168,8 @@ void t0::MCParticleTrackMatching::produce(art::Event & evt)
     }//end loop over hits
 
     btdata.cleanliness = maxe/tote;
-    MCPartTrackassn->addSingle(trkPtr, maxp, btdata);
+    if(maxe>0)
+      MCPartTrackassn->addSingle(trkPtr, maxp, btdata);
 
   }//end loop over tracks
 

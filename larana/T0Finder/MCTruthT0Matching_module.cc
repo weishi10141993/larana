@@ -315,6 +315,8 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	    bthmd.isMaxIDE = (t.first==maxtrkid);
             bthmd.ideNFraction = t.second.NumElectrons / totn;
             bthmd.isMaxIDEN = ( t.first == maxntrkid );
+	    bthmd.energy = t.second.E;
+	    bthmd.numElectrons = t.second.NumElectrons;
 	    MCPartHitassn->addSingle(hitPtr, mcpartPtr, bthmd);
 	  }
 	  

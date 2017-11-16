@@ -42,6 +42,11 @@
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 
+#include "canvas/Persistency/Common/FindManyP.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+#include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
+
+
 class CRHitRemoval : public art::EDProducer
 {
 public:
@@ -77,6 +82,14 @@ private:
                         art::FindOneP<recob::Wire>&,
                         recob::HitCollectionCreator&);
     
+  void copyMCParticleAssns(art::Handle< std::vector<recob::Hit> >&,
+			   art::Event&);
+    void copyMCParticleAssns(std::vector< art::Ptr<recob::Hit>>&,
+  			     art::FindManyP<simb::MCParticle,anab::BackTrackerHitMatchingData>&,
+			     std::unique_ptr< art::Assns< recob::Hit,
+				                          simb::MCParticle,
+			                                  anab::BackTrackerHitMatchingData > >&);
+
     void FilterHits(HitPtrVector& hits, HitPtrVector& used_hits);
     
     // Fcl parameters.
@@ -85,7 +98,10 @@ private:
     std::string              fPFParticleProducerLabel;  ///< PFParticle producer
     std::vector<std::string> fTrackProducerLabels;      ///< Track producer
     std::vector<std::string> fAssnProducerLabels;       ///< Track to PFParticle assns producer
-    
+
+    bool                     fCopyHitMCParticleAssns;   ///< option to copy any hit/particle assns labels
+    art::InputTag            fHitMCParticleAssnLabel; ///< InputTag for the hit/particle assns
+  
     std::vector<double>      fCosmicTagThresholds;      ///< Thresholds for tagging
     
     int                      fEndTickPadding;           ///< Padding the end tick
@@ -98,6 +114,9 @@ private:
     // Statistics.
     int fNumEvent;        ///< Number of events seen.
     int fNumCRRejects;    ///< Number of tracks produced.
+
+    // Internals.
+    std::vector<size_t> fOriginalHitIndex; ///< Use for bookkeeping new hits to old hits, for assns
 };
 
 DEFINE_ART_MODULE(CRHitRemoval)
@@ -119,6 +138,9 @@ fNumCRRejects(0)
     // hits and associations with wires and raw digits
     // (with no particular product label)
     recob::HitCollectionCreator::declare_products(*this);
+
+    if(fCopyHitMCParticleAssns)
+      produces< art::Assns<recob::Hit , simb::MCParticle, anab::BackTrackerHitMatchingData > > ();
     
     // Report.
     mf::LogInfo("CRHitRemoval") << "CRHitRemoval configured\n";
@@ -146,6 +168,10 @@ void CRHitRemoval::reconfigure(fhicl::ParameterSet const & pset)
     fCosmicTagThresholds     = pset.get<std::vector<double> >("CosmicTagThresholds");
     fEndTickPadding          = pset.get<int>("EndTickPadding", 50);
     fMaxOutOfTime            = pset.get<int>("MaxOutOfTime",    4);
+
+    fCopyHitMCParticleAssns  = pset.get<bool>("CopyHitMCParticleAssns",false);
+    if(fCopyHitMCParticleAssns)
+      fHitMCParticleAssnLabel  = pset.get<art::InputTag>("HitMCParticleAssnLabel");
 }
 
 //----------------------------------------------------------------------------
@@ -180,6 +206,9 @@ void CRHitRemoval::beginJob()
 void CRHitRemoval::produce(art::Event & evt)
 {
     ++fNumEvent;
+
+    if(evt.isRealData()) fCopyHitMCParticleAssns = false;
+    fOriginalHitIndex.clear();
     
     // Start by looking up the original hits
     art::Handle< std::vector<recob::Hit> > hitHandle;
@@ -195,7 +224,8 @@ void CRHitRemoval::produce(art::Event & evt)
     
     HitPtrVector ChHits;
     art::fill_ptr_vector(ChHits, hitHandle);
-    
+    fOriginalHitIndex.reserve(ChHits.size());
+
     // this object contains the hit collection
     // and its associations to wires and raw digits:
     recob::HitCollectionCreator hcol(*this,
@@ -203,7 +233,7 @@ void CRHitRemoval::produce(art::Event & evt)
                                      /* doWireAssns */ ChannelHitWires.isValid(),
                                      /* doRawDigitAssns */ ChannelHitRawDigits.isValid()
                                      );
-    
+
     // Now recover thre remaining collections of objects in the event store that we need
     // Recover the PFParticles that are ultimately associated to tracks
     // This will be the key to recovering the hits
@@ -216,6 +246,7 @@ void CRHitRemoval::produce(art::Event & evt)
         copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
         
         // put the hit collection and associations into the event
+	if(fCopyHitMCParticleAssns) copyMCParticleAssns(hitHandle,evt);
         hcol.put_into(evt);
         
         return;
@@ -232,7 +263,8 @@ void CRHitRemoval::produce(art::Event & evt)
         copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
         
         // put the hit collection and associations into the event
-        hcol.put_into(evt);
+	if(fCopyHitMCParticleAssns) copyMCParticleAssns(hitHandle,evt);
+	hcol.put_into(evt);
         
         return;
     }
@@ -300,6 +332,7 @@ void CRHitRemoval::produce(art::Event & evt)
         copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
         
         // put the hit collection and associations into the event
+	if(fCopyHitMCParticleAssns) copyMCParticleAssns(hitHandle,evt);
         hcol.put_into(evt);
         
         return;
@@ -426,6 +459,7 @@ void CRHitRemoval::produce(art::Event & evt)
     copyInTimeHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
     
     // put the hit collection and associations into the event
+    if(fCopyHitMCParticleAssns) copyMCParticleAssns(hitHandle,evt);
     hcol.put_into(evt);
     
 }
@@ -493,6 +527,7 @@ void CRHitRemoval::copyAllHits(std::vector< art::Ptr<recob::Hit>>& inputHits,
         
         // just copy it
         newHitCollection.emplace_back(*hitPtr, wire, rawdigits);
+	if(fCopyHitMCParticleAssns) fOriginalHitIndex.emplace_back(hitPtr.key());
     }
     
     return;
@@ -513,9 +548,41 @@ void CRHitRemoval::copyInTimeHits(std::vector< art::Ptr<recob::Hit>>& inputHits,
         
         // just copy it
         newHitCollection.emplace_back(*hitPtr, wire, rawdigits);
+
+	if(fCopyHitMCParticleAssns) fOriginalHitIndex.emplace_back(hitPtr.key());
     }
     
     return;
+}
+
+void CRHitRemoval::copyMCParticleAssns(art::Handle< std::vector<recob::Hit> >& hitHandle,
+				       art::Event& evt)
+{
+
+  std::unique_ptr< art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData > >
+    mcParticleHitAssn( new art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData >);
+  
+  art::FindManyP<simb::MCParticle,anab::BackTrackerHitMatchingData>
+    mcparticleFindMany(hitHandle, evt, fHitMCParticleAssnLabel);
+
+  art::ProductID new_prod_id = this->getProductID< std::vector<recob::Hit> >(evt,"");   
+
+  std::vector<anab::BackTrackerHitMatchingData const*> bthmd_vec;
+  std::vector< art::Ptr<simb::MCParticle> > matchedParticlePtrs;
+  
+  for(size_t i_h=0; i_h<fOriginalHitIndex.size(); ++i_h){
+  
+    art::Ptr<recob::Hit> new_hit_ptr(new_prod_id, i_h, evt.productGetter(new_prod_id));
+    
+    matchedParticlePtrs.clear(); bthmd_vec.clear();
+    mcparticleFindMany.get(fOriginalHitIndex[i_h],matchedParticlePtrs,bthmd_vec);
+
+    for(size_t i_p=0; i_p<matchedParticlePtrs.size(); ++i_p)
+      mcParticleHitAssn->addSingle(new_hit_ptr, matchedParticlePtrs[i_p], *(bthmd_vec[i_p]));
+  }
+
+  evt.put(std::move(mcParticleHitAssn));
+
 }
 
 //----------------------------------------------------------------------------

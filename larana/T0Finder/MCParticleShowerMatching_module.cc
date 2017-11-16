@@ -168,7 +168,8 @@ void t0::MCParticleShowerMatching::produce(art::Event & evt)
     }//end loop over hits
 
     btdata.cleanliness = maxe/tote;
-    MCPartShowerassn->addSingle(shwPtr, maxp, btdata);
+    if(maxe>0)
+      MCPartShowerassn->addSingle(shwPtr, maxp, btdata);
 
   }//end loop over showers
 
