@@ -77,7 +77,8 @@ public:
 private:
   
   art::InputTag fHitModuleLabel;
-  
+  art::InputTag fMCParticleModuleLabel;  
+
   struct TrackIDEinfo {
     float E;
     float NumElectrons;
@@ -97,6 +98,7 @@ t0::MCParticleHitMatching::MCParticleHitMatching(fhicl::ParameterSet const & p)
 void t0::MCParticleHitMatching::reconfigure(fhicl::ParameterSet const & p)
 {
   fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
+  fMCParticleModuleLabel = p.get<art::InputTag>("MCParticleModuleLabel");
 }
 
 void t0::MCParticleHitMatching::beginJob()
@@ -110,7 +112,7 @@ void t0::MCParticleHitMatching::produce(art::Event & evt)
   // Access art services...
   art::ServiceHandle<cheat::BackTracker> bt;
 
-  auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >("largeant");
+  auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >(fMCParticleModuleLabel);
   std::unique_ptr< art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData > > MCPartHitassn( new art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData >);
   
   
