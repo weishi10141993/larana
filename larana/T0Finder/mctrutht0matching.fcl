@@ -1,3 +1,5 @@
+#include "hitparticleassociations.fcl"
+
 BEGIN_PROLOG
 
 standard_mctrutht0matching:
@@ -17,8 +19,7 @@ dune35t_mctrutht0matching:    @local::standard_mctrutht0matching
 standard_mcparticlehitmatching:
 {
     module_type:              "MCParticleHitMatching"
-    HitModuleLabel:           ""
-    MCParticleModuleLabel:    ""
+    HitParticleAssociations:  @local::DirectHitParticleAssnsTool
 }
 
 standard_mcparticletrackmatching:

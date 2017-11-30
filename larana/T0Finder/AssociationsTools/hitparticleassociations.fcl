@@ -1,27 +1,18 @@
-#include "mctruthassociations_uboone.fcl"
 
 BEGIN_PROLOG
 
-BackTrackerTruthTool:
+DirectHitParticleAssnsTool:
 {
-  tool_type:          "BackTrackerTruth"
-  TrackProducerLabel: "pandoraNu"
+  tool_type:          "DirectHitParticleAssns"
+  MCParticleLabel:    "largeant"
+  HitModuleLabel:     "gaushit"
 }
 
-AssociationsTruthTool:
+IndirectHitParticleAssnsTool:
 {
-  tool_type:           "AssociationsTruth"
-  AssnsProducerLabels: ["gaushitTruthMatch", "pandoraCosmicHitRemoval"]
-  G4ProducerLabel:     "largeant"
-  MCTruthAssociations: @local::MCTruthAssociations
-}
-
-MCTruthTestAna:
-{
-  module_type:         "MCTruthTestAna"
-  HitModuleLabel:      "gaushit"
-  TrackProducerLabel:  "pandoraCosmic"
-  MCTruthMatching:     @local::BackTrackerTruthTool
+  tool_type:           "IndirectHitParticleAssns"
+  HitPartAssnsLabel:   "gaushitTruthMatch"
+  HitModuleLabel:      "pandoraCosmicHitRemoval"
 }
 
 END_PROLOG
