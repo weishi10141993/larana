@@ -61,9 +61,9 @@ void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
   dedx_range_pi  = (TProfile*)file->Get("dedx_range_pi");
   dedx_range_mu  = (TProfile*)file->Get("dedx_range_mu");
 
-  std::cout<<"Chi2PIDAlg configuration:"<<std::endl;
-  std::cout<<"Template file: "<<fROOTfile<<std::endl;
-  std::cout<<"fUseMedian: "<<fUseMedian<<std::endl;
+//  std::cout<<"Chi2PIDAlg configuration:"<<std::endl;
+//  std::cout<<"Template file: "<<fROOTfile<<std::endl;
+//  std::cout<<"fUseMedian: "<<fUseMedian<<std::endl;
 
   return;
 }
