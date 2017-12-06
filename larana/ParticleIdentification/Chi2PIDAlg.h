@@ -41,6 +41,7 @@ namespace pid {
   private:
     
     std::string fTemplateFile;
+    bool        fUseMedian;
     //std::string fCalorimetryModuleLabel;
     std::string fROOTfile;
     

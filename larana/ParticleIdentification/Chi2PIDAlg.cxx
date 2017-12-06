@@ -20,6 +20,7 @@ extern "C" {
 // ROOT includes
 #include "TFile.h"
 #include "TProfile.h"
+#include "TMath.h"
 
 // Framework includes
 #include "art/Framework/Principal/Handle.h" 
@@ -45,6 +46,7 @@ pid::Chi2PIDAlg::~Chi2PIDAlg()
 void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
 {
   fTemplateFile           = pset.get< std::string >("TemplateFile");
+  fUseMedian              = pset.get< bool >("UseMedian");
   //fCalorimetryModuleLabel = pset.get< std::string >("CalorimetryModuleLabel");
 
   cet::search_path sp("FW_SEARCH_PATH");
@@ -58,6 +60,10 @@ void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
   dedx_range_ka  = (TProfile*)file->Get("dedx_range_ka");
   dedx_range_pi  = (TProfile*)file->Get("dedx_range_pi");
   dedx_range_mu  = (TProfile*)file->Get("dedx_range_mu");
+
+//  std::cout<<"Chi2PIDAlg configuration:"<<std::endl;
+//  std::cout<<"Template file: "<<fROOTfile<<std::endl;
+//  std::cout<<"fUseMedian: "<<fUseMedian<<std::endl;
 
   return;
 }
@@ -74,6 +80,7 @@ void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
   double trkpitchc = calo->TrkPitchC();
   double avgdedx = 0;
   double PIDA = 0; //by Bruce Baller
+  std::vector<double> vpida;
   std::vector<double> trkdedx = calo->dEdx();
   std::vector<double> trkres = calo->ResidualRange();
   std::vector<double> deadwireresrc = calo->DeadWireResRC();
@@ -86,6 +93,7 @@ void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
     avgdedx += trkdedx[i];
     if(trkres[i] < 30) {
       PIDA += trkdedx[i]*pow(trkres[i],0.42);
+      vpida.push_back(trkdedx[i]*pow(trkres[i],0.42));
       used_trkres++;
     }
     if (trkdedx[i]>1000) continue; //protect against large pulse height
@@ -167,7 +175,14 @@ void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
     }
   }
   //if (trkdedx.size()) pidOut.fPIDA = PIDA/trkdedx.size();
-  if(used_trkres > 0) pidOut.fPIDA = PIDA/used_trkres;
+  if(used_trkres > 0){
+    if (fUseMedian){
+      pidOut.fPIDA = TMath::Median(vpida.size(), &vpida[0]);
+    }
+    else{//use mean
+      pidOut.fPIDA = PIDA/used_trkres;
+    }
+  }
   double missinge = 0;
   double missingeavg = 0;
   for (unsigned i = 0; i<deadwireresrc.size(); ++i){
