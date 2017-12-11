@@ -3,7 +3,7 @@ BEGIN_PROLOG
 standard_chi2pidalg:
 {
     TemplateFile:           "dEdxrestemplates.root"
-    UseMedian:              false
+    UseMedian:              true
 }
 
 standard_pidaalg:
