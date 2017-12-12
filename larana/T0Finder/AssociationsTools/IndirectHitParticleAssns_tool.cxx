@@ -99,7 +99,7 @@ void IndirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, Hi
         
         TickToPartDataMap& tickToPartDataMap = chanToTickPartDataMap[recoHit->Channel()];
         
-        for(raw::TDCtick_t tick = recoHit->StartTick(); tick <= recoHit->EndTick(); tick++)
+        for(raw::TDCtick_t tick = recoHit->PeakTimeMinusRMS(); tick <= recoHit->PeakTimePlusRMS(); tick++)
         {
             tickToPartDataMap[tick].insert(ParticleDataPair(&mcParticle,data));
         }
@@ -122,7 +122,7 @@ void IndirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, Hi
         MCParticleDataSet particleDataSet;
         
         // Go through the ticks in this hit and recover associations
-        for(raw::TDCtick_t tick = hit->StartTick(); tick <= hit->EndTick(); tick++)
+        for(raw::TDCtick_t tick = hit->PeakTimeMinusRMS(); tick <= hit->PeakTimePlusRMS(); tick++)
         {
             TickToPartDataMap::iterator hitInfoItr = tickToPartDataMap.find(tick);
             
