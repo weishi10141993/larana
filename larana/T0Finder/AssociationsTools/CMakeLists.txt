@@ -45,6 +45,7 @@ art_make( MODULE_LIBRARIES lardataobj_RecoBase
                            art_Utilities
                            canvas_Persistency_Common
                            canvas_Persistency_Provenance
+                           canvas_Utilities
                            ${MF_MESSAGELOGGER}
                            ${MF_UTILITIES}
                            ${FHICLCPP}
