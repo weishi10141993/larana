@@ -24,6 +24,7 @@ art_make(
   cetlib cetlib_except
   ${CLHEP}
   ${ROOT_BASIC_LIB_LIST}
+  ${ROOT_GEOM}
   ${G4_LIB_LIST}
   MODULE_LIBRARIES  
   larana_CosmicRemoval

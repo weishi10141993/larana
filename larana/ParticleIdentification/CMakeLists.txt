@@ -24,6 +24,7 @@ art_make(
   cetlib cetlib_except
   ${CLHEP}
   ${ROOT_BASIC_LIB_LIST}
+  ${ROOT_GEOM}
   ${ROOT_TMVA}
   ${Boost_SYSTEM_LIBRARY}
   MODULE_LIBRARIES 
