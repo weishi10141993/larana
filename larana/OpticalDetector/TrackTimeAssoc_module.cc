@@ -200,8 +200,8 @@ namespace opdet {
     
     art::ServiceHandle<phot::PhotonVisibilityService> pvs;
 
-    float TrackLength = Btrack->Length();
-    float OldVertex   = Btrack->Vertex()[0];
+    float TrackLength = Btrack->GetTrajectory().Length();
+    float OldVertex   = Btrack->GetTrajectory().Start().X();
     
     std::vector<bool> ValidTrajectory(XSteps, true);
     

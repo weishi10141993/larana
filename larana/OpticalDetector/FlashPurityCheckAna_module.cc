@@ -234,7 +234,7 @@ namespace opdet {
 		  {
 		    fNVtxTracks++;
 		    if(Rejected[i]) fNVtxTracksRejected++;
-		    if(BTracks.at(i)->Length()>20)
+		    if(BTracks.at(i)->GetTrajectory().Length()>20)
 		      {
 			fNVtxTracks20cm++;
 			if(Rejected[i]) fNVtxTracksRejected20cm++;
@@ -244,7 +244,7 @@ namespace opdet {
 		  {
 		    fNNonVtxTracks++;
 		    if(Rejected[i]) fNNonVtxTracksRejected++;
-		    if(BTracks.at(i)->Length()>20)
+		    if(BTracks.at(i)->GetTrajectory().Length()>20)
 		      {
 			fNNonVtxTracks20cm++;
 			if(Rejected[i]) fNNonVtxTracksRejected20cm++;
