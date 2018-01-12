@@ -93,7 +93,7 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
         maxe = -1; tote = 0; maxtrkid = -1;
         maxn = -1; totn = 0; maxntrkid = -1;
         fTrkIDECollector.clear();
-        
+       
         //for(auto const& t : trkide_list){
         for(size_t i_t=0; i_t<trkide_list.size(); ++i_t){
             auto const& t(trkide_list[i_t]);
@@ -106,8 +106,8 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
                 maxn = fTrkIDECollector[t.trackID].NumElectrons;
                 maxntrkid = t.trackID;
             }
-            
-            //if not found, find mc particle...
+
+            //if not found, find mc particle... 
             if(trkid_lookup.find(t.trackID)==trkid_lookup.end()){
                 size_t i_p=0;
                 while(i_p<mcpartList.size()){
