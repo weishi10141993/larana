@@ -77,7 +77,8 @@ private:
   art::InputTag fShowerHitAssnLabel;
   art::InputTag fHitModuleLabel;
   art::InputTag fHitParticleAssnLabel;
-  
+  bool                                      fOverrideRealData;      ///< if real data, tell it to run anyway (=0)
+ 
 };
 
 
@@ -93,7 +94,8 @@ void t0::MCParticleShowerMatching::reconfigure(fhicl::ParameterSet const & p)
   fShowerHitAssnLabel = p.get<art::InputTag>("ShowerHitAssnLabel",fShowerModuleLabel);
   fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
   fHitParticleAssnLabel = p.get<art::InputTag>("HitParticleAssnLabel");
-  
+  fOverrideRealData     = p.get<bool       >("OverrideRealData", false);
+ 
 }
 
 void t0::MCParticleShowerMatching::beginJob()
@@ -102,7 +104,7 @@ void t0::MCParticleShowerMatching::beginJob()
 
 void t0::MCParticleShowerMatching::produce(art::Event & evt)
 {
-  if (evt.isRealData()) return;
+   if(evt.isRealData() && !fOverrideRealData) return;
 
   //auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >("largeant");
   std::unique_ptr< art::Assns<recob::Shower, simb::MCParticle, anab::BackTrackerMatchingData > > MCPartShowerassn( new art::Assns<recob::Shower, simb::MCParticle, anab::BackTrackerMatchingData >);

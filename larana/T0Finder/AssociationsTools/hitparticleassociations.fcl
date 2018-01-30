@@ -5,6 +5,7 @@ DirectHitParticleAssnsTool:
 {
   tool_type:          "DirectHitParticleAssns"
   MCParticleLabel:    "largeant"
+  HitPartAssnsLabel:  "gaushitTruthMatch"
   HitModuleLabel:     "gaushit"
 }
 

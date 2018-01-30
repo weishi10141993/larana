@@ -141,7 +141,7 @@ private:
   };
   std::unordered_map<int, TrackIDEinfo> trkide_collector;
 
-
+  bool                                  fOverrideRealData;      ///< if real data, tell it to run anyway (=0)
 };
 
 
@@ -182,6 +182,7 @@ void t0::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
 
   fMakeHitAssns = p.get<bool>("makeHitAssns",true);
   if(fMakeHitAssns) fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
+  fOverrideRealData = p.get<bool>("OverrideRealData", false);
 }
 
 void t0::MCTruthT0Matching::beginJob()
@@ -197,7 +198,7 @@ void t0::MCTruthT0Matching::beginJob()
 
 void t0::MCTruthT0Matching::produce(art::Event & evt)
 {
-  if (evt.isRealData()) return;
+  if(evt.isRealData() && !fOverrideRealData) return;
 
   // Access art services...
   art::ServiceHandle<geo::Geometry> geom;

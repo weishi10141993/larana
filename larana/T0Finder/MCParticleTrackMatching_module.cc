@@ -77,6 +77,7 @@ private:
   art::InputTag fTrackHitAssnLabel;
   art::InputTag fHitModuleLabel;
   art::InputTag fHitParticleAssnLabel;
+  bool          fOverrideRealData;      ///< if real data, tell it to run anyway (=0)
   
 };
 
@@ -93,7 +94,7 @@ void t0::MCParticleTrackMatching::reconfigure(fhicl::ParameterSet const & p)
   fTrackHitAssnLabel = p.get<art::InputTag>("TrackHitAssnLabel",fTrackModuleLabel);
   fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
   fHitParticleAssnLabel = p.get<art::InputTag>("HitParticleAssnLabel");
-  
+  fOverrideRealData     = p.get<bool       >("OverrideRealData", false); 
 }
 
 void t0::MCParticleTrackMatching::beginJob()
@@ -102,7 +103,7 @@ void t0::MCParticleTrackMatching::beginJob()
 
 void t0::MCParticleTrackMatching::produce(art::Event & evt)
 {
-  if (evt.isRealData()) return;
+  if(evt.isRealData() && !fOverrideRealData) return;
 
   //auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >("largeant");
   std::unique_ptr< art::Assns<recob::Track, simb::MCParticle, anab::BackTrackerMatchingData > > MCPartTrackassn( new art::Assns<recob::Track, simb::MCParticle, anab::BackTrackerMatchingData >);
