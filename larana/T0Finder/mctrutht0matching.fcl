@@ -1,3 +1,5 @@
+#include "hitparticleassociations.fcl"
+
 BEGIN_PROLOG
 
 standard_mctrutht0matching:
