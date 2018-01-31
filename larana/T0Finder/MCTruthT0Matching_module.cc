@@ -102,7 +102,7 @@ public:
   MCTruthT0Matching(MCTruthT0Matching const &) = delete;
   MCTruthT0Matching(MCTruthT0Matching &&) = delete;
   MCTruthT0Matching & operator = (MCTruthT0Matching const &) = delete; 
- MCTruthT0Matching & operator = (MCTruthT0Matching &&) = delete;
+  MCTruthT0Matching & operator = (MCTruthT0Matching &&) = delete;
 
   // Required functions.
   void produce(art::Event & e) override;
