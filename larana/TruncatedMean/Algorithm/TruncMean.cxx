@@ -5,20 +5,26 @@
 
 
 float TruncMean::CalcIterativeTruncMean(std::vector<float> v, const size_t& nmin,
-				       const size_t& nmax, const size_t& currentiteration,
-				       const float& convergencelimit,
-				       const float& nsigma, const float& oldmean)
+					const size_t& nmax, const size_t& currentiteration,
+					const size_t& lmin,
+					const float& convergencelimit,
+					const float& nsigma, const float& oldmed)
 {
 
   auto const& mean = Mean(v);
-  auto const& rms = RMS(v);
+  auto const& med  = Median(v);
+  auto const& rms  = RMS(v);
+
+  // if the vector length is below the lower limit -> return
+  if (v.size() < lmin)
+    return mean;
 
   // if we have passed the maximum number of iterations -> return
   if (currentiteration >= nmax)
     return mean;
 
   // if we passed the minimum number of iterations and the mean is close enough to the old value
-  float fracdiff = fabs(mean-oldmean) / oldmean;
+  float fracdiff = fabs(med-oldmed) / oldmed;
   if ( (currentiteration >= nmin) && (fracdiff < convergencelimit) )
     return mean;
   
@@ -28,14 +34,14 @@ float TruncMean::CalcIterativeTruncMean(std::vector<float> v, const size_t& nmin
   // use erase-remove : https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom
   // https://stackoverflow.com/questions/17270837/stdvector-removing-elements-which-fulfill-some-conditions
   v.erase( std::remove_if( v.begin(), v.end(), 
-			   [mean,nsigma,rms](const float& x) { return ( (x < (mean-nsigma*rms)) || (x > (mean+nsigma*rms)) ); }), // lamdda condition for events to be removed
+			   [med,nsigma,rms](const float& x) { return ( (x < (med-nsigma*rms)) || (x > (med+nsigma*rms)) ); }), // lamdda condition for events to be removed
 	   v.end());
   
-  return CalcIterativeTruncMean(v, nmin, nmax, currentiteration+1, convergencelimit, nsigma, mean);
+  return CalcIterativeTruncMean(v, nmin, nmax, lmin, currentiteration+1, convergencelimit, nsigma, med);
 }
 
 void TruncMean::CalcTruncMeanProfile(const std::vector<float>& rr_v, const std::vector<float>& dq_v,
-				     std::vector<float>& dq_trunc_v)
+				     std::vector<float>& dq_trunc_v, const float& nsigma)
 {
 
   // how many points to sample 
@@ -83,7 +89,7 @@ void TruncMean::CalcTruncMeanProfile(const std::vector<float>& rr_v, const std::
     float truncated_dq = 0.;
     int npts = 0;
     for (auto const& dq : dq_local_v) {
-      if ( ( dq < (median+rms) ) && ( dq > (median-rms) ) ){
+      if ( ( dq < (median+rms * nsigma) ) && ( dq > (median-rms * nsigma) ) ){
 	truncated_dq += dq;
 	npts += 1;
       }

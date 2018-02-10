@@ -16,6 +16,8 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
+#include <climits>
+#include <limits>
 
 /**
    \class TruncMean
@@ -29,6 +31,9 @@
    For this functionality use CalcIterativeTruncMean()
    doxygen documentation!
 */
+
+static const float kINVALID_FLOAT = std::numeric_limits<float>::max();
+
 class TruncMean{
 
  public:
@@ -50,24 +55,31 @@ class TruncMean{
      1) the median and rms of these values is calculated.
      2) the subset of local dq values within the range [median-rms, median+rms] is selected.
      3) the resulting local truncated dq is the average of this truncated subset.
+     @input std::vector<float> rr_v -> vector of x-axis coordinates (i.e. position for track profile)
+     @input std::vector<float> dq_v -> vector of measured values for which truncated profile is requested
+     (i.e. charge profile of a track)
+     @input std::vector<float> dq_trunc_v -> passed by reference -> output stored here
+     @input float nsigma -> optional parameter, number of sigma to keep around RMS for TM calculation
   */
   void CalcTruncMeanProfile(const std::vector<float>& rr_v, const std::vector<float>& dq_v,
-			    std::vector<float>& dq_trunc_v);
+			    std::vector<float>& dq_trunc_v, const float& nsigma = 1);
 
   /**
      @brief Iteratively calculate the truncated mean of a distribution
      @input std::vector<float> v -> vector of values for which truncated mean is asked
      @input size_t nmin -> minimum number of iterations to converge on truncated mean
      @input size_t nmax -> maximum number of iterations to converge on truncated mean
+     @input size_t lmin -> minimum number of entries in vector before exiting and returning current value
      @input size_t currentiteration -> current iteration
      @input float convergencelimit -> fractional difference between successive iterations
      under which the iteration is completed, provided nmin iterations have occurred.
-     @input nsigma -> number of sigma around the mean value to keep when the distribution is trimmed.
+     @input nsigma -> number of sigma around the median value to keep when the distribution is trimmed.
    */
   float CalcIterativeTruncMean(std::vector<float> v, const size_t& nmin,
 			       const size_t& nmax, const size_t& currentiteration,
+			       const size_t& lmin,
 			       const float& convergencelimit,
-			       const float& nsigma, const float& oldmean);
+			       const float& nsigma, const float& oldmed = kINVALID_FLOAT);
 
   /**
      @brief Set the smearing radius over which to take hits for truncated mean computaton.
