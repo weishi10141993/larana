@@ -7,7 +7,7 @@ fcldir product_dir job
 fwdir  product_dir config_data
 #
 product         version
-larreco		v06_70_00
+larreco		v06_56_00
 
 cetbuildtools	v7_00_03	-	only_for_build
 end_product_list
