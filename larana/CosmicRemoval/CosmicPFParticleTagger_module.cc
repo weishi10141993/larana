@@ -63,7 +63,7 @@ public:
     void produce(art::Event & e) override;
 
     void beginJob() override;
-    void reconfigure(fhicl::ParameterSet const & p) override;
+    void reconfigure(fhicl::ParameterSet const & p) ;
     void endJob() override;
 
 private:
