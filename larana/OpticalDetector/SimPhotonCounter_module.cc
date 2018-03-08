@@ -509,6 +509,13 @@ namespace opdet {
           std::cout<<"Building the analysis tree"<<std::endl;
           //---------------Building the analysis tree-----------:
           fRun = evt.run();
+
+	  /*art::Handle< std::vector< simb::MCTruth > >  TruthHandle;
+	  evt.getByLabel("TruthInputModule", TruthHandle);
+	  const simb::MCParticle ThisPart = TruthHandle->at(0).GetParticle(0);
+	  double TrueE = ThisPart.E(0);
+	  std::cout<<"Uhhhhhhhhh ===> "<<TrueE<<std::endl;*/
+
           std::vector<double> thisPrexyz;
           std::vector<double> thisPostxyz;
           
@@ -516,8 +523,11 @@ namespace opdet {
           evt.getByLabel("mcreco",mctrackHandle);
           std::vector<sim::MCTrack> const& mctrackVec(*mctrackHandle);
           
-          //loop over the particles (so over the tracks)                      
-          fEnergy = mctrackVec[0][0].E(); 
+          //loop over the particles (so over the tracks)
+	  fEnergy = -1;
+	  if(mctrackVec.at(0).size())                      
+	    fEnergy = mctrackVec[0][0].E(); 
+	
           for(size_t i_p=0; i_p < mctrackVec.size(); i_p++){
             //resetting the vectors                                                                         
             fstepPrePositions.clear();
