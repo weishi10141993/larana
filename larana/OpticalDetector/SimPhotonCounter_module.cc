@@ -57,6 +57,9 @@
 #include "lardataobj/Simulation/SimChannel.h"
 #include "larsim/MCCheater/ParticleInventoryService.h"
 
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+
 // ROOT includes
 #include <TH1D.h>
 #include <TF1.h>
@@ -139,11 +142,8 @@ namespace opdet {
       TTree * fLightAnalysisTree;
       int fRun, fTrackID, fpdg, fmotherTrackID;
       double fEnergy, fdEdx;
-      std::vector<double> fPosition0;
-      std::vector<std::vector<double> > fstepPrePositions;
-      std::vector<std::vector<double> > fstepPostPositions;
-      std::vector<double> fstepPreTimes;
-      std::vector<double> fstepPostTimes;
+      std::vector<std::vector<double> > fstepPositions; 
+      std::vector<double> fstepTimes;  
       std::vector<std::vector<double> > fSignalsvuv;
       std::vector<std::vector<double> > fSignalsvis;
       std::string fProcess;
@@ -246,29 +246,11 @@ namespace opdet {
       fLightAnalysisTree->Branch("MotherTrackID",&fmotherTrackID);
       fLightAnalysisTree->Branch("Energy",&fEnergy);
       fLightAnalysisTree->Branch("dEdx",&fdEdx);
-      fLightAnalysisTree->Branch("StepPrePositions",&fstepPrePositions);
-      fLightAnalysisTree->Branch("StepPostPositions",&fstepPostPositions);
-      fLightAnalysisTree->Branch("StepPreTimes",&fstepPreTimes);
-      fLightAnalysisTree->Branch("StepPostTimes",&fstepPostTimes);
+      fLightAnalysisTree->Branch("StepPositions",&fstepPositions); 
+      fLightAnalysisTree->Branch("StepTimes",&fstepTimes);   
       fLightAnalysisTree->Branch("SignalsVUV",&fSignalsvuv);
       fLightAnalysisTree->Branch("SignalsVisible",&fSignalsvis);
       fLightAnalysisTree->Branch("Process",&fProcess);
-      
-      const int maxNtracks = 1000;
-      fSignals_vuv.clear();
-      fSignals_vuv.resize(maxNtracks);
-      fSignals_vis.clear();
-      fSignals_vis.resize(maxNtracks);
-      for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
-        fSignals_vuv[itrack].resize(geo->NOpChannels());
-        fSignals_vis[itrack].resize(geo->NOpChannels());
-      }
-      
-      fstepPrePositions.clear();
-      fstepPostPositions.clear();
-      fstepPreTimes.clear();
-      fstepPostTimes.clear();
-      
     }
     
   }
@@ -306,10 +288,26 @@ namespace opdet {
     // get the geometry to be able to figure out signal types and chan -> plane mappings
     art::ServiceHandle<geo::Geometry> geo;
     
-    //-------------------------stimation of dedx per trackID------------------------      
-    
-    //get the list of particles from this event       
-    double totalEnergy_track[1000] = {0.};      
+    // get the MCtrue info of the particles
+    art::Handle< std::vector<simb::MCParticle> > mclistLARG4;
+    evt.getByLabel("largeant",mclistLARG4);
+    std::vector<simb::MCParticle> const& mcpartVec(*mclistLARG4);
+   
+    //-------------------------initializing light tree vectors------------------------      
+    size_t maxNtracks = 1000;//mcpartVec.size(); --- { to be fixed soon! ]
+    fSignals_vuv.clear();
+    fSignals_vuv.resize(maxNtracks);
+    fSignals_vis.clear();
+    fSignals_vis.resize(maxNtracks);
+    for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
+      fSignals_vuv[itrack].resize(geo->NOpChannels());
+      fSignals_vis[itrack].resize(geo->NOpChannels());
+    }
+    fstepPositions.clear();
+    fstepTimes.clear();
+    //-------------------------stimation of dedx per trackID------------------------   
+    //get the list of particles from this even
+    std::vector<double> totalEnergy_track(maxNtracks, 0.);      
     if(fMakeLightAnalysisTree){
       const sim::ParticleList* plist = pi_serv? &(pi_serv->ParticleList()): nullptr;
       
@@ -365,7 +363,6 @@ namespace opdet {
       {
         if(fMakeLightAnalysisTree) {
           //resetting the signalt to save in the analysis tree per event
-          const int maxNtracks = 1000;
           for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
             for(size_t pmt_i=0; pmt_i!=geo->NOpChannels(); pmt_i++) {
               fSignals_vuv[itrack][pmt_i].clear();
@@ -439,6 +436,7 @@ namespace opdet {
                 fTime= Phot.Time;    
                 
                 if(fMakeLightAnalysisTree) {
+ 
                   if(fWavelength <200)
                     fSignals_vuv[Phot.MotherTrackID][fOpChannel].push_back(fTime);
                   else
@@ -506,67 +504,42 @@ namespace opdet {
           if(fMakeOpDetEventsTree) fTheEventTree->Fill();
         }
         if(fMakeLightAnalysisTree) {
-          std::cout<<"Building the analysis tree"<<std::endl;
-          //---------------Building the analysis tree-----------:
+          std::cout<<"Filling the light analysis tree"<<std::endl;
+          //---------------Filling the analysis tree-----------:
           fRun = evt.run();
+          //loop over the particles
+	  std::vector<double> this_xyz;    
 
-	  /*art::Handle< std::vector< simb::MCTruth > >  TruthHandle;
-	  evt.getByLabel("TruthInputModule", TruthHandle);
-	  const simb::MCParticle ThisPart = TruthHandle->at(0).GetParticle(0);
-	  double TrueE = ThisPart.E(0);
-	  std::cout<<"Uhhhhhhhhh ===> "<<TrueE<<std::endl;*/
-
-          std::vector<double> thisPrexyz;
-          std::vector<double> thisPostxyz;
-          
-          art::Handle< std::vector<sim::MCTrack> > mctrackHandle;
-          evt.getByLabel("mcreco",mctrackHandle);
-          std::vector<sim::MCTrack> const& mctrackVec(*mctrackHandle);
-          
-          //loop over the particles (so over the tracks)
-	  fEnergy = -1;
-	  if(mctrackVec.at(0).size())                      
-	    fEnergy = mctrackVec[0][0].E(); 
-	
-          for(size_t i_p=0; i_p < mctrackVec.size(); i_p++){
+          for(size_t i_p=0; i_p < mcpartVec.size(); i_p++){
+	    
+	    const simb::MCParticle pPart = mcpartVec[i_p];   
+	    if(pPart.Process() == "primary")
+	      fEnergy = pPart.E();
+	    
             //resetting the vectors                                                                         
-            fstepPrePositions.clear();
-            fstepPostPositions.clear();
-            fstepPreTimes.clear();
-            fstepPostTimes.clear();
+            fstepPositions.clear();
+            fstepTimes.clear();
             fSignalsvuv.clear();
             fSignalsvis.clear();
             fdEdx = -1.;
             //filling the tree fields  
-            fTrackID = mctrackVec[i_p].TrackID();
-            fpdg = mctrackVec[i_p].PdgCode();
-            fmotherTrackID = mctrackVec[i_p].MotherTrackID();
+            fTrackID = pPart.TrackId();
+            fpdg = pPart.PdgCode();
+            fmotherTrackID = pPart.Mother();
             fdEdx = totalEnergy_track[fTrackID];
             fSignalsvuv = fSignals_vuv[fTrackID];
             fSignalsvis = fSignals_vis[fTrackID];
-            fProcess = mctrackVec[i_p].Process();
+            fProcess = pPart.Process();
             //filling the center positions of each step                                   
-            for(size_t i_s=1; i_s < mctrackVec[i_p].size(); i_s++){
-              TVector3 const& vec1 = mctrackVec[i_p][i_s-1].Position().Vect();
-              TVector3 const& vec2 = mctrackVec[i_p][i_s].Position().Vect();                                   
-              thisPrexyz.clear();
-              thisPrexyz.resize(3);
-              thisPrexyz[0] = vec1.X();
-              thisPrexyz[1] = vec1.Y();
-              thisPrexyz[2] = vec1.Z();
-              fstepPrePositions.push_back(thisPrexyz);
-              thisPostxyz.clear();
-              thisPostxyz.resize(3);
-              thisPostxyz[0] = vec2.X();
-              thisPostxyz[1] = vec2.Y();
-              thisPostxyz[2] = vec2.Z();
-              fstepPostPositions.push_back(thisPostxyz);
-              fstepPreTimes.push_back(mctrackVec[i_p][i_s-1].T());
-              fstepPostTimes.push_back(mctrackVec[i_p][i_s].T());
-              //double stepL = (vec2-vec1).Mag(); 
-              //std::cout<<"step length: "<<stepL<<std::endl;
-              
-            }
+            for(size_t i_s=0; i_s < pPart.NumberTrajectoryPoints(); i_s++){
+              this_xyz.clear();
+              this_xyz.resize(3);
+              this_xyz[0] = pPart.Position(i_s).X();
+              this_xyz[1] = pPart.Position(i_s).Y();
+              this_xyz[2] = pPart.Position(i_s).Z();
+              fstepPositions.push_back(this_xyz);
+              fstepTimes.push_back(pPart.Position(i_s).T());
+	      }
             //filling the tree per track
             fLightAnalysisTree->Fill();
           }  
