@@ -95,7 +95,7 @@ namespace opdet{
 
 
 // Debug flag; only used during code development.
-const bool debug = true;
+// const bool debug = true;
 
 namespace opdet {
   

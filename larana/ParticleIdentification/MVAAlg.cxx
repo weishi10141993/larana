@@ -554,7 +554,7 @@ void mvapid::MVAAlg::_Var_Shape(const mvapid::MVAAlg::SortedObj& track,
   double chargeCore=0;
   double chargeHalo=0;
   double chargeCon=0;
-  unsigned int nHits;
+  unsigned int nHits = 0;
 
   //stuff for conicalness
   double chargeConStart=0;
