@@ -105,10 +105,10 @@ namespace opdet {
       bool fMakeOpDetsTree;         // Switches to turn on or off each output
       bool fMakeOpDetEventsTree;          //
       
-      float fQE;                     // Quantum efficiency of tube
+    //  float fQE;                     // Quantum efficiency of tube
       
-      float fWavelengthCutLow;       // Sensitive wavelength range 
-      float fWavelengthCutHigh;      // 
+    //  float fWavelengthCutLow;       // Sensitive wavelength range 
+    //  float fWavelengthCutHigh;      // 
       
       TVector3 initialPhotonPosition;
       TVector3 finalPhotonPosition;
@@ -118,7 +118,7 @@ namespace opdet {
        
       Float_t fWavelength;
       Float_t fTime;
-      Int_t fCount;
+    //  Int_t fCount;
       Int_t fCountOpDetAll;
       Int_t fCountOpDetDetected;
       Int_t fCountOpDetReflDetected;
@@ -126,7 +126,7 @@ namespace opdet {
       
       Int_t fCountEventAll;
       Int_t fCountEventDetected;
-      Int_t fCountEventDetectedwithRefl;    
+    //  Int_t fCountEventDetectedwithRefl;    
       
       Int_t fEventID;
       Int_t fOpChannel;

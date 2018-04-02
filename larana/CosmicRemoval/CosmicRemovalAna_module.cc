@@ -72,7 +72,7 @@ namespace microboone {
 
     unsigned int nCosmicTags;
     
-    TTree *tTagTree;
+  //  TTree *tTagTree;
     TTree *tEventTree;
     
     std::string fHitsModuleLabel;
@@ -114,8 +114,9 @@ namespace microboone {
     std::vector<float> cTaggedCharge_NonCosmic;
     std::vector<int>   cTaggedHits_Cosmic;
     std::vector<int>   cTaggedHits_NonCosmic;
-    std::vector<std::string> *cTagAlgorithmNames;
+  //  std::vector<std::string> *cTagAlgorithmNames;
 
+  /*
     typedef struct {
       int eventNumber;
       int tagType;
@@ -133,7 +134,7 @@ namespace microboone {
       float energy;
     } cTagProperties_t;
     cTagProperties_t cTagVals;
-    
+  */
   };//<---End class
 }
 
