@@ -248,8 +248,8 @@ namespace pmtana{
 
     if (local_rms >= _threshold) {
 
-      for (size_t i = wf.size()-2-_sample_size; i >= 0 ; i--) {
-
+      size_t i = wf.size() - 1 - _sample_size;
+      while (i-- > 0) {
         local_mean = mean(wf, i, _sample_size);
         local_rms  = std(wf, local_mean, i, _sample_size);
 
