@@ -81,7 +81,7 @@ void MCParticleHitMatching::reconfigure(fhicl::ParameterSet const & pset)
     fOverrideRealData = pset.get<bool>("OverrideRealData", false);
 
     // Get the tool for MC Truth matching
-    fHitParticleAssociations = art::make_tool<IHitParticleAssociations>(pset.get<fhicl::ParameterSet>("HitParticleAssociations"));
+    fHitParticleAssociations = art::make_tool<IHitParticleAssociations>(hitPartAssnsParams);
 }
 
 void MCParticleHitMatching::beginJob()
