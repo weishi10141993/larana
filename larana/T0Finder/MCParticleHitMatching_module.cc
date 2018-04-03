@@ -70,7 +70,7 @@ private:
 MCParticleHitMatching::MCParticleHitMatching(fhicl::ParameterSet const & pset)
 {
     reconfigure(pset);
-    produces< art::Assns<recob::Hit , simb::MCParticle, anab::BackTrackerHitMatchingData > > ();
+    produces<HitParticleAssociations> ();
 }
 
 void MCParticleHitMatching::reconfigure(fhicl::ParameterSet const & pset)
