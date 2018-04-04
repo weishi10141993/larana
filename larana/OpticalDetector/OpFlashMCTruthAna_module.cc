@@ -57,7 +57,7 @@ namespace opdet {
     Float_t fFlashY, fFlashZ, fFlashU, fFlashV, fFlashT;
     Float_t fFlashPE, fFlashFastToTotal;
     Float_t fFlashWidthY, fFlashWidthZ, fFlashWidthU, fFlashWidthV;
-    Float_t fVertexX, fVertexY, fVertexZ, fVertexU, fVertexV, fVertexT;
+    Float_t fVertexX, fVertexY, fVertexZ /* , fVertexU, fVertexV */, fVertexT;
     Float_t fTrueE;
     Int_t   fTruePDG;
     Float_t fCenterX, fCenterY, fCenterZ;

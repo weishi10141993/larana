@@ -130,8 +130,8 @@ private:
 
   // Variables used in module.......
   double TrackLength_X, TrackCentre_X, BestTrackCentre_X;
-  double TrackLength_Y, TrackCentre_Y, BestTrackCentre_Y;
-  double TrackLength_Z, TrackCentre_Z, BestTrackCentre_Z;
+  double TrackLength_Y, TrackCentre_Y /* , BestTrackCentre_Y */;
+  double TrackLength_Z, TrackCentre_Z /* , BestTrackCentre_Z */;
   double trkTimeStart, trkTimeEnd, trkTimeLengh; 
 
   double trkTimeCentre, BesttrkTimeCentre;

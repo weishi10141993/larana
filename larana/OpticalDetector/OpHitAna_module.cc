@@ -49,7 +49,7 @@ namespace opdet {
     float fSampleFreq;                     // in MHz
     float fTimeBegin;                      // in us
     float fTimeEnd;                        // in us
-    short fPEheight;                       // in ADC counts
+  //  short fPEheight;                       // in ADC counts
 
     // Flags to enable or disable output of debugging TH1 / TH2s
     bool fMakeHistPerChannel;

@@ -4,16 +4,16 @@
 #include "larana/OpticalDetector/OpFlashAlg.h"
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 
-const float HitThreshold = 3;
+// const float HitThreshold = 3;
 const float FlashThreshold = 50;
 const double WidthTolerance = 0.5;
-const int Channel = 1;
-const uint32_t TimeSlice = 1000;
-const unsigned short Frame = 1;
-const optdata::TimeSlice_t TimeSlicesPerFrame = 102400;
-const double opdigi_SampleFreq = 64;
-const double TrigTimeAbs = 0.8;
-const double SPESize = 20;
+// const int Channel = 1;
+// const uint32_t TimeSlice = 1000;
+// const unsigned short Frame = 1;
+// const optdata::TimeSlice_t TimeSlicesPerFrame = 102400;
+// const double opdigi_SampleFreq = 64;
+// const double TrigTimeAbs = 0.8;
+// const double SPESize = 20;
 
 const double tolerance = 1e-6;
 

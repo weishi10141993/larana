@@ -77,7 +77,7 @@ private:
 
   // Declare member data here.
 
-  int         fReadOutWindowSize;
+//  int         fReadOutWindowSize;
   float       fSamplingRate;
   std::string fClusterModuleLabel;
   int         fDetectorWidthTicks;

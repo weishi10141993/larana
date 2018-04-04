@@ -66,8 +66,8 @@ namespace opdet {
     float fDarkRate;                       // Noise rate in Hz
     optdata::ADC_Count_t fPedFlucAmp;                     // Pedestal fluctuation amplitude
     float fPedFlucRate;                    // Pedestal fluctuation rate
-    float fWFRandTimeOffsetLow;            // The lower bound of WF's T=0 offset from Trigger
-    float fWFRandTimeOffsetHigh;           // The upper bound of WF's T=0 offset from Trigger
+  //  float fWFRandTimeOffsetLow;            // The lower bound of WF's T=0 offset from Trigger
+  //  float fWFRandTimeOffsetHigh;           // The upper bound of WF's T=0 offset from Trigger
     std::vector<double> fSinglePEWaveform;
 
     bool fSimGainSpread;
