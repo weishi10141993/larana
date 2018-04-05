@@ -76,7 +76,7 @@ MCParticleHitMatching::MCParticleHitMatching(fhicl::ParameterSet const & pset)
 void MCParticleHitMatching::reconfigure(fhicl::ParameterSet const & pset)
 {
     // Get the tool for MC Truth matching
-    const fhicl::ParameterSet& hitPartAssnsParams = pset.get<fhicl::ParameterSet>("HitParticleAssociations");
+    //const fhicl::ParameterSet& hitPartAssnsParams = pset.get<fhicl::ParameterSet>("HitParticleAssociations"); // unused
     
     fOverrideRealData = pset.get<bool>("OverrideRealData", false);
 
