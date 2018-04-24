@@ -10,9 +10,10 @@ DirectHitParticleAssnsTool:
 
 IndirectHitParticleAssnsTool:
 {
-  tool_type:           "IndirectHitParticleAssns"
-  HitPartAssnsLabel:   "gaushitTruthMatch"
-  HitModuleLabel:      "pandoraCosmicHitRemoval"
+  tool_type:             "IndirectHitParticleAssns"
+  HitPartAssnsLabel:     "gaushitTruthMatch"
+  MCParticleModuleLabel: "largeant"
+  HitModuleLabel:        "pandoraCosmicHitRemoval"
 }
 
 END_PROLOG

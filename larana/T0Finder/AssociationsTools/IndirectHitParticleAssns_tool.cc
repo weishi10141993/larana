@@ -59,6 +59,7 @@ public:
 private:
     
     art::InputTag fHitModuleLabel;
+    art::InputTag fMCParticleModuleLabel;
     art::InputTag fHitPartAssnsModuleLabel;
     
 };
@@ -93,6 +94,7 @@ IndirectHitParticleAssns::~IndirectHitParticleAssns()
 void IndirectHitParticleAssns::reconfigure(fhicl::ParameterSet const & pset)
 {
     fHitPartAssnsModuleLabel = pset.get<art::InputTag>("HitPartAssnsLabel");
+    fMCParticleModuleLabel   = pset.get<art::InputTag>("MCParticleModuleLabel");
     fHitModuleLabel          = pset.get<art::InputTag>("HitModuleLabel");
 }
 
@@ -112,11 +114,10 @@ void IndirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, Hi
     // First step is to recover the preexisting associations
 
     // Get a handle for the associations...
-    art::Handle<HitParticleAssociations> partHitAssnsHandle;
-    
-    evt.getByLabel(fHitPartAssnsModuleLabel, partHitAssnsHandle);
-    
-    if (!partHitAssnsHandle.isValid())
+    auto partHitAssnsHandle = evt.getValidHandle< HitParticleAssociations >(fHitPartAssnsModuleLabel);
+    auto mcParticleHandle   = evt.getValidHandle< std::vector<simb::MCParticle> >(fMCParticleModuleLabel);
+
+    if (!partHitAssnsHandle.isValid() || !mcParticleHandle.isValid())
     {
         throw cet::exception("IndirectHitParticleAssns") << "===>> NO MCParticle <--> Hit associations found for run/subrun/event: " << evt.run() << "/" << evt.subRun() << "/" << evt.id().event();
     }
@@ -130,7 +131,7 @@ void IndirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, Hi
     }
     
     // Go through the associations and build out our (hopefully sparse) data structure
-    using ParticleDataPair         = std::pair<const art::Ptr<simb::MCParticle>*, const anab::BackTrackerHitMatchingData*>;
+    using ParticleDataPair         = std::pair<size_t, const anab::BackTrackerHitMatchingData*>;
     using MCParticleDataSet        = std::set<ParticleDataPair>;
     using TickToPartDataMap        = std::unordered_map<raw::TDCtick_t,   MCParticleDataSet>;
     using ChannelToTickPartDataMap = std::unordered_map<raw::ChannelID_t, TickToPartDataMap>;
@@ -148,7 +149,7 @@ void IndirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, Hi
         
         for(raw::TDCtick_t tick = recoHit->PeakTimeMinusRMS(); tick <= recoHit->PeakTimePlusRMS(); tick++)
         {
-            tickToPartDataMap[tick].insert(ParticleDataPair(&mcParticle,data));
+            tickToPartDataMap[tick].insert(ParticleDataPair(mcParticle.key(),data));
         }
     }
 
@@ -181,7 +182,7 @@ void IndirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, Hi
         
         // Now create new associations for the hit in question
         for(const auto& partData : particleDataSet)
-            hitPartAssns->addSingle(*partData.first, hit, *partData.second);
+            hitPartAssns->addSingle(art::Ptr<simb::MCParticle>(mcParticleHandle, partData.first), hit, *partData.second);
     }
 
     return;
