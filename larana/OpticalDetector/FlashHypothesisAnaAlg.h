@@ -16,7 +16,7 @@
 #include "larcore/Geometry/Geometry.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardata/DetectorInfo/LArProperties.h"
+#include "lardataalg/DetectorInfo/LArProperties.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include "lardataobj/Simulation/SimPhotons.h"

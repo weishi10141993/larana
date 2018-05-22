@@ -20,7 +20,7 @@
 
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardata/DetectorInfo/LArProperties.h"
+#include "lardataalg/DetectorInfo/LArProperties.h"
 #include "larcorealg/CoreUtils/ProviderPack.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 

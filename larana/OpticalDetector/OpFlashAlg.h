@@ -13,7 +13,7 @@
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
-#include "lardata/DetectorInfo/DetectorClocks.h"
+#include "lardataalg/DetectorInfo/DetectorClocks.h"
 
 #include "TH1D.h"
 #include "TFile.h"
