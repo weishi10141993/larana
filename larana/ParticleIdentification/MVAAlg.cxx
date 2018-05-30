@@ -631,7 +631,7 @@ double mvapid::MVAAlg::CalcSegmentdEdxDist(const mvapid::MVAAlg::SortedObj& trac
     art::Ptr<recob::Hit> hit=hitIter->second;
 
     //Pitch to use in dEdx calculation
-    double yzPitch = geom->WirePitch(0,1,hit->WireID().Plane, hit->WireID().TPC); //pitch not taking into account angle of track or shower
+    double yzPitch = geom->WirePitch(hit->WireID().Plane, hit->WireID().TPC); //pitch not taking into account angle of track or shower
     double xComponent, pitch3D;
 
     TVector3 dir=track.dir;
@@ -642,7 +642,7 @@ double mvapid::MVAAlg::CalcSegmentdEdxDist(const mvapid::MVAAlg::SortedObj& trac
     if(fNormToWiresY.count(planeKey) && fNormToWiresZ.count(planeKey))
       {
 	TVector3 normToWires(0.0, fNormToWiresY.at(planeKey), fNormToWiresZ.at(planeKey));
-	yzPitch = geom->WirePitch(0,1, hit->WireID().Plane, hit->WireID().TPC) / fabs(dir.Dot(normToWires));        
+	yzPitch = geom->WirePitch(hit->WireID().Plane, hit->WireID().TPC) / fabs(dir.Dot(normToWires));
       }
 
     xComponent = yzPitch * dir[0] / sqrt(dir[1] * dir[1] + dir[2] * dir[2]);
