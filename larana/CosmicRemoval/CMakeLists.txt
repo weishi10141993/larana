@@ -19,7 +19,7 @@ art_make(
   lardata_Utilities
   nusimdata_SimulationBase
   ${MF_MESSAGELOGGER}
-  ${MF_UTILITIES}
+  
   ${FHICLCPP}
   cetlib cetlib_except
   ${CLHEP}
@@ -58,7 +58,7 @@ art_make(
   art_Utilities
   canvas
   ${MF_MESSAGELOGGER}
-  ${MF_UTILITIES}
+  
   ${FHICLCPP}
   cetlib cetlib_except
   ${CLHEP}

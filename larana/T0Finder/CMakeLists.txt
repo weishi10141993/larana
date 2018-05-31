@@ -19,7 +19,7 @@ art_make(MODULE_LIBRARIES lardataobj_RawData
                           art_Utilities
                           canvas
                           ${MF_MESSAGELOGGER}
-                          ${MF_UTILITIES}
+                          
                           ${ROOT_BASIC_LIB_LIST}
 )
 
