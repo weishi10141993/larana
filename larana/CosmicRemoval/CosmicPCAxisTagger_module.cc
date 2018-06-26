@@ -39,7 +39,7 @@
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/PCAxis.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
-#include "lardata/RecoObjects/Cluster3D.h"
+#include "larreco/RecoAlg/Cluster3DAlgs/Cluster3D.h"
 
 #include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "larreco/RecoAlg/Cluster3DAlgs/PrincipalComponentsAlg.h"
