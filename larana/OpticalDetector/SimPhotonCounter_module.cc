@@ -162,7 +162,7 @@ namespace opdet {
     : EDAnalyzer(pset)
   {
     fVerbosity=                pset.get<int>("Verbosity");
-    fInputModule=              pset.get<std::string>("InputModule");
+    fInputModule=              pset.get<std::string>("InputModule","largeant");
     fMakeAllPhotonsTree=       pset.get<bool>("MakeAllPhotonsTree");
     fMakeDetectedPhotonsTree=  pset.get<bool>("MakeDetectedPhotonsTree");
     fMakeOpDetsTree=           pset.get<bool>("MakeOpDetsTree");
@@ -317,7 +317,7 @@ namespace opdet {
       // sim::IDEs with trackID values that are not in the sim::ParticleList                
       std::vector<const sim::SimChannel*> sccol;
       //evt.getView(fG4ModuleLabel, sccol);                                                 
-      evt.getView("largeant", sccol);
+      evt.getView(fInputModule, sccol);
       double totalCharge=0.0;
       double totalEnergy=0.0;
       //loop over the sim channels collection  
@@ -569,7 +569,7 @@ namespace opdet {
     {
       //Get SimPhotonsLite from Event
       art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle; 
-      evt.getByLabel("largeant", photonHandle);
+      evt.getByLabel(fInputModule, photonHandle);
       
       
       //Reset counters
