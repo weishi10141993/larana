@@ -96,7 +96,7 @@ namespace opdet {
       
       // Parameters to read in
       
-      std::string fInputModule;      // Input tag for OpDet collection
+      std::vector<std::string> fInputModule;      // Input tag for OpDet collection
       
       int fVerbosity;                // Level of output to write to std::out
       
@@ -162,7 +162,7 @@ namespace opdet {
     : EDAnalyzer(pset)
   {
     fVerbosity=                pset.get<int>("Verbosity");
-    fInputModule=              pset.get<std::string>("InputModule","largeant");
+    fInputModule=              pset.get<std::vector<std::string>>("InputModule",{"largeant"});
     fMakeAllPhotonsTree=       pset.get<bool>("MakeAllPhotonsTree");
     fMakeDetectedPhotonsTree=  pset.get<bool>("MakeDetectedPhotonsTree");
     fMakeOpDetsTree=           pset.get<bool>("MakeOpDetsTree");
@@ -316,8 +316,9 @@ namespace opdet {
       // loop over all sim::SimChannels in the event and make sure there are no             
       // sim::IDEs with trackID values that are not in the sim::ParticleList                
       std::vector<const sim::SimChannel*> sccol;
-      //evt.getView(fG4ModuleLabel, sccol);                                                 
-      evt.getView(fInputModule, sccol);
+      //evt.getView(fG4ModuleLabel, sccol);
+     for(auto mod : fInputModule){                                      
+      evt.getView(mod, sccol);
       double totalCharge=0.0;
       double totalEnergy=0.0;
       //loop over the sim channels collection  
@@ -349,18 +350,23 @@ namespace opdet {
           }
         }
       }
+     }
     }//End of if(fMakeLightAnalysisTree)
 
     
     if(!fUseLitePhotons)
     {
-      //Get SimPhotonsCollection from Event
-      sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,fInputModule);
       
       //Reset counters
       fCountEventAll=0;
       fCountEventDetected=0;
-  
+
+      //Get SimPhotonsCollection from Event
+
+     for(auto mod : fInputModule){
+      sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,mod);
+
+
       if(TheHitCollection.size()>0)
       {
         if(fMakeLightAnalysisTree) {
@@ -562,14 +568,19 @@ namespace opdet {
           }  
         }
       }
+     }
     }
 
       
     if (fUseLitePhotons)
     {
       //Get SimPhotonsLite from Event
+
+     for(auto mod : fInputModule){
       art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle; 
-      evt.getByLabel(fInputModule, photonHandle);
+      evt.getByLabel(mod, photonHandle);
+
+
       
       
       //Reset counters
@@ -661,7 +672,8 @@ namespace opdet {
         // if empty OpDet hit collection, 
         // add an empty record to the per event tree 
         if(fMakeOpDetEventsTree) fTheEventTree->Fill();
-      } 
+      }
+     } 
     }
   }
 }
