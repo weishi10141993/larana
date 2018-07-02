@@ -165,7 +165,7 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
             if(trkid_lookup.find(t.trackID)==trkid_lookup.end()){
                 size_t i_p=0;
                 while(i_p<mcpartList.size()){
-                    if(mcpartList[i_p].TrackId() == t.trackID) { trkid_lookup[t.trackID] = (int)i_p; break;}
+                    if(mcpartList[i_p].TrackId() == abs(t.trackID)) { trkid_lookup[t.trackID] = (int)i_p; break;}
                     ++i_p;
                 }
                 if(i_p==mcpartList.size()) trkid_lookup[t.trackID] = -1;
