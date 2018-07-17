@@ -162,7 +162,14 @@ namespace opdet {
     : EDAnalyzer(pset)
   {
     fVerbosity=                pset.get<int>("Verbosity");
-    fInputModule=              pset.get<std::vector<std::string>>("InputModule",{"largeant"});
+    try
+    {
+       pset.get<std::vector<std::string>>("InputModule",fInputModule);
+    }
+    catch(...)
+    {
+       fInputModule.push_back(pset.get<std::string>("InputModule","largeant"));
+    }
     fMakeAllPhotonsTree=       pset.get<bool>("MakeAllPhotonsTree");
     fMakeDetectedPhotonsTree=  pset.get<bool>("MakeDetectedPhotonsTree");
     fMakeOpDetsTree=           pset.get<bool>("MakeOpDetsTree");
