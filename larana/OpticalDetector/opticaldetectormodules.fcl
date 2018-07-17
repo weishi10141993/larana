@@ -235,7 +235,7 @@ standard_ledcalibrationana:
 
 standard_simphotoncounter:
 {
-  module_type:            "SimPhotonCounter"
+  module_type:            ["SimPhotonCounter"]
   Verbosity:               0 
   InputModule:            "largeant" 
   MakeAllPhotonsTree:      true
