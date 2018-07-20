@@ -164,7 +164,7 @@ namespace opdet {
     fVerbosity=                pset.get<int>("Verbosity");
     try
     {
-       pset.get<std::vector<std::string>>("InputModule",fInputModule);
+       fInputModule = pset.get<std::vector<std::string>>("InputModule",{"largeant"});
     }
     catch(...)
     {
