@@ -14,6 +14,7 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
+#include "larcore/CoreUtils/ServiceUtil.h" // lar::providerFrom()
 #include "lardataobj/RawData/OpDetWaveform.h"
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoThreshold.h"
@@ -29,6 +30,9 @@
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "larana/OpticalDetector/OpHitFinder/OpHitAlg.h"
 #include "lardataobj/Simulation/BeamGateInfo.h"
+#include "larreco/Calibrator/IPhotonCalibrator.h"
+#include "larreco/Calibrator/IPhotonCalibratorService.h"
+#include "larreco/Calibrator/PhotonCalibratorStandard.h"
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
@@ -80,15 +84,9 @@ namespace opdet {
     pmtana::PMTPedestalBase*  fPedAlg;
 
     Float_t  fHitThreshold;
-    Bool_t   fAreaToPE;
-    Float_t  fSPEArea;
-    Float_t  fSPEShift;
-
     unsigned int fMaxOpChannel;
-   
-    std::vector< double > fSPESize;
-    std::vector< double > fSPEShiftPerChan;
 
+    calib::IPhotonCalibrator const* fCalib = nullptr;
   };
 
 } 
@@ -157,18 +155,34 @@ namespace opdet {
     for (auto const& ch : pset.get< std::vector< unsigned int > >
                             ("ChannelMasks", std::vector< unsigned int >()))
       fChannelMasks.insert(ch);
-    
+
     fHitThreshold = pset.get< float >("HitThreshold");
-    fAreaToPE     = pset.get< bool > ("AreaToPE");
-    fSPEArea      = pset.get< float >("SPEArea");
-    fSPEShift     = pset.get< float >("SPEShift", 0.);
+    bool useCalibrator = pset.get< bool > ("UseCalibrator");
 
     auto const& geometry(*lar::providerFrom< geo::Geometry >());
     fMaxOpChannel = geometry.MaxOpChannel();
     
-    fSPESize = GetSPEScales();
-    fSPEShiftPerChan = GetSPEShifts();
+    if (useCalibrator) {
+      // If useCalibrator, get it from ART
+      fCalib = lar::providerFrom<calib::IPhotonCalibratorService>();
+    }
+    else {
+      // If not useCalibrator, make an internal one based
+      // on fhicl settings to hit finder.
+      bool  areaToPE      = pset.get< bool > ("AreaToPE");
+      float SPEArea       = pset.get< float >("SPEArea");
+      float SPEShift      = pset.get< float >("SPEShift", 0.);
 
+      // Reproduce behavior from GetSPEScales()
+      if (!areaToPE) SPEArea = 20;
+
+      // Delete and replace if we are reconfiguring
+      if (fCalib) {
+        delete fCalib;
+      }
+      
+      fCalib = new calib::PhotonCalibratorStandard(SPEArea, SPEShift, areaToPE);
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -210,9 +224,8 @@ namespace opdet {
     }
 
     auto const& geometry(*lar::providerFrom< geo::Geometry >());
-    auto const& detectorClocks
-                  (*lar::providerFrom< detinfo::DetectorClocksService >());
-
+    auto const& detectorClocks(*lar::providerFrom< detinfo::DetectorClocksService >());
+    auto const& calibrator(*fCalib);
     //
     // Get the pulses from the event
     //
@@ -253,35 +266,11 @@ namespace opdet {
                  geometry,
                  fHitThreshold,
                  detectorClocks,
-                 fSPESize,
-                 fAreaToPE,
-	         fSPEShiftPerChan);
+                 calibrator);
 
     // Store results into the event
     evt.put(std::move(HitPtr));
     
-  }
-
-  //----------------------------------------------------------------------------
-  std::vector< double > OpHitFinder::GetSPEScales()
-  {
-    // This will eventually interface to some kind of gain service
-    // or database. For now all SPE scales are set to 20 ADC.
-    // Alternatively all SPE scales are set to fSPEArea 
-    // if hit area is used to calculate number of PEs
-    
-    if (fAreaToPE) return std::vector< double >(fMaxOpChannel + 1, fSPEArea);
-    else           return std::vector< double >(fMaxOpChannel + 1, 20); 
-  }
-
-  std::vector< double > OpHitFinder::GetSPEShifts()
-  {
-    // For now every channel will have the same shift factor in the calibration.
-    // This function assigns the appropriate shift value for calibration to each
-    // channel.  For now, every channel will have the same corresponding shift
-    // factor, which is configurable.
-    return std::vector< double >(fMaxOpChannel + 1, fSPEShift);
-
   }
 
 } // namespace opdet
