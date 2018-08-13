@@ -64,8 +64,7 @@ include(BuildPlugins)
 add_subdirectory(larana)
 
 # tests
-# 8/7/2018 disabling tests until someone can look at them
-##add_subdirectory(test)
+add_subdirectory(test)
 
 # ups - table and config files
 add_subdirectory(ups)
