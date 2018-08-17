@@ -157,7 +157,7 @@ namespace opdet {
       fChannelMasks.insert(ch);
 
     fHitThreshold = pset.get< float >("HitThreshold");
-    bool useCalibrator = pset.get< bool > ("UseCalibrator");
+    bool useCalibrator = pset.get< bool > ("UseCalibrator", false);
 
     auto const& geometry(*lar::providerFrom< geo::Geometry >());
     fMaxOpChannel = geometry.MaxOpChannel();
