@@ -160,7 +160,7 @@ void CRHitRemoval::beginJob()
     float driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
     
     fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*samplingRate/1000);
-    fMinTickDrift       = ts->TPCTDC2Tick(0.);
+    fMinTickDrift       = -ts->TriggerOffsetTPC()/ts->TPCClock().TickPeriod();// this is the hardware trigger time
     fMaxTickDrift       = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 }
 
