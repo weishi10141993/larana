@@ -144,6 +144,7 @@ namespace opdet
       std::string fWaveformFile;
       std::string fGainSpreadFile;
       std::vector<double> fWaveform;
+      bool fChargeNormalized;
       std::vector<double> fLowGainArray;
       std::vector<double> fHighGainArray;
       std::vector<double> fGainSpreadArray;

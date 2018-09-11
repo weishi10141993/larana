@@ -145,6 +145,8 @@ namespace opdet{
     fWFLength          = p.get< double       >("WFLength"         );
 
     fWaveformFile      = p.get< std::string  >("WaveformFile"     );
+    fChargeNormalized      = p.get< bool  >("WaveformChargeNormalized", false);
+
     // Option 2: WF from analytical function
     fWFPowerFactor     = p.get< double       >("WFPowerFactor"    );
     fWFTimeConstant    = p.get< double       >("WFTimeConstant"   );
@@ -315,6 +317,7 @@ namespace opdet{
     if (WaveformFile.is_open())
       {
 	double MaxAmp=0;
+	double Charge=0;
 	int    NSample=0;
 	while ( WaveformFile.good() && NSample<int(fWFLength*fSampleFreq))
 	  {
@@ -323,10 +326,12 @@ namespace opdet{
 	    PEWaveform.push_back(Amp);
 	    if(Amp>MaxAmp) MaxAmp=Amp;
 	    NSample++;
+	    Charge+=Amp;
 	  }
 	// rescale
 	if(MaxAmp<=0) throw cet::exception("OpDigiProperties_module")<<"Waveform amplitude <=0!\n";
-	for(unsigned short i=0; i<PEWaveform.size(); i++){ PEWaveform[i]=PEWaveform[i]/MaxAmp; }
+	if(!fChargeNormalized)for(unsigned short i=0; i<PEWaveform.size(); i++){ PEWaveform[i]=PEWaveform[i]/MaxAmp; }
+	else for(unsigned short i=0; i<PEWaveform.size(); i++){ PEWaveform[i]=PEWaveform[i]/Charge; }
       }
     else throw cet::exception("No Waveform File") << "Unable to open file\n";
 
@@ -354,19 +359,25 @@ namespace opdet{
     std::vector<double> PEWaveform(int( fWFLength * fSampleFreq), 0.0);
     double SamplingDuration = 1./fSampleFreq; // in micro seconds
     double MaxAmp=0;
+    double Charge=0;
     for(unsigned short i = 0; i<PEWaveform.size(); ++i){
       double Value=fAnalyticalSPE->Integral(   i   * SamplingDuration,
 					      (i+1) * SamplingDuration) / SamplingDuration;
       PEWaveform[i]=Value;
       if(PEWaveform[i]>MaxAmp) MaxAmp=PEWaveform[i];
+      Charge+=Value;
     }
     
     // rescale
     if(MaxAmp<=0) throw cet::exception("OpDigiProperties_module")<<"Waveform amplitude <=0!\n";
-    for(unsigned short i=0; i<PEWaveform.size(); i++) {
-      PEWaveform[i]=PEWaveform[i]/MaxAmp;
-      if(PEWaveform[i]<1.e-4) PEWaveform[i]=0;
+
+    if(!fChargeNormalized) {
+      for(unsigned short i=0; i<PEWaveform.size(); i++) {
+        PEWaveform[i]=PEWaveform[i]/MaxAmp;
+        if(PEWaveform[i]<1.e-4) PEWaveform[i]=0;
+      }
     }
+    else for(unsigned short i=0; i<PEWaveform.size(); i++){ PEWaveform[i]=PEWaveform[i]/Charge; }
 
     return PEWaveform;
   }
