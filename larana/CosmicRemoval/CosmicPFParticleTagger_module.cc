@@ -377,7 +377,7 @@ void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
 
     //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
     fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
-    fMinTickDrift = ts->TPCTDC2Tick(0.);
+    fMinTickDrift = ts->Time2Tick(ts->TriggerTime());
     fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 }
 
