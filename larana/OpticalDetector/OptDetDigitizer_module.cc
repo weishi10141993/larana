@@ -97,6 +97,7 @@ namespace opdet{
 namespace opdet {
 
   OptDetDigitizer::OptDetDigitizer(fhicl::ParameterSet const& pset)
+    : EDProducer{pset}
   {
     // Infrastructure piece
     produces<std::vector< optdata::ChannelDataGroup> >();
@@ -125,9 +126,10 @@ namespace opdet {
 
     // Sample a random fraction of detected photons 
     art::ServiceHandle<art::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine &engine = rng->getEngine();
+    CLHEP::HepRandomEngine &engine = rng->getEngine(art::ScheduleID::first(),
+                                                    pset.get<std::string>("module_label"));
     fFlatRandom       = new CLHEP::RandFlat(engine);
-    fPoissonRandom    = new CLHEP::RandPoisson(rng->getEngine());
+    fPoissonRandom    = new CLHEP::RandPoisson(engine);
     
   }
   
@@ -341,4 +343,3 @@ namespace opdet {
     evt.put(std::move(StoragePtr));
   }  
 }
-
