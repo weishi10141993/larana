@@ -23,10 +23,10 @@ art_make(
   ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
   ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
   art_Persistency_Common
+  art_Persistency_Provenance
   art_Utilities
   canvas
   ${MF_MESSAGELOGGER}
-  
   ${FHICLCPP}
   cetlib cetlib_except
   ${ROOT_BASIC_LIB_LIST}
@@ -58,6 +58,7 @@ art_make(
   ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
   ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
   art_Persistency_Common
+  art_Persistency_Provenance
   art_Utilities
   canvas
   ${MF_MESSAGELOGGER}
@@ -75,6 +76,7 @@ art_make(
   ${ART_FRAMEWORK_SERVICES_OPTIONAL}
   ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
   art_Persistency_Common
+  art_Persistency_Provenance
   art_Utilities
   canvas
   ${MF_MESSAGELOGGER}
