@@ -48,7 +48,7 @@ class pid::PIDAAlg{
 
   void reconfigure(fhicl::ParameterSet const& p);
 
-  void RunPIDAAlg(std::vector<double> const&, std::vector<double> const&);
+  void RunPIDAAlg(std::vector<float> const&, std::vector<float> const&);
   void RunPIDAAlg(anab::Calorimetry const&);
   void RunPIDAAlg(anab::Calorimetry const&, float&, float&);
 
