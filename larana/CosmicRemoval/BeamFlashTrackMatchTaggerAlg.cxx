@@ -80,8 +80,8 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunCompatibilityCheck(std::vector<rec
     if(track.Length() < fMinTrackLength) continue;
 
     //get the begin and end points of this track
-    TVector3 const& pt_begin = track.LocationAtPoint(0);
-    TVector3 const& pt_end = track.LocationAtPoint(track.NumberTrajectoryPoints()-1);
+    TVector3 const& pt_begin = track.LocationAtPoint<TVector3>(0);
+    TVector3 const& pt_end = track.LocationAtPoint<TVector3>(track.NumberTrajectoryPoints()-1);
     std::vector<float> xyz_begin = { (float)pt_begin.x(), (float)pt_begin.y(), (float)pt_begin.z()};
     std::vector<float> xyz_end = {(float)pt_end.x(), (float)pt_end.y(), (float)pt_end.z()};
 
@@ -146,8 +146,8 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::RunHypothesisComparison(unsigned int 
     if(track.Length() < fMinTrackLength) continue;
 
     //get the begin and end points of this track
-    TVector3 const& pt_begin = track.LocationAtPoint(0);
-    TVector3 const& pt_end = track.LocationAtPoint(track.NumberTrajectoryPoints()-1);
+    TVector3 const& pt_begin = track.LocationAtPoint<TVector3>(0);
+    TVector3 const& pt_end = track.LocationAtPoint<TVector3>(track.NumberTrajectoryPoints()-1);
     std::vector<float> xyz_begin = { (float)pt_begin.x(), (float)pt_begin.y(), (float)pt_begin.z()};
     std::vector<float> xyz_end = {(float)pt_end.x(), (float)pt_end.y(), (float)pt_end.z()};
 
@@ -405,7 +405,7 @@ std::vector<float> cosmic::BeamFlashTrackMatchTaggerAlg::GetMIPHypotheses(recob:
   //VisibleEnergySeparation(step);
   
   for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++)    
-    AddLightFromSegment(track.LocationAtPoint(pt-1),track.LocationAtPoint(pt),
+    AddLightFromSegment(track.LocationAtPoint<TVector3>(pt-1),track.LocationAtPoint<TVector3>(pt),
 			lightHypothesis,totalHypothesisPE,
 			geom,pvs,PromptMIPScintYield,
 			XOffset);
@@ -523,10 +523,10 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::PrintTrackProperties(recob::Track con
   *output << "Track properties: ";
   *output << "\n\tLength=" << track.Length();
 
-  TVector3 const& pt_begin = track.LocationAtPoint(0);
+  auto const& pt_begin = track.LocationAtPoint(0);
   *output << "\n\tBegin Location (x,y,z)=(" << pt_begin.x() << "," << pt_begin.y() << "," << pt_begin.z() << ")";
 
-  TVector3 const& pt_end = track.LocationAtPoint(track.NumberTrajectoryPoints()-1);
+  auto const& pt_end = track.LocationAtPoint(track.NumberTrajectoryPoints()-1);
   *output << "\n\tEnd Location (x,y,z)=(" << pt_end.x() << "," << pt_end.y() << "," << pt_end.z() << ")";
 
   *output << "\n\tTrajectoryPoints=" << track.NumberTrajectoryPoints();

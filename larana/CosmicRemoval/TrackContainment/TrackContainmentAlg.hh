@@ -31,7 +31,7 @@ namespace trk{
       start_theta(t.VertexDirection().Theta()),start_phi(t.VertexDirection().Phi()),
       end_x(t.End().X()),end_y(t.End().Y()),end_z(t.End().Z()),
       end_theta(t.EndDirection().Theta()),end_phi(t.EndDirection().Phi()),
-      length(t.Length()),length_simple( (t.End()-t.Vertex()).Mag() ){}
+      length(t.Length()),length_simple( (t.End()-t.Vertex()).R() ){}
 
     double start_x;
     double start_y;

@@ -236,12 +236,12 @@ namespace opdet {
 	
 	
 	// Fill track variables
-	fTEnd1X = Tracks.at(0)->Vertex()[0];
-	fTEnd1Y = Tracks.at(0)->Vertex()[1];
-	fTEnd1Z = Tracks.at(0)->Vertex()[2];
-	fTEnd2X = Tracks.at(0)->End()[0];
-        fTEnd2Y = Tracks.at(0)->End()[1];
-	fTEnd2Z = Tracks.at(0)->End()[2];
+	fTEnd1X = Tracks.at(0)->Vertex().X();
+	fTEnd1Y = Tracks.at(0)->Vertex().Y();
+	fTEnd1Z = Tracks.at(0)->Vertex().Z();
+	fTEnd2X = Tracks.at(0)->End().X();
+        fTEnd2Y = Tracks.at(0)->End().Y();
+	fTEnd2Z = Tracks.at(0)->End().Z();
 
         fTLength = Tracks.at(0)->Length();	
 
