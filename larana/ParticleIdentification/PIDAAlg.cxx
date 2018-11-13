@@ -123,8 +123,8 @@ const std::vector<float>& pid::PIDAAlg::getPIDAErrors(){
 }
 
 void pid::PIDAAlg::RunPIDAAlg(anab::Calorimetry const& calo){
-  std::vector<double> const& resRange = calo.ResidualRange();
-  std::vector<double> const& dEdx     = calo.dEdx();
+  std::vector<float> const& resRange = calo.ResidualRange();
+  std::vector<float> const& dEdx     = calo.dEdx();
   RunPIDAAlg(resRange,dEdx);
 }
 
@@ -137,8 +137,8 @@ void pid::PIDAAlg::RunPIDAAlg(anab::Calorimetry const& calo,
   sigma = getPIDASigma();
 }
 
-void pid::PIDAAlg::RunPIDAAlg(std::vector<double> const& resRange,
-			      std::vector<double> const& dEdx){
+void pid::PIDAAlg::RunPIDAAlg(std::vector<float> const& resRange,
+			      std::vector<float> const& dEdx){
 
   ClearInternalData();
 
