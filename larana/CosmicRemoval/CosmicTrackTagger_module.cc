@@ -142,15 +142,15 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
         }
 
         // A BETTER WAY OF FINDING END POINTS:
-        TVector3 tVector1 = tTrack->Vertex();
-        TVector3 tVector2 = tTrack->End();
+        auto tVector1 = tTrack->Vertex();
+        auto tVector2 = tTrack->End();
 
-        float trackEndPt1_X = tVector1[0];
-        float trackEndPt1_Y = tVector1[1];
-        float trackEndPt1_Z = tVector1[2];
-        float trackEndPt2_X = tVector2[0];
-        float trackEndPt2_Y = tVector2[1];
-        float trackEndPt2_Z = tVector2[2];
+        float trackEndPt1_X = tVector1.X();
+        float trackEndPt1_Y = tVector1.Y();
+        float trackEndPt1_Z = tVector1.Z();
+        float trackEndPt2_X = tVector2.X();
+        float trackEndPt2_Y = tVector2.Y();
+        float trackEndPt2_Z = tVector2.Z();
 
 
         if( trackEndPt1_X != trackEndPt1_X ||
@@ -306,19 +306,19 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
     for(iTrk=0; iTrk<Trk_h->size(); iTrk++ ){
         art::Ptr<recob::Track> tTrk  = TrkVec.at(iTrk);
         if ((*cosmicTagTrackVector)[iTrk].CosmicScore()==0){
-            TVector3 tStart = tTrk->Vertex();
-            TVector3 tEnd   = tTrk->End();
+            auto tStart = tTrk->Vertex();
+            auto tEnd   = tTrk->End();
             unsigned int l=0;
             for(iTrk1=0; iTrk1<Trk_h->size(); iTrk1++ ){
                 art::Ptr<recob::Track> tTrk1  = TrkVec.at(iTrk1);
                 float getScore = (*cosmicTagTrackVector)[iTrk1].CosmicScore();
                 if (getScore == 1 || getScore == 0.5){
                     anab::CosmicTagID_t getType = (*cosmicTagTrackVector)[iTrk1].CosmicType();
-                    TVector3 tStart1 = tTrk1->Vertex();
-                    TVector3 tEnd1   = tTrk1->End();
-                    TVector3 NumE    = (tEnd-tStart1).Cross(tEnd-tEnd1);
-                    TVector3 DenE    = tEnd1-tStart1;
-                    dE = NumE.Mag()/DenE.Mag();
+                    auto tStart1 = tTrk1->Vertex();
+                    auto tEnd1   = tTrk1->End();
+                    auto NumE    = (tEnd-tStart1).Cross(tEnd-tEnd1);
+                    auto DenE    = tEnd1-tStart1;
+                    dE = NumE.R()/DenE.R();
                     if (l==0){
                         temp = dE;
                         IndexE = iTrk1;
@@ -335,11 +335,11 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
                 }
             }//End Trk1 loop
             art::Ptr<recob::Track> tTrkI = TrkVec.at(IndexE);
-            TVector3 tStartI = tTrkI->Vertex();
-            TVector3 tEndI   = tTrkI->End();
-            TVector3 NumS    = (tStart-tStartI).Cross(tStart-tEndI);
-            TVector3 DenS    = tEndI-tStartI;
-            dS = NumS.Mag()/DenS.Mag();
+            auto tStartI = tTrkI->Vertex();
+            auto tEndI   = tTrkI->End();
+            auto NumS    = (tStart-tStartI).Cross(tStart-tEndI);
+            auto DenS    = tEndI-tStartI;
+            dS = NumS.R()/DenS.R();
             if (((dS<5 && temp<5) || (dS<temp && dS<5)) && (length(tTrk)<60)){
                 (*cosmicTagTrackVector)[iTrk].CosmicScore() = IScore-0.05;
                 (*cosmicTagTrackVector)[iTrk].CosmicType()  = IType;
@@ -365,16 +365,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 
 // Length of reconstructed track, trajectory by trajectory.
 double cosmic::CosmicTrackTagger::length(art::Ptr<recob::Track> track){
-  double result = 0.;
-  TVector3 disp = track->LocationAtPoint(0);
-  int n = track->NumberTrajectoryPoints();
-  for(int i = 1; i < n; ++i) {
-    const TVector3& pos = track->LocationAtPoint(i);
-    disp -= pos;
-    result += disp.Mag();
-    disp = pos;
-  }
-  return result;
+  return track->Length();
 }
 
 

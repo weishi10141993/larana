@@ -383,28 +383,28 @@ void mvapid::MVAAlg::FitAndSortTrack(art::Ptr<recob::Track> track,int& isStoppin
   //For single-particle events can opt to cheat vertex from start of primary trajectory.
   //Ok since in real events it should be possible to identify the true vertex.
   if(fCheatVertex){
-    if((track->End()-fVertex4Vect.Vect()).Mag()>(track->Vertex()-fVertex4Vect.Vect()).Mag()){
-      nearestPointStart = trackPoint+trackDir*(trackDir.Dot(track->Vertex()-trackPoint)/trackDir.Mag2());
-      nearestPointEnd = trackPoint+trackDir*(trackDir.Dot(track->End()-trackPoint)/trackDir.Mag2());
-      isStoppingReco = this->IsInActiveVol(track->End());
+    if((track->End<TVector3>()-fVertex4Vect.Vect()).Mag()>(track->Vertex<TVector3>()-fVertex4Vect.Vect()).Mag()){
+      nearestPointStart = trackPoint+trackDir*(trackDir.Dot(track->Vertex<TVector3>()-trackPoint)/trackDir.Mag2());
+      nearestPointEnd = trackPoint+trackDir*(trackDir.Dot(track->End<TVector3>()-trackPoint)/trackDir.Mag2());
+      isStoppingReco = this->IsInActiveVol(track->End<TVector3>());
     }
     else{
-      nearestPointStart = trackPoint+trackDir*(trackDir.Dot(track->End()-trackPoint)/trackDir.Mag2());
-      nearestPointEnd = trackPoint+trackDir*(trackDir.Dot(track->Vertex()-trackPoint)/trackDir.Mag2());
-      isStoppingReco = this->IsInActiveVol(track->Vertex());
+      nearestPointStart = trackPoint+trackDir*(trackDir.Dot(track->End<TVector3>()-trackPoint)/trackDir.Mag2());
+      nearestPointEnd = trackPoint+trackDir*(trackDir.Dot(track->Vertex<TVector3>()-trackPoint)/trackDir.Mag2());
+      isStoppingReco = this->IsInActiveVol(track->Vertex<TVector3>());
       trackDir*=-1.;
     }
   }
   else{
-    if(track->End().Z() >= track->Vertex().Z()){ //Otherwise assume particle is forward-going for now...
-      nearestPointStart = trackPoint+trackDir*(trackDir.Dot(track->Vertex()-trackPoint)/trackDir.Mag2());
-      nearestPointEnd = trackPoint+trackDir*(trackDir.Dot(track->End()-trackPoint)/trackDir.Mag2());
-      isStoppingReco = this->IsInActiveVol(track->End());
+    if(track->End<TVector3>().Z() >= track->Vertex<TVector3>().Z()){ //Otherwise assume particle is forward-going for now...
+      nearestPointStart = trackPoint+trackDir*(trackDir.Dot(track->Vertex<TVector3>()-trackPoint)/trackDir.Mag2());
+      nearestPointEnd = trackPoint+trackDir*(trackDir.Dot(track->End<TVector3>()-trackPoint)/trackDir.Mag2());
+      isStoppingReco = this->IsInActiveVol(track->End<TVector3>());
     }
     else{
-      nearestPointStart = trackPoint+trackDir*(trackDir.Dot(track->End()-trackPoint)/trackDir.Mag2());
-      nearestPointEnd = trackPoint+trackDir*(trackDir.Dot(track->Vertex()-trackPoint)/trackDir.Mag2());
-      isStoppingReco = this->IsInActiveVol(track->Vertex());
+      nearestPointStart = trackPoint+trackDir*(trackDir.Dot(track->End<TVector3>()-trackPoint)/trackDir.Mag2());
+      nearestPointEnd = trackPoint+trackDir*(trackDir.Dot(track->Vertex<TVector3>()-trackPoint)/trackDir.Mag2());
+      isStoppingReco = this->IsInActiveVol(track->Vertex<TVector3>());
     }
 
     if(trackDir.Z() <= 0){
@@ -677,8 +677,8 @@ int mvapid::MVAAlg::LinFit(const art::Ptr<recob::Track> track,TVector3& trackPoi
     ROOT::Math::Functor fcn(sdist,6);
 
     //Initial fit parameters from track start and end...
-    TVector3 trackStart=track->Vertex();
-    TVector3 trackEnd=track->End();
+    TVector3 trackStart=track->Vertex<TVector3>();
+    TVector3 trackEnd=track->End<TVector3>();
     trackDir=(trackEnd-trackStart).Unit();
 
     TVector3 x0=trackStart-trackDir;

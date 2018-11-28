@@ -325,9 +325,9 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	DeltaPredX   = fabs(TimeSepPredX-PredictedX);
 	// Dependant on each point...
 	for ( size_t Point = 1; Point < tracklist[iTrk]->NumberTrajectoryPoints(); ++Point ) {
-	  TVector3 NewPoint  = tracklist[iTrk]->LocationAtPoint(Point);
-	  TVector3 PrevPoint = tracklist[iTrk]->LocationAtPoint(Point-1);
-	  YZSep = DistFromPoint ( NewPoint[1], PrevPoint[1], NewPoint[2], PrevPoint[2], 
+	  auto NewPoint  = tracklist[iTrk]->LocationAtPoint(Point);
+	  auto PrevPoint = tracklist[iTrk]->LocationAtPoint(Point-1);
+	  YZSep = DistFromPoint ( NewPoint.Y(), PrevPoint.Y(), NewPoint.Z(), PrevPoint.Z(),
 				  flashlist[iFlash]->YCenter(), flashlist[iFlash]->ZCenter());
 	  if ( Point == 1 ) minYZSep = YZSep;
 	  if ( YZSep < minYZSep ) minYZSep = YZSep;

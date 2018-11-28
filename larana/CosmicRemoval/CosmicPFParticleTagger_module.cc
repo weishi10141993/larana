@@ -166,9 +166,9 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
         std::vector<art::Ptr<recob::Hit> > hitVec = hitsSpill.at(track1.key());
         
         // Recover track end points
-        TVector3 vertexPosition  = track1->Vertex();
-        TVector3 vertexDirection = track1->VertexDirection();
-        TVector3 endPosition     = track1->End();
+        auto vertexPosition  = track1->Vertex();
+        auto vertexDirection = track1->VertexDirection();
+        auto endPosition     = track1->End();
         
         // In principle there is one track associated to a PFParticle... but with current
         // technology it can happen that a PFParticle is broken into multiple tracks. Our
@@ -180,8 +180,8 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
             {
                 art::Ptr<recob::Track> track(trackVec[trackIdx]);
                 
-                TVector3 trackStart = track->Vertex();
-                TVector3 trackEnd   = track->End();
+                auto trackStart = track->Vertex();
+                auto trackEnd   = track->End();
                 
                 // Arc length possibilities for start of track
                 double arcLStartToStart = (trackStart - vertexPosition).Dot(vertexDirection);
@@ -209,12 +209,12 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
         }
 
         // "Track" end points in easily readable form
-        float trackEndPt1_X = vertexPosition [0];
-        float trackEndPt1_Y = vertexPosition [1];
-        float trackEndPt1_Z = vertexPosition [2];
-        float trackEndPt2_X = endPosition[0];
-        float trackEndPt2_Y = endPosition[1];
-        float trackEndPt2_Z = endPosition[2];
+        float trackEndPt1_X = vertexPosition.X();
+        float trackEndPt1_Y = vertexPosition.Y();
+        float trackEndPt1_Z = vertexPosition.Z();
+        float trackEndPt2_X = endPosition.X();
+        float trackEndPt2_Y = endPosition.Y();
+        float trackEndPt2_Z = endPosition.Z();
         
         /////////////////////////////////////
         // Check that all hits on particle are "in time"

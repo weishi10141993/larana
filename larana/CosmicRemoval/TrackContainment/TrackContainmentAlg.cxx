@@ -310,7 +310,7 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
 	for(size_t i_p=0; i_p<geo.Nplanes(); ++i_p)
 	  std::cout << "\t\tPlane " << i_p << " " << geo.NearestWireID(tracksVec[i_tc][i_t].End(),i_p).Wire << std::endl;
 	std::cout << "\tLength=" << tracksVec[i_tc][i_t].Length() << std::endl;
-	std::cout << "\tSimple_length=" << (tracksVec[i_tc][i_t].End()-tracksVec[i_tc][i_t].Vertex()).Mag() << std::endl;
+	std::cout << "\tSimple_length=" << (tracksVec[i_tc][i_t].End()-tracksVec[i_tc][i_t].Vertex()).R() << std::endl;
       }//end debug statements if track contained
       
     }//end loops over tracks
