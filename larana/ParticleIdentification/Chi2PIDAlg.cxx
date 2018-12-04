@@ -81,9 +81,9 @@ void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
   double avgdedx = 0;
   double PIDA = 0; //by Bruce Baller
   std::vector<double> vpida;
-  std::vector<double> trkdedx = calo->dEdx();
-  std::vector<double> trkres = calo->ResidualRange();
-  std::vector<double> deadwireresrc = calo->DeadWireResRC();
+  std::vector<float> trkdedx = calo->dEdx();
+  std::vector<float> trkres = calo->ResidualRange();
+  std::vector<float> deadwireresrc = calo->DeadWireResRC();
   pidOut.fPlaneID = calo->PlaneID();
 
   int used_trkres = 0;

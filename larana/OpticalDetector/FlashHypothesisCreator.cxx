@@ -29,13 +29,13 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
   FlashHypothesisCollection fhc(geom->NOpDets());
   for(size_t pt=1; pt<track.NumberTrajectoryPoints(); pt++){
     if(interpolate_dEdx)
-      fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
-						   track.LocationAtPoint(pt),
+      fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint<TVector3>(pt-1),
+						   track.LocationAtPoint<TVector3>(pt),
 						   0.5*(dEdxVector[pt]+dEdxVector[pt-1]),
 						   providers,pvs,opdigip,XOffset);
     else
-      fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint(pt-1),
-						   track.LocationAtPoint(pt),
+      fhc = fhc + CreateFlashHypothesesFromSegment(track.LocationAtPoint<TVector3>(pt-1),
+						   track.LocationAtPoint<TVector3>(pt),
 						   dEdxVector[pt-1],
 						   providers,pvs,opdigip,XOffset);
   }

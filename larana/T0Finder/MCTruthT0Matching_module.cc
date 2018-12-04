@@ -123,6 +123,8 @@ private:
 
   art::InputTag fHitModuleLabel;
   bool fMakeHitAssns;
+
+  bool fOverrideRealData;
   
   // Variable in TFS branches
   TTree* fTree;
@@ -162,6 +164,7 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
 
   if(fMakeHitAssns)
     produces< art::Assns<recob::Hit , simb::MCParticle, anab::BackTrackerHitMatchingData > > ();
+
 }
 
 void t0::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
@@ -175,6 +178,7 @@ void t0::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
 
   fMakeHitAssns = p.get<bool>("makeHitAssns",true);
   if(fMakeHitAssns) fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
+  fOverrideRealData = p.get<bool>("OverrideRealData",false);
 }
 
 void t0::MCTruthT0Matching::beginJob()
@@ -190,7 +194,7 @@ void t0::MCTruthT0Matching::beginJob()
 
 void t0::MCTruthT0Matching::produce(art::Event & evt)
 {
-  if (evt.isRealData()) return;
+  if (evt.isRealData() && !fOverrideRealData) return;
 
   // Access art services...
   art::ServiceHandle<geo::Geometry> geom;
