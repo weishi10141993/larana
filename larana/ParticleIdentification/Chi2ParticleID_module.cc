@@ -68,13 +68,10 @@ void pid::Chi2ParticleID::produce(art::Event & evt)
 
   if (fmcal.isValid()) {
   for (size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter){
-    for (size_t i = 0; i<fmcal.at(trkIter).size(); ++i){
-      anab::ParticleID  pidout;
-      fChiAlg.DoParticleID(fmcal.at(trkIter)[i],pidout);
+    anab::ParticleID  pidout = fChiAlg.DoParticleID(fmcal.at(trkIter));
       particleidcol->push_back(pidout);
       util::CreateAssn(*this, evt, *particleidcol, tracklist[trkIter], *assn);
     }
-  }
   }
   evt.put(std::move(particleidcol));
   evt.put(std::move(assn));
