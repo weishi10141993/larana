@@ -51,10 +51,7 @@ std::bitset<5> pid::Chi2PIDAlg::GetBitset(geo::PlaneID planeID){
 
     std::bitset<5> thisBitset;
 
-    if (planeID.Plane == planeID.deepestIndex()){
-        thisBitset.set(0);
-    }
-    else thisBitset.set(planeID.deepestIndex()-planeID.Plane);
+    thisBitset.set(planeID.deepestIndex()-planeID.Plane);
 
     return thisBitset;
 
