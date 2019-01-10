@@ -32,10 +32,14 @@ namespace pid {
     Chi2PIDAlg(fhicl::ParameterSet const& pset); 
     virtual ~Chi2PIDAlg();
     
+    /**
+     * Helper function to go from geo::PlaneID to a bitset
+     */
+    std::bitset<5> GetBitset(geo::PlaneID planeID);
+
     void reconfigure(fhicl::ParameterSet const& pset);
     
-    void DoParticleID(art::Ptr<anab::Calorimetry> calo,
-		      anab::ParticleID &pidOut);
+    anab::ParticleID DoParticleID(std::vector<art::Ptr<anab::Calorimetry>> calo);
     
   private:
     
