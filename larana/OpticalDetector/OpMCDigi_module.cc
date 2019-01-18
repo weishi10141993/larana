@@ -1,4 +1,4 @@
-// \file OpMCDigi.h 
+// \file OpMCDigi.h
 // \author Ben Jones and Christie Chiu, MIT, Sept 2012
 //   bjpjones@mit.edu, cschiu@mit.edu
 //
@@ -6,7 +6,7 @@
 // and produces a digitized waveform.
 //
 // It is assumed that the electronics response is linear,
-// and the 1PE waveform can be described by a discreate 
+// and the 1PE waveform can be described by a discreate
 // response shape.  The many PE response is then the linear
 // superposition of the relevant function at the appropriate
 // arrival times.
@@ -58,29 +58,29 @@
 
 namespace opdet {
 
-  class OpMCDigi : public art::EDProducer{
-    public:
+  class OpMCDigi : public art::EDProducer {
+  public:
     explicit OpMCDigi(const fhicl::ParameterSet&);
-     
-    private:
+
+  private:
     void produce(art::Event&) override;
-      
-      // The parameters we'll read from the .fcl file.
-      std::string fInputModule;              // Input tag for OpDet collection
-      float fSampleFreq;                     // in MHz
-      float fTimeBegin;                      // in us
-      float fTimeEnd;                        // in us
-      //float fQE;                             // quantum efficiency of opdet
-      float fSaturationScale;                // adc count w/ saturation occurs
-    
-      float fDarkRate;                      // Noise rate in Hz
-    
-      std::vector<double> fSinglePEWaveform;
-    
+
+    // The parameters we'll read from the .fcl file.
+    std::string fInputModule;              // Input tag for OpDet collection
+    float fSampleFreq;                     // in MHz
+    float fTimeBegin;                      // in us
+    float fTimeEnd;                        // in us
+    //float fQE;                             // quantum efficiency of opdet
+    float fSaturationScale;                // adc count w/ saturation occurs
+
+    float fDarkRate;                      // Noise rate in Hz
+
+    std::vector<double> fSinglePEWaveform;
+
     CLHEP::HepRandomEngine& fEngine;
     CLHEP::RandFlat    fFlatRandom;
     CLHEP::RandPoisson fPoissonRandom;
-   
+
     void AddTimedWaveform (int time, std::vector<double>& OldPulse, std::vector<double>& NewPulse);
   };
 }
@@ -89,7 +89,7 @@ namespace opdet {
 // const bool debug = true;
 
 namespace opdet {
-  
+
 
   OpMCDigi::OpMCDigi(fhicl::ParameterSet const& pset)
     : EDProducer{pset}
@@ -117,16 +117,16 @@ namespace opdet {
 
   void OpMCDigi::AddTimedWaveform (int binTime, std::vector<double>& OldPulse, std::vector<double>& NewPulse)
   {
- 
+
     if( (binTime + NewPulse.size() ) > OldPulse.size()) {
       OldPulse.resize(binTime + NewPulse.size());
     }
-    
+
     // Add shifted NewWaveform to Waveform at pointer
     for(size_t i = 0; i!=NewPulse.size(); ++i) {
-        OldPulse.at(binTime+i) += NewPulse.at(i);
-      }
-  }	  
+      OldPulse.at(binTime+i) += NewPulse.at(i);
+    }
+  }
 
 
   //-------------------------------------------------
@@ -134,7 +134,7 @@ namespace opdet {
   void OpMCDigi::produce(art::Event& evt)
   {
     auto StoragePtr = std::make_unique<std::vector<raw::OpDetPulse>>();
-   
+
     bool const fUseLitePhotons = art::ServiceHandle<sim::LArG4Parameters>{}->UseLitePhotons();
 
     // Service for determining opdet responses
@@ -143,55 +143,55 @@ namespace opdet {
     double const TimeBegin_ns  = fTimeBegin  *  1000;
     double const TimeEnd_ns    = fTimeEnd    *  1000;
     double const SampleFreq_ns = fSampleFreq /  1000;
-    
+
     int const nSamples = ( TimeEnd_ns-TimeBegin_ns)*SampleFreq_ns;
     int const NOpChannels = odresponse->NOpChannels();
 
 
     // This vector will store all the waveforms we will make
-    std::vector<std::vector<double> > PulsesFromDetPhotons(NOpChannels,std::vector<double>(nSamples,0.0)); 
-   
+    std::vector<std::vector<double> > PulsesFromDetPhotons(NOpChannels,std::vector<double>(nSamples,0.0));
+
     if(!fUseLitePhotons) {
       // Read in the Sim Photons
       sim::SimPhotonsCollection ThePhotCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,fInputModule);
-    // For every OpDet:
+      // For every OpDet:
       for(auto const& pr : ThePhotCollection) {
         const sim::SimPhotons& ThePhot=pr.second;
-	
+
         int const Ch = ThePhot.OpChannel();
         int readoutCh;
-	
-	// For every photon in the hit:
+
+        // For every photon in the hit:
         for(const sim::OnePhoton& Phot: ThePhot) {
-	    // Sample a random subset according to QE
+          // Sample a random subset according to QE
           if(!odresponse->detected(Ch, Phot, readoutCh)) {
             continue;
           }
-	
+
           // Convert photon arrival time to the appropriate bin,
           // dictated by fSampleFreq. Photon arrival time is in ns,
           // beginning time in us, and sample frequency in MHz. Notice
           // that we have to accommodate for the beginning time
           if((Phot.Time > TimeBegin_ns) && (Phot.Time < TimeEnd_ns)) {
             auto const binTime = static_cast<int>((Phot.Time - TimeBegin_ns) * SampleFreq_ns);
-		    AddTimedWaveform( binTime, PulsesFromDetPhotons[readoutCh], fSinglePEWaveform );
-		  }
-	  } // for each Photon in SimPhotons
+            AddTimedWaveform( binTime, PulsesFromDetPhotons[readoutCh], fSinglePEWaveform );
+          }
+        } // for each Photon in SimPhotons
       }
     }
     else {
       auto const photons = *evt.getValidHandle<std::vector<sim::SimPhotonsLite>>("largeant");
-    // For every OpDet:
+      // For every OpDet:
       for (auto const& photon : photons) {
         int const Ch=photon.OpChannel;
-      int readoutCh;
-      
-      std::map<int, int> PhotonsMap = photon.DetectedPhotons;
-	
-      // For every photon in the hit:
+        int readoutCh;
+
+        std::map<int, int> PhotonsMap = photon.DetectedPhotons;
+
+        // For every photon in the hit:
         for(auto const& pr : photon.DetectedPhotons) {
           for(int i = 0; i < pr.second; i++) {
-	      // Sample a random subset according to QE
+            // Sample a random subset according to QE
             if(odresponse->detectedLite(Ch, readoutCh)) {
               // Convert photon arrival time to the appropriate bin, dictated by fSampleFreq.
               // Photon arrival time is in ns, beginning time in us, and sample frequency in MHz.
@@ -200,10 +200,10 @@ namespace opdet {
                 auto const binTime = static_cast<int>((pr.first - TimeBegin_ns) * SampleFreq_ns);
                 AddTimedWaveform( binTime, PulsesFromDetPhotons[readoutCh], fSinglePEWaveform );
               }
-          } // random QE cut
-        }
-      } // for each Photon in SimPhotons
-    }
+            } // random QE cut
+          }
+        } // for each Photon in SimPhotons
+      }
     }
 
     // Create vector of output objects, add dark noise and apply
@@ -211,51 +211,51 @@ namespace opdet {
 
     std::vector<raw::OpDetPulse*> ThePulses(NOpChannels);
     for(int iCh=0; iCh!=NOpChannels; ++iCh) {
-	PulsesFromDetPhotons[iCh].resize((TimeEnd_ns - TimeBegin_ns) * SampleFreq_ns);
+      PulsesFromDetPhotons[iCh].resize((TimeEnd_ns - TimeBegin_ns) * SampleFreq_ns);
 
-	// Add dark noise
+      // Add dark noise
       double const MeanDarkPulses = fDarkRate * (fTimeEnd-fTimeBegin) / 1000000;
       unsigned const int NumberOfPulses = fPoissonRandom.fire(MeanDarkPulses);
-	
+
       for(size_t i=0; i!=NumberOfPulses; ++i) {
         double const PulseTime = (fTimeEnd-fTimeBegin)*fFlatRandom.fire(1.0);
         int const binTime = static_cast<int>(PulseTime * fSampleFreq);
-	    
-	    AddTimedWaveform( binTime, PulsesFromDetPhotons[iCh], fSinglePEWaveform );
-	  }
 
-	// Apply saturation for large signals
-      for(size_t i=0; i!=PulsesFromDetPhotons[iCh].size(); ++i) {
-	    if(PulsesFromDetPhotons[iCh].at(i)>fSaturationScale) PulsesFromDetPhotons[iCh].at(i) = fSaturationScale;
-	  }
+        AddTimedWaveform(binTime, PulsesFromDetPhotons[iCh], fSinglePEWaveform);
+      }
 
-	// Produce ADC pulse of integers rather than doubles
-	
-	std::vector<short> shortvec;
-	
+      // Apply saturation for large signals
       for(size_t i=0; i!=PulsesFromDetPhotons[iCh].size(); ++i) {
-	    // Throw randoms to fairly sample +ve and -ve side of doubles
-	    int ThisSample = PulsesFromDetPhotons[iCh].at(i);
+        if(PulsesFromDetPhotons[iCh].at(i)>fSaturationScale) PulsesFromDetPhotons[iCh].at(i) = fSaturationScale;
+      }
+
+      // Produce ADC pulse of integers rather than doubles
+
+      std::vector<short> shortvec;
+
+      for(size_t i=0; i!=PulsesFromDetPhotons[iCh].size(); ++i) {
+        // Throw randoms to fairly sample +ve and -ve side of doubles
+        int ThisSample = PulsesFromDetPhotons[iCh].at(i);
         if(ThisSample>0) {
           if(fFlatRandom.fire(1.0) > (ThisSample - int(ThisSample)))
-		  shortvec.push_back(int(ThisSample));
-		else
-		  shortvec.push_back(int(ThisSample)+1);
-	      }
+            shortvec.push_back(int(ThisSample));
+          else
+            shortvec.push_back(int(ThisSample)+1);
+        }
         else {
           if(fFlatRandom.fire(1.0) >  (int(ThisSample)-ThisSample))
-		  shortvec.push_back(int(ThisSample));
-		else
-		  shortvec.push_back(int(ThisSample)-1);
-	      }
-	  }
+            shortvec.push_back(int(ThisSample));
+          else
+            shortvec.push_back(int(ThisSample)-1);
+        }
+      }
 
       StoragePtr->emplace_back(iCh, shortvec ,0, fTimeBegin);
-	
-      } // for each OpDet in SimPhotonsCollection
+
+    } // for each OpDet in SimPhotonsCollection
 
     evt.put(std::move(StoragePtr));
-  }  
+  }
 }
 
 DEFINE_ART_MODULE(opdet::OpMCDigi)
