@@ -27,7 +27,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-// art extensions
+// nutools
 #include "nutools/RandomUtils/NuRandomService.h"
 
 // CLHEP includes
@@ -45,15 +45,10 @@ namespace opdet {
 
   class OptDetDigitizer : public art::EDProducer{
   public:
-    
-    OptDetDigitizer(const fhicl::ParameterSet&);
-    virtual ~OptDetDigitizer();
-    
-    void produce(art::Event&);
-    
-    void beginJob();
+    explicit OptDetDigitizer(const fhicl::ParameterSet&);
     
   private:
+    void produce(art::Event&) override;
     
     // The parameters we'll read from the .fcl file.
     std::string fInputModule;              // Input tag for OpDet collection
@@ -72,8 +67,9 @@ namespace opdet {
 
     bool fSimGainSpread;
 
-    CLHEP::RandFlat    * fFlatRandom;
-    CLHEP::RandPoisson * fPoissonRandom;
+    CLHEP::HepRandomEngine& fEngine;
+    CLHEP::RandFlat    fFlatRandom;
+    CLHEP::RandPoisson fPoissonRandom;
     void AddDarkNoise (std::vector<double> &RawWF,double gain);
     void AddWaveform(optdata::TimeSlice_t time, 
 		     std::vector<double>& OldPulse, 
@@ -98,6 +94,9 @@ namespace opdet {
 
   OptDetDigitizer::OptDetDigitizer(fhicl::ParameterSet const& pset)
     : EDProducer{pset}
+    , fEngine{art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, pset, "Seed")}
+    , fFlatRandom{fEngine}
+    , fPoissonRandom{fEngine}
   {
     // Infrastructure piece
     produces<std::vector< optdata::ChannelDataGroup> >();
@@ -116,46 +115,16 @@ namespace opdet {
     fSaturationScale = fOpDigiProperties->SaturationScale();
     fPedMeanArray = fOpDigiProperties->PedMeanArray();
 
-    // Initialize toy waveform vector fSinglePEWaveform
     fSinglePEWaveform = fOpDigiProperties->SinglePEWaveform();
-    
-    // create a default random engine; obtain the random seed from NuRandomService,
-    // unless overridden in configuration with key "Seed"
-    art::ServiceHandle<rndm::NuRandomService>()
-      ->createEngine(*this, pset, "Seed");
-
-    // Sample a random fraction of detected photons 
-    art::ServiceHandle<art::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine &engine = rng->getEngine(art::ScheduleID::first(),
-                                                    pset.get<std::string>("module_label"));
-    fFlatRandom       = new CLHEP::RandFlat(engine);
-    fPoissonRandom    = new CLHEP::RandPoisson(engine);
-    
   }
   
   //-------------------------------------------------
 
-
-  void OptDetDigitizer::beginJob()
-  {
-  }
-
-
-  //-------------------------------------------------
-  
-  OptDetDigitizer::~OptDetDigitizer() 
-  {
-  }
-  
-
-  //-------------------------------------------------
-
-
-  void OptDetDigitizer::AddWaveform (optdata::TimeSlice_t time, 
+  void OptDetDigitizer::AddWaveform (optdata::TimeSlice_t const time,
 				     std::vector<double> &OldPulse,
 				     std::vector<double> &NewPulse,
-				     double factor,
-				     bool extend)
+                                     double const factor,
+                                     bool const extend)
   {
     if( (time+NewPulse.size()) > OldPulse.size() && extend )
       OldPulse.resize(time + NewPulse.size());
@@ -169,10 +138,10 @@ namespace opdet {
     // Add dark noise
     double MeanDarkPulses = fDarkRate * (fTimeEnd-fTimeBegin) / 1000000;
     
-    unsigned int NumberOfPulses = fPoissonRandom->fire(MeanDarkPulses);
+    unsigned int NumberOfPulses = fPoissonRandom.fire(MeanDarkPulses);
     for(size_t i=0; i!=NumberOfPulses; ++i)
       {
-	double PulseTime_ns = fTimeBegin*1000 + (fTimeEnd-fTimeBegin)*1000*(fFlatRandom->fire(1.0)); // Should be in ns
+        double PulseTime_ns = fTimeBegin*1000 + (fTimeEnd-fTimeBegin)*1000*(fFlatRandom.fire(1.0)); // Should be in ns
 	optdata::TimeSlice_t PulseTime_ts = fOpDigiProperties->GetTimeSlice(PulseTime_ns);
 	AddWaveform( PulseTime_ts,
 		     RawWF, 
@@ -293,7 +262,7 @@ namespace opdet {
 	for(const sim::OnePhoton& Phot: ThePhot)
 	  {
 	    // Sample a random subset according to QE
-	    if(fFlatRandom->fire(1.0)<=fQE)
+            if(fFlatRandom.fire(1.0)<=fQE)
 	      {
 		optdata::TimeSlice_t PhotonTime(fOpDigiProperties->GetTimeSlice(Phot.Time));
 		if( Phot.Time > timeBegin_ns  &&  Phot.Time < timeEnd_ns )
