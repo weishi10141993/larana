@@ -35,7 +35,7 @@ namespace pid {
     /**
      * Helper function to go from geo::PlaneID to a bitset
      */
-    std::bitset<5> GetBitset(geo::PlaneID planeID);
+    std::bitset<8> GetBitset(geo::PlaneID planeID);
 
     void reconfigure(fhicl::ParameterSet const& pset);
     

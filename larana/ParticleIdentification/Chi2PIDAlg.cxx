@@ -43,9 +43,9 @@ pid::Chi2PIDAlg::~Chi2PIDAlg()
 }
 
 //------------------------------------------------------------------------------
-std::bitset<5> pid::Chi2PIDAlg::GetBitset(geo::PlaneID planeID){
+std::bitset<8> pid::Chi2PIDAlg::GetBitset(geo::PlaneID planeID){
 
-    std::bitset<5> thisBitset;
+    std::bitset<8> thisBitset;
 
     thisBitset.set(planeID.deepestIndex()-planeID.Plane);
 
@@ -172,7 +172,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calori
     chi2proton.fVariableType = anab::kGOF;
     chi2proton.fTrackDir = anab::kForward;
     chi2proton.fAssumedPdg = 2212;
-    chi2proton.fPlaneID = GetBitset(calo->PlaneID()); 
+    chi2proton.fPlaneMask = GetBitset(calo->PlaneID()); 
     chi2proton.fNdf = npt;
     chi2proton.fValue = chi2pro/npt;
 
@@ -180,7 +180,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calori
     chi2muon.fVariableType = anab::kGOF;
     chi2muon.fTrackDir = anab::kForward;
     chi2muon.fAssumedPdg = 13;
-    chi2muon.fPlaneID = GetBitset(calo->PlaneID()); 
+    chi2muon.fPlaneMask = GetBitset(calo->PlaneID()); 
     chi2muon.fNdf = npt;
     chi2muon.fValue = chi2mu/npt;
 
@@ -188,7 +188,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calori
     chi2kaon.fVariableType = anab::kGOF;
     chi2kaon.fTrackDir = anab::kForward;
     chi2kaon.fAssumedPdg = 321;
-    chi2kaon.fPlaneID = GetBitset(calo->PlaneID()); 
+    chi2kaon.fPlaneMask = GetBitset(calo->PlaneID()); 
     chi2kaon.fNdf = npt;
     chi2kaon.fValue = chi2ka/npt;
 
@@ -196,7 +196,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calori
     chi2pion.fVariableType = anab::kGOF;
     chi2pion.fTrackDir = anab::kForward;
     chi2pion.fAssumedPdg = 211;
-    chi2pion.fPlaneID = GetBitset(calo->PlaneID()); 
+    chi2pion.fPlaneMask = GetBitset(calo->PlaneID()); 
     chi2pion.fNdf = npt;
     chi2pion.fValue = chi2pi/npt;
 
@@ -213,13 +213,13 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calori
     pida_median.fVariableType = anab::kPIDA;
     pida_median.fTrackDir = anab::kForward;
     pida_median.fValue = TMath::Median(vpida.size(), &vpida[0]);
-    pida_median.fPlaneID = GetBitset(calo->PlaneID());
+    pida_median.fPlaneMask = GetBitset(calo->PlaneID());
  
     pida_mean.fAlgName = "PIDA_mean";
     pida_mean.fVariableType = anab::kPIDA;
     pida_mean.fTrackDir = anab::kForward;
     pida_mean.fValue = PIDA/used_trkres;
-    pida_mean.fPlaneID = GetBitset(calo->PlaneID());
+    pida_mean.fPlaneMask = GetBitset(calo->PlaneID());
 
     AlgScoresVec.push_back(pida_median);
     AlgScoresVec.push_back(pida_mean);
