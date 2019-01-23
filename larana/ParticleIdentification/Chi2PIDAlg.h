@@ -9,6 +9,7 @@
 #define CHI2PIDALG_H
 
 #include <string>
+#include <bitset>
 
 #include "fhiclcpp/fwd.h"
 #include "canvas/Persistency/Common/Ptr.h"
