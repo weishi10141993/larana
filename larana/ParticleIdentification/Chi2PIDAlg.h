@@ -11,6 +11,7 @@
 #include "TMath.h"
 #include <vector>
 #include <string>
+#include <bitset>
 
 #include "fhiclcpp/ParameterSet.h" 
 #include "art/Framework/Principal/Event.h" 
