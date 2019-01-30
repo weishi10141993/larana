@@ -29,7 +29,8 @@ extern "C" {
 #include "art/Framework/Services/Registry/ServiceHandle.h" 
 #include "art/Framework/Services/Optional/TFileService.h" 
 #include "art/Framework/Services/Optional/TFileDirectory.h" 
-#include "messagefacility/MessageLogger/MessageLogger.h" 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "lardata/Utilities/GeometryUtilities.h"
 
 //------------------------------------------------------------------------------
 pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
@@ -47,7 +48,7 @@ std::bitset<8> pid::Chi2PIDAlg::GetBitset(geo::PlaneID planeID){
 
     std::bitset<8> thisBitset;
 
-    thisBitset.set(planeID.deepestIndex()-planeID.Plane);
+    thisBitset.set(planeID.Plane);
 
     return thisBitset;
 
@@ -208,22 +209,22 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calori
 
   //if (trkdedx.size()) pidOut.fPIDA = PIDA/trkdedx.size();
   if(used_trkres > 0){
-    
-    pida_median.fAlgName = "PIDA_median";
-    pida_median.fVariableType = anab::kPIDA;
-    pida_median.fTrackDir = anab::kForward;
-    pida_median.fValue = TMath::Median(vpida.size(), &vpida[0]);
-    pida_median.fPlaneMask = GetBitset(calo->PlaneID());
- 
-    pida_mean.fAlgName = "PIDA_mean";
-    pida_mean.fVariableType = anab::kPIDA;
-    pida_mean.fTrackDir = anab::kForward;
-    pida_mean.fValue = PIDA/used_trkres;
-    pida_mean.fPlaneMask = GetBitset(calo->PlaneID());
-
-    AlgScoresVec.push_back(pida_median);
-    AlgScoresVec.push_back(pida_mean);
-      
+    if (fUseMedian){
+      pida_median.fAlgName = "PIDA_median";
+      pida_median.fVariableType = anab::kPIDA;
+      pida_median.fTrackDir = anab::kForward;
+      pida_median.fValue = TMath::Median(vpida.size(), &vpida[0]);
+      pida_median.fPlaneMask = GetBitset(calo->PlaneID());
+      AlgScoresVec.push_back(pida_median);
+    }
+    else{ // use mean
+      pida_mean.fAlgName = "PIDA_mean";
+      pida_mean.fVariableType = anab::kPIDA;
+      pida_mean.fTrackDir = anab::kForward;
+      pida_mean.fValue = PIDA/used_trkres;
+      pida_mean.fPlaneMask = GetBitset(calo->PlaneID());
+      AlgScoresVec.push_back(pida_mean);
+    } 
   }
 
   }
