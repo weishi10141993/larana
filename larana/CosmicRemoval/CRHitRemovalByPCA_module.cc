@@ -112,6 +112,7 @@ DEFINE_ART_MODULE(CRHitRemovalByPCA)
 /// pset - Fcl parameters.
 ///
 CRHitRemovalByPCA::CRHitRemovalByPCA(fhicl::ParameterSet const & pset) :
+  EDProducer{pset},
   fNumEvent(0),
   fNumCRRejects(0)
 {

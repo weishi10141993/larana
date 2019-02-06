@@ -137,6 +137,7 @@ namespace opdet {
   //-------------------------------------------------
 
   BeamFlashCompatabilityCheck::BeamFlashCompatabilityCheck(fhicl::ParameterSet const& pset)
+    : EDProducer{pset}
   {
 
     produces< std::vector<anab::CosmicTag> >();
@@ -348,5 +349,3 @@ namespace opdet {
 
 
 }
-
-

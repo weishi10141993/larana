@@ -92,8 +92,7 @@ private:
 
 
 cosmic::CosmicClusterTagger::CosmicClusterTagger(fhicl::ParameterSet const & p)
-// :
-// Initialize member data here.
+  : EDProducer{p}
 {
 
   this->reconfigure(p);

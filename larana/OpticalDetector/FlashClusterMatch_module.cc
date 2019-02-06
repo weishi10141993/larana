@@ -114,6 +114,7 @@ namespace opdet {
   //-------------------------------------------------
   
   FlashClusterMatch::FlashClusterMatch(fhicl::ParameterSet const& pset)
+    : EDProducer{pset}
   {
     produces< std::vector<anab::CosmicTag> >();
     produces< art::Assns<recob::Cluster, anab::CosmicTag> >();
@@ -403,5 +404,3 @@ namespace opdet {
 
 
 }
-
-

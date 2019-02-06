@@ -78,6 +78,7 @@ namespace opdet {
   //----------------------------------------------------------------------------
   // Constructor
   OpFlashFinder::OpFlashFinder(const fhicl::ParameterSet & pset)
+    : EDProducer{pset}
   {
 
     reconfigure(pset);

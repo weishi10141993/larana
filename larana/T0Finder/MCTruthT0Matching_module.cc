@@ -141,8 +141,7 @@ private:
 
 
 t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
-// :
-// Initialize member data here, if know don't want to reconfigure on the fly
+  : EDProducer{p}
 {
   // Call appropriate produces<>() functions here.
   reconfigure(p);
@@ -581,4 +580,3 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 } // Produce
 
 DEFINE_ART_MODULE(t0::MCTruthT0Matching)
-    

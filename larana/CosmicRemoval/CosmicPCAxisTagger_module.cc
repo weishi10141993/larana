@@ -89,6 +89,7 @@ private:
 
 
 cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const & p) :
+        EDProducer{p},
         fDetector(lar::providerFrom<detinfo::DetectorPropertiesService>()),
         fPcaAlg(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"))
 // :

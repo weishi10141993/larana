@@ -79,8 +79,7 @@ private:
 
 
 cosmic::CosmicPFParticleTagger::CosmicPFParticleTagger(fhicl::ParameterSet const & p)
-// :
-// Initialize member data here.
+  : EDProducer{p}
 {
     this->reconfigure(p);
 

@@ -52,7 +52,9 @@ namespace mvapid {
 
  
 //------------------------------------------------------------------------------
-  MVAPID::MVAPID(fhicl::ParameterSet const& pset): fAlg(pset,this)
+MVAPID::MVAPID(fhicl::ParameterSet const& pset)
+  : EDProducer{pset}
+  , fAlg(pset,this)
 {
   this->reconfigure(pset);
   produces< std::vector<anab::MVAPIDResult> >();

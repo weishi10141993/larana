@@ -162,8 +162,7 @@ private:
 
 
 lbne::PhotonCounterT0Matching::PhotonCounterT0Matching(fhicl::ParameterSet const & p)
-// :
-// Initialize member data here, if know don't want to reconfigure on the fly
+  : EDProducer{p}
 {
   // Call appropriate produces<>() functions here.
   produces< std::vector<anab::T0>               >();
@@ -483,4 +482,3 @@ double lbne::PhotonCounterT0Matching::DistFromPoint ( double StartY, double EndY
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 DEFINE_ART_MODULE(lbne::PhotonCounterT0Matching)
-    
