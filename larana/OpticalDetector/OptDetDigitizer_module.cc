@@ -94,7 +94,7 @@ namespace opdet {
 
   OptDetDigitizer::OptDetDigitizer(fhicl::ParameterSet const& pset)
     : EDProducer{pset}
-    , fEngine{art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, pset, "Seed")}
+    , fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, pset, "Seed"))
     , fFlatRandom{fEngine}
     , fPoissonRandom{fEngine}
   {
