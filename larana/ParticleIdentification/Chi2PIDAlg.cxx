@@ -29,7 +29,8 @@ extern "C" {
 #include "art/Framework/Services/Registry/ServiceHandle.h" 
 #include "art/Framework/Services/Optional/TFileService.h" 
 #include "art/Framework/Services/Optional/TFileDirectory.h" 
-#include "messagefacility/MessageLogger/MessageLogger.h" 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "lardata/Utilities/GeometryUtilities.h"
 
 //------------------------------------------------------------------------------
 pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
@@ -40,6 +41,17 @@ pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
 //------------------------------------------------------------------------------
 pid::Chi2PIDAlg::~Chi2PIDAlg()
 {
+}
+
+//------------------------------------------------------------------------------
+std::bitset<8> pid::Chi2PIDAlg::GetBitset(geo::PlaneID planeID){
+
+    std::bitset<8> thisBitset;
+
+    thisBitset.set(planeID.Plane);
+
+    return thisBitset;
+
 }
 
 //------------------------------------------------------------------------------
@@ -70,21 +82,25 @@ void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
 
 
 //------------------------------------------------------------------------------
-void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
-				  anab::ParticleID &pidOut){
+anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calorimetry>> calos){
+
+  std::vector<anab::sParticleIDAlgScores> AlgScoresVec;
+  
+  for (size_t i_calo = 0; i_calo < calos.size(); i_calo++){
+
+  art::Ptr<anab::Calorimetry> calo = calos.at(i_calo);
+
   int npt = 0;
   double chi2pro = 0;
   double chi2ka = 0;
   double chi2pi = 0;
   double chi2mu = 0;
-  double trkpitchc = calo->TrkPitchC();
   double avgdedx = 0;
   double PIDA = 0; //by Bruce Baller
   std::vector<double> vpida;
   std::vector<float> trkdedx = calo->dEdx();
   std::vector<float> trkres = calo->ResidualRange();
   std::vector<float> deadwireresrc = calo->DeadWireResRC();
-  pidOut.fPlaneID = calo->PlaneID();
 
   int used_trkres = 0;
   for (unsigned i = 0; i<trkdedx.size(); ++i){//hits
@@ -143,70 +159,79 @@ void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
     }
   }
 
+  anab::sParticleIDAlgScores chi2proton;
+  anab::sParticleIDAlgScores chi2kaon;
+  anab::sParticleIDAlgScores chi2pion;
+  anab::sParticleIDAlgScores chi2muon;
+  anab::sParticleIDAlgScores pida_mean;
+  anab::sParticleIDAlgScores pida_median;
+
   //anab::ParticleID pidOut;
   if (npt){
-    pidOut.fNdf        = npt;
-    pidOut.fChi2Proton = chi2pro/npt;
-    pidOut.fChi2Kaon   = chi2ka/npt;
-    pidOut.fChi2Pion   = chi2pi/npt;
-    pidOut.fChi2Muon   = chi2mu/npt;
-    double chi2[4] = {chi2pro/npt,chi2ka/npt,chi2pi/npt,chi2mu/npt};
-    double pdg[4] = {2212,321,211,13};
-    double chi2min = 1e20;
-    int imin = -1;
-    double chi2min2 = 1e20;
-    //int imin2;
-    // find the minimal chi2 and next-to-minimal chi2
-    for (int ichi2 = 0; ichi2<4; ++ichi2){
-      if (chi2[ichi2]<chi2min){
-	imin = ichi2;
-	chi2min2 = chi2min;
-	chi2min = chi2[ichi2];
-      }
-      else if (chi2[ichi2]<chi2min2){
-	//imin2 = ichi2;
-	chi2min2 = chi2[ichi2];
-      }
-    }
-    if (imin>-1){
-      pidOut.fPdg = pdg[imin];
-      pidOut.fMinChi2 = chi2min;
-      pidOut.fDeltaChi2 = chi2min2 - chi2min;
-    }
+  
+    chi2proton.fAlgName = "Chi2";
+    chi2proton.fVariableType = anab::kGOF;
+    chi2proton.fTrackDir = anab::kForward;
+    chi2proton.fAssumedPdg = 2212;
+    chi2proton.fPlaneMask = GetBitset(calo->PlaneID()); 
+    chi2proton.fNdf = npt;
+    chi2proton.fValue = chi2pro/npt;
+
+    chi2muon.fAlgName = "Chi2";
+    chi2muon.fVariableType = anab::kGOF;
+    chi2muon.fTrackDir = anab::kForward;
+    chi2muon.fAssumedPdg = 13;
+    chi2muon.fPlaneMask = GetBitset(calo->PlaneID()); 
+    chi2muon.fNdf = npt;
+    chi2muon.fValue = chi2mu/npt;
+
+    chi2kaon.fAlgName = "Chi2";
+    chi2kaon.fVariableType = anab::kGOF;
+    chi2kaon.fTrackDir = anab::kForward;
+    chi2kaon.fAssumedPdg = 321;
+    chi2kaon.fPlaneMask = GetBitset(calo->PlaneID()); 
+    chi2kaon.fNdf = npt;
+    chi2kaon.fValue = chi2ka/npt;
+
+    chi2pion.fAlgName = "Chi2";
+    chi2pion.fVariableType = anab::kGOF;
+    chi2pion.fTrackDir = anab::kForward;
+    chi2pion.fAssumedPdg = 211;
+    chi2pion.fPlaneMask = GetBitset(calo->PlaneID()); 
+    chi2pion.fNdf = npt;
+    chi2pion.fValue = chi2pi/npt;
+
+    AlgScoresVec.push_back(chi2proton);
+    AlgScoresVec.push_back(chi2muon);
+    AlgScoresVec.push_back(chi2kaon);
+    AlgScoresVec.push_back(chi2pion);
   }
+
   //if (trkdedx.size()) pidOut.fPIDA = PIDA/trkdedx.size();
   if(used_trkres > 0){
     if (fUseMedian){
-      pidOut.fPIDA = TMath::Median(vpida.size(), &vpida[0]);
+      pida_median.fAlgName = "PIDA_median";
+      pida_median.fVariableType = anab::kPIDA;
+      pida_median.fTrackDir = anab::kForward;
+      pida_median.fValue = TMath::Median(vpida.size(), &vpida[0]);
+      pida_median.fPlaneMask = GetBitset(calo->PlaneID());
+      AlgScoresVec.push_back(pida_median);
     }
-    else{//use mean
-      pidOut.fPIDA = PIDA/used_trkres;
-    }
+    else{ // use mean
+      pida_mean.fAlgName = "PIDA_mean";
+      pida_mean.fVariableType = anab::kPIDA;
+      pida_mean.fTrackDir = anab::kForward;
+      pida_mean.fValue = PIDA/used_trkres;
+      pida_mean.fPlaneMask = GetBitset(calo->PlaneID());
+      AlgScoresVec.push_back(pida_mean);
+    } 
   }
-  double missinge = 0;
-  double missingeavg = 0;
-  for (unsigned i = 0; i<deadwireresrc.size(); ++i){
-    int bin = dedx_range_pro->FindBin(deadwireresrc[i]);
-    //std::cout<<i<<" "<<deadwireresrc[i]<<" "<<bin<<std::endl;
-    if (bin<1) continue;
-    if (bin>dedx_range_pro->GetNbinsX()) bin = dedx_range_pro->GetNbinsX();
-    if (pidOut.fPdg==2212){
-      missinge += dedx_range_pro->GetBinContent(bin)*trkpitchc;
-    }
-    else if (pidOut.fPdg==321){
-      missinge += dedx_range_ka->GetBinContent(bin)*trkpitchc;
-    }
-    else if (pidOut.fPdg==211){
-      missinge += dedx_range_pi->GetBinContent(bin)*trkpitchc;
-    }
-    else if (pidOut.fPdg==13){
-      missinge += dedx_range_mu->GetBinContent(bin)*trkpitchc;
-    }
-    //std::cout<<bin<<" "<<dedx_range_pro->GetBinContent(bin)*trkpitchc<<std::endl;
+
   }
-  if (trkdedx.size()) missingeavg = avgdedx/trkdedx.size()*trkpitchc*deadwireresrc.size();
-  //std::cout<<trkIter<<" "<<pid<<std::endl;
-  pidOut.fMissingE = missinge;
-  pidOut.fMissingEavg = missingeavg;
+
+  anab::ParticleID pidOut(AlgScoresVec);
+ 
+  return pidOut;
+
 }
 
