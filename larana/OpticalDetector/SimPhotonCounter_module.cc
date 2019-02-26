@@ -381,29 +381,50 @@ namespace opdet {
       fCountEventAll=0;
       fCountEventDetected=0;
 
-      //Get SimPhotonsCollection from Event
-
+      //Get *ALL* SimPhotonsCollection from Event
+      std::vector< art::Handle< std::vector< sim::SimPhotons > > > photon_handles;
+      evt.getManyByType(photon_handles);
+      if (photon_handles.size() == 0)
+	throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
+      
      for(auto mod : fInputModule){
-      sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,mod);
+      // sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,mod);
+      //switching off to add reading in of labelled collections: Andrzej, 02/26/19
+       
+      
+       for (auto ph_handle: photon_handles) {
+         // Do some checking before we proceed
+	 if (!ph_handle.isValid()) continue;  
+	 if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
 
+	bool Reflected = (ph_handle.provenance()->productInstanceName() == "Reflected");
+       
+       
+       
+       
 
-      if(TheHitCollection.size()>0)
-      {
-        if(fMakeLightAnalysisTree) {
+	if((*ph_handle).size()>0)
+	{
+	  if(fMakeLightAnalysisTree) {
           //resetting the signalt to save in the analysis tree per event
-          const int maxNtracks = 1000;
-          for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
-            for(size_t pmt_i=0; pmt_i!=geo->NOpChannels(); pmt_i++) {
-              fSignals_vuv[itrack][pmt_i].clear();
-              fSignals_vis[itrack][pmt_i].clear();
-            }
-          }
-        }
+	    const int maxNtracks = 1000;
+	    for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
+	      for(size_t pmt_i=0; pmt_i!=geo->NOpChannels(); pmt_i++) {
+		fSignals_vuv[itrack][pmt_i].clear();
+		fSignals_vis[itrack][pmt_i].clear();
+	      }
+	    }
+	  }
+	}
         
-        if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< TheHitCollection.size()<<std::endl;
-        if(TheHitCollection.size()>0)
+        
+//      if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< TheHitCollection.size()<<std::endl;
+	if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*ph_handle).size()<<std::endl;
+	
+        if((*ph_handle).size()>0)
         {
-          for(sim::SimPhotonsCollection::const_iterator itOpDet=TheHitCollection.begin(); itOpDet!=TheHitCollection.end(); itOpDet++)
+//           for(sim::SimPhotonsCollection::const_iterator itOpDet=TheHitCollection.begin(); itOpDet!=TheHitCollection.end(); itOpDet++)
+	  for(auto const& itOpDet: (*ph_handle) )
           {
             //Reset Counters
             fCountOpDetAll=0;
@@ -413,8 +434,8 @@ namespace opdet {
             fT0_vis = 999.;
             
             //Get data from HitCollection entry
-            fOpChannel=itOpDet->first;
-            const sim::SimPhotons& TheHit=itOpDet->second;
+            fOpChannel=itOpDet.OpChannel();
+            const sim::SimPhotons& TheHit=itOpDet;
             
             //std::cout<<"OpDet " << fOpChannel << " has size " << TheHit.size()<<std::endl;
             
@@ -423,12 +444,11 @@ namespace opdet {
             //   in order to avoid evaluating large numbers of unnecessary 
             //   if conditions. 
             
-            if(fVerbosity > 3)
-            {
+           
               for(const sim::OnePhoton& Phot: TheHit)
               {
                 // Calculate wavelength in nm
-                fWavelength= odresponse->wavelength(Phot.Energy);
+                fWavelength= odresponse->wavelength(Phot.Energy);  
                 
                 //Get arrival time from phot
                 fTime= Phot.Time;
@@ -440,59 +460,26 @@ namespace opdet {
                 {
                   if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
                   //only store direct direct light
-                  if(!pvs->StoreReflected() || (pvs->StoreReflected() && fWavelength <200 )) 
+                  if(!pvs->StoreReflected() || (pvs->StoreReflected() && !Reflected )) 
                     fCountOpDetDetected++;
                   // reflected and shifted light is in visible range
-                  else if(pvs->StoreReflected() && fWavelength >380 ) {
+                  else if(pvs->StoreReflected() && Reflected ) {
                     fCountOpDetReflDetected++;
                     // find the first visible arrival time 
                     if(pvs->StoreReflT0() && fTime < fT0_vis)
                       fT0_vis = fTime;  
                   }
-                  
-                  std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
+                   if(fVerbosity > 3)
+                              std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                 }
                 else
+		{
+		   if(fVerbosity > 3)
                   std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
+		}
               }
-            }
-            else
-            {
-              for(const sim::OnePhoton& Phot: TheHit)
-              {
-                // Calculate wavelength in nm
-                fWavelength= odresponse->wavelength(Phot.Energy);
-                fTime= Phot.Time;    
-                
-                if(fMakeLightAnalysisTree) {
-                  if(fWavelength <200)
-                    fSignals_vuv[Phot.MotherTrackID][fOpChannel].push_back(fTime);
-                  else
-                    fSignals_vis[Phot.MotherTrackID][fOpChannel].push_back(fTime);
-                  
-                  initialPhotonPosition = Phot.InitialPosition;
-                  finalPhotonPosition = Phot.FinalLocalPosition;
-                }
-                
-                // Increment per OpDet counters and fill per phot trees
-                fCountOpDetAll++;
-                if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-                if(odresponse->detected(fOpChannel, Phot))
-                {
-                  if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
-                  //only store direct/UV light
-                  if(!pvs->StoreReflected() || (pvs->StoreReflected() && fWavelength <200 ))
-                    fCountOpDetDetected++;
-                  //shifted light is in visible range 
-                  else if(pvs->StoreReflected() && fWavelength >380 ) { 
-                    fCountOpDetReflDetected++;
-                    // find the first visible arrival time
-                    if(pvs->StoreReflT0() && fTime < fT0_vis )
-                      fT0_vis= fTime;
-                  }
-                }
-              }
-            }
+            
+        
             
             // If this is a library building job, fill relevant entry
             art::ServiceHandle<phot::PhotonVisibilityService> pvs;
@@ -607,19 +594,19 @@ namespace opdet {
           fCountOpDetAll=0;
           fCountOpDetDetected=0;
           
-          if(fVerbosity > 3)
-          {
-            for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
-            {
-              // Calculate wavelength in nm
-              fWavelength= 128;
+         
+          
+         for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
+           {
+             // Calculate wavelength in nm
+             fWavelength= 128;
               
-              //Get arrival time from phot
-              fTime= it->first;
-              //std::cout<<"Arrival time: " << fTime<<std::endl;
+             //Get arrival time from phot
+             fTime= it->first;
+             //std::cout<<"Arrival time: " << fTime<<std::endl;
               
-              for(int i = 0; i < it->second ; i++)
-              {
+             for(int i = 0; i < it->second ; i++)
+             {
                 // Increment per OpDet counters and fill per phot trees
                 fCountOpDetAll++;
                 if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
@@ -627,34 +614,18 @@ namespace opdet {
                 {
                   if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
                   fCountOpDetDetected++;
+		  if(fVerbosity > 3)
                   std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                 }
                 else
+		  if(fVerbosity > 3)
+		  {
                   std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
+		  }
               }
             }
-          }
-          else
-          {
-            for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
-            {
-              // Calculate wavelength in nm
-              fWavelength= 128;
-              fTime= it->first;    
-              
-              for(int i = 0; i < it->second; i++)
-              {
-                // Increment per OpDet counters and fill per phot trees
-                fCountOpDetAll++;
-                if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-                if(odresponse->detectedLite(fOpChannel))
-                {
-                  if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
-                  fCountOpDetDetected++;
-                }
-              }
-            }
-          }
+          
+          
           
           // Incremenent per event and fill Per OpDet trees      
           if(fMakeOpDetsTree) fTheOpDetTree->Fill();
