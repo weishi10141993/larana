@@ -398,11 +398,7 @@ namespace opdet {
 	 if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
 
 	bool Reflected = (ph_handle.provenance()->productInstanceName() == "Reflected");
-       
-       
-       
-       
-
+ 
 	if((*ph_handle).size()>0)
 	{
 	  if(fMakeLightAnalysisTree) {
@@ -562,15 +558,27 @@ namespace opdet {
       }
      }
     }  
-         
-    if (fUseLitePhotons)
+   if (fUseLitePhotons)
     {
-      //Get SimPhotonsLite from Event
 
+      //Get *ALL* SimPhotonsCollection from Event
+      std::vector< art::Handle< std::vector< sim::SimPhotonsLite > > > photon_handles;
+      evt.getManyByType(photon_handles);
+      if (photon_handles.size() == 0)
+        throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
+
+     //Get SimPhotonsLite from Event
      for(auto mod : fInputModule){
-      art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle; 
-      evt.getByLabel(mod, photonHandle);
+      //art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle; 
+      //evt.getByLabel(mod, photonHandle);
 
+	// Loop over direct/reflected photons
+	for (auto ph_handle: photon_handles) {
+          // Do some checking before we proceed
+          if (!ph_handle.isValid()) continue;  
+          if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
+ 
+          bool Reflected = (ph_handle.provenance()->productInstanceName() == "Reflected");
 
       
       
@@ -578,13 +586,13 @@ namespace opdet {
       fCountEventAll=0;
       fCountEventDetected=0;
       
-      if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*photonHandle).size()<<std::endl;
+      if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*ph_handle).size()<<std::endl;
       
       
-      if((*photonHandle).size()>0)
+      if((*ph_handle).size()>0)
       {
         
-        for ( auto const& photon : (*photonHandle) )
+        for ( auto const& photon : (*ph_handle) )
         {
           //Get data from HitCollection entry
           fOpChannel=photon.OpChannel;
@@ -593,13 +601,17 @@ namespace opdet {
           //Reset Counters
           fCountOpDetAll=0;
           fCountOpDetDetected=0;
-          
-         
-          
+	  fCountOpDetReflDetected=0;         
+                   
          for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
            {
              // Calculate wavelength in nm
-             fWavelength= 128;
+	     if (Reflected) {
+		fWavelength = 400; 
+	     }
+	     else {
+	     fWavelength= 128;   // original
+	     }
               
              //Get arrival time from phot
              fTime= it->first;
@@ -610,10 +622,17 @@ namespace opdet {
                 // Increment per OpDet counters and fill per phot trees
                 fCountOpDetAll++;
                 if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-                if(odresponse->detectedLite(fOpChannel))
+                
+		if(odresponse->detectedLite(fOpChannel))
                 {
                   if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
-                  fCountOpDetDetected++;
+                  // direct light
+		  if (!Reflected){
+		    fCountOpDetDetected++;
+		  }
+		  else if (Reflected) {
+		    fCountOpDetReflDetected++;
+		  }
 		  if(fVerbosity > 3)
                   std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                 }
@@ -650,6 +669,7 @@ namespace opdet {
       }
      } 
     }
+  }
   }
 }
 namespace opdet{
