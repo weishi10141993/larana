@@ -415,7 +415,7 @@ namespace opdet {
 	      }
 	    }
 	  }
-	}
+	
         
         
 //      if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< TheHitCollection.size()<<std::endl;
@@ -479,7 +479,7 @@ namespace opdet {
 		}
               }
             
-        
+           
             
             // If this is a library building job, fill relevant entry
             art::ServiceHandle<phot::PhotonVisibilityService> pvs;
@@ -510,7 +510,7 @@ namespace opdet {
           
           // Give per event output
           if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;   
-          
+          } //end loop on collections
         }
         else
         {
