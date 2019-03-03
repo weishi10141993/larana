@@ -24,6 +24,7 @@ namespace pmtana{
     : PMTPulseRecoBase(name)
   //*********************************************************************
   {
+    _positive = pset.get<bool>("PositivePolarity",true);
 
     _adc_thres = pset.get<float>("ADCThreshold");
 
@@ -77,16 +78,17 @@ namespace pmtana{
 
     for(size_t i=0; i<wf.size(); ++i) {
 
-      auto const& value = wf[i];
+      double value = 0.;
+      if(_positive) value = ((double)(wf[i])) -  mean_v.at(i);
+      else value = mean_v.at(i) - ((double)(wf[i]));
 
-      float start_threshold = mean_v.at(i);
+      float start_threshold = 0.;
       
-      if(sigma_v.at(i) * _nsigma < _adc_thres) start_threshold += _adc_thres;
-      else start_threshold += sigma_v.at(i) * _nsigma;
+      if(sigma_v.at(i) * _nsigma < _adc_thres) start_threshold = _adc_thres;
+      else start_threshold = sigma_v.at(i) * _nsigma;
 
       // End pulse if significantly high peak found (new pulse)
-      if( (!fire || in_tail) && (double)value > start_threshold ) {
-
+      if( (!fire || in_tail) && ((double)value > start_threshold) ) {
 
 	// If there's a pulse, end it
 	if(in_tail) {
@@ -98,7 +100,7 @@ namespace pmtana{
 	  
 	  if(_verbose)
 	    std::cout << "\033[93mPulse End\033[00m: " 
-		      << "baseline: " << mean_v[i] << " ... " << " ... adc: " << value << " T=" << i << std::endl;
+		      << "baseline: " << mean_v[i] << " ... " << " ... adc above: " << value << " T=" << i << std::endl;
 	}
 
 	//
@@ -108,9 +110,9 @@ namespace pmtana{
 	pulse_start_threshold = start_threshold;
 	pulse_start_baseline  = mean_v.at(i);
 
-	pulse_tail_threshold = pulse_start_baseline;
-	if(sigma_v.at(i) * _end_nsigma < _end_adc_thres) pulse_tail_threshold += _end_adc_thres;
-	else pulse_tail_threshold += sigma_v.at(i) * _end_nsigma;
+	pulse_tail_threshold = 0.;
+	if(sigma_v.at(i) * _end_nsigma < _end_adc_thres) pulse_tail_threshold = _end_adc_thres;
+	else pulse_tail_threshold = sigma_v.at(i) * _end_nsigma;
 
 	int last_pulse_end_index = 0;
 	if(_pulse_v.size()) last_pulse_end_index = _pulse_v.back().t_end;
@@ -128,42 +130,52 @@ namespace pmtana{
 
 	for(size_t pre_index=_pulse.t_start; pre_index<i; ++pre_index) {
 
-	  auto const& pre_adc = wf[pre_index];
-	  if(pre_adc > pulse_start_baseline) continue;
+	  double pre_adc = wf[pre_index];
+	  if(_positive) pre_adc -= pulse_start_baseline;
+	  else pre_adc = pulse_start_baseline - pre_adc;
 
-	  _pulse.area += pre_adc - pulse_start_baseline;
-
+	  if(pre_adc > 0.) _pulse.area += pre_adc;
 	}
 
 	if(_verbose) 
 	  std::cout << "\033[93mPulse Start\033[00m: " 
 		    << "baseline: " << mean_v[i] 
 		    << " ... threshold: " << start_threshold 
-		    << " ... adc: " << value 
+		    << " ... adc above baseline: " << value 
+		    << " ... pre-adc sum: " << _pulse.area
 		    << " T=" << i << std::endl;
 
 	fire = true;
 	in_tail = false;
       }
 
-      if( fire && ((double)value) < pulse_start_threshold ) {
+      if( (fire || in_tail) && _verbose ) {
+	std::cout << (fire ? "\033[93mPulsing\033[00m: " : "\033[93mPulse ending\033[00m: ")
+		  << "baseline: " << mean_v[i] 
+		  << " std: " << sigma_v[i]
+		  << " ... adc above baseline " << value 
+		  << " T=" << i << std::endl;
+	  
+      }
+
+      if( fire && value < pulse_start_threshold ) {
 	fire = false;
 	in_tail = true;
       }
     
-      if( (fire || in_tail) && ((double)value) < pulse_tail_threshold ){
+      if( (fire || in_tail) && value < pulse_tail_threshold ){
       
 	// Found the end of a pulse
 	_pulse.t_end = i - 1;
       
 	_pulse_v.push_back(_pulse);
 
-	_pulse.reset_param();
-
 	if(_verbose)
 	  std::cout << "\033[93mPulse End\033[00m: " 
-		    << "baseline: " << mean_v[i] << " ... " << " ... adc: " << value << " T=" << i << std::endl;
+		    << "baseline: " << mean_v[i] << " ... adc: " << value << " T=" << i << " ... area sum " << _pulse.area << std::endl;
 	
+	_pulse.reset_param();
+
 	fire = false;
 	in_tail = false;
 
@@ -171,16 +183,13 @@ namespace pmtana{
 
       if(fire || in_tail){
 
-	// Add this adc count to the integral
-	double adc_above_baseline = ((double)value - (double)pulse_start_baseline);
-
 	//_pulse.area += ((double)value - (double)mean_v.at(i));
-	_pulse.area += adc_above_baseline;
+	_pulse.area += value;
 
-	if(_pulse.peak < adc_above_baseline) {
+	if(_pulse.peak < value) {
 
 	  // Found a new maximum
-	  _pulse.peak = adc_above_baseline;
+	  _pulse.peak = value;
 
 	  _pulse.t_max = i;
 

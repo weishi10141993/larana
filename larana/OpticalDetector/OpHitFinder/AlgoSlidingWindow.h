@@ -49,6 +49,9 @@ namespace pmtana
     bool RecoPulse(const pmtana::Waveform_t&,
 		   const pmtana::PedestalMean_t&,
 		   const pmtana::PedestalSigma_t&);
+
+    /// A boolean to set waveform positive/negative polarity
+    bool _positive;
     
     /// A variable holder for a user-defined absolute ADC threshold value
     float _adc_thres, _end_adc_thres;
