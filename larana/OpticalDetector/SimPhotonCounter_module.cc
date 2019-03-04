@@ -386,19 +386,20 @@ namespace opdet {
       evt.getManyByType(photon_handles);
       if (photon_handles.size() == 0)
 	throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
-      
+    
+     int handle_counter = 0;           
      for(auto mod : fInputModule){
       // sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,mod);
       //switching off to add reading in of labelled collections: Andrzej, 02/26/19
        
-      
-       for (auto ph_handle: photon_handles) {
+        for (auto ph_handle: photon_handles) {
          // Do some checking before we proceed
 	 if (!ph_handle.isValid()) continue;  
 	 if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
-
+	 handle_counter++; // used for the LibraryBuildJob to distinguish direct and reflected loops
+	
 	bool Reflected = (ph_handle.provenance()->productInstanceName() == "Reflected");
- 
+        
 	if((*ph_handle).size()>0)
 	{
 	  if(fMakeLightAnalysisTree) {
@@ -447,31 +448,72 @@ namespace opdet {
                 fWavelength= odresponse->wavelength(Phot.Energy);  
                 
                 //Get arrival time from phot
-                fTime= Phot.Time;
+                fTime= Phot.Time;             
+	
+		// special case for LibraryBuildJob: no "Reflected" handle and all photons stored in single object - must sort using wavelength instead 
+		if (pvs->IsBuildJob()) {
+		  if (handle_counter == 1) {
+                  // Increment per OpDet counters and fill per phot trees
+                  fCountOpDetAll++;
+                  if(fMakeAllPhotonsTree){
+		    if (fWavelength < 200 || (pvs->StoreReflected() && fWavelength > 200)) {
+         	      fThePhotonTreeAll->Fill();
+                    }
+		  }
                 
-                // Increment per OpDet counters and fill per phot trees
-                fCountOpDetAll++;
-                if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-                if(odresponse->detected(fOpChannel, Phot))
-                {
-                  if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
-                  //only store direct direct light
-                  if(!pvs->StoreReflected() || (pvs->StoreReflected() && !Reflected )) 
-                    fCountOpDetDetected++;
-                  // reflected and shifted light is in visible range
-                  else if(pvs->StoreReflected() && Reflected ) {
-                    fCountOpDetReflDetected++;
-                    // find the first visible arrival time 
-                    if(pvs->StoreReflT0() && fTime < fT0_vis)
-                      fT0_vis = fTime;  
+                  if(odresponse->detected(fOpChannel, Phot))
+                  {
+                    if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
+                    //only store direct direct light
+                    if(fWavelength < 200) 
+                      fCountOpDetDetected++;
+                    // reflected and shifted light is in visible range
+                    else if(pvs->StoreReflected() && fWavelength > 200 ) {
+                      fCountOpDetReflDetected++;
+                      // find the first visible arrival time 
+                      if(pvs->StoreReflT0() && fTime < fT0_vis)
+                        fT0_vis = fTime;  
+                    }  
+                    if(fVerbosity > 3)
+                      std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                   }
-                   if(fVerbosity > 3)
-                              std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
-                }
-                else
-		{
-		   if(fVerbosity > 3)
-                  std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
+                  else {
+		    if(fVerbosity > 3)
+                      std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
+		  }
+		  }
+		}
+
+		else {
+		  // store in appropriate trees using "Reflected" handle and pvs->StoreReflected() flag
+                  // Increment per OpDet counters and fill per phot trees
+                  fCountOpDetAll++;
+                  if(fMakeAllPhotonsTree){
+		    if (!Reflected || (pvs->StoreReflected() && Reflected)) {
+         	      fThePhotonTreeAll->Fill();
+                    }
+		   }
+                
+                  if(odresponse->detected(fOpChannel, Phot))
+                  {
+                    if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
+                    //only store direct direct light
+                    if(!Reflected) 
+                      fCountOpDetDetected++;
+                    // reflected and shifted light is in visible range
+                    else if(pvs->StoreReflected() && Reflected ) {
+                      fCountOpDetReflDetected++;
+                      // find the first visible arrival time 
+                      if(pvs->StoreReflT0() && fTime < fT0_vis)
+                        fT0_vis = fTime;  
+                    }  
+                    if(fVerbosity > 3)
+                      std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
+                  }
+                  else {
+		    if(fVerbosity > 3)
+                      std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
+		  }
 		}
               }
             
@@ -479,16 +521,17 @@ namespace opdet {
             
             // If this is a library building job, fill relevant entry
             art::ServiceHandle<phot::PhotonVisibilityService> pvs;
-            if(pvs->IsBuildJob())
+            if(pvs->IsBuildJob() && handle_counter == 1)
             {
               int VoxID; double NProd;
               pvs->RetrieveLightProd(VoxID, NProd);
-              pvs->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetDetected)/NProd);
+	      pvs->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetDetected)/NProd);
+	 
               //store reflected light
               if(pvs->StoreReflected())
                 pvs->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetReflDetected)/NProd,true);
               //store reflected first arrival time 
-              if(pvs->StoreReflT0())
+              if(pvs->StoreReflected() && pvs->StoreReflT0())
                 pvs->SetLibraryReflT0Entry(VoxID, fOpChannel, fT0_vis);
             }
             
@@ -607,7 +650,7 @@ namespace opdet {
            {
              // Calculate wavelength in nm
 	     if (Reflected) {
-		fWavelength = 400; 
+		fWavelength = 450; 
 	     }
 	     else {
 	     fWavelength= 128;   // original
