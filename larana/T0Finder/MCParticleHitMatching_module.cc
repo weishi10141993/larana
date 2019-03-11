@@ -68,6 +68,7 @@ private:
 
 
 MCParticleHitMatching::MCParticleHitMatching(fhicl::ParameterSet const & pset)
+  : EDProducer{pset}
 {
     reconfigure(pset);
     produces<HitParticleAssociations> ();
@@ -101,4 +102,3 @@ void MCParticleHitMatching::produce(art::Event & evt)
 
 DEFINE_ART_MODULE(MCParticleHitMatching)
 } // end namespace
-

@@ -82,6 +82,7 @@ private:
 
 
 t0::MCParticleTrackMatching::MCParticleTrackMatching(fhicl::ParameterSet const & p)
+  : EDProducer{p}
 {
   reconfigure(p);
   produces< art::Assns<recob::Track , simb::MCParticle, anab::BackTrackerMatchingData > > ();
@@ -177,4 +178,3 @@ void t0::MCParticleTrackMatching::produce(art::Event & evt)
 } // Produce
 
 DEFINE_ART_MODULE(t0::MCParticleTrackMatching)
-    

@@ -102,6 +102,7 @@ namespace opdet {
   //----------------------------------------------------------------------------
   // Constructor
   OpHitFinder::OpHitFinder(const fhicl::ParameterSet & pset):
+    EDProducer{pset},
     fPulseRecoMgr()
   {
 

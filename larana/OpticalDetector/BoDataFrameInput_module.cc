@@ -101,6 +101,7 @@ namespace opdet {
   
 
   BoDataFrameInput::BoDataFrameInput(fhicl::ParameterSet const& pset)
+    : EDProducer{pset}
   {
     // Infrastructure piece
     produces<std::vector< raw::OpDetPulse> >();
@@ -322,4 +323,3 @@ namespace opdet {
     evt.put(std::move(StoragePtr));
   }  
 }
-

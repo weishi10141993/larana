@@ -144,6 +144,7 @@ namespace opdet {
   //-------------------------------------------------
 
   TrackTimeAssoc::TrackTimeAssoc(fhicl::ParameterSet const& pset)
+    : EDProducer{pset}
   {
 
     produces< std::vector<anab::FlashMatch> >();
@@ -593,5 +594,3 @@ namespace opdet {
 
 
 }
-
-

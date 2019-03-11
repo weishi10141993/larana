@@ -76,6 +76,7 @@ namespace opdet {
     //-----------------------------------------------------------------------
     // Constructor
     OpticalRawDigitReformatter::OpticalRawDigitReformatter(const fhicl::ParameterSet & pset)
+      : EDProducer{pset}
     {
 
         reconfigure(pset);
@@ -181,4 +182,3 @@ namespace opdet {
 
 
 } // namespace opdet
-

@@ -62,7 +62,8 @@ private:
 #endif /* PID_CHI2PARTICLEID_H */
 
 pid::Chi2ParticleID::Chi2ParticleID(fhicl::ParameterSet const & p)
-  : fChiAlg(p.get< fhicl::ParameterSet >("Chi2PIDAlg"))
+  : EDProducer{p}
+  , fChiAlg(p.get< fhicl::ParameterSet >("Chi2PIDAlg"))
 {
   this->reconfigure(p);
   produces< std::vector<anab::ParticleID>              >();

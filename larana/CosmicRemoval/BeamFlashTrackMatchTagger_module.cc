@@ -68,7 +68,8 @@ private:
 
 
 cosmic::BeamFlashTrackMatchTagger::BeamFlashTrackMatchTagger(fhicl::ParameterSet const & p)
-  : fAlg(p.get<fhicl::ParameterSet>("BeamFlashTrackMatchAlgParams")),
+  : EDProducer{p},
+    fAlg(p.get<fhicl::ParameterSet>("BeamFlashTrackMatchAlgParams")),
     fTrackModuleLabel(p.get<std::string>("TrackModuleLabel")),
     fFlashModuleLabel(p.get<std::string>("FlashModuleLabel")),
     fHitTagAssnsAlg(p.get<fhicl::ParameterSet>("HitTagAssociatorAlgParams")),

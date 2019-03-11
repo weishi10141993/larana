@@ -89,6 +89,7 @@ private:
 
 
 cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const & p) :
+        EDProducer{p},
         fDetector(lar::providerFrom<detinfo::DetectorPropertiesService>()),
         fPcaAlg(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"))
 // :
@@ -459,7 +460,7 @@ void cosmic::CosmicPCAxisTagger::RecobToClusterHits(const art::PtrVector<recob::
         double hitPeakTime(recobHit->PeakTime() - viewOffsetMap[recobHit->View()]);
         double xPosition(fDetector->ConvertTicksToX(recobHit->PeakTime(), hitWireID.Plane, hitWireID.TPC, hitWireID.Cryostat));
         
-        clusterHitVec.emplace_back(reco::ClusterHit2D(0, 0., 0., xPosition, hitPeakTime, *recobHit));
+        clusterHitVec.emplace_back(reco::ClusterHit2D(0, 0., 0., xPosition, hitPeakTime, hitWireID, recobHit.get()));
         hit2DListPtr.emplace_back(&clusterHitVec.back());
     }
     

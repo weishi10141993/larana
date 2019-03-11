@@ -56,7 +56,7 @@ private:
 
 
 trk::TrackContainmentTagger::TrackContainmentTagger(fhicl::ParameterSet const & p)
-//  :
+  : EDProducer{p}
 {
   art::ServiceHandle<art::TFileService> tfs;
   fAlg.SetupOutputTree(tfs->make<TTree>("myanatree","MyAnalysis Tree"));

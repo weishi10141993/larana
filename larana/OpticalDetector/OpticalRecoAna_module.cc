@@ -118,7 +118,7 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
   std::vector<recob::OpFlash> const& flash_vector(*flash_handle);
   fFlash_match_vector.resize(flash_vector.size());
   
-  LOG_INFO ("OpticalRecoAna")  
+  MF_LOG_INFO ("OpticalRecoAna")  
     << "Number of flashes is " << flash_vector.size() << std::flush;
   
   //art::Handle< std::vector<recob::Track> > track_handle;
@@ -126,7 +126,7 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
   //std::vector<recob::Track> const& track_vector(*track_handle);
   //fTrack_match_vector.resize(track_vector.size());
   
-  //LOG_INFO ("OpticalRecoAna")  
+  //MF_LOG_INFO ("OpticalRecoAna")  
   //<< "Number of tracks is " << track_vector.size() << std::flush;
   
   //match_flashes_to_tracks(flash_vector, track_vector);

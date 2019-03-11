@@ -82,6 +82,7 @@ private:
 
 
 t0::MCParticleShowerMatching::MCParticleShowerMatching(fhicl::ParameterSet const & p)
+  : EDProducer{p}
 {
   reconfigure(p);
   produces< art::Assns<recob::Shower , simb::MCParticle, anab::BackTrackerMatchingData > > ();
@@ -177,4 +178,3 @@ void t0::MCParticleShowerMatching::produce(art::Event & evt)
 } // Produce
 
 DEFINE_ART_MODULE(t0::MCParticleShowerMatching)
-    
