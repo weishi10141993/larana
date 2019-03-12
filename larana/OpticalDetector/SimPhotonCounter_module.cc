@@ -337,7 +337,7 @@ namespace opdet {
       // sim::IDEs with trackID values that are not in the sim::ParticleList                
       std::vector<const sim::SimChannel*> sccol;
       //evt.getView(fG4ModuleLabel, sccol);
-     for(auto mod : fInputModule){                                      
+     for(auto const& mod : fInputModule){                                      
       evt.getView(mod, sccol);
       double totalCharge=0.0;
       double totalEnergy=0.0;
@@ -387,11 +387,11 @@ namespace opdet {
       if (photon_handles.size() == 0)
 	throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
     
-      for(auto mod : fInputModule){
+      for(auto const& mod : fInputModule){
       // sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,mod);
       //switching off to add reading in of labelled collections: Andrzej, 02/26/19
        
-        for (auto ph_handle: photon_handles) {
+        for (auto const& ph_handle: photon_handles) {
          // Do some checking before we proceed
 	 if (!ph_handle.isValid()) continue;  
 	 if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
@@ -608,12 +608,12 @@ namespace opdet {
         throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
 
      //Get SimPhotonsLite from Event
-     for(auto mod : fInputModule){
+     for(auto const& mod : fInputModule){
       //art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle; 
       //evt.getByLabel(mod, photonHandle);
 
 	// Loop over direct/reflected photons
-	for (auto ph_handle: photon_handles) {
+	for (auto const& ph_handle: photon_handles) {
           // Do some checking before we proceed
           if (!ph_handle.isValid()) continue;  
           if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
