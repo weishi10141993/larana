@@ -137,7 +137,7 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
   std::vector<double> xyz_segment(_calc.SegmentMidpoint(pt1,pt2,XOffset));
   
   //get the visibility vector
-  const float* PointVisibility = pvs.GetAllVisibilities(&xyz_segment[0]);
+  auto const& PointVisibility = pvs.GetAllVisibilities(&xyz_segment[0]);
   
   //check visibility pointer, as it may be null if given a y/z outside some range
   if (!PointVisibility) return fhc;

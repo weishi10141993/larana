@@ -11,6 +11,8 @@
 #include<vector>
 #include<iostream>
 
+#include "larsim/PhotonPropagation/PhotonVisibilityTypes.h" // phot::MappedCounts_t
+
 #include "FlashHypothesis.h"
 #include "TVector3.h"
 
@@ -28,7 +30,7 @@ namespace opdet{
 			     const TVector3& pt1,
 			     const TVector3& pt2,
 			     const std::vector<float>& qe_vector,
-			     const float* vis_vector,
+			     phot::MappedCounts_t const& vis_vector,
 			     FlashHypothesis& hyp);
 
   };

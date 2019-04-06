@@ -203,7 +203,7 @@ namespace opdet {
 	
 	Btrack->GetTrackPoint(s,xyz);
 	xyz[0]+=XOffset;
-	const float* PointVisibility = pvs->GetAllVisibilities(xyz);
+	auto const& PointVisibility = pvs->GetAllVisibilities(xyz);
 	if (!PointVisibility) continue; // point not covered by the service
 	
 	float LightAmount = PromptMIPScintYield*TrackLength/float(fBezierResolution);

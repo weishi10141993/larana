@@ -359,7 +359,7 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::AddLightFromSegment(TVector3 const& p
   xyz_segment[2] = 0.5*(pt2.z()+pt1.z());
     
   //get the visibility vector
-  const float* PointVisibility = pvs.GetAllVisibilities(xyz_segment);
+  auto const& PointVisibility = pvs.GetAllVisibilities(xyz_segment);
   
   //check pointer, as it may be null if given a y/z outside some range
   if(!PointVisibility) return;

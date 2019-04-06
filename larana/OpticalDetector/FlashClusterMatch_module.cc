@@ -364,7 +364,7 @@ namespace opdet {
 	
 	for(size_t i=0; i!=3; ++i) xyz[i] = spts.at(s).XYZ()[i];
 	
-        const float* PointVisibility = pvs->GetAllVisibilities(xyz);
+        auto const& PointVisibility = pvs->GetAllVisibilities(xyz);
 	if (!PointVisibility) continue; // point not covered by the service
         for(size_t OpDet =0; OpDet!=pvs->NOpChannels();  OpDet++)
           {
