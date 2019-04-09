@@ -11,8 +11,6 @@
 /** \addtogroup PMTAna
 
 @{*/
-#ifndef PMTAna_H
-#define PMTAna_H
 
 // ART includes
 #include "fhiclcpp/ParameterSet.h"
@@ -91,8 +89,6 @@ namespace pmtana {
   };
   
 }
-
-#endif//  PMTAna_H
 
 // PMTAna.cc
 

@@ -9,9 +9,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef COSMICSREMOVALANA_H
-#define COSMICSREMOVALANA_H
-
 // Framework includes
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -553,12 +550,3 @@ namespace microboone{
   
   DEFINE_ART_MODULE(CosmicRemovalAna)  
 }
-
-
-
-
-
-
-
-
-#endif

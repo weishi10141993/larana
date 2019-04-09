@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef PULSERECOMANAGER_CXX
-#define PULSERECOMANAGER_CXX
-
 #include "PulseRecoManager.h"
 #include "OpticalRecoException.h"
 #include <sstream>
@@ -90,5 +87,3 @@ namespace pmtana{
   }
 
 }
-
-#endif

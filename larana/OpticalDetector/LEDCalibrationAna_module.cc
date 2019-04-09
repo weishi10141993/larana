@@ -5,10 +5,6 @@
 //  LED calibration run data (incomplete)
 //
 
-
-#ifndef LEDCalibrationAna_H
-#define LEDCalibrationAna_H 1
-
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
@@ -106,8 +102,6 @@ namespace opdet {
 
 
 } 
-
-#endif 
 
 namespace opdet {
 

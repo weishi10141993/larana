@@ -1,6 +1,3 @@
-#ifndef TRK_TRACKCONTAINMENTALG_CXX
-#define TRK_TRACKCONTAINMENTALG_CXX
-
 #include "TrackContainmentAlg.hh"
 
 #include "larcorealg/Geometry/GeometryCore.h"
@@ -327,5 +324,3 @@ std::vector< std::vector<anab::CosmicTag> > const& trk::TrackContainmentAlg::Get
     throw cet::exception("TrackContainmentAlg::GetTrackCosmicTags")
       << "Cosmic tags not created. Set MakeCosmicTags to true in fcl paramters.";
 }
-
-#endif

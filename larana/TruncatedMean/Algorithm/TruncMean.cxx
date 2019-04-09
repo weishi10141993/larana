@@ -1,6 +1,3 @@
-#ifndef TRUNCMEAN_CXX
-#define TRUNCMEAN_CXX
-
 #include "TruncMean.h"
 
 
@@ -137,5 +134,3 @@ float TruncMean::RMS(const std::vector<float>& v)
 
   return rms;
 }
-
-#endif

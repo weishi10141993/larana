@@ -4,9 +4,6 @@
 
 #include "AlgoSiPM.h"
 
-#ifndef ALGOSIPM_CXX
-#define ALGOSIPM_CXX
-
 namespace pmtana {
 
   //---------------------------------------------------------------------------
@@ -128,5 +125,3 @@ namespace pmtana {
   }
 
 }
-
-#endif

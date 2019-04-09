@@ -8,10 +8,6 @@
 // by Ben Jones, MIT, 2013
 //
 
-
-#ifndef OpHitFinder_H
-#define OpHitFinder_H 1
-
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 #include "larcore/CoreUtils/ServiceUtil.h" // lar::providerFrom()
@@ -94,8 +90,6 @@ namespace opdet {
 namespace opdet {
   DEFINE_ART_MODULE(OpHitFinder)
 }
-
-#endif 
 
 namespace opdet {
 

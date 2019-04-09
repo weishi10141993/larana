@@ -3,9 +3,6 @@
 // each reconstructed flash
 //
 
-#ifndef OpFlashAna_H
-#define OpFlashAna_H 1
-
 // ROOT includes
 #include "TH1.h"
 #include "TH2.h"
@@ -135,8 +132,6 @@ namespace opdet {
   };
 
 } 
-
-#endif // OpFlashAna_H
 
 namespace opdet {
 

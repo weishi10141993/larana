@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef larana_OPTICALDETECTOR_PEDALGOROLLINGMEAN_CXX
-#define larana_OPTICALDETECTOR_PEDALGOROLLINGMEAN_CXX
-
 #include "PedAlgoRollingMean.h"
 #include "UtilFunc.h"
 
@@ -310,5 +307,3 @@ namespace pmtana{
   }
 
 }
-
-#endif

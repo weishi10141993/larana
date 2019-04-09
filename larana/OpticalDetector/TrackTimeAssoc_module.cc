@@ -18,10 +18,6 @@
 
 // ROOT includes.
 #include <Rtypes.h>
-#ifndef TrackTimeAssoc_h
-#define TrackTimeAssoc_h 1
-
-
 
 namespace trkf{
   class BezierTrack;
@@ -72,10 +68,6 @@ namespace opdet {
   
 
 }
-
-#endif
-
-
 
 
 ////////////////////////////////////////////////////////////////////////

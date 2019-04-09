@@ -19,10 +19,6 @@
 
 // ROOT includes.
 #include <Rtypes.h>
-#ifndef BeamFlashCompatabilityCheck_h
-#define BeamFlashCompatabilityCheck_h 1
-
-
 
 namespace trkf{
   class BezierTrack;
@@ -65,10 +61,6 @@ namespace opdet {
   
 
 }
-
-#endif
-
-
 
 
 ////////////////////////////////////////////////////////////////////////

@@ -8,10 +8,6 @@
 // by Gleb Sinev, Duke, 2015
 //
 
-
-#ifndef OpFlashFinder_H
-#define OpFlashFinder_H 1
-
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 #include "lardataobj/RecoBase/OpFlash.h"
@@ -70,8 +66,6 @@ namespace opdet {
 namespace opdet {
   DEFINE_ART_MODULE(OpFlashFinder)
 }
-
-#endif 
 
 namespace opdet {
 

@@ -5,9 +5,6 @@
 //
 
 
-#ifndef FIFOHistogramAna_H
-#define FIFOHistogramAna_H 1
-
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 #include "lardataobj/OpticalDetectorData/FIFOChannel.h"
@@ -65,8 +62,6 @@ namespace opdet {
   };
 
 } 
-
-#endif // FIFOHistogramAna_H
 
 namespace opdet {
 

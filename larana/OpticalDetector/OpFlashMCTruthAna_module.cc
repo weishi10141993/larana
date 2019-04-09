@@ -4,10 +4,6 @@
 // detector pulses for each PMT to an output file
 //
 
-
-#ifndef OpFlashMCTruthAna_H
-#define OpFlashMCTruthAna_H 1
-
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 
@@ -68,10 +64,6 @@ namespace opdet {
   };
 
 } 
-
-#endif // OpFlashMCTruthAna_H
-
-
 
 
 // OpFlashMCTruthAna_module.cc
@@ -292,5 +284,3 @@ namespace opdet {
   }
 
 } // namespace opdet
-
-

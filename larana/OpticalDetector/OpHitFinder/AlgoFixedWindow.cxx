@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef ALGOFIXEDWINDOW_CC
-#define ALGOFIXEDWINDOW_CC
-
 #include "AlgoFixedWindow.h"
 
 namespace pmtana{
@@ -94,5 +91,3 @@ namespace pmtana{
   }
 
 }
-
-#endif

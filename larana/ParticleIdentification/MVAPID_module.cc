@@ -6,9 +6,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef MVAPID_H
-#define MVAPID_H
-
 // ### Generic C++ includes ###
 #include <iostream>
 
@@ -114,5 +111,3 @@ void MVAPID::produce(art::Event& evt)
   
   
 } //namespace mvapid
-
-#endif // MVAPID_H

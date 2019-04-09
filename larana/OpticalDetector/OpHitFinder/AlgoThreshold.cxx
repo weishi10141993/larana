@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef ALGOTHRESHOLD_CXX
-#define ALGOTHRESHOLD_CXX
-
 #include "AlgoThreshold.h"
 
 namespace pmtana{
@@ -152,5 +149,3 @@ namespace pmtana{
   }
   
 }
-
-#endif

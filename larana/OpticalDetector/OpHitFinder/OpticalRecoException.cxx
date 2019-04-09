@@ -1,6 +1,3 @@
-#ifndef larana_OPTICALDETECTOR_OPTICALRECOEXCEPTION_CXX
-#define larana_OPTICALDETECTOR_OPTICALRECOEXCEPTION_CXX
-
 #include "OpticalRecoException.h"
 //#include "StackTrace.h"
 namespace pmtana {
@@ -18,4 +15,3 @@ namespace pmtana {
   { return _msg.c_str(); }
 
 }
-#endif

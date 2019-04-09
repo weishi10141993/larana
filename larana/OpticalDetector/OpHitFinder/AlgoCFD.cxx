@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef ALGOCFD_CXX
-#define ALGOCFD_CXX
-
 #include "AlgoCFD.h"
 #include "UtilFunc.h"
 
@@ -266,5 +263,3 @@ namespace pmtana{
 
 
 }
-
-#endif

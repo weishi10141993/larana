@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef PMTPULSERECOBASE_CC
-#define PMTPULSERECOBASE_CC
-
 #include "PMTPulseRecoBase.h"
 
 namespace pmtana{
@@ -190,5 +187,3 @@ namespace pmtana{
 
   }
 }
-#endif
-

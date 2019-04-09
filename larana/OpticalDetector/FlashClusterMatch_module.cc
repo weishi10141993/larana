@@ -12,8 +12,6 @@
 
 // ROOT includes.
 #include <Rtypes.h>
-#ifndef FlashClusterMatch_h
-#define FlashClusterMatch_h 1
 
 
 namespace recob{
@@ -56,10 +54,6 @@ namespace opdet {
   };
 
 }
-
-#endif
-
-
 
 
 ////////////////////////////////////////////////////////////////////////

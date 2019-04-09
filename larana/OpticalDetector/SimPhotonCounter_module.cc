@@ -26,8 +26,6 @@
 // double  QantumEfficiency   - Quantum efficiency of OpDet
 // double  WavelengthCutLow   - Sensitive wavelength range of OpDet
 // double  WavelengthCutHigh
-#ifndef SimPhotonCounterModule_h
-#define SimPhotonCounterModule_h 1
 
 // ROOT includes.
 #include "TTree.h"
@@ -152,9 +150,6 @@ namespace opdet {
       cheat::ParticleInventoryService* pi_serv = nullptr;
   };
 }
-
-#endif
-
 
 namespace opdet {
   
@@ -717,4 +712,3 @@ namespace opdet{
   DEFINE_ART_MODULE(SimPhotonCounter)
     
 }//end namespace opdet
-

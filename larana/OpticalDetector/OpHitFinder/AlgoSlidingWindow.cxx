@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef ALGOSLIDINGWINDOW_CXX
-#define ALGOSLIDINGWINDOW_CXX
-
 #include "AlgoSlidingWindow.h"
 
 namespace pmtana{
@@ -219,5 +216,3 @@ namespace pmtana{
   }
 
 }
-
-#endif

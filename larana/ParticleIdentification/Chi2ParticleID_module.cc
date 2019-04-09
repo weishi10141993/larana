@@ -35,9 +35,6 @@ extern "C" {
 #include "art/Framework/Services/Optional/TFileDirectory.h" 
 #include "messagefacility/MessageLogger/MessageLogger.h" 
 
-#ifndef PID_CHI2PARTICLEID_H
-#define PID_CHI2PARTICLEID_H
-
 namespace pid {
   class Chi2ParticleID;
 }
@@ -59,7 +56,6 @@ private:
   Chi2PIDAlg fChiAlg;
 
 };
-#endif /* PID_CHI2PARTICLEID_H */
 
 pid::Chi2ParticleID::Chi2ParticleID(fhicl::ParameterSet const & p)
   : EDProducer{p}

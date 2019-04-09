@@ -4,10 +4,6 @@
 // detector pulses for each PMT to an output file
 //
 
-
-#ifndef OpHitAna_H
-#define OpHitAna_H 1
-
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
 #include "lardataobj/RawData/OpDetPulse.h"
@@ -67,10 +63,6 @@ namespace opdet {
   };
 
 } 
-
-#endif // OpHitAna_H
-
-
 
 
 // OpHitAna_module.cc
@@ -249,5 +241,3 @@ namespace opdet {
   }
 
 } // namespace opdet
-
-

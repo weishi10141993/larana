@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef larana_OPTICALDETECTOR_PEDALGORMSSLIDER_CXX
-#define larana_OPTICALDETECTOR_PEDALGORMSSLIDER_CXX
-
 #include "PedAlgoRmsSlider.h"
 #include "OpticalRecoException.h"
 #include "UtilFunc.h"
@@ -386,5 +383,3 @@ namespace pmtana{
 
   }
 }
-
-#endif

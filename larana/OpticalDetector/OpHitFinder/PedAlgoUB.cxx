@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef larana_OPTICALDETECTOR_PEDALGOUB_CXX
-#define larana_OPTICALDETECTOR_PEDALGOUB_CXX
-
 #include "PedAlgoUB.h"
 #include "UtilFunc.h"
 #include "OpticalRecoException.h"
@@ -68,5 +65,3 @@ namespace pmtana{
   }
 
 }
-
-#endif

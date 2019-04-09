@@ -1,8 +1,6 @@
 // This analyzer writes out a TTree containing the properties of
 // each reconstructed flash
 //
-#ifndef TrackTimeAssocAna_H
-#define TrackTimeAssocAna_H 1
 
 // ROOT includes
 #include "TH1.h"
@@ -107,8 +105,6 @@ namespace opdet {
   };
 
 } 
-
-#endif // TrackTimeAssocAna_H
 
 namespace opdet {
 
@@ -256,4 +252,3 @@ namespace opdet {
 namespace opdet {
   DEFINE_ART_MODULE(TrackTimeAssocAna)
 }
-

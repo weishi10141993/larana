@@ -4,9 +4,6 @@
 // from the optical system, called Flashes.
 
 
-#ifndef OpticalRawDigitReformatter_H
-#define OpticalRawDigitReformatter_H 1
-
 // LArSoft includes
 #include "lardataobj/OpticalDetectorData/OpticalRawDigit.h"
 #include "lardataobj/OpticalDetectorData/FIFOChannel.h"
@@ -67,9 +64,6 @@ namespace opdet {
 namespace opdet {
     DEFINE_ART_MODULE(OpticalRawDigitReformatter)
 }
-
-#endif 
-
 
 namespace opdet {
 

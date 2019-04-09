@@ -1,8 +1,6 @@
 // This analyzer writes out a TTree containing the properties of
 // each reconstructed flash
 //
-#ifndef FlashPurityCheckAna_H
-#define FlashPurityCheckAna_H 1
 
 // ROOT includes
 #include "TH1.h"
@@ -93,8 +91,6 @@ namespace opdet {
   };
 
 } 
-
-#endif // FlashPurityCheckAna_H
 
 namespace opdet {
 
@@ -262,4 +258,3 @@ namespace opdet {
 namespace opdet {
   DEFINE_ART_MODULE(FlashPurityCheckAna)
 }
-

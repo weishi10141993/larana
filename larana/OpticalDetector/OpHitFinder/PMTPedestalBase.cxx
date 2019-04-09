@@ -4,9 +4,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef larana_OPTICALDETECTOR_PMTPEDESTALBASE_CXX
-#define larana_OPTICALDETECTOR_PMTPEDESTALBASE_CXX
-
 #include "PMTPedestalBase.h"
 #include "OpticalRecoException.h"
 #include <sstream>
@@ -83,5 +80,3 @@ namespace pmtana{
   //***************************************************
   { return _sigma_v; }
 }
-
-#endif

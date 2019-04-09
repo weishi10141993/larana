@@ -1,6 +1,3 @@
-#ifndef larana_OPTICALDETECTOR_UTILFUNC_CXX
-#define larana_OPTICALDETECTOR_UTILFUNC_CXX
-
 #include "UtilFunc.h"
 #include "OpticalRecoException.h"
 #include <algorithm>
@@ -125,5 +122,3 @@ namespace pmtana {
   
   
 }
-
-#endif

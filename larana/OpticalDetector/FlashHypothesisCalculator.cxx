@@ -1,6 +1,3 @@
-#ifndef FLASHHYPOTHESISCALCULATOR_CXX
-#define FLASHHYPOTHESISCALCULATOR_CXX
-
 #include "FlashHypothesisCalculator.h"
 
 std::vector<double> opdet::FlashHypothesisCalculator::SegmentMidpoint(TVector3 const& pt1, TVector3 const& pt2, float XOffset)
@@ -30,5 +27,3 @@ void opdet::FlashHypothesisCalculator::FillFlashHypothesis(const float& yield,
     hyp.SetHypothesisAndError(i_chan,total_yield*vis_vector[i_chan]*qe_vector[i_chan]);
 
 }
-
-#endif

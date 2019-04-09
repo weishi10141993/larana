@@ -3,9 +3,6 @@
 //   bjpjones@mit.edu
 //
 
-#ifndef BoDataFrameInput_h
-#define BoDataFrameInput_h 1
-
 // C/C++ standard libraries
 #include <fstream>
 
@@ -41,9 +38,6 @@ namespace opdet {
 
   };
 }
-
-#endif
-
 
 
 ////////////////////////////////////////////////////////////////////////
