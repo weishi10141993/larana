@@ -89,7 +89,7 @@ int mvapid::MVAAlg::IsInActiveVol(const TVector3& pos)
 void mvapid::MVAAlg::GetDetectorEdges()
 {
 
-  art::ServiceHandle<geo::Geometry> geom;
+  art::ServiceHandle<geo::Geometry const> geom;
 
   fDetMinX = 999999.9;
   fDetMaxX = -999999.9;
@@ -118,7 +118,7 @@ void mvapid::MVAAlg::GetDetectorEdges()
 void mvapid::MVAAlg::GetWireNormals()
 {
 
-  art::ServiceHandle<geo::Geometry> geom;
+  art::ServiceHandle<geo::Geometry const> geom;
 
   fNormToWiresY.clear();
   fNormToWiresZ.clear();
@@ -617,7 +617,7 @@ double mvapid::MVAAlg::CalcSegmentdEdxDistAtEnd(const mvapid::MVAAlg::SortedObj&
 
 double mvapid::MVAAlg::CalcSegmentdEdxDist(const mvapid::MVAAlg::SortedObj& track,double start,double end){
 
-  art::ServiceHandle<geo::Geometry> geom;
+  art::ServiceHandle<geo::Geometry const> geom;
   
   double totaldEdx=0;
   unsigned int nHits=0;

@@ -174,10 +174,10 @@ namespace opdet {
   // Get a hypothesis for the light collected for a bezier track
   std::vector<double> BeamFlashCompatabilityCheck::GetMIPHypotheses(trkf::BezierTrack* Btrack, double XOffset)
   {
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle<geo::Geometry const> geom;
     std::vector<double> ReturnVector(geom->NOpDets(),0);
     
-    art::ServiceHandle<phot::PhotonVisibilityService> pvs;
+    art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
 
     float TrackLength = Btrack->GetLength();
 
@@ -255,7 +255,7 @@ namespace opdet {
 	TrackHypotheses.push_back(GetMIPHypotheses(BTracks.at(i)));
       }
     
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle<geo::Geometry const> geom;
     size_t NOpDets = geom->NOpDets();
     size_t NOpChannels = geom->NOpChannels();
     

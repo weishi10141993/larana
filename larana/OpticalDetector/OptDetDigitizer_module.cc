@@ -79,7 +79,7 @@ namespace opdet {
     optdata::ChannelData ApplyDigitization (std::vector<double> const RawWF,
                                             optdata::Channel_t const ch) const;
     art::ServiceHandle<OpDigiProperties> fOpDigiProperties;
-    art::ServiceHandle<geo::Geometry> fGeom;
+    art::ServiceHandle<geo::Geometry const> fGeom;
 
   };
 } // namespace opdet

@@ -135,10 +135,10 @@ namespace opdet {
   {
     auto StoragePtr = std::make_unique<std::vector<raw::OpDetPulse>>();
 
-    bool const fUseLitePhotons = art::ServiceHandle<sim::LArG4Parameters>{}->UseLitePhotons();
+    bool const fUseLitePhotons = art::ServiceHandle<sim::LArG4Parameters const>{}->UseLitePhotons();
 
     // Service for determining opdet responses
-    art::ServiceHandle<opdet::OpDetResponseInterface> odresponse;
+    art::ServiceHandle<opdet::OpDetResponseInterface const> odresponse;
 
     double const TimeBegin_ns  = fTimeBegin  *  1000;
     double const TimeEnd_ns    = fTimeEnd    *  1000;

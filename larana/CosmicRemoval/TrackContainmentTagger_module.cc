@@ -58,7 +58,7 @@ private:
 trk::TrackContainmentTagger::TrackContainmentTagger(fhicl::ParameterSet const & p)
   : EDProducer{p}
 {
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
   fAlg.SetupOutputTree(tfs->make<TTree>("myanatree","MyAnalysis Tree"));
   this->reconfigure(p);
 
@@ -83,7 +83,7 @@ void trk::TrackContainmentTagger::produce(art::Event & e)
     trackHandles.push_back(trackHandle);
   }
   
-  art::ServiceHandle<geo::Geometry> geoHandle;
+  art::ServiceHandle<geo::Geometry const> geoHandle;
   fAlg.ProcessTracks(trackVectors,*geoHandle);
 
   auto const& cosmicTags = fAlg.GetTrackCosmicTags();

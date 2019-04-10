@@ -57,7 +57,7 @@ pid::PIDAAnalyzer::PIDAAnalyzer(fhicl::ParameterSet const & p)
 {}
 
 void pid::PIDAAnalyzer::beginJob(){
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
 
   std::vector<TH1F*> kde_hists;
   for(size_t i_b=0; i_b<fPIDAAlg.getNKDEBandwidths(); i_b++){

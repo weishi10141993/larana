@@ -62,7 +62,7 @@ trk::TrackContainmentAnalyzer::TrackContainmentAnalyzer(fhicl::ParameterSet cons
  // More initializers here.
 {
   this->reconfigure(p);
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
   fAlg.SetupOutputTree(tfs->make<TTree>("myanatree","MyAnalysis Tree"));
 }
 
@@ -78,7 +78,7 @@ void trk::TrackContainmentAnalyzer::analyze(art::Event const & e)
     trackVectors.push_back(*trackHandle);
   }
   
-  art::ServiceHandle<geo::Geometry> geoHandle;
+  art::ServiceHandle<geo::Geometry const> geoHandle;
 
   fAlg.ProcessTracks(trackVectors,*geoHandle);
 

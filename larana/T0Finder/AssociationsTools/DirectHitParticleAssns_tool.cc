@@ -124,8 +124,8 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
     }
     
     // Access art services...
-    art::ServiceHandle<cheat::BackTrackerService> btService;
-    art::ServiceHandle<cheat::ParticleInventoryService> piService;
+    art::ServiceHandle<cheat::BackTrackerService const> btService;
+    art::ServiceHandle<cheat::ParticleInventoryService const> piService;
 
     double maxe = -1;
     double tote = 0;

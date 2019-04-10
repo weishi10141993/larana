@@ -195,7 +195,7 @@ void lbne::PhotonCounterT0Matching::reconfigure(fhicl::ParameterSet const & p)
 void lbne::PhotonCounterT0Matching::beginJob()
 {
   // Implementation of optional member function here.
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
   fTree = tfs->make<TTree>("PhotonCounterT0Matching","PhotonCounterT0");
   fTree->Branch("TrackCentre_X",&BestTrackCentre_X,"TrackCentre_X/D");
   fTree->Branch("PredictedX"   ,&BestPredictedX   ,"PredictedX/D");
@@ -227,11 +227,11 @@ void lbne::PhotonCounterT0Matching::beginJob()
 void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 {
   // Access art services...
-  art::ServiceHandle<geo::Geometry> geom;
+  art::ServiceHandle<geo::Geometry const> geom;
   auto const* detprop = lar::providerFrom<detinfo::DetectorPropertiesService>();
   auto const* timeservice = lar::providerFrom<detinfo::DetectorClocksService>();
   //Commenting this out since it doesn't appear to actually be used.
-//  art::ServiceHandle<cheat::BackTrackerService> bt_serv;
+//  art::ServiceHandle<cheat::BackTrackerService const> bt_serv;
 
   //TrackList handle
   art::Handle< std::vector<recob::Track> > trackListHandle;

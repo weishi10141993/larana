@@ -46,11 +46,6 @@ namespace opdet {
  
     // Standard constructor and destructor for an ART module.
     OpDigiAna(const fhicl::ParameterSet&);
-    virtual ~OpDigiAna();
-
-    // This method is called once, at the start of the job. In this
-    // example, it will define the histogram we'll write.
-    void beginJob();
 
     // The analyzer routine, called once per event. 
     void analyze (const art::Event&); 
@@ -107,17 +102,6 @@ namespace opdet {
   }
 
   //-----------------------------------------------------------------------
-  // Destructor
-  OpDigiAna::~OpDigiAna() 
-  {}
-   
-  //-----------------------------------------------------------------------
-  void OpDigiAna::beginJob()
-  {
-  }
-   
-
-  //-----------------------------------------------------------------------
   void OpDigiAna::analyze(const art::Event& evt) 
   {
     
@@ -133,7 +117,7 @@ namespace opdet {
 
     // Access ART's TFileService, which will handle creating and writing
     // histograms for us.
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
 
 
     std::vector<std::string> histnames;

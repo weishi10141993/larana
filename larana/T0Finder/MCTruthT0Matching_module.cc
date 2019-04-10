@@ -183,7 +183,7 @@ void t0::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
 void t0::MCTruthT0Matching::beginJob()
 {
   // Implementation of optional member function here.
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
   fTree = tfs->make<TTree>("MCTruthT0Matching","MCTruthT0");
   fTree->Branch("TrueTrackT0",&TrueTrackT0,"TrueTrackT0/D");
   fTree->Branch("TrueTrackID",&TrueTrackID,"TrueTrackID/D");
@@ -196,9 +196,9 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
   if (evt.isRealData() && !fOverrideRealData) return;
 
   // Access art services...
-  art::ServiceHandle<geo::Geometry> geom;
-  art::ServiceHandle<cheat::BackTrackerService> bt_serv;
-  art::ServiceHandle<cheat::ParticleInventoryService> pi_serv;
+  art::ServiceHandle<geo::Geometry const> geom;
+  art::ServiceHandle<cheat::BackTrackerService const> bt_serv;
+  art::ServiceHandle<cheat::ParticleInventoryService const> pi_serv;
 
   //TrackList handle
   art::Handle< std::vector<recob::Track> > trackListHandle;

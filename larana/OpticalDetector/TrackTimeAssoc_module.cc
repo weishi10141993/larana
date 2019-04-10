@@ -185,13 +185,13 @@ namespace opdet {
     double MaxX   = 250;  //temporary
     size_t XSteps = 50;  //temporary
 
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle<geo::Geometry const> geom;
 
     std::vector<std::vector<double> > ReturnVector(XSteps);
     for(size_t i=0; i!=XSteps; ++i)
       ReturnVector[i].resize(geom->NOpDets());
     
-    art::ServiceHandle<phot::PhotonVisibilityService> pvs;
+    art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
 
     float TrackLength = Btrack->GetTrajectory().Length();
     float OldVertex   = Btrack->GetTrajectory().Start().X();
@@ -273,10 +273,10 @@ namespace opdet {
   // Get a hypothesis for the light collected for a bezier track
   std::vector<double> TrackTimeAssoc::GetMIPHypotheses(trkf::BezierTrack* Btrack, double XOffset)
   {
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle<geo::Geometry const> geom;
     std::vector<double> ReturnVector(geom->NOpDets(),0);
     
-    art::ServiceHandle<phot::PhotonVisibilityService> pvs;
+    art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
 
     float TrackLength = Btrack->GetLength();
 
@@ -338,7 +338,7 @@ namespace opdet {
     for(size_t i=0; i!=Tracks.size(); i++)
       BTracks.push_back(new trkf::BezierTrack(*Tracks.at(i)));
         
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle<geo::Geometry const> geom;
     size_t NOpDets = geom->NOpDets();
     
     std::map<int, bool> OnBeamFlashes;

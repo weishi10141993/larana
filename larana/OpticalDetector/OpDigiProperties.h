@@ -148,7 +148,7 @@ namespace opdet
       std::vector<double> fHighGainArray;
       std::vector<double> fGainSpreadArray;
       std::vector<optdata::ADC_Count_t> fPedMeanArray;
-      art::ServiceHandle<geo::Geometry> fGeometry;
+      art::ServiceHandle<geo::Geometry const> fGeometry;
  
     }; // class OpDigiProperties
 

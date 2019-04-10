@@ -51,7 +51,7 @@ opreco::OpticalRecoAna::~OpticalRecoAna()
 // Do something here to setup the file (like make a TTree)
 void opreco::OpticalRecoAna::beginJob()
 {
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
   fTimeDiff = tfs->make<TH1F>("htdiff","Time difference between particles and flashes; t_diff (ns); flash/particle pairs",1e3,-5e6,5e6);
   fTimeDiff_fine = tfs->make<TH1F>("htdiff_fine","Time difference between particles and flashes; t_diff (ns); flash/particle pairs",100,-1000,1000);
   fNBeamFlashes = tfs->make<TH1I>("hNBeamFlashes","Number of flashes OnBeamTime per event; N_{Flashes}; Events",5,0,5);
@@ -134,7 +134,7 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
   //all this for the MC matching
   if(is_MC){
     
-    art::ServiceHandle<cheat::ParticleInventoryService> pi_serv;
+    art::ServiceHandle<cheat::ParticleInventoryService const> pi_serv;
     std::vector<simb::MCParticle> particle_list;
     get_MC_particle_list(pi_serv->ParticleList(),particle_list);
     fParticle_match_vector.resize(particle_list.size());
@@ -143,9 +143,9 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
       << "Number of MC particles is " << particle_list.size();
     
 
-    art::ServiceHandle<opdet::OpDigiProperties> odp;
+    art::ServiceHandle<opdet::OpDigiProperties const> odp;
     const float ns_per_PMT_tick = 1e3;// already converted to microseconds//( 1e3 / odp->SampleFreq()) ; //SampleFreq is in MHz
-    art::ServiceHandle<geo::Geometry> geometry_handle;
+    art::ServiceHandle<geo::Geometry const> geometry_handle;
 
     match_flashes_to_particles(flash_vector,
 			       particle_list,
@@ -172,7 +172,7 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
 }
 
 simb::Origin_t opreco::OpticalRecoAna::get_MC_particle_origin(simb::MCParticle const& particle){
-  art::ServiceHandle<cheat::ParticleInventoryService> pi_serv;
+  art::ServiceHandle<cheat::ParticleInventoryService const> pi_serv;
   return (pi_serv->TrackIdToMCTruth_P(particle.TrackId()))->Origin();
 }
 

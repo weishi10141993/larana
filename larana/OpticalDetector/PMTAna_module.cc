@@ -115,7 +115,7 @@ namespace pmtana {
     _fifo_mod_name = pset.get<std::string>("fModName_FIFOChannel" );
 
     // Next we make storage data class objects for those data types specified in fcl files.
-    art::ServiceHandle<art::TFileService>  fileService;
+    art::ServiceHandle<art::TFileService const>  fileService;
 
     // Create TTree
     _tree = fileService->make<TTree>("pmt_tree","Analysis Tree");

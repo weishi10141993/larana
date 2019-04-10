@@ -140,7 +140,7 @@ namespace opdet {
         
     if(fMakeHitTree)
       {
-	art::ServiceHandle<art::TFileService> tfs;
+        art::ServiceHandle<art::TFileService const> tfs;
 	fHitTree = tfs->make<TTree>("HitTree","HitTree");
 	fHitTree->Branch("EventID",   &fEventID,   "EventID/I");
 	fHitTree->Branch("OpChannel", &fOpChannel, "OpChannel/I");
@@ -178,9 +178,9 @@ namespace opdet {
 
     // Access ART's TFileService, which will handle creating and writing
     // histograms for us.
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
     
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle<geo::Geometry const> geom;
     int NOpChannels = geom->NOpChannels();
 
     std::vector<TH1D*> HitHist;

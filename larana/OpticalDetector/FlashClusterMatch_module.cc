@@ -210,7 +210,7 @@ namespace opdet {
 
     // Extract flash shape info
     std::vector<std::vector<double> > FlashShapes;
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle<geo::Geometry const> geom;
     size_t NOpDets = geom->NOpDets();
 
     for(size_t f=0; f!=Flashes.size(); ++f)
@@ -337,10 +337,10 @@ namespace opdet {
   // Get a hypothesis for the light from a spacepoint collection
   std::vector<double> FlashClusterMatch::GetLightHypothesis(std::vector<recob::SpacePoint> spts)
   {
-    art::ServiceHandle<geo::Geometry> geom;
+    art::ServiceHandle<geo::Geometry const> geom;
     std::vector<double> ReturnVector(geom->NOpDets(),0);
 
-    art::ServiceHandle<phot::PhotonVisibilityService> pvs;
+    art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
 
 
     for (size_t s=0; s!=spts.size(); s++)

@@ -128,7 +128,7 @@ namespace opdet {
     fPulseRecoMgr.AddRecoAlgo(&fThreshAlg);
     fPulseRecoMgr.SetDefaultPedAlgo(&fPedAlg);
 
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
 
     fPulseTree = tfs->make<TTree>("fPulseTree","fPulseTree");
     fPulseTree->Branch("Area",     &fArea,     "Area/F");
@@ -172,7 +172,7 @@ namespace opdet {
   //-----------------------------------------------------------------------
   void LEDCalibrationAna::endJob()
   { 
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
 
     for(auto it = fAreas.begin(); it!=fAreas.end(); ++it)
       {
@@ -250,7 +250,7 @@ namespace opdet {
     fRunID=evt.run();
     fEventID=evt.event();
 
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
 
     // Create a handle for our vector of pulses
     art::Handle< std::vector< raw::OpDetWaveform > > OpDetWaveformHandle;

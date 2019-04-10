@@ -74,7 +74,7 @@ MVAPID::~MVAPID()
 // ***************** //
 void MVAPID::beginJob()
 {
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
   fTree =tfs->make<TTree>("MVAPID","Results");/**All-knowing tree with reconstruction information*/
   fTree->Branch("run",&fRun,"run/I");
   fTree->Branch("subrun",&fSubrun,"subrun/I");

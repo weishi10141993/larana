@@ -402,7 +402,7 @@ void cosmic::CosmicPCAxisTagger::reconfigure(fhicl::ParameterSet const & p)
   
     ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
     fDetector = lar::providerFrom<detinfo::DetectorPropertiesService>();
-    art::ServiceHandle<geo::Geometry> geo;
+    art::ServiceHandle<geo::Geometry const> geo;
     
     fDetHalfHeight = geo->DetHalfHeight();
     fDetWidth      = 2.*geo->DetHalfWidth();

@@ -147,7 +147,7 @@ namespace opdet {
       std::vector<std::vector<double> > fSignalsvis;
       std::string fProcess;
       
-      cheat::ParticleInventoryService* pi_serv = nullptr;
+      cheat::ParticleInventoryService const* pi_serv = nullptr;
   };
 }
 
@@ -180,9 +180,9 @@ namespace opdet {
   void SimPhotonCounter::beginJob()
   {
     // Get file service to store trees
-    art::ServiceHandle<art::TFileService> tfs;
-    art::ServiceHandle<phot::PhotonVisibilityService> pvs;
-    art::ServiceHandle<geo::Geometry> geo;
+    art::ServiceHandle<art::TFileService const> tfs;
+    art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
+    art::ServiceHandle<geo::Geometry const> geo;
 
     std::cout<<"Optical Channels positions:  "<<geo->Cryostat(0).NOpDet()<<std::endl;
     for(int ch=0; ch!=int(geo->Cryostat(0).NOpDet()); ch++) {
@@ -198,7 +198,7 @@ namespace opdet {
 	     <<" Ymax: "<<CryoBounds[3]<<" Zmin: "<<CryoBounds[4]<<" Zmax: "<<CryoBounds[5]<<std::endl;
     
     try { 
-      pi_serv = &*(art::ServiceHandle<cheat::ParticleInventoryService>());
+      pi_serv = &*(art::ServiceHandle<cheat::ParticleInventoryService const>());
     }
     catch (art::Exception const& e) {
       if (e.categoryCode() != art::errors::ServiceNotFound) throw;
@@ -293,16 +293,16 @@ namespace opdet {
     art::EventNumber_t event = evt.id().event();
     fEventID=Int_t(event);
     
-    art::ServiceHandle<phot::PhotonVisibilityService> pvs;
+    art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
     
-    art::ServiceHandle<sim::LArG4Parameters> lgp;
+    art::ServiceHandle<sim::LArG4Parameters const> lgp;
     bool fUseLitePhotons = lgp->UseLitePhotons();
     
     // Service for determining opdet responses
-    art::ServiceHandle<opdet::OpDetResponseInterface> odresponse;
+    art::ServiceHandle<opdet::OpDetResponseInterface const> odresponse;
     
     // get the geometry to be able to figure out signal types and chan -> plane mappings
-    art::ServiceHandle<geo::Geometry> geo;
+    art::ServiceHandle<geo::Geometry const> geo;
 
     // get the MCtrue info of the particles                              
     art::Handle< std::vector<simb::MCParticle> > mclistLARG4;

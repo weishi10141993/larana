@@ -54,7 +54,7 @@ void opdet::SimPhotonCounterAlg::InitializeCounters(geo::GeometryCore const& geo
 						    opdet::OpDigiProperties const& opdigip)
 {
   fCounters.resize(fTimeRanges.size());
-  art::ServiceHandle<opdet::OpDetResponseInterface> odresponse;
+  art::ServiceHandle<opdet::OpDetResponseInterface const> odresponse;
   for(size_t i=0; i<fCounters.size(); i++)
     fCounters[i] = SimPhotonCounter(fTimeRanges[i][0],fTimeRanges[i][1],
 				    fTimeRanges[i][2],fTimeRanges[i][3],

@@ -77,7 +77,7 @@ namespace opdet
     inline int OpDetResponseInterface::doNOpChannels() const
     {
         // By default return the number of detector channels
-        art::ServiceHandle<geo::Geometry> geom;
+        art::ServiceHandle<geo::Geometry const> geom;
         return geom->NOpChannels();
     }
     
@@ -91,7 +91,7 @@ namespace opdet
     inline int OpDetResponseInterface::doReadoutToGeoChannel(int readoutChannel) const
     {
         // Pass this call off to the geometry service
-        art::ServiceHandle<geo::Geometry> geom;
+        art::ServiceHandle<geo::Geometry const> geom;
         return geom->OpDetFromOpChannel(readoutChannel);
     }
 

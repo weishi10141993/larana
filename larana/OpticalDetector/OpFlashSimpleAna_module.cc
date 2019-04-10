@@ -78,7 +78,7 @@ void opdet::OpFlashSimpleAna::analyze(art::Event const & e)
 
 void opdet::OpFlashSimpleAna::beginJob()
 {
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
   if(fOpFlashModuleLabel.size()>0)
     fAnaAlg.SetOpFlashTree(tfs->make<TTree>("OpFlashTree","OpFlashSimpleAna: Flash Tree"),
 			   fMakeOpDetPEHist);

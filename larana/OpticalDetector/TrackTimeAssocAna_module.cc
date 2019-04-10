@@ -118,7 +118,7 @@ namespace opdet {
     // Indicate that the Input Module comes from .fcl
     fMatchModuleLabel = pset.get<std::string>("MatchModuleLabel");
 
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
 
     fMatchTree = tfs->make<TTree>("MatchTree","MatchTree");
     

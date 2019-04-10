@@ -103,9 +103,9 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
     detinfo::LArPropertiesService
     >();
   
-  art::ServiceHandle<phot::PhotonVisibilityService> pvsHandle;
+  art::ServiceHandle<phot::PhotonVisibilityService const> pvsHandle;
   phot::PhotonVisibilityService const& pvs(*pvsHandle);
-  art::ServiceHandle<opdet::OpDigiProperties> opdigipHandle;
+  art::ServiceHandle<opdet::OpDigiProperties const> opdigipHandle;
   opdet::OpDigiProperties const& opdigip(*opdigipHandle);
 
   //Get Flashes from event.

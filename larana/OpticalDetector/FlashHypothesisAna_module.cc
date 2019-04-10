@@ -79,8 +79,8 @@ namespace opdet{
     std::vector<sim::SimPhotons> const& simPhotonsVec(*simPhotonsHandle);
 
 
-    art::ServiceHandle<opdet::OpDigiProperties> opdigiHandle;
-    art::ServiceHandle<phot::PhotonVisibilityService> pvsHandle;
+    art::ServiceHandle<opdet::OpDigiProperties const> opdigiHandle;
+    art::ServiceHandle<phot::PhotonVisibilityService const> pvsHandle;
 
     opdet::OpDigiProperties const& opdigi(*opdigiHandle);
     phot::PhotonVisibilityService const& pvs(*pvsHandle);
@@ -94,10 +94,10 @@ namespace opdet{
   
   void FlashHypothesisAna::beginJob()
   {
-    art::ServiceHandle<geo::Geometry> geoHandle;
+    art::ServiceHandle<geo::Geometry const> geoHandle;
     geo::Geometry const& geo(*geoHandle);
 
-    art::ServiceHandle<art::TFileService> tfs;    
+    art::ServiceHandle<art::TFileService const> tfs;    
 
     fAlg.SetOutputObjects(tfs->make<TTree>("ctree","FlashHypothesisAnaTree"),
 			  tfs->make<TH1F>(), tfs->make<TH1F>(), tfs->make<TH1F>(),

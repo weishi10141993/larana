@@ -108,7 +108,7 @@ namespace opdet {
     fGenieGenModuleLabel = pset.get<std::string>("GenieGenModuleLabel");
 
 
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
 
     
     

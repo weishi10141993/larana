@@ -204,7 +204,7 @@ void microboone::CosmicRemovalAna::beginJob()
   cTaggedHits_Cosmic.resize(nCosmicTags);
   cTaggedHits_NonCosmic.resize(nCosmicTags);
   
-  art::ServiceHandle<art::TFileService> tfs;
+  art::ServiceHandle<art::TFileService const> tfs;
   tEventTree = (TTree*)tfs->make<TTree>("CosmicEventTree","CosmicEventTree");
     
   tEventTree->Branch("event", &cEventVals, "runNumber/I:eventNumber/I:nHitsTotal_Unknown/I:nHitsTotal_Cosmic/I:nHitsTotal_NonCosmic/I:qTotal_Unknown/F:qTotal_Cosmic/F:qTotal_NonCosmic/F:nHitsTrack/I:nHitsTrack_Cosmic/I:nHitsTrack_NonCosmic/I:qTrack/F:qTrack_Cosmic/F:qTrack_NonCosmic/F:nHitsCluster/I:nHitsCluster_Cosmic/I:nHitsCluster_NonCosmic/I:qCluster/F:qCluster_Cosmic/F:qCluster_NonCosmic/F:TotalTaggedCharge_Cosmic/F:TotalTaggedCharge_NonCosmic/F:TotalTaggedHits_Cosmic/I:TotalTaggedHits_NonCosmic/I");

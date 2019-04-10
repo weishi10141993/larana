@@ -126,7 +126,7 @@ namespace opdet {
 
 
     
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
     
     fPerEventTree = tfs->make<TTree>("PerEventTree", "PerEventTree");
 

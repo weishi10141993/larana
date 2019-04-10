@@ -145,7 +145,7 @@ namespace opdet {
     fOpFlashModuleLabel = pset.get<std::string>("OpFlashModuleLabel");
     fOpHitModuleLabel   = pset.get<std::string>("OpHitModuleLabel");
 
-//    art::ServiceHandle<OpDigiProperties> odp;
+//    art::ServiceHandle<OpDigiProperties const> odp;
 //    fTimeBegin  = odp->TimeBegin();
 //    fTimeEnd    = odp->TimeEnd();
 //    fSampleFreq = odp->SampleFreq();
@@ -174,7 +174,7 @@ namespace opdet {
     PosHistYRes = 100;
     PosHistZRes = 100;
 
-    art::ServiceHandle< art::TFileService > tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
 
     if(fMakeFlashBreakdownTree)
     {
@@ -297,7 +297,7 @@ namespace opdet {
 
     // Access ART's TFileService, which will handle creating and writing
     // histograms for us.
-    art::ServiceHandle< art::TFileService > tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
     
     std::vector<TH1D*> FlashHist;
     
@@ -323,7 +323,7 @@ namespace opdet {
                                 PosHistZRes, fZMin, fZMax);
     }
     
-    art::ServiceHandle< geo::Geometry > geom;
+    art::ServiceHandle<geo::Geometry const> geom;
     unsigned int NOpChannels = geom->NOpChannels();
 
     if(fMakePerEventFlashTree) 
