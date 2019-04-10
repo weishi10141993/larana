@@ -21,10 +21,7 @@ namespace opdet
     class MicrobooneOpDetResponse : public opdet::OpDetResponseInterface {
     public:
 
-        MicrobooneOpDetResponse(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg);
-        ~MicrobooneOpDetResponse() throw();
-
-
+        MicrobooneOpDetResponse(fhicl::ParameterSet const& pset);
 
     private:
 

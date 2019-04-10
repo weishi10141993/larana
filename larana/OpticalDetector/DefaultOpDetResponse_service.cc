@@ -13,17 +13,11 @@ namespace opdet{
 
 
     //--------------------------------------------------------------------
-    DefaultOpDetResponse::DefaultOpDetResponse(fhicl::ParameterSet const& pset, 
-                                         art::ActivityRegistry &/*reg*/)
+    DefaultOpDetResponse::DefaultOpDetResponse(fhicl::ParameterSet const& pset)
     {
         this->doReconfigure(pset);
     }
     
-    //--------------------------------------------------------------------
-    DefaultOpDetResponse::~DefaultOpDetResponse() throw()
-    { }
-
-
     //--------------------------------------------------------------------
     void DefaultOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
     {
@@ -57,4 +51,3 @@ namespace opdet{
 } // namespace
 
 DEFINE_ART_SERVICE_INTERFACE_IMPL(opdet::DefaultOpDetResponse, opdet::OpDetResponseInterface)
-

@@ -21,19 +21,11 @@
 namespace opdet{
 
   //--------------------------------------------------------------------
-  OpDigiProperties::OpDigiProperties(fhicl::ParameterSet const& pset, 
-					 art::ActivityRegistry &/*reg*/) 
+  OpDigiProperties::OpDigiProperties(fhicl::ParameterSet const& pset)
     : fAnalyticalSPE(0)
   {
     this->reconfigure(pset);
   }
-
-  //--------------------------------------------------------------------
-  OpDigiProperties::~OpDigiProperties() 
-  {
-    
-  }
-
 
   //--------------------------------------------------------------------
   double OpDigiProperties::GetSPEArea()

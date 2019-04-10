@@ -29,8 +29,7 @@ namespace opdet
     class OpDigiProperties {
     public:
 
-      OpDigiProperties(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg);
-      ~OpDigiProperties();
+      OpDigiProperties(fhicl::ParameterSet const& pset);
 
       void reconfigure(fhicl::ParameterSet const& p);
 

@@ -15,17 +15,11 @@ namespace opdet{
 
 
     //--------------------------------------------------------------------
-    MicrobooneOpDetResponse::MicrobooneOpDetResponse(fhicl::ParameterSet const& pset, 
-                                         art::ActivityRegistry &/*reg*/)
+    MicrobooneOpDetResponse::MicrobooneOpDetResponse(fhicl::ParameterSet const& pset)
     {
         this->doReconfigure(pset);
     }
     
-    //--------------------------------------------------------------------
-    MicrobooneOpDetResponse::~MicrobooneOpDetResponse() throw()
-    { }
-
-
     //--------------------------------------------------------------------
     void MicrobooneOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
     {
@@ -96,4 +90,3 @@ namespace opdet{
 } // namespace
 
 DEFINE_ART_SERVICE_INTERFACE_IMPL(opdet::MicrobooneOpDetResponse, opdet::OpDetResponseInterface)
-

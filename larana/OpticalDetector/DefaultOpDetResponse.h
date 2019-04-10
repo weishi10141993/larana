@@ -21,10 +21,7 @@ namespace opdet
     class DefaultOpDetResponse : public opdet::OpDetResponseInterface {
     public:
 
-        DefaultOpDetResponse(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg);
-        ~DefaultOpDetResponse() throw();
-
-
+        DefaultOpDetResponse(fhicl::ParameterSet const& pset);
 
     private:
 
