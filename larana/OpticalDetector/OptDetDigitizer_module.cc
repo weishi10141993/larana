@@ -22,8 +22,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -36,10 +34,8 @@
 #include "CLHEP/Random/RandPoisson.h"
 
 // C++ language includes
-#include <iostream>
 #include <sstream>
 #include <cstring>
-#include <vector>
 
 namespace opdet {
 

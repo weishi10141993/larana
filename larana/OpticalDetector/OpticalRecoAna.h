@@ -13,7 +13,6 @@
 #include "canvas/Persistency/Common/Ptr.h"
 
 //LArSoft includes
-//#include "larsim/MCCheater/BackTrackerService.h" //Not used
 #include "larsim/MCCheater/ParticleInventoryService.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "lardataobj/RecoBase/Track.h"
@@ -43,7 +42,6 @@ namespace opreco {
   public:
  
     OpticalRecoAna(const fhicl::ParameterSet&);
-    virtual ~OpticalRecoAna();
 
     void beginJob();
     void analyze (const art::Event&); 

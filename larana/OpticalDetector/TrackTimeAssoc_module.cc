@@ -123,7 +123,6 @@ namespace opdet{
 #include <iostream>
 #include <sstream>
 #include <cstring>
-#include <vector>
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"

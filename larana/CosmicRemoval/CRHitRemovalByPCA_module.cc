@@ -21,7 +21,6 @@
 
 #include <cmath>
 #include <algorithm>
-#include <vector>
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
@@ -73,7 +72,6 @@ public:
 
     // Copnstructors, destructor.
     explicit CRHitRemovalByPCA(fhicl::ParameterSet const & pset);
-    virtual ~CRHitRemovalByPCA();
 
     // Overrides.
     virtual void reconfigure(fhicl::ParameterSet const & pset);
@@ -122,11 +120,6 @@ CRHitRemovalByPCA::CRHitRemovalByPCA(fhicl::ParameterSet const & pset) :
     // Report.
     mf::LogInfo("CRHitRemovalByPCA") << "CRHitRemovalByPCA configured\n";
 }
-
-//----------------------------------------------------------------------------
-/// Destructor.
-CRHitRemovalByPCA::~CRHitRemovalByPCA()
-{}
 
 //----------------------------------------------------------------------------
 /// Reconfigure method.

@@ -17,7 +17,6 @@ class TTree;
 
 // C++ includes
 #include <cstring>
-#include <vector>
 
 namespace opdet {
  
@@ -26,11 +25,6 @@ namespace opdet {
  
     // Standard constructor and destructor for an ART module.
     OpHitAna(const fhicl::ParameterSet&);
-    virtual ~OpHitAna();
-
-    // This method is called once, at the start of the job. In this
-    // example, it will define the histogram we'll write.
-    void beginJob();
 
     // The analyzer routine, called once per event. 
     void analyze (const art::Event&); 
@@ -107,13 +101,9 @@ namespace opdet {
 #include "TVector3.h"
 
 // C++ Includes
-#include <map>
-#include <vector>
-#include <iostream>
 #include <cstring>
 #include <sstream>
 #include "math.h"
-#include <climits>
 
 namespace opdet {
 
@@ -150,17 +140,6 @@ namespace opdet {
 
 
   }
-
-  //-----------------------------------------------------------------------
-  // Destructor
-  OpHitAna::~OpHitAna() 
-  {}
-   
-  //-----------------------------------------------------------------------
-  void OpHitAna::beginJob()
-  {
-  }
-   
 
   //-----------------------------------------------------------------------
   void OpHitAna::analyze(const art::Event& evt) 

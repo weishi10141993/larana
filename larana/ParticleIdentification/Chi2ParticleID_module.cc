@@ -10,7 +10,6 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 }
-#include <iostream>
 
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/AnalysisBase/ParticleID.h"

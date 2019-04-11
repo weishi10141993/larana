@@ -6,9 +6,7 @@
 #define MVAAlg_H
 #include <vector>
 #include <map>
-//#include <cmath>
 #include <iostream>
-//#include <stdint.h>
 
 #include "fhiclcpp/ParameterSet.h"
 #include "canvas/Persistency/Common/Ptr.h"
@@ -16,20 +14,13 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/EDProducer.h" 
 
-//#include "SimpleTypesAndConstants/geo_types.h"
-//#include "SimpleTypesAndConstants/RawTypes.h" // raw::ChannelID_t
-//#include "RecoBase/Wire.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/Cluster.h"
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
-//#include "RecoAlg/APAGeometryAlg.h"
 #include "larreco/Calorimetry/CalorimetryAlg.h"
-//#include "MCCheater/BackTracker.h"
 
-//#include "TMatrixD.h"
-//#include "TVectorD.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
 #include "TGraph2D.h"
@@ -81,8 +72,6 @@ struct SumDistance2 {
         
     MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule);
     
-    virtual ~MVAAlg();
-
     void GetDetectorEdges();
 
     void GetWireNormals();

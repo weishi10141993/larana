@@ -21,8 +21,6 @@
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
@@ -32,8 +30,6 @@
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "larcore/Geometry/Geometry.h"
 // STL
-#include <set>
-#include <vector>
 #include <cmath>
 #include <functional>
 #include <numeric>
@@ -60,12 +56,6 @@ namespace pmtana {
 
     /// Constructor
     PMTAna(const fhicl::ParameterSet&);
-
-    /// Destructor
-    virtual ~PMTAna();
-
-    /// Function to be called before an event loop
-    void beginJob(){}
 
     /// Function to be called per sub run
     void beginSubRun(const art::SubRun& /*srun*/){}
@@ -128,8 +118,6 @@ namespace pmtana {
     _preco_man.SetDefaultPedAlgo(&_ped_algo);
 
   }
-
-  PMTAna::~PMTAna(){}
 
   //#######################################################################################################
   void PMTAna::ClearEventData()

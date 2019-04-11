@@ -24,7 +24,6 @@
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <vector>
 #include <iostream>
 #include <cmath>
 #include <algorithm>

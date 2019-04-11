@@ -16,7 +16,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <string>
-#include <vector>
 #include <memory> // std::unique_ptr<>
 #include <utility> // std::pair<>, std::move()
 #include <algorithm> // std::minmax() ...

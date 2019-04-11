@@ -20,8 +20,6 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -51,10 +49,8 @@
 #include "nutools/RandomUtils/NuRandomService.h"
 
 // C++ language includes
-#include <iostream>
 #include <sstream>
 #include <cstring>
-#include <vector>
 
 namespace opdet {
 

@@ -18,18 +18,10 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
-// ROOT includes
 
 // C++ Includes
-#include <vector>
-#include <iostream>
 #include <cstring>
-#include <climits>
 
 namespace opdet {
  
@@ -38,10 +30,7 @@ namespace opdet {
  
         // Standard constructor and destructor for an ART module.
         explicit OpticalRawDigitReformatter(const fhicl::ParameterSet&);
-        virtual ~OpticalRawDigitReformatter();
 
-        void beginJob();
-        void endJob();
         void reconfigure(fhicl::ParameterSet const& pset);
 
         // The producer routine, called once per event. 
@@ -104,24 +93,6 @@ namespace opdet {
         fGenModule      = pset.get<std::string>("GenModule");
 
     }
-
-    //-----------------------------------------------------------------------
-    // Destructor
-    OpticalRawDigitReformatter::~OpticalRawDigitReformatter() 
-    {}
-   
-    //-----------------------------------------------------------------------
-    void OpticalRawDigitReformatter::beginJob()
-    {
-    }
-
-    //-----------------------------------------------------------------------
-    void OpticalRawDigitReformatter::endJob()
-    { 
-
-    }
-
-
 
     //-----------------------------------------------------------------------
     void OpticalRawDigitReformatter::produce(art::Event& evt) 

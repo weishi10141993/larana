@@ -15,8 +15,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
@@ -31,12 +29,9 @@
 
 // C++ Includes
 #include <map>
-#include <vector>
-#include <iostream>
 #include <cstring>
 #include <sstream>
 #include "math.h"
-#include <climits>
 
 namespace opdet {
  
@@ -45,11 +40,6 @@ namespace opdet {
  
     // Standard constructor and destructor for an ART module.
     FIFOHistogramAna(const fhicl::ParameterSet&);
-    virtual ~FIFOHistogramAna();
-
-    // This method is called once, at the start of the job. In this
-    // example, it will define the histogram we'll write.
-    void beginJob();
 
     // The analyzer routine, called once per event. 
     void analyze (const art::Event&); 
@@ -74,17 +64,6 @@ namespace opdet {
     fInputModule = pset.get<std::string>("InputModule");
     
   }
-
-  //-----------------------------------------------------------------------
-  // Destructor
-  FIFOHistogramAna::~FIFOHistogramAna() 
-  {}
-   
-  //-----------------------------------------------------------------------
-  void FIFOHistogramAna::beginJob()
-  {
-  }
-   
 
   //-----------------------------------------------------------------------
   void FIFOHistogramAna::analyze(const art::Event& evt) 

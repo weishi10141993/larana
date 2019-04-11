@@ -15,7 +15,6 @@
 
 // C++ includes
 #include <cstring>
-#include <vector>
 
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
@@ -27,11 +26,6 @@ namespace opdet {
  
     // Standard constructor and destructor for an ART module.
     OpFlashMCTruthAna(const fhicl::ParameterSet&);
-    virtual ~OpFlashMCTruthAna();
-
-    // This method is called once, at the start of the job. In this
-    // example, it will define the histogram we'll write.
-    void beginJob();
 
     // The analyzer routine, called once per event. 
     void analyze (const art::Event&); 
@@ -104,13 +98,10 @@ namespace opdet {
 #include "TVector3.h"
 
 // C++ Includes
-#include <map>
-#include <vector>
 #include <iostream>
 #include <cstring>
 #include <sstream>
 #include "math.h"
-#include <climits>
 
 namespace opdet {
 
@@ -181,17 +172,6 @@ namespace opdet {
    
     
   }
-
-  //-----------------------------------------------------------------------
-  // Destructor
-  OpFlashMCTruthAna::~OpFlashMCTruthAna() 
-  {}
-   
-  //-----------------------------------------------------------------------
-  void OpFlashMCTruthAna::beginJob()
-  {
-  }
-   
 
   //-----------------------------------------------------------------------
   void OpFlashMCTruthAna::analyze(const art::Event& evt) 

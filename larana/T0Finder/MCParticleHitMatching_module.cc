@@ -29,8 +29,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
-#include <iostream>
-#include <map>
 #include <iterator>
 
 // LArSoft

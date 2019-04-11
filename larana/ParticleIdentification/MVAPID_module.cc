@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 // ### Generic C++ includes ###
-#include <iostream>
 
 // ### Framework includes ###
 #include "art/Framework/Core/ModuleMacros.h"

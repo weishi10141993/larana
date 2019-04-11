@@ -1,4 +1,3 @@
-
 #include "larana/T0Finder/AssociationsTools/IHitParticleAssociations.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -43,11 +42,6 @@ public:
      */
     explicit IndirectHitParticleAssns(fhicl::ParameterSet const & pset);
     
-    /**
-     *  @brief  Destructor
-     */
-    ~IndirectHitParticleAssns();
-    
     // provide for initialization
     void reconfigure(fhicl::ParameterSet const & pset) override;
     
@@ -78,11 +72,6 @@ IndirectHitParticleAssns::IndirectHitParticleAssns(fhicl::ParameterSet const & p
     // Report.
     mf::LogInfo("IndirectHitParticleAssns") << "Configured\n";
 }
-
-//----------------------------------------------------------------------------
-/// Destructor.
-IndirectHitParticleAssns::~IndirectHitParticleAssns()
-{}
 
 //----------------------------------------------------------------------------
 /// Reconfigure method.

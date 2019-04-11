@@ -23,7 +23,6 @@
 
 #include <cmath>
 #include <algorithm>
-#include <vector>
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
@@ -48,7 +47,6 @@ public:
     
     // Copnstructors, destructor.
     explicit CRHitRemoval(fhicl::ParameterSet const & pset);
-    virtual ~CRHitRemoval();
     
     // Overrides.
     virtual void reconfigure(fhicl::ParameterSet const & pset);
@@ -124,11 +122,6 @@ fNumCRRejects(0)
     // Report.
     mf::LogInfo("CRHitRemoval") << "CRHitRemoval configured\n";
 }
-
-//----------------------------------------------------------------------------
-/// Destructor.
-CRHitRemoval::~CRHitRemoval()
-{}
 
 //----------------------------------------------------------------------------
 /// Reconfigure method.

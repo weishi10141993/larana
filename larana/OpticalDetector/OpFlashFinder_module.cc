@@ -29,7 +29,6 @@
 // ROOT includes
 
 // C++ Includes
-#include <vector>
 #include <string>
 #include <memory>
 

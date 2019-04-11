@@ -42,12 +42,6 @@ opreco::OpticalRecoAna::OpticalRecoAna(fhicl::ParameterSet const& pset): EDAnaly
 
 
 
-// Destructor
-opreco::OpticalRecoAna::~OpticalRecoAna() 
-{}
-
-
-
 // Do something here to setup the file (like make a TTree)
 void opreco::OpticalRecoAna::beginJob()
 {

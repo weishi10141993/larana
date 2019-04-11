@@ -69,8 +69,6 @@ mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* p
   }
 }
 
-mvapid::MVAAlg::~MVAAlg(){}
-    
 void mvapid::MVAAlg::reconfigure(fhicl::ParameterSet const& p){}
 
 int mvapid::MVAAlg::IsInActiveVol(const TVector3& pos)
@@ -750,4 +748,3 @@ int mvapid::MVAAlg::LinFitShower(const art::Ptr<recob::Shower> shower,TVector3& 
     return 0;
   }
 }
-

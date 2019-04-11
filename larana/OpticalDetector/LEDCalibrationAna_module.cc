@@ -19,8 +19,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
@@ -36,12 +34,10 @@
 
 // C++ Includes
 #include <map>
-#include <vector>
 #include <iostream>
 #include <cstring>
 #include <sstream>
 #include "math.h"
-#include <climits>
 
 namespace opdet {
  
@@ -50,9 +46,6 @@ namespace opdet {
  
     // Standard constructor and destructor for an ART module.
     LEDCalibrationAna(const fhicl::ParameterSet&);
-    virtual ~LEDCalibrationAna();
-
-    void beginJob();
 
     void endJob();
 
@@ -157,16 +150,6 @@ namespace opdet {
     fPulseTreeNonCoinc->Branch("EventID",  &fEventID,  "EventID/I");
     fPulseTreeNonCoinc->Branch("RunID",    &fRunID,    "RunID/I");
 
-  }
-
-  //-----------------------------------------------------------------------
-  // Destructor
-  LEDCalibrationAna::~LEDCalibrationAna() 
-  {}
-   
-  //-----------------------------------------------------------------------
-  void LEDCalibrationAna::beginJob()
-  {
   }
 
   //-----------------------------------------------------------------------

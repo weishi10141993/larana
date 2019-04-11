@@ -22,11 +22,7 @@ namespace pmtana {
     
   public:
     
-    // Default constructor
     AlgoSiPM(const fhicl::ParameterSet &pset,const std::string name="AlgoSiPM");
-    
-    // Default destructor
-    ~AlgoSiPM();
     
     // Implementation of PMTPulseRecoBase::Reset() method
     void Reset();

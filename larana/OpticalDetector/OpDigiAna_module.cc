@@ -31,13 +31,9 @@
 #include "TVector3.h"
 
 // C++ Includes
-#include <map>
-#include <vector>
-#include <iostream>
 #include <cstring>
 #include <sstream>
 #include "math.h"
-#include <climits>
 
 namespace opdet {
  

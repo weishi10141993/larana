@@ -10,13 +10,10 @@
 #include "TTree.h"
 
 // C++ includes
-#include <map>
-#include <vector>
 #include <iostream>
 #include <cstring>
 #include <sstream>
 #include "math.h"
-#include <climits>
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
@@ -52,11 +49,6 @@ namespace opdet {
  
     // Standard constructor and destructor for an ART module.
     FlashPurityCheckAna(const fhicl::ParameterSet&);
-    virtual ~FlashPurityCheckAna();
-
-    // This method is called once, at the start of the job. In this
-    // example, it will define the histogram we'll write.
-    void beginJob();
 
     // The analyzer routine, called once per event. 
     void analyze (const art::Event&); 
@@ -125,17 +117,6 @@ namespace opdet {
 
     
   }
-
-  //-----------------------------------------------------------------------
-  // Destructor
-  FlashPurityCheckAna::~FlashPurityCheckAna() 
-  {}
-   
-  //-----------------------------------------------------------------------
-  void FlashPurityCheckAna::beginJob()
-  {
-  }
-   
 
   //-----------------------------------------------------------------------
   void FlashPurityCheckAna::analyze(const art::Event& evt) 

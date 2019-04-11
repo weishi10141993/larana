@@ -63,8 +63,6 @@ namespace opdet{
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
@@ -82,10 +80,8 @@ namespace opdet{
 #include <TRandom.h>
 
 // C++ language includes
-#include <iostream>
 #include <sstream>
 #include <cstring>
-#include <vector>
 
 
 // Debug flag; only used during code development.

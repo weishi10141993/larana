@@ -43,7 +43,6 @@
 
 // C++ Includes
 #include <map>
-#include <vector>
 #include <string>
 #include <memory>
 
