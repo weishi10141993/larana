@@ -100,7 +100,6 @@ namespace opdet {
 // C++ Includes
 #include <iostream>
 #include <cstring>
-#include <sstream>
 #include "math.h"
 
 namespace opdet {

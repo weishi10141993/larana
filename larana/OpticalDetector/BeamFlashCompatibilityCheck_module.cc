@@ -113,7 +113,6 @@ namespace opdet{
 #include "TH2D.h"
 
 // C++ language includes
-#include <sstream>
 #include <cstring>
 
 #include "CLHEP/Random/RandFlat.h"

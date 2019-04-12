@@ -22,7 +22,6 @@ namespace opreco {
 
 // C++ Includes
 #include <iostream>
-#include <sstream>
 
   // Constructor
 opreco::OpticalRecoAna::OpticalRecoAna(fhicl::ParameterSet const& pset): EDAnalyzer(pset)

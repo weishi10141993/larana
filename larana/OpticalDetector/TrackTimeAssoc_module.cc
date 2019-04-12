@@ -121,7 +121,6 @@ namespace opdet{
 
 // C++ language includes
 #include <iostream>
-#include <sstream>
 #include <cstring>
 
 #include "CLHEP/Random/RandFlat.h"

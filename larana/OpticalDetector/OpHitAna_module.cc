@@ -102,7 +102,6 @@ namespace opdet {
 
 // C++ Includes
 #include <cstring>
-#include <sstream>
 #include "math.h"
 
 namespace opdet {

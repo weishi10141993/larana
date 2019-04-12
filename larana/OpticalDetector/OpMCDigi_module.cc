@@ -49,7 +49,6 @@
 #include "nutools/RandomUtils/NuRandomService.h"
 
 // C++ language includes
-#include <sstream>
 #include <cstring>
 
 namespace opdet {

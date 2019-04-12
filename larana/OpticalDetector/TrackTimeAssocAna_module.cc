@@ -11,7 +11,6 @@
 
 // C++ includes
 #include <cstring>
-#include <sstream>
 #include "math.h"
 
 // LArSoft includes
