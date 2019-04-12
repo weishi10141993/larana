@@ -47,10 +47,10 @@
 #include <memory>
 
 namespace opdet {
- 
+
   class OpHitFinder : public art::EDProducer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     explicit OpHitFinder(const fhicl::ParameterSet&);
     virtual ~OpHitFinder();
@@ -59,9 +59,9 @@ namespace opdet {
     void endJob();
     void reconfigure(fhicl::ParameterSet const& pset);
 
-    // The producer routine, called once per event. 
-    void produce(art::Event&); 
-    
+    // The producer routine, called once per event.
+    void produce(art::Event&);
+
     std::map< int, int >  GetChannelMap();
     std::vector< double > GetSPEScales();
     std::vector< double > GetSPEShifts();
@@ -73,7 +73,7 @@ namespace opdet {
     std::string fGenModule;
     std::vector< std::string > fInputLabels;
     std::set< unsigned int > fChannelMasks;
-    
+
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::PMTPulseRecoBase* fThreshAlg;
     pmtana::PMTPedestalBase*  fPedAlg;
@@ -84,7 +84,7 @@ namespace opdet {
     calib::IPhotonCalibrator const* fCalib = nullptr;
   };
 
-} 
+}
 
 namespace opdet {
   DEFINE_ART_MODULE(OpHitFinder)
@@ -104,9 +104,9 @@ namespace opdet {
     // Initialize the hit finder algorithm
     auto const hit_alg_pset = pset.get< fhicl::ParameterSet >("HitAlgoPset");
     std::string threshAlgName = hit_alg_pset.get< std::string >("Name");
-    if      (threshAlgName == "Threshold") 
+    if      (threshAlgName == "Threshold")
       fThreshAlg = new pmtana::AlgoThreshold(hit_alg_pset);
-    else if (threshAlgName == "SiPM") 
+    else if (threshAlgName == "SiPM")
       fThreshAlg = new pmtana::AlgoSiPM(hit_alg_pset);
     else if (threshAlgName == "SlidingWindow")
       fThreshAlg = new pmtana::AlgoSlidingWindow(hit_alg_pset);
@@ -115,8 +115,8 @@ namespace opdet {
     else if (threshAlgName == "CFD" )
       fThreshAlg = new pmtana::AlgoCFD(hit_alg_pset);
     else throw art::Exception(art::errors::UnimplementedFeature)
-                    << "Cannot find implementation for " 
-                    << threshAlgName << " algorithm.\n";   
+                    << "Cannot find implementation for "
+                    << threshAlgName << " algorithm.\n";
 
     auto const ped_alg_pset = pset.get< fhicl::ParameterSet >("PedAlgoPset");
     std::string pedAlgName = ped_alg_pset.get< std::string >("Name");
@@ -127,8 +127,8 @@ namespace opdet {
     else if (pedAlgName == "UB"   )
       fPedAlg = new pmtana::PedAlgoUB(ped_alg_pset);
     else throw art::Exception(art::errors::UnimplementedFeature)
-                    << "Cannot find implementation for " 
-                    << pedAlgName << " algorithm.\n";   
+                    << "Cannot find implementation for "
+                    << pedAlgName << " algorithm.\n";
 
     produces< std::vector< recob::OpHit > >();
 
@@ -145,7 +145,7 @@ namespace opdet {
     fInputModule   = pset.get< std::string >("InputModule");
     fGenModule     = pset.get< std::string >("GenModule");
     fInputLabels   = pset.get< std::vector< std::string > >("InputLabels");
-      
+
     for (auto const& ch : pset.get< std::vector< unsigned int > >
                             ("ChannelMasks", std::vector< unsigned int >()))
       fChannelMasks.insert(ch);
@@ -155,7 +155,7 @@ namespace opdet {
 
     auto const& geometry(*lar::providerFrom< geo::Geometry >());
     fMaxOpChannel = geometry.MaxOpChannel();
-    
+
     if (useCalibrator) {
       // If useCalibrator, get it from ART
       fCalib = lar::providerFrom<calib::IPhotonCalibratorService>();
@@ -174,21 +174,21 @@ namespace opdet {
       if (fCalib) {
         delete fCalib;
       }
-      
+
       fCalib = new calib::PhotonCalibratorStandard(SPEArea, SPEShift, areaToPE);
     }
   }
 
   //----------------------------------------------------------------------------
   // Destructor
-  OpHitFinder::~OpHitFinder() 
+  OpHitFinder::~OpHitFinder()
   {
-  
+
     delete fThreshAlg;
     delete fPedAlg;
 
   }
-   
+
   //----------------------------------------------------------------------------
   void OpHitFinder::beginJob()
   {
@@ -196,11 +196,11 @@ namespace opdet {
 
   //----------------------------------------------------------------------------
   void OpHitFinder::endJob()
-  { 
+  {
   }
 
   //----------------------------------------------------------------------------
-  void OpHitFinder::produce(art::Event& evt) 
+  void OpHitFinder::produce(art::Event& evt)
   {
 
     // These is the storage pointer we will put in the event
@@ -208,12 +208,12 @@ namespace opdet {
                       HitPtr(new std::vector< recob::OpHit >);
 
     std::vector< const sim::BeamGateInfo* > beamGateArray;
-    try 
-    { 
-      evt.getView(fGenModule, beamGateArray); 
+    try
+    {
+      evt.getView(fGenModule, beamGateArray);
     }
-    catch (art::Exception const& err) 
-    { 
+    catch (art::Exception const& err)
+    {
       if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
     }
 
@@ -226,7 +226,7 @@ namespace opdet {
 
     // Reserve a large enough array
     int totalsize = 0;
-    for (auto label : fInputLabels) 
+    for (auto label : fInputLabels)
     {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
       evt.getByLabel(fInputModule, label, wfHandle);
@@ -237,17 +237,17 @@ namespace opdet {
     // Load pulses into WaveformVector
     std::vector< raw::OpDetWaveform > WaveformVector;
     WaveformVector.reserve(totalsize);
-    for (auto label : fInputLabels) 
+    for (auto label : fInputLabels)
     {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
       evt.getByLabel(fInputModule, label, wfHandle);
       if (!wfHandle.isValid()) continue; // Skip non-existent collections
 
-      //WaveformVector.insert(WaveformVector.end(), 
+      //WaveformVector.insert(WaveformVector.end(),
       //                      wfHandle->begin(), wfHandle->end());
-      for(auto const& wf : *wfHandle) 
+      for(auto const& wf : *wfHandle)
       {
-        if (fChannelMasks.find(wf.ChannelNumber()) 
+        if (fChannelMasks.find(wf.ChannelNumber())
             != fChannelMasks.end()) continue;
         WaveformVector.push_back(wf);
       }
@@ -264,7 +264,7 @@ namespace opdet {
 
     // Store results into the event
     evt.put(std::move(HitPtr));
-    
+
   }
 
 } // namespace opdet

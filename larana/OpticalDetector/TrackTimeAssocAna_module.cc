@@ -35,15 +35,15 @@
 
 
 namespace opdet {
- 
+
   class TrackTimeAssocAna : public art::EDAnalyzer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     TrackTimeAssocAna(const fhicl::ParameterSet&);
 
-    // The analyzer routine, called once per event. 
-    void analyze (const art::Event&); 
+    // The analyzer routine, called once per event.
+    void analyze (const art::Event&);
 
   private:
 
@@ -54,7 +54,7 @@ namespace opdet {
     std::string fMatchModuleLabel;
 
     TTree * fMatchTree;
-    
+
     // Match variables
     Int_t   fEventID;
     Int_t   fMatchID;
@@ -63,7 +63,7 @@ namespace opdet {
     Float_t fChi2;
 
     // Flash variables
-    Float_t fFFlashTime; 
+    Float_t fFFlashTime;
     Float_t fFAbsTime;
     Float_t fFTimeWidth;
     bool    fFInBeamFrame;
@@ -80,7 +80,7 @@ namespace opdet {
     Float_t fFWCenter;
     Float_t fFWWidth;
     Float_t fFFastToTotal;
-    
+
     // Track variables
     Float_t fTEnd1X;
     Float_t fTEnd2X;
@@ -89,11 +89,11 @@ namespace opdet {
     Float_t fTEnd1Z;
     Float_t fTEnd2Z;
     Float_t fTLength;
- 
+
 
   };
 
-} 
+}
 
 namespace opdet {
 
@@ -110,12 +110,12 @@ namespace opdet {
     art::ServiceHandle<art::TFileService const> tfs;
 
     fMatchTree = tfs->make<TTree>("MatchTree","MatchTree");
-    
+
     fMatchTree->Branch("EventID", &fEventID, "EventID/I");
     fMatchTree->Branch("FlashID", &fFlashID, "FlashID/I");
     fMatchTree->Branch("TrackID", &fTrackID, "TrackID/I");
     fMatchTree->Branch("Chi2",    &fChi2,    "Chi2/F");
-    
+
 
     // Flash variables
     fMatchTree->Branch("FFlashTime",    &fFFlashTime,    "FFlashTime/F");
@@ -133,27 +133,27 @@ namespace opdet {
     fMatchTree->Branch("FVCenter",      &fFVCenter,      "FVCenter/F");
     fMatchTree->Branch("FVWidth",       &fFVWidth,       "FVWidth/F");
     fMatchTree->Branch("FWCenter",      &fFWCenter,      "FWCenter/F");
-    fMatchTree->Branch("FWWidth",       &fFWWidth,       "FWWidth/F"); 
-    fMatchTree->Branch("FFastToTotal",  &fFFastToTotal,  "FFastToTotal/F"); 
+    fMatchTree->Branch("FWWidth",       &fFWWidth,       "FWWidth/F");
+    fMatchTree->Branch("FFastToTotal",  &fFFastToTotal,  "FFastToTotal/F");
 
-    fMatchTree->Branch("TEnd1X",        &fTEnd1X,        "TEnd1X/F"); 
-    fMatchTree->Branch("TEnd1Y",        &fTEnd1Y,        "TEnd1Y/F"); 
-    fMatchTree->Branch("TEnd1Z",        &fTEnd1Z,        "TEnd1Z/F"); 
-    fMatchTree->Branch("TEnd2X",        &fTEnd2X,        "TEnd2X/F"); 
-    fMatchTree->Branch("TEnd2Y",        &fTEnd2Y,        "TEnd2Y/F"); 
-    fMatchTree->Branch("TEnd2Z",        &fTEnd2Z,        "TEnd2Z/F"); 
-    fMatchTree->Branch("TLength",       &fTLength,       "TLength/F"); 
+    fMatchTree->Branch("TEnd1X",        &fTEnd1X,        "TEnd1X/F");
+    fMatchTree->Branch("TEnd1Y",        &fTEnd1Y,        "TEnd1Y/F");
+    fMatchTree->Branch("TEnd1Z",        &fTEnd1Z,        "TEnd1Z/F");
+    fMatchTree->Branch("TEnd2X",        &fTEnd2X,        "TEnd2X/F");
+    fMatchTree->Branch("TEnd2Y",        &fTEnd2Y,        "TEnd2Y/F");
+    fMatchTree->Branch("TEnd2Z",        &fTEnd2Z,        "TEnd2Z/F");
+    fMatchTree->Branch("TLength",       &fTLength,       "TLength/F");
 
   }
 
   //-----------------------------------------------------------------------
-  void TrackTimeAssocAna::analyze(const art::Event& evt) 
+  void TrackTimeAssocAna::analyze(const art::Event& evt)
   {
-    
+
     // Get flashes from event
     art::Handle< std::vector< anab::FlashMatch > > MatchHandle;
     evt.getByLabel(fMatchModuleLabel, MatchHandle);
-    
+
     art::PtrVector<anab::FlashMatch> MatchVec;
     for(unsigned int i = 0; i < MatchHandle->size(); ++i){
       art::Ptr<anab::FlashMatch> match(MatchHandle, i);
@@ -161,7 +161,7 @@ namespace opdet {
     }
 
     art::FindManyP<recob::OpFlash> FlashesFMH(MatchHandle, evt, fMatchModuleLabel);
-    
+
     art::FindManyP<recob::Track>   TracksFMH(MatchHandle,  evt, fMatchModuleLabel);
 
 
@@ -173,7 +173,7 @@ namespace opdet {
 	fTrackID  = MatchVec.at(iMatch)->SubjectID();
 	fFlashID  = MatchVec.at(iMatch)->FlashID();
 	fChi2     = MatchVec.at(iMatch)->Chi2();
-	
+
 	std::vector<art::Ptr<recob::Track> >   Tracks  = TracksFMH.at(iMatch);
 	std::vector<art::Ptr<recob::OpFlash> > Flashes = FlashesFMH.at(iMatch);
 
@@ -188,9 +188,9 @@ namespace opdet {
 	    mf::LogError("TrackTimeAssocAna")<<"ERROR! Match to " << Flashes.size()<<" flashes - should be one!";
 	    continue;
 	  }
-	
+
 	// Fill flash variables
-	fFFlashTime   = Flashes.at(0)->Time(); 
+	fFFlashTime   = Flashes.at(0)->Time();
         fFAbsTime     = Flashes.at(0)->AbsTime();
 	fFTimeWidth   = Flashes.at(0)->TimeWidth();
 	fFInBeamFrame = Flashes.at(0)->InBeamFrame();
@@ -207,8 +207,8 @@ namespace opdet {
 	fFWCenter     = Flashes.at(0)->WireCenters()[2];
 	fFWWidth      = Flashes.at(0)->WireWidths()[2];
         fFFastToTotal = Flashes.at(0)->FastToTotal();
-	
-	
+
+
 	// Fill track variables
 	fTEnd1X = Tracks.at(0)->Vertex().X();
 	fTEnd1Y = Tracks.at(0)->Vertex().Y();
@@ -217,12 +217,12 @@ namespace opdet {
         fTEnd2Y = Tracks.at(0)->End().Y();
 	fTEnd2Z = Tracks.at(0)->End().Z();
 
-        fTLength = Tracks.at(0)->Length();	
+        fTLength = Tracks.at(0)->Length();
 
 	fMatchTree->Fill();
-      } 
+      }
 
-    
+
   }
 
 } // namespace opdet

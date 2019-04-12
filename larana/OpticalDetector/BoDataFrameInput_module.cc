@@ -1,4 +1,4 @@
-// \file BoDataFrameInput.h 
+// \file BoDataFrameInput.h
 // \author Ben Jones, MIT, Jan 2013
 //   bjpjones@mit.edu
 //
@@ -21,20 +21,20 @@ namespace opdet {
 
   class BoDataFrameInput : public art::EDProducer{
     public:
-      
+
       BoDataFrameInput(const fhicl::ParameterSet&);
       virtual ~BoDataFrameInput();
-      
+
       void produce(art::Event&);
-      
+
       void beginJob();
-      
-     
+
+
     private:
-      
+
       // The parameters we'll read from the .fcl file.
       std::string   fInputFile;
-      std::ifstream fTextFile; 
+      std::ifstream fTextFile;
 
   };
 }
@@ -55,7 +55,7 @@ namespace opdet{
 }//end namespace opdet
 ////////////////////////////////////////////////////////////////////////
 
-// \file BoDataFrameInput.cxx  
+// \file BoDataFrameInput.cxx
 //
 //
 
@@ -88,7 +88,7 @@ namespace opdet{
 // const bool debug = true;
 
 namespace opdet {
-  
+
 
   BoDataFrameInput::BoDataFrameInput(fhicl::ParameterSet const& pset)
     : EDProducer{pset}
@@ -97,8 +97,8 @@ namespace opdet {
     produces<std::vector< raw::OpDetPulse> >();
 
     // Input filename read from fcl
-    fInputFile = pset.get<std::string>("InputFile");    
-    std::string FullFilePath(""); 
+    fInputFile = pset.get<std::string>("InputFile");
+    std::string FullFilePath("");
     cet::search_path sp("FW_SEARCH_PATH");
     if( !sp.find_file(fInputFile, FullFilePath) )
       throw cet::exception("BoDataFrameInput") << "Unable to find optical data file in " << sp.to_string() << "\n";
@@ -109,7 +109,7 @@ namespace opdet {
     getline(fTextFile, sub, ',');
     if(sub.substr(0,3)!=std::string("evt"))
       {
-	mf::LogInfo("BoDataFrameInput")<<"Warning: first command in text file is not an evt block as expected. Trying to persevere anyway : " << sub; 
+	mf::LogInfo("BoDataFrameInput")<<"Warning: first command in text file is not an evt block as expected. Trying to persevere anyway : " << sub;
       }
 
 
@@ -119,7 +119,7 @@ namespace opdet {
     fTextFile.open(FullFilePath);
 
   }
-  
+
   //-------------------------------------------------
 
 
@@ -129,11 +129,11 @@ namespace opdet {
 
 
   //-------------------------------------------------
-  
-  BoDataFrameInput::~BoDataFrameInput() 
+
+  BoDataFrameInput::~BoDataFrameInput()
   {
   }
-  
+
 
   //-------------------------------------------------
 
@@ -141,7 +141,7 @@ namespace opdet {
   {
     // Infrastructure piece
     std::unique_ptr<std::vector< raw::OpDetPulse > >  StoragePtr (new std::vector<raw::OpDetPulse>);
- 
+
     // Create vector of pointers to our waveform pulses for each OpDet
     std::vector<raw::OpDetPulse*> ThePulses;
 
@@ -173,9 +173,9 @@ namespace opdet {
     unsigned int FirstSample=0;
 
     std::map<int, std::vector<raw::OpDetPulse*> > PulsesThisEvent;
-    
+
     while(fTextFile.good() && ContinueRead)
-      {    
+      {
 	getline(fTextFile, line);
 	std::stringstream linestream(line);
 	while(linestream.good() && ContinueRead)
@@ -187,7 +187,7 @@ namespace opdet {
 	    ss>>Command;
 	    ss>>Value;
 	    mf::LogInfo("BoDataFrameInput")<<"Parsed a single line as  C: " << Command<< "  V: "<<Value;
-	    
+
 	    // Structural commands
 	    if(Command=="evt")
 	      {
@@ -202,7 +202,7 @@ namespace opdet {
 		if(ChannelsThisEvent==0)
 		  ChannelsThisEvent=Value;
 		else
-		  mf::LogInfo("BoDataFrameInput")<<"Confused by data input: nch specified twice for the same event. Persevering anyway...";	
+		  mf::LogInfo("BoDataFrameInput")<<"Confused by data input: nch specified twice for the same event. Persevering anyway...";
 	      }
 	    else if(Command=="mod")
 	      {
@@ -224,15 +224,15 @@ namespace opdet {
 
 
 	    // Per readout window commands
-	    
+
 	    else if(Command=="chn")
 	      {
 		// chn tells us the channel number on the shaper board
 		mf::LogInfo("BoDataFrameInput")<<"Beginning channel " <<Value;
-	
+
 		CurrentChannel = Value;
-		PulsesThisEvent[CurrentChannel].push_back( new raw::OpDetPulse(CurrentChannel) );	
-		
+		PulsesThisEvent[CurrentChannel].push_back( new raw::OpDetPulse(CurrentChannel) );
+
 		FirstSample    = 0;
 		PMTFrameNumber = 0;
 	      }
@@ -252,20 +252,20 @@ namespace opdet {
 	    else if(Command=="pfr")
 	      {
 		// This part is a bit complicated.
-		// The PMT frame number tells us which readout frame 
+		// The PMT frame number tells us which readout frame
 		//  this signal occupies.
 		// The PMT frame always occurs after the event frame.
 		// The pfr value is the last 3 bits of the PMT frame number
 		// So the goal is to find the first number after efr with
 		//  these last 3 bits.
 
-		// In practice : 
+		// In practice :
 		//  if the last 3 bits of efr are > pfr
-		//    the PMT frame is (all but 3 lsb of)efr + 8 + pfr  
+		//    the PMT frame is (all but 3 lsb of)efr + 8 + pfr
 		//  if the last 3 bits of efr are < pfr
 		//    the PMT frame is (all but 3 lsb of)efr + pfr
 
-		// This mask gets the 3LSB 
+		// This mask gets the 3LSB
 		int mask = 0x007;
 
 		int EvLowBits =  EventFrameNumber & mask;
@@ -287,18 +287,18 @@ namespace opdet {
 		  {
 		    mf::LogError("BoDataFrameInput") << "pfr routine confused - this should be impossible";
 		  }
-		
+
 		PulsesThisEvent[CurrentChannel].at(PulsesThisEvent[CurrentChannel].size()-1)->SetPMTFrame(PMTFrameNumber);
-		
+
 	      }
 	    else if(Command=="adc")
 	      {
 		// Add one sample to the pulse object
 		PulsesThisEvent[CurrentChannel].at(PulsesThisEvent[CurrentChannel].size()-1)->Waveform().push_back(Value);
 	      }
-	  }  
-      }    
-    
+	  }
+      }
+
 
     // Now pack away the pulses we found into the event
     for(std::map<int, std::vector<raw::OpDetPulse*> >::const_iterator it = PulsesThisEvent.begin();
@@ -309,7 +309,7 @@ namespace opdet {
 	    StoragePtr->push_back( *(it->second.at(pulse)) );
 	  }
       }
-    
+
     evt.put(std::move(StoragePtr));
-  }  
+  }
 }

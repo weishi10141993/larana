@@ -17,7 +17,7 @@ namespace opdet{
     {
         this->doReconfigure(pset);
     }
-    
+
     //--------------------------------------------------------------------
     void DefaultOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
     {
@@ -38,7 +38,7 @@ namespace opdet{
         newOpChannel = OpChannel;
         return true;
     }
-    
+
     //--------------------------------------------------------------------
     bool DefaultOpDetResponse::doDetectedLite(int OpChannel, int &newOpChannel) const
     {

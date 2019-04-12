@@ -31,7 +31,7 @@ namespace opdet
 
     }; // class DefaultOpDetResponse
 
-    
+
 } //namespace opdet
 
 

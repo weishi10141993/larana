@@ -26,10 +26,10 @@ namespace pmtana{
   //************************************************************************************
   {
     if(!algo) throw OpticalRecoException("Invalid PulseReco algorithm!");
-    
+
      _reco_algo_v.push_back(std::make_pair(algo,ped_algo));
   }
-  
+
   //**************************************************************
   void PulseRecoManager::SetDefaultPedAlgo (PMTPedestalBase* algo)
   //**************************************************************
@@ -47,9 +47,9 @@ namespace pmtana{
       throw OpticalRecoException("No Pulse/Pedestal reconstruction to run!");
 
     bool ped_status = true;
-    
+
     if(_ped_algo)
-      
+
       ped_status = _ped_algo->Evaluate(wf);
 
     bool pulse_reco_status = ped_status;
@@ -75,15 +75,15 @@ namespace pmtana{
 	  ss << "No pedestal algorithm available for pulse algo " << pulse_algo->Name();
 	  throw OpticalRecoException(ss.str());
 	}
-	
+
 	pulse_reco_status = ( pulse_reco_status &&
 			      pulse_algo->Reconstruct( wf, _ped_algo->Mean(), _ped_algo->Sigma() )
 			      );
       }
     }
-	
+
     return pulse_reco_status;
-  
+
   }
 
 }

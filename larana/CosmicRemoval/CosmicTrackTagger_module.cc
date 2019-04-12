@@ -121,7 +121,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
   /////////////////////////////////
   // LOOPING OVER INSPILL TRACKS
   /////////////////////////////////
-  
+
     art::FindManyP<recob::Hit>        hitsSpill   (Trk_h, e, fTrackModuleLabel);
     //    art::FindManyP<recob::Cluster>    ClusterSpill(Trk_h, e, fTrackModuleLabel);
 
@@ -132,7 +132,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 
         art::Ptr<recob::Track>              tTrack  = TrkVec.at(iTrack);
         std::vector<art::Ptr<recob::Hit> >  HitVec  = hitsSpill.at(iTrack);
-        
+
         if (iTrack != tTrack.key())
         {
             std::cout << "Mismatch in track index/key" << std::endl;
@@ -183,7 +183,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
         float tick1 =  9999;
         float tick2 = -9999;
         bool dumpMe(false);
-      
+
         for ( unsigned int p = 0; p < HitVec.size(); p++) {
             if (dumpMe)
             {
@@ -192,7 +192,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
             if( HitVec[p]->PeakTimeMinusRMS() < tick1 ) tick1 =  HitVec[p]->PeakTimeMinusRMS();
             if( HitVec[p]->PeakTimePlusRMS()  > tick2 ) tick2 =  HitVec[p]->PeakTimePlusRMS();
         }
-      
+
 
         /////////////////////////////////////////////////////////
         // Are any of the ticks outside of the ReadOutWindow ?
@@ -216,13 +216,13 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
                fabs( fDetHalfHeight + trackEndPt2_Y ) < fTPCYBoundary ||
                trackEndPt1_Y < -fDetHalfHeight ||
                trackEndPt2_Y < -fDetHalfHeight ) nBdY++;
-	
+
             // Checking upper side of TPC
             if( fabs( fDetHalfHeight - trackEndPt1_Y ) < fTPCYBoundary ||
                fabs( fDetHalfHeight - trackEndPt2_Y ) < fTPCYBoundary ||
                trackEndPt1_Y > fDetHalfHeight ||
                trackEndPt2_Y > fDetHalfHeight ) nBdY++;
-	
+
             if(fabs(trackEndPt1_Z - fDetLength)<fTPCZBoundary || fabs(trackEndPt2_Z - fDetLength) < fTPCZBoundary ) nBdZ++;
             if(fabs(trackEndPt1_Z )< fTPCZBoundary || fabs(trackEndPt2_Z )< fTPCZBoundary ) nBdZ++;
             if( (nBdY+nBdZ)>1 ) {
@@ -281,17 +281,17 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 					  cosmicScore,
 					  tag_id);
 
-//      std::cerr << "The IsCosmic value is "<< isCosmic << " end pts " 
-//		<< trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | " 
+//      std::cerr << "The IsCosmic value is "<< isCosmic << " end pts "
+//		<< trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | "
 //		<< trackEndPt2_X<< ","<< trackEndPt2_Y <<"," << trackEndPt2_Z << std::endl;
-      
+
       //outTracksForTags->push_back( *tTrack );
 
         util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrack, *assnOutCosmicTagTrack );
         //util::CreateAssn(*this, e, *cosmicTagTrackVector, HitVec, *assnOutCosmicTagHit);
     }
     // END OF LOOPING OVER INSPILL TRACKS
-    
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //////TAGGING DELTA RAYS (and other stub) ASSOCIATED TO A ALREADY TAGGED COSMIC TRACK//////////
@@ -299,7 +299,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
     float         dE=0, dS=0, temp=0, IScore=0;
     unsigned int  IndexE = 0, iTrk1=0, iTrk=0;
     anab::CosmicTagID_t IType=anab::CosmicTagID_t::kNotTagged;
-        
+
     for(iTrk=0; iTrk<Trk_h->size(); iTrk++ ){
         art::Ptr<recob::Track> tTrk  = TrkVec.at(iTrk);
         if ((*cosmicTagTrackVector)[iTrk].CosmicScore()==0){
@@ -343,13 +343,13 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
           //util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrk, *assnOutCosmicTagTrack, iTrk);
             }
         }//end cosmicScore==0 loop
-    }//end iTrk loop	  
- 
+    }//end iTrk loop
+
  /*std::cout<<"\n"<<Trk_h->size()<<"\t"<<(*cosmicTagTrackVector).size();
    for(unsigned int f=0;f<Trk_h->size();f++){
    	std::cout<<"\n\t"<<f<<"\t"<<(*cosmicTagTrackVector)[f].CosmicScore()<<"\t"<<(*cosmicTagTrackVector)[f].CosmicType();
    }*/
- 
+
   // e.put( std::move(outTracksForTags) );
   e.put( std::move(cosmicTagTrackVector) );
   e.put( std::move(assnOutCosmicTagTrack) );
@@ -372,7 +372,7 @@ void cosmic::CosmicTrackTagger::beginJob(){
 
 void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
-  
+
   ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
   auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
   auto const* geo = lar::providerFrom<geo::Geometry>();

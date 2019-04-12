@@ -17,7 +17,7 @@ double const tolerance = 1e-6;
 BOOST_FIXTURE_TEST_SUITE(AlgoThreshold_test, AlgoThresholdFixture)
 
 BOOST_AUTO_TEST_CASE(checkZeroVector)
-{ 
+{
 
   std::vector<short> wf(20,0);
   std::vector<double> ped_mean(20,0);
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(checkZeroVector)
 
   BOOST_CHECK_EQUAL(myAlgoThreshold.GetNPulse(),0ul);
 
-  //BOOST_FAIL("This test fails"); 
+  //BOOST_FAIL("This test fails");
 
 }
 
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(checkNPulse)
 
 }
 BOOST_AUTO_TEST_CASE(checkSquarePulse)
-{ 
+{
 
   std::vector<short> wf(20,0);
   std::vector<double> ped_mean(20,0);
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(checkSquarePulse)
 }
 
 BOOST_AUTO_TEST_CASE(checkTrianglePulse)
-{ 
+{
 
   std::vector<short> wf(20,0);
   std::vector<double> ped_mean(20,0);
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(checkTrianglePulse)
     else if(iter>10)
       wf[iter] += 20-iter;
 
-    if(wf[iter]>=3) 
+    if(wf[iter]>=3)
       area += wf[iter];
 
   }
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(checkTrianglePulse)
 }
 
 BOOST_AUTO_TEST_CASE(checkNonZeroPed)
-{ 
+{
 
   double ped = 2;
   std::vector<short> wf(20,(short)ped);
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(checkNonZeroPed)
     else if(iter>10)
       wf[iter] += 20-iter;
 
-    if(wf[iter]>=3+ped) 
+    if(wf[iter]>=3+ped)
       area += wf[iter] - ped;
 
   }
@@ -128,12 +128,12 @@ BOOST_AUTO_TEST_CASE(checkNonZeroPed)
 }
 
 BOOST_AUTO_TEST_CASE(checkPulseOffEnd)
-{ 
+{
 
   std::vector<short> wf(20,0);
   std::vector<double> ped_mean(20,0);
   std::vector<double> ped_sigma(20,0.1);
-  
+
 
   wf[18] = 5; wf[19] = 10;
   double area = 15;
@@ -148,12 +148,12 @@ BOOST_AUTO_TEST_CASE(checkPulseOffEnd)
 }
 
 BOOST_AUTO_TEST_CASE(checkPulseOffFront)
-{ 
+{
 
   std::vector<short> wf(20,0);
   std::vector<double> ped_mean(20,0);
   std::vector<double> ped_sigma(20,0.1);
-  
+
 
   wf[0] = 10; wf[1] = 5;
   double area = 15;
@@ -168,12 +168,12 @@ BOOST_AUTO_TEST_CASE(checkPulseOffFront)
 }
 
 BOOST_AUTO_TEST_CASE(checkDoublePulse)
-{ 
+{
 
   std::vector<short> wf(20,0);
   std::vector<double> ped_mean(20,0);
   std::vector<double> ped_sigma(20,0.1);
-  
+
 
   wf[4] = 5; wf[5] = 10; wf[6] = 5;
   wf[14] = 5; wf[15] = 10; wf[16] = 5;

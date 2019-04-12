@@ -25,7 +25,7 @@ namespace pmtana {
 
     auto m   = double{0.0};
     auto n_t = unsigned{0};
-	    
+
     for(int k = start; k < end; ++k) {
       if (k < 0 or k > (int)(wf.size()) - 1) continue;
       m += wf.at(k);
@@ -34,10 +34,10 @@ namespace pmtana {
 
     if( n_t > 0 ) m /= n_t;
     n_t = 0;
-    
+
     return m;
   }
-  
+
   double std(const std::vector<short>& wf, const double ped_mean, size_t start, size_t nsample)
   {
     if(!nsample) nsample = wf.size();
@@ -47,7 +47,7 @@ namespace pmtana {
     double sigma = 0;
 
     for(size_t index=start; index < (start+nsample); ++index)
-    
+
       sigma += pow( (wf[index] - ped_mean), 2 );
 
     sigma = sqrt(sigma/((double)(nsample)));
@@ -58,11 +58,11 @@ namespace pmtana {
   double BinnedMaxOccurrence(const PedestalMean_t& mean_v,const size_t nbins)
   {
     if(nbins<1) throw OpticalRecoException("Cannot have 0 binning");
-    
+
     auto res = std::minmax_element(std::begin(mean_v),std::end(mean_v));
-    
+
     double bin_width = ((*res.second) - (*res.first)) / ((double)nbins);
-    
+
     if(nbins==1 || bin_width == 0) return ((*res.first) + bin_width /2.);
 
     //std::cout<<"Min: "<<(*res.first)<<" Max: "<<(*res.second)<<" Width: "<<bin_width<<std::endl;
@@ -91,25 +91,25 @@ namespace pmtana {
       if(ctr_v[bin] != (*max_it)) continue;
 
       mean_max_occurrence += ((*res.first) + bin_width / 2. + bin_width * bin);
-      
+
       num_occurrence += 1.0;
     }
 
     return (mean_max_occurrence / num_occurrence);
   }
 
-  
+
   // template<typename W>
   int sign(double val) {
-    
+
     if (val > 0) return  1;
     if (val < 0) return -1;
     return 0;
-    
+
   }
 
   double BinnedMaxTH1D(const std::vector<double>& v ,int bins){
-    
+
     auto max_it = std::max_element(std::begin(v), std::end(v));
     auto min_it = std::min_element(std::begin(v), std::end(v));
 
@@ -119,6 +119,6 @@ namespace pmtana {
 
     return th.GetXaxis()->GetBinCenter(th.GetMaximumBin());
   }
-  
-  
+
+
 }

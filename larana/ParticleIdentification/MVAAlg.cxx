@@ -25,7 +25,7 @@
 #include <cmath>
 
 mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule):
-  fCaloAlg(pset.get<fhicl::ParameterSet>("CalorimetryAlg")), 
+  fCaloAlg(pset.get<fhicl::ParameterSet>("CalorimetryAlg")),
   fParentModule(parentModule),fReader(""){
   fHitLabel=pset.get<std::string>("HitLabel");
   fTrackLabel=pset.get<std::string>("TrackLabel");
@@ -136,7 +136,7 @@ void mvapid::MVAAlg::GetWireNormals()
     int itpc = std::stoi(stpc);
     int iplane = std::stoi(splane);
     planeKey = icryo * geom->NTPC(0) * geom->Nplanes(0, 0) + itpc * geom->Nplanes(0, 0) + iplane;  //single index for all planes in detector
-    fNormToWiresY.insert(std::make_pair(planeKey, -plane.Wire(0).Direction().Z()));  //y component of normal 
+    fNormToWiresY.insert(std::make_pair(planeKey, -plane.Wire(0).Direction().Z()));  //y component of normal
     fNormToWiresZ.insert(std::make_pair(planeKey, plane.Wire(0).Direction().Y()));   //z component of normal
 
   }
@@ -152,7 +152,7 @@ void mvapid::MVAAlg::RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& res
     mvapid::MVAAlg::SortedObj sortedObj;
 
     std::vector<double> eVals,eVecs;
-    int isStoppingReco; 
+    int isStoppingReco;
     this->RunPCA(fTracksToHits[*trackIter],eVals,eVecs);
     double evalRatio;
     if(eVals[0] < 0.0001)
@@ -166,7 +166,7 @@ void mvapid::MVAAlg::RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& res
     double dEdxEnd = CalcSegmentdEdxFrac(sortedObj,0.9,1.0);
     double dEdxPenultimate = CalcSegmentdEdxFrac(sortedObj,0.8,0.9);
 
-    /*    
+    /*
     std::cout<<"coreHaloRatio:   "<<coreHaloRatio<<std::endl;
     std::cout<<"concentration:   "<<concentration<<std::endl;
     std::cout<<"conicalness:     "<<conicalness<<std::endl;
@@ -226,7 +226,7 @@ void mvapid::MVAAlg::RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& res
     double dEdxEnd = CalcSegmentdEdxFrac(sortedObj,0.9,1.0);
     double dEdxPenultimate = CalcSegmentdEdxFrac(sortedObj,0.8,0.9);
 
-    /*    
+    /*
     std::cout<<"coreHaloRatio:   "<<coreHaloRatio<<std::endl;
     std::cout<<"concentration:   "<<concentration<<std::endl;
     std::cout<<"conicalness:     "<<conicalness<<std::endl;
@@ -317,7 +317,7 @@ void mvapid::MVAAlg::PrepareEvent(const art::Event& evt){
   art::FindManyP<recob::Hit> findTracksToHits(fTracks,evt,fTrackLabel);
   art::FindManyP<recob::Hit> findShowersToHits(fShowers,evt,fShowerLabel);
   art::FindOneP<recob::Hit> findSPToHits(fSpacePoints,evt,fSpacePointLabel);
-  
+
   for(unsigned int iSP = 0; iSP < fSpacePoints.size(); ++iSP)
     {
       const art::Ptr<recob::SpacePoint> spacePoint=fSpacePoints.at(iSP);
@@ -325,16 +325,16 @@ void mvapid::MVAAlg::PrepareEvent(const art::Event& evt){
       const art::Ptr<recob::Hit> hit = findSPToHits.at(iSP);
       fSpacePointsToHits[spacePoint]=hit;
       fHitsToSpacePoints[hit]=spacePoint;
-  }	
-  
+  }
+
   for(unsigned int iTrack = 0; iTrack < fTracks.size(); ++iTrack){
     const art::Ptr<recob::Track> track=fTracks.at(iTrack);
-    
+
     const std::vector< art::Ptr<recob::Hit> > trackHits = findTracksToHits.at(iTrack);
 
     for (unsigned int iHit=0; iHit<trackHits.size(); ++iHit)
     {
-      const art::Ptr<recob::Hit> hit = trackHits.at(iHit);          
+      const art::Ptr<recob::Hit> hit = trackHits.at(iHit);
       fTracksToHits[track].push_back(hit);
       if(fHitsToSpacePoints.count(hit)){
 	fTracksToSpacePoints[track].push_back(fHitsToSpacePoints.at(hit));
@@ -348,7 +348,7 @@ void mvapid::MVAAlg::PrepareEvent(const art::Event& evt){
 
     for (unsigned int iHit=0; iHit<showerHits.size(); ++iHit)
     {
-      const art::Ptr<recob::Hit> hit = showerHits.at(iHit);          
+      const art::Ptr<recob::Hit> hit = showerHits.at(iHit);
       fShowersToHits[shower].push_back(hit);
       if(fHitsToSpacePoints.count(hit)){
 	fShowersToSpacePoints[shower].push_back(fHitsToSpacePoints.at(hit));
@@ -363,14 +363,14 @@ void mvapid::MVAAlg::PrepareEvent(const art::Event& evt){
     if(partHandle->size()==0||partHandle->at(0).TrackId()!=1){
       std::cout<<"Error, ID of first track in largeant list is not 0"<<std::endl;
       exit(1);
-    } 
+    }
     fVertex4Vect=partHandle->at(0).Position();
   }
 }
 
 void mvapid::MVAAlg::FitAndSortTrack(art::Ptr<recob::Track> track,int& isStoppingReco,
 				     mvapid::MVAAlg::SortedObj& sortedTrack){
-  
+
   sortedTrack.hitMap.clear();
   TVector3 trackPoint,trackDir;
   this->LinFit(track,trackPoint,trackDir);
@@ -419,7 +419,7 @@ void mvapid::MVAAlg::FitAndSortTrack(art::Ptr<recob::Track> track,int& isStoppin
   std::vector<art::Ptr<recob::Hit>> hits=fTracksToHits[track];
 
   for(auto hitIter=hits.begin();hitIter!=hits.end();++hitIter){
-    
+
     if(!fHitsToSpacePoints.count(*hitIter)) continue;
     art::Ptr<recob::SpacePoint> sp=fHitsToSpacePoints.at(*hitIter);
 
@@ -434,10 +434,10 @@ void mvapid::MVAAlg::FitAndSortTrack(art::Ptr<recob::Track> track,int& isStoppin
 void mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,int& isStoppingReco,
 				  mvapid::MVAAlg::SortedObj& sortedShower){
   sortedShower.hitMap.clear();
-  
+
   std::vector<art::Ptr<recob::Hit>> hits=fShowersToHits[shower];
 
-  TVector3 showerEnd(0, 0, 0); 
+  TVector3 showerEnd(0, 0, 0);
   double furthestHitFromStart = -999.9;
   for(auto hitIter=hits.begin();hitIter!=hits.end();++hitIter){
 
@@ -482,12 +482,12 @@ void mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,int& isStoppingRe
       nearestPointEnd = showerPoint+showerDir*(showerDir.Dot(shower->ShowerStart()-showerPoint)/showerDir.Mag2());
       isStoppingReco = this->IsInActiveVol(shower->ShowerStart());
     }
-    
+
     if(showerDir.Z() <= 0){
       showerDir.SetX(-showerDir.X());
       showerDir.SetY(-showerDir.Y());
       showerDir.SetZ(-showerDir.Z());
-    }  
+    }
   }
 
   sortedShower.start=nearestPointStart;
@@ -497,7 +497,7 @@ void mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,int& isStoppingRe
   sortedShower.length=(nearestPointEnd-nearestPointStart).Mag();
 
   for(auto hitIter=hits.begin();hitIter!=hits.end();++hitIter){
-    
+
     if(!fHitsToSpacePoints.count(*hitIter)) continue;
     art::Ptr<recob::SpacePoint> sp=fHitsToSpacePoints.at(*hitIter);
 
@@ -505,7 +505,7 @@ void mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,int& isStoppingRe
     double lengthAlongShower=(nearestPointStart-nearestPoint).Mag();
     sortedShower.hitMap.insert(std::pair<double,art::Ptr<recob::Hit> >(lengthAlongShower,*hitIter));
   }
-  
+
 }
 void mvapid::MVAAlg::RunPCA(std::vector< art::Ptr<recob::Hit> >& hits,std::vector<double>& eVals,std::vector<double>& eVecs){
 
@@ -521,7 +521,7 @@ void mvapid::MVAAlg::RunPCA(std::vector< art::Ptr<recob::Hit> >& hits,std::vecto
       principal->AddRow( fHitsToSpacePoints.at(*hitIter)->XYZ() );
     }
   }
-  
+
   // PERFORM PCA
   principal->MakePrincipals();
   // GET EIGENVALUES AND EIGENVECTORS
@@ -536,7 +536,7 @@ void mvapid::MVAAlg::RunPCA(std::vector< art::Ptr<recob::Hit> >& hits,std::vecto
 void mvapid::MVAAlg::_Var_Shape(const mvapid::MVAAlg::SortedObj& track,
 				double& coreHaloRatio,double& concentration,
 				double& conicalness){
-  
+
   static const unsigned int conMinHits=3;
   static const double minCharge = 0.1;
   static const double conFracRange=0.2;
@@ -558,14 +558,14 @@ void mvapid::MVAAlg::_Var_Shape(const mvapid::MVAAlg::SortedObj& track,
   double chargeConEnd=0;
   unsigned int nHitsConStart=0;
   unsigned int nHitsConEnd=0;
-  
+
 
   for(auto hitIter=track.hitMap.begin();hitIter!=track.hitMap.end();++hitIter){
     if(fHitsToSpacePoints.count(hitIter->second)) {
       art::Ptr<recob::SpacePoint> sp=fHitsToSpacePoints.at(hitIter->second);
 
       double distFromTrackFit = ((TVector3(sp->XYZ()) - track.start).Cross(track.dir)).Mag();
- 
+
       ++nHits;
 
       if(distFromTrackFit < MoliereRadiusFraction * MoliereRadius)
@@ -588,7 +588,7 @@ void mvapid::MVAAlg::_Var_Shape(const mvapid::MVAAlg::SortedObj& track,
       }
     }
   }
-  
+
   coreHaloRatio=chargeHalo/TMath::Max(1.0E-3, chargeCore);
   coreHaloRatio=TMath::Min(100.0, coreHaloRatio);
   concentration=chargeCon/totalCharge;
@@ -615,7 +615,7 @@ double mvapid::MVAAlg::CalcSegmentdEdxDistAtEnd(const mvapid::MVAAlg::SortedObj&
 double mvapid::MVAAlg::CalcSegmentdEdxDist(const mvapid::MVAAlg::SortedObj& track,double start,double end){
 
   art::ServiceHandle<geo::Geometry const> geom;
-  
+
   double totaldEdx=0;
   unsigned int nHits=0;
 

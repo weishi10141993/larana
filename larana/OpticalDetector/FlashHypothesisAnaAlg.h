@@ -5,10 +5,10 @@
  * Title:   FlashHypothesisAnaAlg Class
  * Author:  Wes Ketchum (wketchum@lanl.gov)
  *
- * Description: 
- * Alg that compares the flash hypotheses with truth photons and stores the 
+ * Description:
+ * Alg that compares the flash hypotheses with truth photons and stores the
  * results in a TTree.
- * 
+ *
 */
 
 #include "fhiclcpp/ParameterSet.h"
@@ -36,16 +36,16 @@ namespace opdet{
   class FlashHypothesisAnaAlg{
 
   public:
-  
+
   using Providers_t = FlashHypothesisCreator::Providers_t;
-  
+
   FlashHypothesisAnaAlg(fhicl::ParameterSet const& p):
     fCounterIndex(p.get<unsigned int>("SimPhotonCounterIndex",0)),
       fdEdx(p.get<float>("dEdx",2.1)),
       fXOffset(p.get<float>("HypothesisXOffset",0.0)),
       fSPCAlg(p.get<fhicl::ParameterSet>("SimPhotonCounterAlgParams")) {}
-    
-    
+
+
     void SetOutputObjects(TTree*,
 			  TH1F*,TH1F*,TH1F*,
 			  TH1F*,TH1F*,TH1F*,
@@ -53,16 +53,16 @@ namespace opdet{
 			  geo::Geometry const&);
 
     void FillOpDetPositions(geo::Geometry const&);
-    
+
     void RunComparison(const unsigned int run,
 		       const unsigned int event,
-		       std::vector<sim::MCTrack> const&, 
+		       std::vector<sim::MCTrack> const&,
 		       std::vector<sim::SimPhotons> const&,
 		       Providers_t providers,
 		       opdet::OpDigiProperties const& opdigip,
 		       phot::PhotonVisibilityService const& pvs);
-    
-    
+
+
   private:
 
     unsigned int        fCounterIndex;
@@ -78,9 +78,9 @@ namespace opdet{
 
     std::vector<float> fOpDetPositions_Y;
     std::vector<float> fOpDetPositions_Z;
-    
+
   };
-  
+
 }
 
 

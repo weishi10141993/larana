@@ -33,10 +33,10 @@
 #include <memory>
 
 namespace opdet {
- 
+
   class OpFlashFinder : public art::EDProducer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     explicit OpFlashFinder(const fhicl::ParameterSet&);
     virtual ~OpFlashFinder();
@@ -45,14 +45,14 @@ namespace opdet {
     void endJob();
     void reconfigure(fhicl::ParameterSet const& pset);
 
-    // The producer routine, called once per event. 
-    void produce(art::Event&); 
-    
+    // The producer routine, called once per event.
+    void produce(art::Event&);
+
   private:
 
     // The parameters we'll read from the .fcl file.
     std::string fInputModule; // Input tag for OpHit collection
-    
+
     Int_t    fBinWidth;
     Float_t  fFlashThreshold;
     Float_t  fWidthTolerance;
@@ -60,7 +60,7 @@ namespace opdet {
 
   };
 
-} 
+}
 
 namespace opdet {
   DEFINE_ART_MODULE(OpFlashFinder)
@@ -87,7 +87,7 @@ namespace opdet {
 
     // Indicate that the Input Module comes from .fcl
     fInputModule = pset.get< std::string >("InputModule");
-      
+
     fBinWidth       = pset.get< int >   ("BinWidth");
     fFlashThreshold = pset.get< float > ("FlashThreshold");
     fWidthTolerance = pset.get< float > ("WidthTolerance");
@@ -97,10 +97,10 @@ namespace opdet {
 
   //----------------------------------------------------------------------------
   // Destructor
-  OpFlashFinder::~OpFlashFinder() 
+  OpFlashFinder::~OpFlashFinder()
   {
   }
-   
+
   //----------------------------------------------------------------------------
   void OpFlashFinder::beginJob()
   {
@@ -108,17 +108,17 @@ namespace opdet {
 
   //----------------------------------------------------------------------------
   void OpFlashFinder::endJob()
-  { 
+  {
   }
 
   //----------------------------------------------------------------------------
-  void OpFlashFinder::produce(art::Event& evt) 
+  void OpFlashFinder::produce(art::Event& evt)
   {
 
     // These are the storage pointers we will put in the event
-    std::unique_ptr< std::vector< recob::OpFlash > > 
+    std::unique_ptr< std::vector< recob::OpFlash > >
                       flashPtr(new std::vector< recob::OpFlash >);
-    std::unique_ptr< art::Assns< recob::OpFlash, recob::OpHit > >  
+    std::unique_ptr< art::Assns< recob::OpFlash, recob::OpHit > >
                       assnPtr(new art::Assns< recob::OpFlash, recob::OpHit >);
 
     // This will keep track of what flashes will assoc to what ophits
@@ -154,14 +154,14 @@ namespace opdet {
         opHitPtrVector.push_back(opHitPtr);
       }
 
-      util::CreateAssn(*this, evt, *flashPtr, opHitPtrVector, 
+      util::CreateAssn(*this, evt, *flashPtr, opHitPtrVector,
                                         *(assnPtr.get()), i);
     }
-    
+
     // Store results into the event
     evt.put(std::move(flashPtr));
     evt.put(std::move(assnPtr));
-    
+
   }
 
 } // namespace opdet

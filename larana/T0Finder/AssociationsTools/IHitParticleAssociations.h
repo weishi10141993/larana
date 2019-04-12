@@ -38,12 +38,12 @@ public:
      *  @param ParameterSet  The input set of parameters for configuration
      */
     virtual void reconfigure(fhicl::ParameterSet const& pset) = 0;
-    
+
     /**
      *  @brief This rebuilds the internal maps
      */
     virtual void CreateHitParticleAssociations(art::Event&, HitParticleAssociations*) = 0;
 };
-    
+
 } // namespace
 #endif // IMCTRUTHMATCHING_H

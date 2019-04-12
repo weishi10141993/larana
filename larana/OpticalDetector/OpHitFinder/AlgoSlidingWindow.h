@@ -2,14 +2,14 @@
  * \file AlgoSlidingWindow.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of AlgoSlidingWindow
  *
  * @author Kazu - Nevis 2013
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 
 #ifndef ALGOSLIDINGWINDOW_H
@@ -39,7 +39,7 @@ namespace pmtana
 
     /// Default destructor
     virtual ~AlgoSlidingWindow();
-    
+
     /// Implementation of AlgoSlidingWindow::reset() method
     void Reset();
 
@@ -52,7 +52,7 @@ namespace pmtana
 
     /// A boolean to set waveform positive/negative polarity
     bool _positive;
-    
+
     /// A variable holder for a user-defined absolute ADC threshold value
     float _adc_thres, _end_adc_thres;
 

@@ -42,15 +42,15 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 
 namespace opdet {
- 
+
   class FlashPurityCheckAna : public art::EDAnalyzer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     FlashPurityCheckAna(const fhicl::ParameterSet&);
 
-    // The analyzer routine, called once per event. 
-    void analyze (const art::Event&); 
+    // The analyzer routine, called once per event.
+    void analyze (const art::Event&);
 
   private:
 
@@ -63,7 +63,7 @@ namespace opdet {
     std::string fMatchModuleLabel;                // Input tag for OpFlash collection
     std::string fGenieGenModuleLabel;              // Input tag for OpFlash collection
 
-    
+
     TTree * fPerEventTree;
 
     Float_t fEventID;
@@ -78,10 +78,10 @@ namespace opdet {
     Int_t fNNonVtxTracks20cm;
     Int_t fNNonVtxTracksRejected20cm;
 
-    
+
   };
 
-} 
+}
 
 namespace opdet {
 
@@ -101,8 +101,8 @@ namespace opdet {
 
     art::ServiceHandle<art::TFileService const> tfs;
 
-    
-    
+
+
     fPerEventTree = tfs->make<TTree>("PerEventTree","PerEventTree");
     fPerEventTree->Branch("NVtxTracks",             &fNVtxTracks,             "NVtxTracks/I");
     fPerEventTree->Branch("NVtxTracksRejected",     &fNVtxTracksRejected,     "NVtxTracksRejected/I");
@@ -114,13 +114,13 @@ namespace opdet {
     fPerEventTree->Branch("NNonVtxTracksRejected20cm", &fNNonVtxTracksRejected20cm, "NNonVtxTracksRejected20cm/I");
 
 
-    
+
   }
 
   //-----------------------------------------------------------------------
-  void FlashPurityCheckAna::analyze(const art::Event& evt) 
+  void FlashPurityCheckAna::analyze(const art::Event& evt)
   {
-    
+
     // Get flashes from event
     art::Handle< std::vector< recob::OpFlash > > FlashHandle;
     evt.getByLabel(fOpFlashModuleLabel, FlashHandle);
@@ -146,7 +146,7 @@ namespace opdet {
     for(size_t i=0; i!=Tracks.size(); i++)
       BTracks.push_back(new trkf::BezierTrack(*Tracks.at(i)));
     std::cout<<"N Tracks : " << BTracks.size()<<std::endl;
-    
+
 
 
 
@@ -155,35 +155,35 @@ namespace opdet {
     std::vector<art::Ptr<simb::MCTruth> > mclist;
     if (evt.getByLabel(fGenieGenModuleLabel,mctruthListHandle))
       art::fill_ptr_vector(mclist, mctruthListHandle);
-    
+
     if(mclist.size()==0)
       std::cout<<"confused! MC list is zero length!"<<std::endl;
     else
       {
 	art::Ptr<simb::MCTruth> mctruth = mclist[0];
-      
-    
+
+
 	//    art::FindManyP<recob::OpFlash> FlashesFMH(MatchHandle, evt, fMatchModuleLabel);
 	art::FindManyP<anab::FlashMatch>   MatchFMH(trackh,  evt, fMatchModuleLabel);
-	
+
 	std::cout<<"No of FMH entries : " << MatchFMH.size()<<std::endl;
 	std::vector<bool> Rejected(Tracks.size(), false);
-	
+
 	for(size_t i=0; i!=Tracks.size(); ++i)
 	  {
-	    std::cout<<"FMH at " << i << " is " << MatchFMH.at(i).size()<<std::endl; 
+	    std::cout<<"FMH at " << i << " is " << MatchFMH.at(i).size()<<std::endl;
 	    for(size_t j=0; j!=MatchFMH.at(i).size(); ++j)
 	      {
 		if(!MatchFMH.at(i).at(j)->InBeam())
 		  Rejected[i]=true;
 	      }
 	  }
-	
-	
-	
+
+
+
 	fEventID=evt.id().event();
-	
-	
+
+
 	fNVtxTracks20cm =0 ;
 	fNVtxTracksRejected20cm =0;
 	fNVtxTracks =0 ;
@@ -192,21 +192,21 @@ namespace opdet {
 	fNNonVtxTracksRejected =0;
 	fNNonVtxTracks20cm =0;
 	fNNonVtxTracksRejected20cm =0;
-	
-	
+
+
 	//	if (mctruth->NeutrinoSet())
 	//	  {
 	    VertexX = mctruth->GetNeutrino().Nu().Vx();
 	    VertexY = mctruth->GetNeutrino().Nu().Vy();
 	    VertexZ = mctruth->GetNeutrino().Nu().Vz();
-	    
+
 	    TVector3 Vertex = TVector3(VertexX,VertexY, VertexZ);
 	    //std::cout<<"Vertex is at " << vtxx_truth<<", " << vtxy_truth<<", " << vtxz_truth<<std::endl;
 	    double s=0, d=0;
 	    for(size_t i=0; i!=BTracks.size(); ++i)
 	      {
 		BTracks.at(i)->GetClosestApproach(Vertex, s, d);
-		if(d<2) 
+		if(d<2)
 		  {
 		    fNVtxTracks++;
 		    if(Rejected[i]) fNVtxTracksRejected++;
@@ -227,7 +227,7 @@ namespace opdet {
 		      }
 		  }
 	      }
-	    
+
       }
     fPerEventTree->Fill();
 	//  }

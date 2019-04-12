@@ -4,11 +4,11 @@
  * Title:   Hit <--> Cosmic Tag Associator Alg
  * Author:  Wes Ketchum (wketchum@lanl.gov)
  *
- * Description: Algorithm that will provide associations of Hits to 
+ * Description: Algorithm that will provide associations of Hits to
  *              cosmic tags, where both of those are associated to some
  *              intermediate object (like a track or cluster)
  * Input:       Assn<recob::Hit,???> and Assn<???,anab::CosmicTag>
- * Output:      Assn<recob::Hit,anab::CosmicTag> 
+ * Output:      Assn<recob::Hit,anab::CosmicTag>
 */
 #include <iostream>
 

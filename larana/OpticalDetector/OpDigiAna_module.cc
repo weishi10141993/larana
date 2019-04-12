@@ -34,22 +34,22 @@
 #include "math.h"
 
 namespace opdet {
- 
+
   class OpDigiAna : public art::EDAnalyzer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     OpDigiAna(const fhicl::ParameterSet&);
 
-    // The analyzer routine, called once per event. 
-    void analyze (const art::Event&); 
+    // The analyzer routine, called once per event.
+    void analyze (const art::Event&);
 
   private:
 
     // The stuff below is the part you'll most likely have to change to
     // go from this custom example to your own task.
 
-    
+
 
     // The parameters we'll read from the .fcl file.
     std::string fInputModule;              // Input tag for OpDet collection
@@ -67,7 +67,7 @@ namespace opdet {
 
   };
 
-} 
+}
 
 namespace opdet {
 
@@ -76,7 +76,7 @@ namespace opdet {
   OpDigiAna::OpDigiAna(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
   {
-    
+
     art::ServiceHandle<OpDigiProperties> odp;
     fSPEAmp     = odp->GetSPECumulativeAmplitude();
     fTimeBegin  = odp->TimeBegin();
@@ -91,20 +91,20 @@ namespace opdet {
 
     fMakeBipolarHist    = pset.get<bool>("MakeBipolarHist");
     fMakeUnipolarHist = pset.get<bool>("MakeUnipolarHist");
- 
-    
+
+
   }
 
   //-----------------------------------------------------------------------
-  void OpDigiAna::analyze(const art::Event& evt) 
+  void OpDigiAna::analyze(const art::Event& evt)
   {
-    
+
     // Create a handle for our vector of pulses
     art::Handle< std::vector< raw::OpDetPulse > > WaveformHandle;
 
     // Create string for histogram name
     char HistName[50];
-    
+
 
     // Read in WaveformHandle
     evt.getByLabel(fInputModule, fInstanceName, WaveformHandle);
@@ -125,7 +125,7 @@ namespace opdet {
 
 	// Make an instance of histogram and its pointer, changing all units to ns
 	// Notice that histogram axis is in ns but binned by 1/64MHz;
-	//   appropriate conversions are made from beginning and end time 
+	//   appropriate conversions are made from beginning and end time
 	//   in us, and frequency in MHz.
 
         // Make sure the histogram name is unique since there can be multiple pulses
@@ -144,15 +144,15 @@ namespace opdet {
                 break;
             }
         }
-            
-        
-        
+
+
+
 	TH1D* PulseHist = nullptr;
 	if(fMakeBipolarHist)
 	  {
-	    PulseHist= tfs->make<TH1D>(HistName, ";t (ns);", 
-					     int((fTimeEnd - fTimeBegin) * fSampleFreq), 
-					     fTimeBegin * 1000., 
+	    PulseHist= tfs->make<TH1D>(HistName, ";t (ns);",
+					     int((fTimeEnd - fTimeBegin) * fSampleFreq),
+					     fTimeBegin * 1000.,
 					     fTimeEnd * 1000.);
 	  }
 
@@ -160,29 +160,29 @@ namespace opdet {
 	TH1D* UnipolarHist = nullptr;
 	if(fMakeUnipolarHist)
 	  {
-	    UnipolarHist= tfs->make<TH1D>(HistName, ";t (ns);", 
-					  int((fTimeEnd - fTimeBegin) * fSampleFreq), 
-					  fTimeBegin * 1000., 
+	    UnipolarHist= tfs->make<TH1D>(HistName, ";t (ns);",
+					  int((fTimeEnd - fTimeBegin) * fSampleFreq),
+					  fTimeBegin * 1000.,
 					  fTimeEnd * 1000.);
 	  }
-	
+
 	for(unsigned int binNum = 0; binNum < ThePulse.Waveform().size(); ++binNum)
 	  {
 	    // Fill histogram with waveform
-	  
+
 	    if(fMakeBipolarHist) PulseHist->SetBinContent( binNum,
 							 (double) ThePulse.Waveform()[binNum] );
 	    if((binNum>0)&&(fMakeUnipolarHist))
 	      {
-		double BinContent =     (double) ThePulse.Waveform()[binNum] + 
+		double BinContent =     (double) ThePulse.Waveform()[binNum] +
 		  (double) UnipolarHist->GetBinContent(binNum-1);
 		if(BinContent>fZeroSupThresh)
 		  UnipolarHist->SetBinContent(binNum,BinContent);
 		else
 		  UnipolarHist->SetBinContent(binNum,0);
-					      
+
 	      }
-					
+
 	  }
 
       }

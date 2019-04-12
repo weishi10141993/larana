@@ -57,7 +57,7 @@ namespace pmtana{
     }
     return _mean_v[i];
   }
-  
+
   //*******************************************
   double PMTPedestalBase::Sigma(size_t i) const
   //*******************************************
@@ -69,7 +69,7 @@ namespace pmtana{
     }
     return _sigma_v[i];
   }
-  
+
   //*************************************************
   const PedestalMean_t& PMTPedestalBase::Mean() const
   //*************************************************

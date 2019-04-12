@@ -24,7 +24,7 @@
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Services/Optional/TFileService.h" 
+#include "art/Framework/Services/Optional/TFileService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "larcore/Geometry/Geometry.h"
@@ -92,7 +92,7 @@ private:
     std::string         fCosmicProducerLabel;     ///< Module that produced the PCA based cosmic tags
     std::string         fHitProducerLabel;        ///< The full collection of hits
     std::string         fPFParticleProducerLabel; ///< PFParticle producer
-    
+
     double              fCosmicTagThreshold;      ///< Thresholds for tagging
 
     // Statistics.
@@ -158,68 +158,68 @@ void CRHitRemovalByPCA::beginJob()
 void CRHitRemovalByPCA::produce(art::Event & evt)
 {
     ++fNumEvent;
-    
+
     // Start by looking up the original hits
     art::Handle< std::vector<recob::Hit> > hitHandle;
     evt.getByLabel(fHitProducerLabel, hitHandle);
-    
+
     // If there are no hits then there should be no output
     if (!hitHandle.isValid()) return;
-    
+
     // If there are hits then we are going to output something so get a new
     // output hit vector
     std::unique_ptr<std::vector<recob::Hit> > outputHits(new std::vector<recob::Hit>);
-    
+
     // And fill it with the complete original list of hits
     *outputHits = *hitHandle;
-    
+
     // Recover the PFParticles that are responsible for making the tracks
     art::Handle<std::vector<recob::PFParticle> > pfParticleHandle;
     evt.getByLabel(fPFParticleProducerLabel, pfParticleHandle);
-    
+
     // Without a valid collection of PFParticles we can't do the hit removal
     if (!pfParticleHandle.isValid())
     {
         evt.put(std::move(outputHits));
         return;
     }
-    
+
     // Recover the clusters so we can do associations to the hits
     // In theory the clusters come from the same producer as the PFParticles
     art::Handle<std::vector<recob::Cluster> > clusterHandle;
     evt.getByLabel(fPFParticleProducerLabel, clusterHandle);
-    
+
     // If there are no clusters then something is really wrong
     if (!clusterHandle.isValid())
     {
         evt.put(std::move(outputHits));
         return;
     }
-    
+
     // Recover the list of cosmic tags
     art::Handle< std::vector<anab::CosmicTag> > cosmicTagHandle;
     evt.getByLabel(fCosmicProducerLabel, cosmicTagHandle);
-    
+
     // No cosmic tags then nothing to do here
     if (!cosmicTagHandle.isValid() || cosmicTagHandle->empty())
     {
         evt.put(std::move(outputHits));
         return;
     }
-    
+
     // Start recovering the necessary associations
     // Start by finding the associations going from cosmic tags to PFParticles
     art::FindManyP<recob::PFParticle> cosmicTagToPFPartAssns(cosmicTagHandle, evt, fCosmicProducerLabel);
-    
+
     // From PFParticles we go to clusters
     art::FindManyP<recob::Cluster> clusterAssns(pfParticleHandle, evt, fPFParticleProducerLabel);
-    
+
     // Likewise, recover the collection of associations to hits
     art::FindManyP<recob::Hit> clusterHitAssns(clusterHandle, evt, fPFParticleProducerLabel);
-    
+
     // Container to contain the "bad" hits...
     art::PtrVector<recob::Hit> taggedHits;
-    
+
     // No point double counting hits
     std::set<const recob::PFParticle*> taggedSet;
 
@@ -228,31 +228,31 @@ void CRHitRemovalByPCA::produce(art::Event & evt)
     for(size_t crIdx = 0; crIdx != cosmicTagHandle->size(); crIdx++)
     {
         art::Ptr<anab::CosmicTag> cosmicTag(cosmicTagHandle, crIdx);
-        
+
             // If this was tagged as a CR muon then we have work to do!
         if (cosmicTag->CosmicScore() > fCosmicTagThreshold)
         {
             // Recover the associated PFParticle
             std::vector<art::Ptr<recob::PFParticle> > pfPartVec = cosmicTagToPFPartAssns.at(crIdx);
-            
+
             if (pfPartVec.empty()) continue;
-            
+
             art::Ptr<recob::PFParticle> pfParticle = pfPartVec.front();
-            
+
             // Again, most likely needless
             if (!pfParticle) continue;
-            
+
             // A cosmic ray must be a primary (by fiat)
             if (!pfParticle->IsPrimary()) continue;
-            
+
             // Avoid double counting if more than one tagger running
             if (taggedSet.find(pfParticle.get()) != taggedSet.end()) continue;
-            
+
             // Remove all hits associated to this particle and its daughters
             removeTaggedHits(pfParticle.get(), pfParticleHandle, clusterAssns, clusterHitAssns, taggedSet, taggedHits);
         }
     }
-    
+
     // Are there any tagged hits?
     if (!taggedHits.empty())
     {
@@ -260,14 +260,14 @@ void CRHitRemovalByPCA::produce(art::Event & evt)
         // CR PFParticle and an untagged one. We can do this by going through the PFParticles and
         // "removing" hits which are in the not tagged set.
         art::PtrVector<recob::Hit> untaggedHits;
-        
+
         for(const auto& pfParticle : *pfParticleHandle)
         {
             if (taggedSet.find(&pfParticle) != taggedSet.end()) continue;
-            
+
             // Recover the clusters associated to the input PFParticle
             std::vector<art::Ptr<recob::Cluster> > clusterVec = clusterAssns.at(pfParticle.Self());
-            
+
             // Loop over the clusters and grab the associated hits
             for(const auto& cluster : clusterVec)
             {
@@ -275,10 +275,10 @@ void CRHitRemovalByPCA::produce(art::Event & evt)
                 untaggedHits.insert(untaggedHits.end(), clusHitVec.begin(), clusHitVec.end());
             }
         }
-        
+
         // Filter out the hits we want to save
         FilterHits(taggedHits, untaggedHits);
-        
+
         // The below is rather ugly but there is an interplay between art::Ptr's and the
         // actual pointers to objects that I might be missing and this is what I see how to do
         // First move all the original art::Ptr hits into a local art::PtrVector
@@ -288,26 +288,26 @@ void CRHitRemovalByPCA::produce(art::Event & evt)
         for(size_t hitIdx = 0; hitIdx != hitHandle->size(); hitIdx++)
         {
             art::Ptr<recob::Hit> hit(hitHandle, hitIdx);
-            
+
             originalHits.push_back(hit);
         }
-        
+
         // Remove the cosmic ray tagged hits
         FilterHits(originalHits, taggedHits);
-        
+
         // Clear the current outputHits vector since we're going to refill...
         outputHits->clear();
-        
+
         // Now make the new list of output hits
         for (const auto& hit : originalHits)
         {
             // Kludge to remove out of time hits
             if (hit->StartTick() > 6400 || hit->EndTick() < 3200) continue;
-            
+
             outputHits->emplace_back(*hit);
         }
     }
-    
+
     // Add tracks and associations to event.
     evt.put(std::move(outputHits));
 }
@@ -336,25 +336,25 @@ void CRHitRemovalByPCA::removeTaggedHits(const recob::PFParticle*               
 {
     // Recover the clusters associated to the input PFParticle
     std::vector<art::Ptr<recob::Cluster> > clusterVec = partToClusAssns.at(pfParticle->Self());
-    
+
     // Record this PFParticle as tagged
     taggedParticles.insert(pfParticle);
-    
+
     // Loop over the clusters and grab the associated hits
     for(const auto& cluster : clusterVec)
     {
         std::vector<art::Ptr<recob::Hit> > clusHitVec = clusToHitAssns.at(cluster->ID());
         hitVec.insert(hitVec.end(), clusHitVec.begin(), clusHitVec.end());
     }
-    
+
     // Loop over the daughters of this particle and remove their hits as well
     for(const auto& daughterId : pfParticle->Daughters())
     {
         art::Ptr<recob::PFParticle> daughter(pfParticleHandle, daughterId);
-        
+
         removeTaggedHits(daughter.get(), pfParticleHandle, partToClusAssns, clusToHitAssns, taggedParticles, hitVec);
     }
-    
+
     return;
 }
 
@@ -364,7 +364,7 @@ void CRHitRemovalByPCA::removeTaggedHits(const recob::PFParticle*               
 void CRHitRemovalByPCA::endJob()
 {
     double aveCRPerEvent = fNumEvent > 0 ? double(fNumCRRejects) / double(fNumEvent) : 0.;
-    
+
     mf::LogInfo("CRHitRemovalByPCA")
         << "CRHitRemovalByPCA statistics:\n"
         << "  Number of events = " << fNumEvent << "\n"

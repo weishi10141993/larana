@@ -32,24 +32,24 @@ namespace recob{
 
 
 namespace opdet {
-  
+
   bool BeamFlashCompatabilityCheck_tracksort(art::Ptr<recob::Track> t1, art::Ptr<recob::Track> t2);
 
   class BeamFlashCompatabilityCheck : public art::EDProducer{
   public:
-    
+
     BeamFlashCompatabilityCheck(const fhicl::ParameterSet&);
     virtual ~BeamFlashCompatabilityCheck();
-    
+
     void produce(art::Event&);
     void reconfigure(fhicl::ParameterSet const& p);
-      
+
     std::vector<double>               GetMIPHypotheses(trkf::BezierTrack* BTrack, double XOffset=0);
     bool                              CheckCompatibility(std::vector<double>& hypothesis, std::vector<double>& signal);
-    
+
     void beginJob();
-    
-    
+
+
   private:
     std::string fTrackModuleLabel;
     std::string fFlashModuleLabel;
@@ -58,7 +58,7 @@ namespace opdet {
     double      fIntegralCut;
   };
 
-  
+
 
 }
 
@@ -140,7 +140,7 @@ namespace opdet {
 
   void BeamFlashCompatabilityCheck::reconfigure(fhicl::ParameterSet const& pset)
   {
-    fTrackModuleLabel = pset.get<std::string>("TrackModuleLabel");   
+    fTrackModuleLabel = pset.get<std::string>("TrackModuleLabel");
     fFlashModuleLabel = pset.get<std::string>("FlashModuleLabel");
     fBezierResolution = pset.get<int>("BezierResolution");
     fSingleChannelCut = pset.get<int>("SingleChannelCut");
@@ -173,7 +173,7 @@ namespace opdet {
   {
     art::ServiceHandle<geo::Geometry const> geom;
     std::vector<double> ReturnVector(geom->NOpDets(),0);
-    
+
     art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
 
     float TrackLength = Btrack->GetLength();
@@ -182,21 +182,21 @@ namespace opdet {
     for (int b=0; b!=fBezierResolution; b++)
       {
 	float s               = float(b) / float(fBezierResolution);
-		
+
 	double MIPYield   = 24000;
 	double QE         = 0.01;
 	double MIPdQdx    = 2.1;
 	double PromptFrac = 0.25;
 	double PromptMIPScintYield = MIPYield * QE * MIPdQdx * PromptFrac;
 
-	
+
 	Btrack->GetTrackPoint(s,xyz);
 	xyz[0]+=XOffset;
 	auto const& PointVisibility = pvs->GetAllVisibilities(xyz);
 	if (!PointVisibility) continue; // point not covered by the service
-	
+
 	float LightAmount = PromptMIPScintYield*TrackLength/float(fBezierResolution);
-	
+
 	for(size_t OpDet =0; OpDet!=pvs->NOpChannels();  OpDet++)
 	  {
 	    ReturnVector.at(OpDet)+= PointVisibility[OpDet] * LightAmount;
@@ -210,10 +210,10 @@ namespace opdet {
 
   void BeamFlashCompatabilityCheck::produce(art::Event& evt)
   {
-    
+
     //    int EventID = evt.id().event();
-    
-    
+
+
     // Read in flashes from the event
     art::Handle< std::vector<recob::OpFlash> > flashh;
     evt.getByLabel(fFlashModuleLabel, flashh);
@@ -240,22 +240,22 @@ namespace opdet {
     BTracks.clear();
     for(size_t i=0; i!=Tracks.size(); i++)
       BTracks.push_back(new trkf::BezierTrack(*Tracks.at(i)));
-        
-      
+
+
     std::vector<std::vector<double> > TrackHypotheses;
     std::vector<std::vector<double> > FlashShapes;
-       
+
 
     // For each track
     for (size_t i=0; i!=BTracks.size(); ++i)
       {
 	TrackHypotheses.push_back(GetMIPHypotheses(BTracks.at(i)));
       }
-    
+
     art::ServiceHandle<geo::Geometry const> geom;
     size_t NOpDets = geom->NOpDets();
     size_t NOpChannels = geom->NOpChannels();
-    
+
     std::vector<bool> Compatible(TrackHypotheses.size(),false);
 
     for(size_t f=0; f!=Flashes.size(); ++f)
@@ -273,7 +273,7 @@ namespace opdet {
 
 	    for(size_t i=0; i!=TrackHypotheses.size(); ++i)
 	      {
-		if(CheckCompatibility(TrackHypotheses.at(i),ThisFlashShape)) 
+		if(CheckCompatibility(TrackHypotheses.at(i),ThisFlashShape))
 		  {
 		    Compatible[i]=true;
 		  }
@@ -290,18 +290,18 @@ namespace opdet {
     double xyz_begin[3];
     double xyz_end[3];
     for(size_t itrack=0; itrack<BTracks.size(); itrack++){
-      
+
 
       if(Compatible.at(itrack)) cosmic_score = 0; //not a cosmic
       else if(!Compatible.at(itrack)) cosmic_score = 1; //is a cosmic
-      
+
       BTracks.at(itrack)->GetTrackPoint(0,xyz_begin); //load in beginning point
       std::vector<float> endPt1 = { (float)xyz_begin[0], (float)xyz_begin[1], (float)xyz_begin[2] };
       BTracks.at(itrack)->GetTrackPoint(1,xyz_end); //load in ending point
       std::vector<float> endPt2 = { (float)xyz_end[0], (float)xyz_end[1], (float)xyz_end[2] };
 
       CosmicTagVector.emplace_back(endPt1,endPt2,cosmic_score,anab::CosmicTagID_t::kFlash_BeamIncompatible);
-      util::CreateAssn(*this, evt, *(CosmicTagPtr.get()), Tracks.at(itrack), *(assn_track.get()), itrack); 
+      util::CreateAssn(*this, evt, *(CosmicTagPtr.get()), Tracks.at(itrack), *(assn_track.get()), itrack);
 
     }
 
@@ -309,15 +309,15 @@ namespace opdet {
     evt.put(std::move(CosmicTagPtr));
     evt.put(std::move(assn_track));
 
-    
+
   }
 
 
   //---------------------------------------
   //  Check whether a hypothesis can be accomodated in a flash
-  //   Flashes fail if 1 bin is far in excess of the observed signal 
+  //   Flashes fail if 1 bin is far in excess of the observed signal
   //   or if the whole flash intensity is much too large for the hypothesis.
-  //  MIP dEdx is assumed for now.  Accounting for real dQdx will 
+  //  MIP dEdx is assumed for now.  Accounting for real dQdx will
   //   improve performance of this algorithm.
   //
   bool BeamFlashCompatabilityCheck::CheckCompatibility(std::vector<double>& hypothesis, std::vector<double>& signal)
@@ -331,7 +331,7 @@ namespace opdet {
 	if(( (hypothesis.at(i) - signal.at(i)) / HypErr) > fSingleChannelCut) return false;
       }
     double HypIntErr= pow(hypintegral,0.5);
-    
+
     if( ( (hypintegral - sigintegral)/HypIntErr) > fIntegralCut) return false;
     return true;
   }

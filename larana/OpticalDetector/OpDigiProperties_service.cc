@@ -10,7 +10,7 @@
 #include "larcore/Geometry/Geometry.h"
 
 // Framework includes
-#include "messagefacility/MessageLogger/MessageLogger.h" 
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // CLHEP includes
 #include "CLHEP/Random/RandGaussQ.h"
@@ -53,7 +53,7 @@ namespace opdet{
       {
 	Cumulative += fWaveform.at(i);
 	SPEArea    += Cumulative;
-      } 
+      }
     return SPEArea;
   }
 
@@ -65,11 +65,11 @@ namespace opdet{
       {
 	Cumulative += fWaveform.at(i);
 	if(Cumulative>AmpSoFar) AmpSoFar=Cumulative;
-      } 
+      }
     return AmpSoFar;
   }
-  
-  
+
+
   //--------------------------------------------------------------------
 
   double OpDigiProperties::LowGainMean(optdata::Channel_t ch) const
@@ -93,7 +93,7 @@ namespace opdet{
     return CLHEP::RandGauss::shoot(fHighGainArray[ch],fGainSpreadArray[ch]*fHighGainArray[ch]);
   }
   //--------------------------------------------------------------------
-  optdata::TimeSlice_t OpDigiProperties::GetTimeSlice(double time_ns) 
+  optdata::TimeSlice_t OpDigiProperties::GetTimeSlice(double time_ns)
   {
     if( time_ns/1.e3 > (fTimeEnd-fTimeBegin)) return std::numeric_limits<optdata::TimeSlice_t>::max();
 
@@ -119,7 +119,7 @@ namespace opdet{
     fUseEmpiricalGain= p.get<bool        >("UseEmpiricalGain");
     fHighGainFile    = p.get<std::string >("HighGainFile");
     fLowGainFile     = p.get<std::string >("LowGainFile");
-    fGainSpreadFile  = p.get<std::string >("GainSpreadFile");    
+    fGainSpreadFile  = p.get<std::string >("GainSpreadFile");
 
     fHighGainMean       = p.get<double   >("HighGainMean");
     fLowGainMean        = p.get<double   >("LowGainMean");
@@ -153,13 +153,13 @@ namespace opdet{
     // Fill baseline mean
     FillPedMeanArray();
 
-    // Report 
+    // Report
     std::string msg(Form("%-10s ... %-10s ... %-10s ... %-10s\n","Ch. Number","Pedestal","High Gain","Low Gain"));
     for(unsigned int i=0;i<fGeometry->NOpChannels();++i) {
       msg+=Form("%-10d ... %-10d ... %-10g ... %-10g\n",i,fPedMeanArray[i],fHighGainArray[i],fLowGainArray[i]);
     }
     mf::LogInfo(__FUNCTION__)<<msg.c_str();
-      
+
     return;
   }
 
@@ -175,7 +175,7 @@ namespace opdet{
 
     mf::LogInfo("OpDigiProperties")<<"OpDigiProperties opening OpDet waveform at " << fWaveformFile.c_str();
 
-    // Read in each line and place into waveform vector 
+    // Read in each line and place into waveform vector
     std::vector<double> PEWaveform;
     if (WaveformFile.is_open())
       {
@@ -223,7 +223,7 @@ namespace opdet{
 	if( !sp.find_file(fLowGainFile, FullPath) )
 	  throw cet::exception("OpDigiProperties") << "Unable to find low gain spread file in " << sp.to_string() << "\n";
 
-	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening low gain spread file at " << FullPath.c_str();	
+	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening low gain spread file at " << FullPath.c_str();
 	std::ifstream LowGainFile(FullPath.c_str());
 	if(LowGainFile.is_open()) {
 	  std::string line;
@@ -237,7 +237,7 @@ namespace opdet{
 	if( !sp.find_file(fGainSpreadFile, FullPath) )
 	  throw cet::exception("OpDigiProperties") << "Unable to find low gain spread file in " << sp.to_string() << "\n";
 
-	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening low gain spread file at " << FullPath.c_str();	
+	mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening low gain spread file at " << FullPath.c_str();
 	std::ifstream GainSpreadFile(FullPath.c_str());
 	if(GainSpreadFile.is_open()) {
 	  std::string line;
@@ -246,7 +246,7 @@ namespace opdet{
 	    fGainSpreadArray.push_back(strtod(line.c_str(),NULL));
 	  }
 	}else throw cet::exception("OpDigiProperties")<<"Unable to open file!\n";
-	
+
       }
     else{
       // Generate a set of gake gain mean & spread.
@@ -267,17 +267,17 @@ namespace opdet{
     //
     // Note:
     // Check for # entries. These exceptions ensures we have enough # of elements.
-    // When a user access the elements by a channel number using LowGainMean(Channel_t ch) etc., 
+    // When a user access the elements by a channel number using LowGainMean(Channel_t ch) etc.,
     // those functions do not check if the given channel number is valid or not to keep a high
     // performance of the code. If there's an invalid memory access error in run-time, then
     // it must mean the user provided an invalid channel number and not due to insufficient
     // vector elements filled in this function.
     //
-    if(fLowGainArray.size()<fGeometry->NOpChannels()) 
+    if(fLowGainArray.size()<fGeometry->NOpChannels())
       throw cet::exception("OpDigiProperties")<<"Low gain missing for some channels!\n";
-    if(fHighGainArray.size()<fGeometry->NOpChannels()) 
+    if(fHighGainArray.size()<fGeometry->NOpChannels())
       throw cet::exception("OpDigiProperties")<<"High gain missing for some channels!\n";
-    if(fGainSpreadArray.size()<fGeometry->NOpChannels()) 
+    if(fGainSpreadArray.size()<fGeometry->NOpChannels())
       throw cet::exception("OpDigiProperties")<<"Gain spread missing for some channels!\n";
   }
 
@@ -286,13 +286,13 @@ namespace opdet{
     std::string FullPath;
 
     if(fUseEmpiricalShape){
-      cet::search_path sp("FW_SEARCH_PATH");    
+      cet::search_path sp("FW_SEARCH_PATH");
       if( !sp.find_file(fWaveformFile, FullPath) )
-	
+
 	throw cet::exception("OpDigiProperties") << "Unable to find PMT waveform file in " << sp.to_string() << "\n";
-      
-      fWaveform   = GenEmpiricalWF(FullPath); 
-      
+
+      fWaveform   = GenEmpiricalWF(FullPath);
+
     }else fWaveform = GenAnalyticalWF();
   }
 
@@ -304,7 +304,7 @@ namespace opdet{
 
     mf::LogWarning("OpDigiProperties")<<"OpDigiProperties opening OpDet waveform at " << fWaveformFile.c_str();
 
-    // Read in each line and place into waveform vector 
+    // Read in each line and place into waveform vector
     std::vector<double> PEWaveform;
     if (WaveformFile.is_open())
       {
@@ -347,7 +347,7 @@ namespace opdet{
     //
     // Define a waveform vector
     //
-    // Size of WF = time width [us] * frequency [MHz] 
+    // Size of WF = time width [us] * frequency [MHz]
     std::vector<double> PEWaveform(int( fWFLength * fSampleFreq), 0.0);
     double SamplingDuration = 1./fSampleFreq; // in micro seconds
     double MaxAmp=0;
@@ -359,7 +359,7 @@ namespace opdet{
       if(PEWaveform[i]>MaxAmp) MaxAmp=PEWaveform[i];
       Charge+=Value;
     }
-    
+
     // rescale
     if(MaxAmp<=0) throw cet::exception("OpDigiProperties_module")<<"Waveform amplitude <=0!\n";
 
@@ -377,7 +377,7 @@ namespace opdet{
 } // namespace
 
 namespace opdet{
- 
+
   DEFINE_ART_SERVICE(OpDigiProperties)
 
 } // namespace util

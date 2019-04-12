@@ -9,8 +9,8 @@
  * Class that contains utility functions for flash and flash hypotheses:
  * --- compare a flash hypothesis to a truth or reco vector
  * --- get an extent of a flash (central point, width)
- * These classes should operate using simple objects, and will need other 
- * classes/functions to fill those vectors properly. 
+ * These classes should operate using simple objects, and will need other
+ * classes/functions to fill those vectors properly.
 */
 
 #include <vector>
@@ -23,7 +23,7 @@ namespace opdet{
   public:
 
     FlashUtilities() {}
-    
+
     float CompareByError(const FlashHypothesis&,
 			 const std::vector<float>&,
 			 std::vector<float>&);
@@ -39,11 +39,11 @@ namespace opdet{
     void GetPosition(const std::vector<float>&,
 		     const std::vector<float>&,
 		     double&, double&);
-    
+
   private:
-    
+
   };
-  
+
 }
 
 #endif

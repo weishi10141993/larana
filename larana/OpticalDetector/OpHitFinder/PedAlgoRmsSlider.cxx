@@ -41,7 +41,7 @@ namespace pmtana{
     if (_n_wf_to_csvfile > 0) {
       _csvfile.open ("wf_pedalgormsslider.csv", std::ofstream::out | std::ofstream::trunc);
       _csvfile << "n,time,wf,wf_ped_mean,wf_ped_rms" << std::endl;
-    }   
+    }
 
   }
 
@@ -51,13 +51,13 @@ namespace pmtana{
   {}
 
   //*******************************************
-  void PedAlgoRmsSlider::PrintInfo() 
+  void PedAlgoRmsSlider::PrintInfo()
   //*******************************************
   {
-    std::cout << "PedAlgoRmsSlider setting:" 
-              << "\n\t SampleSize:       " << _sample_size 
+    std::cout << "PedAlgoRmsSlider setting:"
+              << "\n\t SampleSize:       " << _sample_size
               << "\n\t Threshold:        " << _threshold
-              << "\n\t Verbose:          " << _verbose 
+              << "\n\t Verbose:          " << _verbose
               << "\n\t NWaveformsToFile: " << _n_wf_to_csvfile << std::endl;
   }
 
@@ -102,7 +102,7 @@ namespace pmtana{
   //****************************************************************************
   {
 
-    if (_verbose) 
+    if (_verbose)
       this->PrintInfo();
 
     if (wf.size() <= (_sample_size * 2))
@@ -128,7 +128,7 @@ namespace pmtana{
       sigma_v[i] = 0;
     }
 
-    
+
 
 
 
@@ -149,7 +149,7 @@ namespace pmtana{
 
     for (size_t i = 0; i < wf.size() - _sample_size; i++) {
 
-      local_mean = mean(wf, i, _sample_size); 
+      local_mean = mean(wf, i, _sample_size);
       local_rms  = std(wf, local_mean, i, _sample_size);
 
       if(_verbose) std::cout << "\033[93mPedAlgoRmsSlider\033[00m: i " << i << "  local_mean: " << local_mean << "  local_rms: " << local_rms << std::endl;
@@ -158,7 +158,7 @@ namespace pmtana{
 
         if(_verbose)
           std::cout << "\033[93mBelow threshold\033[00m: "
-                    << "at i " << i 
+                    << "at i " << i
                     << " last good index was: " << last_good_index
                     << std::endl;
 
@@ -313,7 +313,7 @@ namespace pmtana{
     }
 
 
-  
+
 
     // Save to file
     if (_wf_saved + 1 <= _n_wf_to_csvfile) {
@@ -368,9 +368,9 @@ namespace pmtana{
     if(best_sigma > _max_sigma || num_good_adc < 3) {
 
        if(_verbose) {
-         std::cout << "\033[93mPedAlgoRmsSlider\033[00m: Not enough number of good mean indices." 
+         std::cout << "\033[93mPedAlgoRmsSlider\033[00m: Not enough number of good mean indices."
            << "Using the best guess within this waveform."
-           << std::endl; 
+           << std::endl;
        }
 
       for(size_t i=0; i<mean_v.size(); ++i) {

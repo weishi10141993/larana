@@ -46,7 +46,7 @@ namespace opdet
       */
       std::vector<double> WaveformInit(std::string WaveformFile);
 
-      /** 
+      /**
 	  Convert the given time into time-slice number.
 	  Input time should be in ns unit and measurd w.r.t. MC photon T0
       */
@@ -76,10 +76,10 @@ namespace opdet
       double LowGainMean  (optdata::Channel_t ch) const;
       /// Returns generated HIGH gain value for input channel (PMT-to-PMT spread applied)
       double HighGainMean (optdata::Channel_t ch) const;
-      
+
       /// Returns set value for intrinsic gain spread (common to HIGH and LOW)
       double GainSpread        () const { return fGainSpread;         }
-      /// Returns set value for PMT-to-PMT gain spread 
+      /// Returns set value for PMT-to-PMT gain spread
       double GainSpread_PMT2PMT() const { return fGainSpread_PMT2PMT; }
       /// Generate & return LOW gain value for an input channel using mean & spread for this channel
       double LowGain(optdata::Channel_t ch) const;
@@ -87,7 +87,7 @@ namespace opdet
       double HighGain(optdata::Channel_t ch) const;
 
       /// Returns a vector of double which represents a binned SPE waveform
-      std::vector<double> SinglePEWaveform() const { return fWaveform;        } 
+      std::vector<double> SinglePEWaveform() const { return fWaveform;        }
       /// Returns an array of HIGH gain
       std::vector<double> HighGainArray()    const { return fHighGainArray;   }
       /// Returns an array of LOW gain
@@ -99,13 +99,13 @@ namespace opdet
 
       /// Utility function ... To be verified (Kazu 08/05/13)
       double GetSPEArea();
-      /// Utility function ... To be verified (Kazu 08/05/13) 
+      /// Utility function ... To be verified (Kazu 08/05/13)
       double GetSPECumulativeArea();
       /// Utility function ... To be verified (Kazu 08/05/13)
       double GetSPEAmplitude();
       /// Utility function ... To be verified (Kazu 08/05/13)
       double GetSPECumulativeAmplitude();
-      
+
     private:
 
       double fSampleFreq;
@@ -149,7 +149,7 @@ namespace opdet
       std::vector<double> fGainSpreadArray;
       std::vector<optdata::ADC_Count_t> fPedMeanArray;
       art::ServiceHandle<geo::Geometry const> fGeometry;
- 
+
     }; // class OpDigiProperties
 
 } //namespace opdet

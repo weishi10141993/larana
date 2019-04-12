@@ -9,18 +9,18 @@
 /// Generated at Wed Mar 25 13:54:28 2015 by Thomas Warburton using artmod
 /// from cetpkgsupport v1_08_04.
 ///
-/// This module tries to match a reconstructed track with a reconstructed 
-/// flash with the purpose of making an anab::T0 data product. 
-/// It does this by looping through the reconstructed tracks and for each 
-/// track seeing if any of the reconstructed flashes could be associated with 
-/// it (if it is within 1 drift window). If a flash can be matched with the 
+/// This module tries to match a reconstructed track with a reconstructed
+/// flash with the purpose of making an anab::T0 data product.
+/// It does this by looping through the reconstructed tracks and for each
+/// track seeing if any of the reconstructed flashes could be associated with
+/// it (if it is within 1 drift window). If a flash can be matched with the
 /// track then some matching criteria are calculated;
 ///     A PE vs X relationship
 ///     The separation of the flash centre to a track space point in YZ
 /// The flash which has the smallest summed square of these quantities is then
-/// attributed to this track. 
-/// It is possible for a flash to be attributed to multiple tracks, but only 
-/// one flash is attributed to each track. 
+/// attributed to this track.
+/// It is possible for a flash to be attributed to multiple tracks, but only
+/// one flash is attributed to each track.
 /// If there are no flashes within one drift window of the track, then no flash
 /// is assigned. Therefore it is important to look at other methods of using
 /// other T0 finders in addition to this one.
@@ -34,12 +34,12 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Event.h" 
-#include "canvas/Persistency/Common/Ptr.h" 
-#include "canvas/Persistency/Common/PtrVector.h" 
+#include "art/Framework/Principal/Event.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Services/Optional/TFileService.h" 
+#include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 
 #include "canvas/Utilities/InputTag.h"
@@ -92,7 +92,7 @@ public:
   // Plugins should not be copied or assigned.
   PhotonCounterT0Matching(PhotonCounterT0Matching const &) = delete;
   PhotonCounterT0Matching(PhotonCounterT0Matching &&) = delete;
-  PhotonCounterT0Matching & operator = (PhotonCounterT0Matching const &) = delete; 
+  PhotonCounterT0Matching & operator = (PhotonCounterT0Matching const &) = delete;
  PhotonCounterT0Matching & operator = (PhotonCounterT0Matching &&) = delete;
 
   // Required functions.
@@ -132,7 +132,7 @@ private:
   double TrackLength_X, TrackCentre_X, BestTrackCentre_X;
   double TrackLength_Y, TrackCentre_Y /* , BestTrackCentre_Y */;
   double TrackLength_Z, TrackCentre_Z /* , BestTrackCentre_Z */;
-  double trkTimeStart, trkTimeEnd, trkTimeLengh; 
+  double trkTimeStart, trkTimeEnd, trkTimeLengh;
 
   double trkTimeCentre, BesttrkTimeCentre;
   double TrackLength, BestTrackLength;
@@ -145,8 +145,8 @@ private:
   double TimeSep, BestTimeSep;
   int BestFlash;
   int FlashTriggerType=1;
-  
-  double YZSep, MCTruthT0; 
+
+  double YZSep, MCTruthT0;
   // Histograms in TFS branches
   TTree* fTree;
   TH2D* hPredX_T;
@@ -206,18 +206,18 @@ void lbne::PhotonCounterT0Matching::beginJob()
   fTree->Branch("minYZSep"     ,&BestminYZSep     ,"minYZSep/D");
   fTree->Branch("FitParam"     ,&BestFitParam     ,"FitParam/D");
   fTree->Branch("MCTruthT0"    ,&MCTruthT0        ,"MCTruthT0/D");
-  
+
   hPredX_T  = tfs->make<TH2D>("hPredX_T" ,"Predicted X from timing information against reconstructed X; Reconstructed X (cm); Predicted X (cm)", 30, 0, 300, 30, 0, 300 );
   hPredX_PE = tfs->make<TH2D>("hPredX_PE","Predicted X from PE information against reconstructed X; Reconstructed X (cm); Predicted X (cm)"    , 30, 0, 300, 30, 0, 300 );
-  hPredX_T_PE = tfs->make<TH2D>("hPredX_T_PE", 
+  hPredX_T_PE = tfs->make<TH2D>("hPredX_T_PE",
 				"Predicted X position from time and PE information; Predicted X from timing information (cm); Predicted X from PE information",
 				60, 0, 300, 60, 0, 300);
-  hdeltaX_deltaYZ = tfs->make<TH2D>("hdeltaX_deltaYZ", 
+  hdeltaX_deltaYZ = tfs->make<TH2D>("hdeltaX_deltaYZ",
 				    "Difference between X predicted from PE's and T agaisnt distance of flash from track in YZ; Difference in X predicted from PE's and T (cm); Distance of flash from track in YZ (cm)",
 				    40, 0, 200, 40, 0, 100);
   hdeltaYZ_Length = tfs->make<TH2D>("hdeltaYZ_Length",
 				    "Distance of flash from track against track length; Distance from flash to track (cm); Track length (cm)",
-				    20, 0, 100, 60, 0, 300); 
+				    20, 0, 100, 60, 0, 300);
   hFitParam_Length = tfs->make<TH2D>("hFitParam_Length", "How fit correlates with track length; Fit correlation; Track Length (cm)", 50, 0, 250, 30, 0, 300);
   hPhotonT0_MCT0   = tfs->make<TH2D>("hPhotonT0_MCT0"  , "Comparing Photon Counter reconstructed T0 against MCTruth T0; Photon Counter T0 (us); MCTruthT0 T0 (us)", 1760, -1600, 16000, 1760, -1600, 16000);
   hT0_diff_full    = tfs->make<TH1D>("hT0_diff_full"   , "Difference between MCTruth T0 and photon detector T0; Time difference (us); Number", 500, -2500, 2500);
@@ -237,14 +237,14 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
   art::Handle< std::vector<recob::Track> > trackListHandle;
   std::vector<art::Ptr<recob::Track> > tracklist;
   if (evt.getByLabel(fTrackModuleLabel,trackListHandle))
-    art::fill_ptr_vector(tracklist, trackListHandle); 
-  
+    art::fill_ptr_vector(tracklist, trackListHandle);
+
   //ShowerList handle
   art::Handle< std::vector<recob::Shower> > showerListHandle;
   std::vector<art::Ptr<recob::Shower> > showerlist;
   if (evt.getByLabel(fShowerModuleLabel,showerListHandle))
-    art::fill_ptr_vector(showerlist, showerListHandle); 
-  
+    art::fill_ptr_vector(showerlist, showerListHandle);
+
   //HitList Handle
   art::Handle< std::vector<recob::Hit> > hitListHandle;
   std::vector<art::Ptr<recob::Hit> > hitlist;
@@ -258,24 +258,24 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
     art::fill_ptr_vector(flashlist, flashListHandle);
 
   // Create anab::T0 objects and make association with recob::Track
-  
+
   std::unique_ptr< std::vector<anab::T0> > T0col( new std::vector<anab::T0>);
   std::unique_ptr< art::Assns<recob::Track, anab::T0> > Trackassn( new art::Assns<recob::Track, anab::T0>);
   std::unique_ptr< art::Assns<recob::Shower, anab::T0> > Showerassn( new art::Assns<recob::Shower, anab::T0>);
- 
+
   if (trackListHandle.isValid() && flashListHandle.isValid() ){
     //Access tracks and hits
     art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
     art::FindMany<anab::T0>    fmtruth(trackListHandle, evt, fTruthT0ModuleLabel);
-    
+
     size_t NTracks  = tracklist.size();
     size_t NFlashes = flashlist.size();
-    
+
     if (fVerbosity)
       std::cout << "There were " << NTracks << " tracks and " << NFlashes << " flashes in this event." << std::endl;
-    
-    // Now to access PhotonCounter for each track... 
-    for(size_t iTrk=0; iTrk < NTracks; ++iTrk) { 
+
+    // Now to access PhotonCounter for each track...
+    for(size_t iTrk=0; iTrk < NTracks; ++iTrk) {
       if (fVerbosity) std::cout << "\n New Track " << (int)iTrk << std::endl;
       // Reset Variables.
       BestFlashTime = BestFitParam = BestTrackCentre_X = BestTrackLength = 9999;
@@ -284,7 +284,7 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 
       // Work out Properties of the track.
       recob::Track::Point_t trackStart, trackEnd;
-      std::tie(trackStart, trackEnd) = tracklist[iTrk]->Extent(); 
+      std::tie(trackStart, trackEnd) = tracklist[iTrk]->Extent();
       std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
       size_t nHits = allHits.size();
       trkTimeStart = allHits[nHits-1]->PeakTime() / timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
@@ -293,11 +293,11 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 		  trackStart.Y(), trackEnd.Y(), TrackLength_Y, TrackCentre_Y,
 		  trackStart.Z(), trackEnd.Z(), TrackLength_Z, TrackCentre_Z,
 		  trkTimeStart , trkTimeEnd , trkTimeLengh , trkTimeCentre, // times in us!
-		  TrackLength);     
+		  TrackLength);
 
       // Some cout statement about track properties.
       if (fVerbosity) {
-	std::cout << trackStart.X() << " " << trackEnd.X() << " " << TrackLength_X << " " << TrackCentre_X 
+	std::cout << trackStart.X() << " " << trackEnd.X() << " " << TrackLength_X << " " << TrackCentre_X
 		  << "\n" << trackStart.Y() << " " << trackEnd.Y() << " " << TrackLength_Y << " " << TrackCentre_Y
 		  << "\n" << trackStart.Z() << " " << trackEnd.Z() << " " << TrackLength_Z << " " << TrackCentre_Z
 		  << "\n" << trkTimeStart  << " " << trkTimeEnd  << " " << trkTimeLengh  << " " << trkTimeCentre
@@ -313,7 +313,7 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	FlashTime = flashlist[iFlash]->Time(); // Got in us!
 	TimeSep = trkTimeCentre - FlashTime; // Time in us!
 	if ( TimeSep < 0 || TimeSep > (fDriftWindowSize/timeservice->TPCClock().Frequency() ) ) continue; // Times compared in us!
-	
+
 	// Check flash has enough PE's to satisfy our threshold
 	if ( flashlist[iFlash]->TotalPE() < fPEThreshold ) continue;
 
@@ -336,11 +336,11 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	if (fMatchCriteria == 0) FitParam = pow( ((DeltaPredX*DeltaPredX)+(minYZSep*minYZSep*fWeightOfDeltaYZ)), 0.5);
 	else if (fMatchCriteria == 1) FitParam = minYZSep;
 	else if (fMatchCriteria == 2) FitParam = DeltaPredX;
-	
+
 	//----FLASH INFO-----
 	if (fVerbosity) {
-	  std::cout << "\nFlash " << (int)iFlash << " " << TrackCentre_X << ", " << TimeSepPredX << " - " << PredictedX << " = " 
-		    << DeltaPredX << ", " << minYZSep << " -> " << FitParam << std::endl; 
+	  std::cout << "\nFlash " << (int)iFlash << " " << TrackCentre_X << ", " << TimeSepPredX << " - " << PredictedX << " = "
+		    << DeltaPredX << ", " << minYZSep << " -> " << FitParam << std::endl;
 	}
 	//----Select best flash------
 	//double YFitRegion = (-1 * DeltaPredX ) + 80;
@@ -360,11 +360,11 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	  BestTimeSep       = TimeSep;
 	} // Find best Flash
       } // Loop over Flashes
-      
+
       // ---- Now Make association and fill TTree/Histos with the best matched flash.....
       if (ValidTrack) {
 
-	// -- Fill Histos -- 
+	// -- Fill Histos --
 	hPredX_T         ->Fill( BestTrackCentre_X, BestTimeSepPredX );
 	hPredX_PE        ->Fill( BestTrackCentre_X, BestPredictedX );
 	hPredX_T_PE      ->Fill( BestTimeSepPredX , BestPredictedX );
@@ -379,7 +379,7 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 	    hPhotonT0_MCT0 ->Fill( BestFlashTime, MCTruthT0 );
 	    hT0_diff_full  -> Fill( MCTruthT0 - BestFlashTime );
 	    hT0_diff_zoom  -> Fill( MCTruthT0 - BestFlashTime );
-	    //std::cout << "Size " << T0s.size() << " " << MCTruthT0 << " " << BestFlashTime << std::endl;	
+	    //std::cout << "Size " << T0s.size() << " " << MCTruthT0 << " " << BestFlashTime << std::endl;
 	  }
 	}
 	// -- Fill TTree --
@@ -393,7 +393,7 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
 				  ));
 	util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);
       } // Valid Track
-    } // Loop over tracks   
+    } // Loop over tracks
   }
   /* // ------------------------------------------------- SHOWER STUFF -------------------------------------------------
   if (showerListHandle.isValid()){
@@ -405,13 +405,13 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
       ShowerID          = 0;
       ShowerT0          = 0;
       std::vector< art::Ptr<recob::Hit> > allHits = fmsht.at(Shower);
-      
+
       std::map<int,double> showeride;
       for(size_t h = 0; h < allHits.size(); ++h){
 	art::Ptr<recob::Hit> hit = allHits[h];
 	std::vector<sim::IDE> ides;
 	std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
-	
+
 	for(size_t e = 0; e < TrackIDs.size(); ++e){
 	  showeride[TrackIDs[e].trackID] += TrackIDs[e].energy;
 	}
@@ -431,20 +431,20 @@ void lbne::PhotonCounterT0Matching::produce(art::Event & evt)
       ShowerT0 = particle->T();
       ShowerID = particle->TrackId();
       ShowerTriggerType = 1; // Using PhotonCounter as trigger, so tigger type is 1.
-      
+
       T0col->push_back(anab::T0(ShowerT0,
 				ShowerTriggerType,
 				ShowerID,
 				(*T0col).size()
 				));
-      util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);    
+      util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);
     }// Loop over showers
   }
-  */ 
+  */
   evt.put(std::move(T0col));
   evt.put(std::move(Trackassn));
   evt.put(std::move(Showerassn));
-  
+
 } // Produce
 // ----------------------------------------------------------------------------------------------------------------------------
 void lbne::PhotonCounterT0Matching::TrackProp ( double TrackStart_X, double TrackEnd_X, double &TrackLength_X, double &TrackCentre_X,
@@ -456,11 +456,11 @@ void lbne::PhotonCounterT0Matching::TrackProp ( double TrackStart_X, double Trac
   TrackLength_X = fabs ( TrackEnd_X - TrackStart_X );
   if ( TrackStart_X < TrackEnd_X ) TrackCentre_X = TrackStart_X + 0.5*TrackLength_X;
   else TrackCentre_X = TrackStart_X - 0.5*TrackLength_X;
-  
+
   TrackLength_Y = fabs ( TrackEnd_Y - TrackStart_Y );
   if ( TrackStart_Y < TrackEnd_Y ) TrackCentre_Y = TrackStart_Y + 0.5*TrackLength_Y;
   else TrackCentre_Y = TrackStart_Y - 0.5*TrackLength_Y;
-  
+
   TrackLength_Z = fabs ( TrackEnd_Z - TrackStart_Z );
   if ( TrackStart_Z < TrackEnd_Z ) TrackCentre_Z = TrackStart_Z + 0.5*TrackLength_Z;
   else TrackCentre_Z = TrackStart_Z - 0.5*TrackLength_Z;
@@ -469,12 +469,12 @@ void lbne::PhotonCounterT0Matching::TrackProp ( double TrackStart_X, double Trac
   trkTimeCentre = trkTimeStart + 0.5*trkTimeLengh;
 
   TrackLength =  pow( pow((TrackEnd_X-TrackStart_X), 2) + pow((TrackEnd_Y-TrackStart_Y), 2) + pow((TrackEnd_Z-TrackStart_Z), 2) , 0.5);
-  
+
   return;
 }
 // ----------------------------------------------------------------------------------------------------------------------------
 double lbne::PhotonCounterT0Matching::DistFromPoint ( double StartY, double EndY, double StartZ, double EndZ, double PointY, double PointZ ) {
-  ///Calculate the distance between the centre of the flash and the centre of a line connecting two adjacent space points. 
+  ///Calculate the distance between the centre of the flash and the centre of a line connecting two adjacent space points.
   double Length = hypot ( fabs( EndY - StartY), fabs ( EndZ - StartZ ) );
   //  double distance = (double)((point.x - line_start.x) * (line_end.y - line_start.y) - (point.y - line_start.y) * (line_end.x - line_start.x)) / normalLength;
   double distance = ( (PointZ - StartZ) * (EndY - StartY) - (PointY - StartY) * (EndZ - StartZ) ) / Length;

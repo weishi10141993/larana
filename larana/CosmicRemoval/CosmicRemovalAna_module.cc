@@ -2,7 +2,7 @@
 // Cosmic Removal Module Ana
 //
 // Module Designed to loop over tracks / clusters / hits that
-// have the cosmic tag association and removeor ignore the 
+// have the cosmic tag association and removeor ignore the
 // hits and check to see what is left over
 //
 // Yale Workshop (Cosmics Removal Group)
@@ -12,13 +12,13 @@
 // Framework includes
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Principal/Event.h" 
-#include "art/Framework/Principal/Handle.h" 
-#include "art/Framework/Services/Registry/ServiceHandle.h" 
-#include "art/Framework/Services/Optional/TFileService.h" 
-#include "art/Framework/Services/Optional/TFileDirectory.h" 
-#include "fhiclcpp/ParameterSet.h" 
-#include "messagefacility/MessageLogger/MessageLogger.h" 
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Optional/TFileService.h"
+#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // LArSoft Includes
 #include "larcore/Geometry/Geometry.h"
@@ -47,13 +47,13 @@
 
 
 namespace microboone {
-   
+
   class CosmicRemovalAna : public art::EDAnalyzer {
 
   public:
-          
-    explicit CosmicRemovalAna(fhicl::ParameterSet const& pset); 
- 
+
+    explicit CosmicRemovalAna(fhicl::ParameterSet const& pset);
+
     /// read access to event
     void analyze(const art::Event& evt);
     void beginJob();
@@ -63,25 +63,25 @@ namespace microboone {
       hit_origin_Cosmic = 0,
       hit_origin_NonCosmic = 1
     };
-    
+
     private:
 
     unsigned int nCosmicTags;
-    
+
   //  TTree *tTagTree;
     TTree *tEventTree;
-    
+
     std::string fHitsModuleLabel;
     std::string fMCModuleLabel;
     std::string fMCHitsModuleLabel;
-    std::string fClusterModuleLabel; 
+    std::string fClusterModuleLabel;
     std::string fTrackModuleLabel;
     float       fHitCompareCut;
     std::vector <std::string> fCosmicTagAssocLabel;
     std::vector <float> fCosmicScoreThresholds;
 
     void InitEventTree(int run_number, int event_number);
-    
+
     void FillMCInfo( std::vector<recob::Hit> const& hitlist,
 		     std::vector<hit_origin_t> & hitOrigins,
 		     std::vector<sim::MCHitCollection> const& mchitCollectionVector,
@@ -94,7 +94,7 @@ namespace microboone {
 		       std::vector< std::vector< const anab::CosmicTag* > > const& tags_per_cluster,
 		       std::vector<bool> & hitsAccounted_per_tag,
 		       std::vector<bool> & hitsAllTags);
-    
+
     void FillClusterInfo(size_t const& hit_iter,
 			 hit_origin_t const& origin,
 			 float const& charge,
@@ -102,7 +102,7 @@ namespace microboone {
 			 std::vector< std::vector< const anab::CosmicTag* > > const& tags_per_cluster,
 			 std::vector<bool> & hitsAccounted_per_tag,
 			 std::vector<bool> & hitsAllTags);
-    
+
     void FillAllTagsInfo(recob::Hit const& hit,
 			 hit_origin_t const& origin);
 
@@ -137,31 +137,31 @@ namespace microboone {
     typedef struct {
       int runNumber;
       int eventNumber;
-      
+
       int nHitsTotal_Unknown;
       int nHitsTotal_Cosmic;
       int nHitsTotal_NonCosmic;
-      
+
       float qTotal_Unknown;
       float qTotal_Cosmic;
       float qTotal_NonCosmic;
-      
+
       int nHitsTrack;
       int nHitsTrack_Cosmic;
       int nHitsTrack_NonCosmic;
-      
+
       float qTrack;
       float qTrack_Cosmic;
       float qTrack_NonCosmic;
-      
+
       int nHitsCluster;
       int nHitsCluster_Cosmic;
       int nHitsCluster_NonCosmic;
-      
+
       float qCluster;
       float qCluster_Cosmic;
       float qCluster_NonCosmic;
-      
+
       float TotalTaggedCharge_Cosmic;
       float TotalTaggedCharge_NonCosmic;
       int   TotalTaggedHits_Cosmic;
@@ -194,18 +194,18 @@ microboone::CosmicRemovalAna::CosmicRemovalAna(fhicl::ParameterSet const& pset):
 
 void microboone::CosmicRemovalAna::beginJob()
 {
- 
+
   //static cEventProperties_t cEventVals;
- 
+
   nCosmicTags = fCosmicTagAssocLabel.size();
   cTaggedCharge_Cosmic.resize(nCosmicTags);
   cTaggedCharge_NonCosmic.resize(nCosmicTags);
   cTaggedHits_Cosmic.resize(nCosmicTags);
   cTaggedHits_NonCosmic.resize(nCosmicTags);
-  
+
   art::ServiceHandle<art::TFileService const> tfs;
   tEventTree = (TTree*)tfs->make<TTree>("CosmicEventTree","CosmicEventTree");
-    
+
   tEventTree->Branch("event", &cEventVals, "runNumber/I:eventNumber/I:nHitsTotal_Unknown/I:nHitsTotal_Cosmic/I:nHitsTotal_NonCosmic/I:qTotal_Unknown/F:qTotal_Cosmic/F:qTotal_NonCosmic/F:nHitsTrack/I:nHitsTrack_Cosmic/I:nHitsTrack_NonCosmic/I:qTrack/F:qTrack_Cosmic/F:qTrack_NonCosmic/F:nHitsCluster/I:nHitsCluster_Cosmic/I:nHitsCluster_NonCosmic/I:qCluster/F:qCluster_Cosmic/F:qCluster_NonCosmic/F:TotalTaggedCharge_Cosmic/F:TotalTaggedCharge_NonCosmic/F:TotalTaggedHits_Cosmic/I:TotalTaggedHits_NonCosmic/I");
   tEventTree->Branch("TaggedCharge_Cosmic",&cTaggedCharge_Cosmic);
   tEventTree->Branch("TaggedCharge_NonCosmic",&cTaggedCharge_NonCosmic);
@@ -231,7 +231,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 
   art::Handle< std::vector<recob::Hit> > hitListHandle;
   evt.getByLabel(fHitsModuleLabel,hitListHandle);
-  std::vector<recob::Hit> const& hitVector(*hitListHandle);  
+  std::vector<recob::Hit> const& hitVector(*hitListHandle);
 
   std::vector<hit_origin_t> hitOrigins(hitVector.size());
 
@@ -249,7 +249,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   art::Handle< art::Assns<simb::MCParticle,simb::MCTruth> > assnMCParticleTruthHandle;
   evt.getByLabel(fMCModuleLabel,assnMCParticleTruthHandle);
 
-  std::vector< const simb::MCTruth* > 
+  std::vector< const simb::MCTruth* >
     particle_to_truth = util::GetAssociatedVectorOneP(assnMCParticleTruthHandle,
 						      mcParticleHandle);
 
@@ -258,25 +258,25 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   for(size_t p_iter=0; p_iter<mcParticleVector.size(); p_iter++)
     trackIDToTruthMap[ mcParticleVector[p_iter].TrackId() ] = particle_to_truth[p_iter];
 
-  FillMCInfo(hitVector, hitOrigins, mchitcolVector, trackIDToTruthMap);  
- 
+  FillMCInfo(hitVector, hitOrigins, mchitcolVector, trackIDToTruthMap);
+
   art::Handle< std::vector<recob::Track> > trackListHandle;
   evt.getByLabel(fTrackModuleLabel,trackListHandle);
-  std::vector<recob::Track> const& trackVector(*trackListHandle);  
+  std::vector<recob::Track> const& trackVector(*trackListHandle);
 
   art::Handle< std::vector<recob::Cluster> > clusterListHandle;
   evt.getByLabel(fClusterModuleLabel,clusterListHandle);
-  std::vector<recob::Cluster> const& clusterVector(*clusterListHandle);  
+  std::vector<recob::Cluster> const& clusterVector(*clusterListHandle);
 
   art::Handle< art::Assns<recob::Hit,recob::Track> > assnHitTrackHandle;
   evt.getByLabel(fTrackModuleLabel,assnHitTrackHandle);
-  std::vector< std::vector<size_t> > 
+  std::vector< std::vector<size_t> >
     track_indices_per_hit = util::GetAssociatedVectorManyI(assnHitTrackHandle,
 							   hitListHandle);
 
   art::Handle< art::Assns<recob::Hit,recob::Cluster> > assnHitClusterHandle;
   evt.getByLabel(fClusterModuleLabel,assnHitClusterHandle);
-  std::vector< std::vector<size_t> > 
+  std::vector< std::vector<size_t> >
     cluster_indices_per_hit = util::GetAssociatedVectorManyI(assnHitClusterHandle,
 							     hitListHandle);
 
@@ -289,14 +289,14 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   for(size_t label_i=0; label_i<fCosmicTagAssocLabel.size(); label_i++){
     try{ evt.getByLabel(fCosmicTagAssocLabel[label_i],cosmicTagHandlesVector[label_i]); }
     catch(...){ continue; }
-    try{ 
-      evt.getByLabel(fCosmicTagAssocLabel[label_i],assnTrackTagHandlesVector[label_i]); 
+    try{
+      evt.getByLabel(fCosmicTagAssocLabel[label_i],assnTrackTagHandlesVector[label_i]);
       for(auto const& pair : *assnTrackTagHandlesVector[label_i])
 	tags_per_track.at(pair.first.key())[label_i] = &(*(pair.second));
     }
     catch(...){}
-    try{ 
-      evt.getByLabel(fCosmicTagAssocLabel[label_i],assnClusterTagHandlesVector[label_i]); 
+    try{
+      evt.getByLabel(fCosmicTagAssocLabel[label_i],assnClusterTagHandlesVector[label_i]);
       for(auto const& pair : *assnClusterTagHandlesVector[label_i])
 	tags_per_cluster.at(pair.first.key())[label_i] = &(*(pair.second));
     }
@@ -328,7 +328,7 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 		      tags_per_cluster,
 		      hitsAccounted[hit_iter],
 		      hitsAllTags);
-    
+
     if(hitsAllTags[hit_iter]) FillAllTagsInfo(hitVector[hit_iter],origin);
 
   }//end loop over all the hits
@@ -341,7 +341,7 @@ void microboone::CosmicRemovalAna::InitEventTree(int run_number, int event_numbe
 
   cEventVals.runNumber = run_number;//evt.run();
   cEventVals.eventNumber = event_number;//evt.event();
-  
+
   cEventVals.nHitsTotal_Unknown = 0;
   cEventVals.nHitsTotal_Cosmic = 0;
   cEventVals.nHitsTotal_NonCosmic = 0;
@@ -353,7 +353,7 @@ void microboone::CosmicRemovalAna::InitEventTree(int run_number, int event_numbe
   cEventVals.nHitsTrack = 0;
   cEventVals.nHitsTrack_Cosmic = 0;
   cEventVals.nHitsTrack_NonCosmic = 0;
-  
+
   cEventVals.qTrack = 0;
   cEventVals.qTrack_Cosmic = 0;
   cEventVals.qTrack_NonCosmic = 0;
@@ -361,11 +361,11 @@ void microboone::CosmicRemovalAna::InitEventTree(int run_number, int event_numbe
   cEventVals.nHitsCluster = 0;
   cEventVals.nHitsCluster_Cosmic = 0;
   cEventVals.nHitsCluster_NonCosmic = 0;
-  
+
   cEventVals.qCluster = 0;
   cEventVals.qCluster_Cosmic = 0;
   cEventVals.qCluster_NonCosmic = 0;
-  
+
   cEventVals.TotalTaggedCharge_Cosmic = 0.;
   cEventVals.TotalTaggedCharge_NonCosmic = 0.;
   cEventVals.TotalTaggedHits_Cosmic = 0;
@@ -392,9 +392,9 @@ void microboone::CosmicRemovalAna::FillMCInfo( std::vector<recob::Hit> const& hi
   for(size_t itr=0; itr<hitlist.size(); itr++){
 
     recob::Hit const& this_hit = hitlist[itr];
-    
+
     std::vector<int> trackIDs;
-    std::vector<double> energy;    
+    std::vector<double> energy;
 
     for( auto const& mchit : mchitCollectionVector[this_hit.Channel()] ){
       if( std::abs(ts->TPCTDC2Tick(mchit.PeakTime()) - this_hit.PeakTime()) < fHitCompareCut){
@@ -402,27 +402,27 @@ void microboone::CosmicRemovalAna::FillMCInfo( std::vector<recob::Hit> const& hi
 	energy.push_back(mchit.PartEnergy());
       }
     }
-    
+
     if(trackIDs.size()==0){
       hitOrigins[itr] = hit_origin_Unknown;
       cEventVals.nHitsTotal_Unknown++;
       cEventVals.qTotal_Unknown += this_hit.Integral();
       continue;
     }
-    
+
     float cosmic_energy=0;
     float non_cosmic_energy=0;
 
-    for(size_t iter=0; iter<trackIDs.size(); iter++){ 
+    for(size_t iter=0; iter<trackIDs.size(); iter++){
       auto map_element = trackIdToTruthMap.find(std::abs(trackIDs[iter]));
       if(map_element==trackIdToTruthMap.end()) continue;
-      int origin = map_element->second->Origin();  
+      int origin = map_element->second->Origin();
       if(origin == simb::kBeamNeutrino)
 	non_cosmic_energy += energy[iter];
       else
 	cosmic_energy += energy[iter];
     }
-    
+
     if(non_cosmic_energy > cosmic_energy){
       hitOrigins[itr] = hit_origin_NonCosmic;
       cEventVals.nHitsTotal_NonCosmic++;
@@ -448,7 +448,7 @@ void microboone::CosmicRemovalAna::FillTrackInfo(size_t const& hit_iter,
 
   cEventVals.nHitsTrack++;
   cEventVals.qTrack += charge;
-  
+
   if(origin==hit_origin_Cosmic){
     cEventVals.nHitsTrack_Cosmic++;
     cEventVals.qTrack_Cosmic += charge;
@@ -457,7 +457,7 @@ void microboone::CosmicRemovalAna::FillTrackInfo(size_t const& hit_iter,
     cEventVals.nHitsTrack_NonCosmic++;
     cEventVals.qTrack_NonCosmic += charge;
   }
-  
+
   for(unsigned int nCT = 0; nCT < fCosmicTagAssocLabel.size(); nCT++){//<---This loops over the vector of cosmicTags in stored in the event
     if(hitsAccounted_per_tag[nCT]) continue;
 
@@ -478,9 +478,9 @@ void microboone::CosmicRemovalAna::FillTrackInfo(size_t const& hit_iter,
 	}
       }
     }
-    
+
   }
-  
+
 }//end FillTrackInfo
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -494,7 +494,7 @@ void microboone::CosmicRemovalAna::FillClusterInfo(size_t const& hit_iter,
 
   cEventVals.nHitsCluster++;
   cEventVals.qCluster += charge;
-  
+
   if(origin==hit_origin_Cosmic){
     cEventVals.nHitsCluster_Cosmic++;
     cEventVals.qCluster_Cosmic += charge;
@@ -503,7 +503,7 @@ void microboone::CosmicRemovalAna::FillClusterInfo(size_t const& hit_iter,
     cEventVals.nHitsCluster_NonCosmic++;
     cEventVals.qCluster_NonCosmic += charge;
   }
-  
+
   for(unsigned int nCT = 0; nCT < fCosmicTagAssocLabel.size(); nCT++){//<---This loops over the vector of cosmicTags in stored in the event
     if(hitsAccounted_per_tag[nCT]) continue;
 
@@ -524,10 +524,10 @@ void microboone::CosmicRemovalAna::FillClusterInfo(size_t const& hit_iter,
 	}
       }
     }
-    
+
 
   }
-  
+
 }//end FillClusterInfo
 
 
@@ -546,6 +546,6 @@ void microboone::CosmicRemovalAna::FillAllTagsInfo(recob::Hit const& hit,
 }
 
 namespace microboone{
-  
-  DEFINE_ART_MODULE(CosmicRemovalAna)  
+
+  DEFINE_ART_MODULE(CosmicRemovalAna)
 }

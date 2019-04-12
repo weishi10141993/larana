@@ -22,7 +22,7 @@ void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
   fTree = tree;
   fFillTree = fill;
   fTree->SetName("ctree");
-  
+
   fTree->Branch("run",&fRun,"run/i");
   fTree->Branch("event",&fEvent,"event/i");
 
@@ -37,7 +37,7 @@ void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
   fHypHist_p->SetNameTitle("hHypHist_p","Hypothesis (Prompt);Opdet;PEs");
   fSimHist_p->SetNameTitle("hSimHist_p","SimPhoton (Prompt);Opdet;PEs");
   fCompareHist_p->SetNameTitle("hCompareHist_p","Comparison (Hyp - Sim) (Prompt);Opdet;PEs");
-  
+
   fTree->Branch("hyp_PEs_p",&fHypPEs_p,"hyp_PEs_p/F");
   fTree->Branch("hyp_PEsError_p",&fHypPEsError_p,"hyp_PEsError_p/F");
   fTree->Branch("sim_PEs_p",&fSimPEs_p,"sim_PEs_p/F");
@@ -59,7 +59,7 @@ void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
   fTree->Branch("hHypHist_p",&fHypHist_p);
   fTree->Branch("hSimHist_p",&fSimHist_p);
   fTree->Branch("hCompareHist_p",&fCompareHist_p);
-  
+
   fHypHist_l = h_h_l;
   fSimHist_l = h_s_l;
   fCompareHist_l = h_c_l;
@@ -71,7 +71,7 @@ void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
   fHypHist_l->SetNameTitle("hHypHist_l","Hypothesis (Late);Opdet;PEs");
   fSimHist_l->SetNameTitle("hSimHist_l","SimPhoton (Late);Opdet;PEs");
   fCompareHist_l->SetNameTitle("hCompareHist_l","Comparison (Hyp - Sim) (Late);Opdet;PEs");
-  
+
   fTree->Branch("hyp_PEs_l",&fHypPEs_l,"hyp_PEs_l/F");
   fTree->Branch("hyp_PEsError_l",&fHypPEsError_l,"hyp_PEsError_l/F");
   fTree->Branch("sim_PEs_l",&fSimPEs_l,"sim_PEs_l/F");
@@ -105,7 +105,7 @@ void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
   fHypHist_t->SetNameTitle("hHypHist_t","Hypothesis (Total);Opdet;PEs");
   fSimHist_t->SetNameTitle("hSimHist_t","SimPhoton (Total);Opdet;PEs");
   fCompareHist_t->SetNameTitle("hCompareHist_t","Comparison (Hyp - Sim) (Total);Opdet;PEs");
-  
+
   fTree->Branch("hyp_PEs_t",&fHypPEs_t,"hyp_PEs_t/F");
   fTree->Branch("hyp_PEsError_t",&fHypPEsError_t,"hyp_PEsError_t/F");
   fTree->Branch("sim_PEs_t",&fSimPEs_t,"sim_PEs_t/F");
@@ -136,7 +136,7 @@ void opdet::FlashHypothesisComparison::RunComparison(const unsigned int run,
 						     const std::vector<float>& posY,
 						     const std::vector<float>& posZ)
 {
-  if(fhc.GetVectorSize() != (unsigned int)fHypHist_p->GetNbinsX() || 
+  if(fhc.GetVectorSize() != (unsigned int)fHypHist_p->GetNbinsX() ||
      fhc.GetVectorSize() != spc.PromptPhotonVector().size() ||
      fhc.GetVectorSize() != posY.size() ||
      fhc.GetVectorSize() != posZ.size() ){
@@ -164,7 +164,7 @@ void opdet::FlashHypothesisComparison::FillFlashHypothesisInfo(const FlashHypoth
 
   for(size_t i=0; i<fhc.GetVectorSize(); i++)
     fHypHist_p->SetBinContent(i+1,fhc.GetPromptHypothesis().GetHypothesis(i));
-  
+
   fHypPEs_l = fhc.GetLateHypothesis().GetTotalPEs();
   fHypPEsError_l = fhc.GetLateHypothesis().GetTotalPEsError();
   fUtil.GetPosition(fhc.GetLateHypothesis().GetHypothesisVector(),posY,fHypY_l,fHypRMSY_l);
@@ -206,7 +206,7 @@ void opdet::FlashHypothesisComparison::FillSimPhotonCounterInfo(const SimPhotonC
 
   for(size_t i=0; i<spc.GetVectorSize(); i++)
     fSimHist_t->SetBinContent(i+1,spc.TotalPhotonVector(i));
-  
+
 }
 
 void opdet::FlashHypothesisComparison::FillComparisonInfo(const FlashHypothesisCollection& fhc,
@@ -222,5 +222,5 @@ void opdet::FlashHypothesisComparison::FillComparisonInfo(const FlashHypothesisC
     fCompareHist_l->SetBinContent(i+1,result_l[i]);
     fCompareHist_t->SetBinContent(i+1,result_t[i]);
   }
-  
+
 }

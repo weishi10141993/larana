@@ -2,7 +2,7 @@
  * Title:   SimPhotonCounterALG Class
  * Author:  Wes Ketchum (wketchum@lanl.gov)
  *
- * Description: Alg class that counts up sim photons, leading towards 
+ * Description: Alg class that counts up sim photons, leading towards
  *              comparisons with flashes and flash hypotheses.
 */
 
@@ -66,7 +66,7 @@ void opdet::SimPhotonCounterAlg::AddSimPhotonCollection(sim::SimPhotonsCollectio
 {
   if(ph_col.size() != fCounters.at(0).GetVectorSize())
     throw std::runtime_error("ERROR in SimPhotonCounterAlg: Photon collection size and OpDet size not equal.");
-  
+
   for(auto const& photons : ph_col)
     for(auto & counter : fCounters)
       counter.AddSimPhotons(photons.second);

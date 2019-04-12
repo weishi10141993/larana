@@ -6,7 +6,7 @@
  *
  * Description: Algorithm that calculates the PIDA from a calorimetry object
  * Input:       anab::Calorimetry
- * Output:      PIDA information 
+ * Output:      PIDA information
 */
 #include "fhiclcpp/ParameterSet.h"
 #include "lardataobj/AnalysisBase/Calorimetry.h"
@@ -30,7 +30,7 @@ class util::NormalDistribution{
   float fStepSize;
   float fMaxSigma;
   std::vector<float> fValues;
-  
+
 
 };
 
@@ -107,7 +107,7 @@ class pid::PIDAAlg{
   std::vector< std::vector<float> > fkde_distribution;
   std::vector<float> fkde_dist_min;
   std::vector<float> fkde_dist_max;
-  
+
   util::NormalDistribution fnormalDist;
 
   TTree*         fPIDATree;
@@ -115,7 +115,7 @@ class pid::PIDAAlg{
   TH1F*          hPIDAKDE[MAX_BANDWIDTHS];
   unsigned int   fPIDAHistNbins;
   float          fPIDAHistMin;
-  float          fPIDAHistMax;  
+  float          fPIDAHistMax;
   typedef struct PIDAProperties{
     unsigned int run;
     unsigned int event;

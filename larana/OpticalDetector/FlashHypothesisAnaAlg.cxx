@@ -2,10 +2,10 @@
  * Title:   FlashHypothesisAnaAlg Class
  * Author:  Wes Ketchum (wketchum@lanl.gov)
  *
- * Description: 
- * Alg that compares the flash hypotheses with truth photons and stores the 
+ * Description:
+ * Alg that compares the flash hypotheses with truth photons and stores the
  * results in a TTree.
- * 
+ *
 */
 
 #include "FlashHypothesisAnaAlg.h"
@@ -56,14 +56,14 @@ void opdet::FlashHypothesisAnaAlg::RunComparison(const unsigned int run,
   for(auto const& mctrack : mctrackVec){
     if(mctrack.size()==0) continue;
     std::vector<float> dEdxVector(mctrack.size()-1,fdEdx);
-    fhc = fhc + fFHCreator.GetFlashHypothesisCollection(mctrack, 
+    fhc = fhc + fFHCreator.GetFlashHypothesisCollection(mctrack,
 							dEdxVector,
 							providers,
 							pvs,
 							opdigip,
 							fXOffset);
   }
-  
+
   fSPCAlg.InitializeCounters(*geom,opdigip);
   fSPCAlg.AddSimPhotonsVector(simPhotonsVec);
 

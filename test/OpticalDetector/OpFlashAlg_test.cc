@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(ConstructHit_checkDefaultPulse)
 		      *ts,
 		      SPESize,
 		      HitVector);
-  
+
   BOOST_CHECK_EQUAL(HitVector.size(),0ul);
 
 }
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(ConstructHit_checkPulseBelowThreshold)
 		      TrigTimeAbs,
 		      SPESize,
 		      HitVector);
-  
+
   BOOST_CHECK_EQUAL(HitVector.size(),0ul);
 }
 */
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(ConstructHit_checkPulseAbovThreshold)
 		      TrigTimeAbs,
 		      SPESize,
 		      HitVector);
-  
+
   double peak_time_abs = (pulse.t_max + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
   double pulse_end = (pulse.t_end + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
   double pulse_begin = (pulse.t_start + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
@@ -626,7 +626,7 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_AllUsed)
 
   std::vector<int> HitsThisRefinedFlash;
   double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
-  
+
   double hit_pe = 20;
   double peak_time = 0;
   double width = 10;
@@ -666,7 +666,7 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_NoneUsed)
 
   std::vector<int> HitsThisRefinedFlash;
   double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
-  
+
   double hit_pe = 20;
   double peak_time = 0;
   double width = 10;
@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_FirstUsed)
 
   std::vector<int> HitsThisRefinedFlash;
   double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
-  
+
   double hit_pe = 20;
   double peak_time = 0;
   double width = 10;
@@ -750,7 +750,7 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_UsedHit)
 
   std::vector<int> HitsThisRefinedFlash;
   double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
-  
+
   double hit_pe = 20;
   double peak_time = 0;
   double width = 10;
@@ -800,7 +800,7 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_NewHit)
 
   std::vector<int> HitsThisRefinedFlash;
   double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
-  
+
   double hit_pe = 20;
   double peak_time = 0;
   double width = 10;
@@ -851,7 +851,7 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_OutsideWidth)
 
   std::vector<int> HitsThisRefinedFlash;
   double PEAccumulated=0, FlashMaxTime=0, FlashMinTime=0;
-  
+
   double hit_pe = 20;
   double peak_time = 0;
   double width = 0.1;
@@ -987,7 +987,7 @@ BOOST_AUTO_TEST_CASE(AddHitContribution_AddFirstHit)
     double TotalPE=0, AveTime=0, AveAbsTime=0, FastToTotal=0;
 
     size_t NOpChannels = 5;
-    std::vector<double> PEs(NOpChannels,0);    
+    std::vector<double> PEs(NOpChannels,0);
 
     double hit_pe = 20;
     double peak_time = 1;
@@ -1055,10 +1055,10 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_BackwardsTime)
 
   double iPE = 100; double iTime = 0; double iWidth=0.5;
   double jPE = 100; double jTime = -1; double jWidth=0.5;
-  
+
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
 						jPE, jTime, jWidth);
-  
+
   BOOST_CHECK_CLOSE( result, 1e6, tolerance);
 }
 
@@ -1067,10 +1067,10 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_EqualFlashes)
 
   double iPE = 100; double iTime = 0; double iWidth=0.5;
   double jPE = 100; double jTime = 0; double jWidth=0.5;
-  
+
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
 						jPE, jTime, jWidth);
-  
+
   BOOST_CHECK_CLOSE( result, 0, tolerance);
 }
 
@@ -1079,10 +1079,10 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_LateFlash)
 
   double iPE = 100; double iTime = 0; double iWidth=0.5;
   double jPE = 10; double jTime = 1.6; double jWidth=0.5;
-  
+
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
 						jPE, jTime, jWidth);
-  
+
   double good_result = (jPE - std::exp(-1)*iPE)/(std::sqrt(std::exp(-1)*iPE));
 
   BOOST_CHECK_CLOSE( result, good_result, tolerance);
@@ -1093,10 +1093,10 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_VeryLateFlash)
 
   double iPE = 100; double iTime = 0; double iWidth=0.5;
   double jPE = 10; double jTime = 16; double jWidth=0.5;
-  
+
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
 						jPE, jTime, jWidth);
-  
+
   double good_result = (jPE - std::exp(-10)*iPE)/(std::sqrt(std::exp(-10)*iPE));
 
   BOOST_CHECK_CLOSE( result, good_result, tolerance);
@@ -1107,10 +1107,10 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_UnequalWidths)
 
   double iPE = 100; double iTime = 0; double iWidth=1;
   double jPE = 10; double jTime = 1.6; double jWidth=0.5;
-  
+
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
 						jPE, jTime, jWidth);
-  
+
   double good_result = (jPE - std::exp(-1)*iPE*0.5)/(std::sqrt(std::exp(-1)*iPE*0.5));
 
   BOOST_CHECK_CLOSE( result, good_result, tolerance);
@@ -1147,15 +1147,15 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_OneFlash)
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
@@ -1186,29 +1186,29 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_TwoIndieFlashes)
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(1e6, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
@@ -1242,43 +1242,43 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_RemoveOneFlash)
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(1.6, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs_Small, 
+			   PEs_Small,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(1e6, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
@@ -1317,57 +1317,57 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_IgnoreFirstFlash)
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(0, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(1.6, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs_Small, 
+			   PEs_Small,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(1e6, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
@@ -1408,57 +1408,57 @@ BOOST_AUTO_TEST_CASE(RemoveFlashesFromVectors_IgnoreFirstFlash)
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(0, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(1.6, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs_Small, 
+			   PEs_Small,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   FlashVector.emplace_back(1e6, //time
 			   0.5, //TimeWidth,
 			   0, //AveAbsTime,
 			   0, //Frame,
-			   PEs, 
+			   PEs,
 			   0, //InBeamFrame,
 			   0, //OnBeamTime,
 			   0, //FastToTotal,
-			   0, //meany, 
-			   0, //widthy, 
-			   0, //meanz, 
-			   0, //widthz, 
-			   WireCenters, 
+			   0, //meany,
+			   0, //widthy,
+			   0, //meanz,
+			   0, //widthz,
+			   WireCenters,
 			   WireWidths);
   std::vector<bool> MarkedForRemoval{false, true, false};
   std::vector< std::vector<int> > RefinedHitsPerFlash(NFlashes-BeginFlash);

@@ -2,7 +2,7 @@
  * \file TruncMean.h
  *
  * \ingroup 3DMichel
- * 
+ *
  * \brief Class def header for a class TruncMean
  *
  * @author david caratelli [davidc@fnal.gov]
@@ -22,7 +22,7 @@
 /**
    \class TruncMean
    The truncated mean class allows to compute the following quantities
-   1) the truncated mean profile of an ordered vector of values, such as 
+   1) the truncated mean profile of an ordered vector of values, such as
    the charge profile along a particle's track.
    To create such a profile use the function CalcTruncMeanProfile()
    2) Get the truncated mean value of a distribution. This function
@@ -101,4 +101,4 @@ class TruncMean{
 };
 
 #endif
-/** @} */ // end of doxygen group 
+/** @} */ // end of doxygen group

@@ -38,7 +38,7 @@ namespace pmtana{
     _status = this->RecoPulse(wf,mean_v,sigma_v);
     return _status;
   }
-  
+
   //*****************************************************************************
   bool CheckIndex(const std::vector<short> &wf, const size_t &begin, size_t &end)
   //*****************************************************************************
@@ -72,7 +72,7 @@ namespace pmtana{
   {
 
     if(index >= _pulse_v.size()) {
-      
+
       std::cerr << "\033[93m"
 		<< "Invalid pulse index: " << index
 		<< "\033[00m"
@@ -99,17 +99,17 @@ namespace pmtana{
 				  size_t end) const
   //***************************************************************
   {
-  
+
     if(!CheckIndex(wf,begin,end)) return false;
-  
+
     std::vector<short>::const_iterator begin_iter(wf.begin());
-  
+
     std::vector<short>::const_iterator end_iter(wf.begin());
 
     begin_iter = begin_iter + begin;
 
     end_iter = end_iter + end + 1;
-  
+
     result = (double)(std::accumulate(begin_iter, end_iter, 0));
 
     return true;
@@ -119,17 +119,17 @@ namespace pmtana{
   bool PMTPulseRecoBase::Derivative(const std::vector<short> &wf,
 				    std::vector<int32_t> &diff,
 				    size_t begin,
-				    size_t end) const 
+				    size_t end) const
   //***************************************************************
   {
 
     if(CheckIndex(wf,begin,end)){
-    
+
       diff.clear();
       diff.reserve(end - begin);
 
       for(size_t index = begin ; index <= end ; ++index)
-      
+
 	diff.push_back(wf.at(index+1) - wf.at(index));
 
       return true;
@@ -154,9 +154,9 @@ namespace pmtana{
     if(CheckIndex(wf,begin,end)) {
 
       for(size_t index = begin; index <= end; ++index)
-      
+
 	if( result < wf.at(index)) { target_index = index; result = (double)(wf.at(index)); }
-    
+
     }
 
     return target_index;
@@ -178,9 +178,9 @@ namespace pmtana{
     if(CheckIndex(wf,begin,end)) {
 
       for(size_t index = begin; index <= end; ++index)
-      
+
 	if( result > wf.at(index)) { target_index = index; result = (double)(wf.at(index)); }
-    
+
     }
 
     return target_index;

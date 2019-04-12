@@ -1,7 +1,7 @@
 // -*- mode: c++; c-basic-offset: 2; -*-
 // Ben Jones, MIT, 2013
 //
-//  This ana module extracts pedestals and gains from 
+//  This ana module extracts pedestals and gains from
 //  LED calibration run data (incomplete)
 //
 
@@ -39,17 +39,17 @@
 #include "math.h"
 
 namespace opdet {
- 
+
   class LEDCalibrationAna : public art::EDAnalyzer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     LEDCalibrationAna(const fhicl::ParameterSet&);
 
     void endJob();
 
-    // The analyzer routine, called once per event. 
-    void analyze (const art::Event&); 
+    // The analyzer routine, called once per event.
+    void analyze (const art::Event&);
 
   private:
 
@@ -63,7 +63,7 @@ namespace opdet {
     float       fAreaMin;
     float       fAreaMax;
     float       fTriggerDelay;
-    
+
     pmtana::PulseRecoManager  fPulseRecoMgr;
     pmtana::AlgoThreshold     fThreshAlg;
     pmtana::PedAlgoEdges      fPedAlg;
@@ -83,17 +83,17 @@ namespace opdet {
     Int_t   fShaper;
 
     uint32_t ShaperToChannel(uint32_t Shaper);
-   
+
     bool    fMakeNonCoincTree;
 
     std::map<uint32_t, std::vector<double> > fAreas;
 
-  
-    
+
+
   };
 
 
-} 
+}
 
 namespace opdet {
 
@@ -116,7 +116,7 @@ namespace opdet {
     fAreaMax        = pset.get<float>      ("AreaMax");
     fAreaDivs       = pset.get<float>      ("AreaDivs");
     fMakeNonCoincTree=pset.get<bool>       ("MakeNonCoincTree");
-    
+
     fPulseRecoMgr.AddRecoAlgo(&fThreshAlg);
     fPulseRecoMgr.SetDefaultPedAlgo(&fPedAlg);
 
@@ -153,13 +153,13 @@ namespace opdet {
 
   //-----------------------------------------------------------------------
   void LEDCalibrationAna::endJob()
-  { 
+  {
     art::ServiceHandle<art::TFileService const> tfs;
 
     for(auto it = fAreas.begin(); it!=fAreas.end(); ++it)
       {
 	uint32_t Channel = it->first;
-	
+
 	std::stringstream histname;
 	histname.flush();
 	histname<<"ch"<<Channel<<"area";
@@ -170,21 +170,21 @@ namespace opdet {
 	  {
 	    HistArea->Fill(it->second.at(j));
 	  }
-	
+
 	std::stringstream fitname;
 	fitname.flush();
 	fitname<<"ch"<<Channel<<"fit";
 
 	double Max = HistArea->GetMaximum();
 	double Mid = HistArea->GetBinContent(fAreaDivs/2.);
-	
+
 	TF1 * GausFit = new TF1(fitname.str().c_str(),
 			    "gaus(0)+gaus(3)+gaus(6)",
 			    fAreaMin,
 			    fAreaMax);
-	
+
 	GausFit->SetParameters(Mid, (fAreaMin+fAreaMax)/2., (fAreaMax-fAreaMin)/2.,
-			       Max, 0, (fAreaMin+fAreaMax)/8., 
+			       Max, 0, (fAreaMin+fAreaMax)/8.,
 			       Max/5., 0, (fAreaMin+fAreaMax)/4.);
 
 
@@ -202,28 +202,28 @@ namespace opdet {
 
 
 	HistArea->Fit(GausFit);
-	
+
 	double Mean     = GausFit->GetParameter(1);
 	double Width    = GausFit->GetParameter(2);
-	
+
 	double MeanErr  = GausFit->GetParError(1);
 	double WidthErr = GausFit->GetParError(2);
-	
+
 	double NPE      = pow(Mean,2)/pow(Width,2);
 	double SPEScale = Mean / NPE;
 
 	double NPEError = NPE      * pow(2.*(pow(MeanErr/Mean,2) + pow(WidthErr/Width,2)),0.5);
 	double SPEError = SPEScale * pow(2.*pow(WidthErr/Width,2) + pow(MeanErr/Mean,2),0.5);
-	
+
 	std::cout <<"Channel " << Channel<< ":\tSPE Scale \t"<<SPEScale<<"\t +/- \t" << SPEError<<",\t NPE \t" << NPE<<"\t +/- \t"<< NPEError <<std::endl;
       }
-    
+
   }
 
 
 
   //-----------------------------------------------------------------------
-  void LEDCalibrationAna::analyze(const art::Event& evt) 
+  void LEDCalibrationAna::analyze(const art::Event& evt)
   {
 
     auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
@@ -241,7 +241,7 @@ namespace opdet {
     evt.getByLabel(fInputModule, OpDetWaveformHandle);
 
     std::map<uint32_t, std::vector<int> > OrgOpDigitByChannel;
-    
+
     for(size_t i=0; i!=OpDetWaveformHandle->size(); ++i)
       {
         OrgOpDigitByChannel[ShaperToChannel(OpDetWaveformHandle->at(i).ChannelNumber())].push_back(i);
@@ -249,7 +249,7 @@ namespace opdet {
 
     std::vector<uint32_t> FrameNumbersForTrig;
     std::vector<uint32_t> TimeSlicesForTrig;
-    
+
     for(size_t i=0; i!=OrgOpDigitByChannel[fTriggerChannel].size(); ++i)
       {
         double TimeStamp = OpDetWaveformHandle->at(OrgOpDigitByChannel[ fTriggerChannel][i] ).TimeStamp();
@@ -266,7 +266,7 @@ namespace opdet {
         uint32_t TimeSlice = ts->OpticalClock().Sample(TimeStamp);
 	fShaper   = OpDetWaveformHandle->at(i).ChannelNumber();
 	fChannel  = ShaperToChannel(fShaper);
-	
+
 
 	if(uint32_t(fChannel) != fTriggerChannel)
 	  {
@@ -275,24 +275,24 @@ namespace opdet {
 		if( (Frame == FrameNumbersForTrig.at(j))
 		    && (fabs(TimeSlice - TimeSlicesForTrig.at(j) - fTriggerDelay)<fCoincThreshold))
 		  {
-		    
-		   
+
+
 		    const raw::OpDetWaveform& wf = OpDetWaveformHandle->at(i);
 
 		    //fPulseRecoMgr.RecoPulse(wf);
 		    fPulseRecoMgr.Reconstruct(wf);
-		    
+
 		    size_t NPulses = fThreshAlg.GetNPulse();
 
 		    fOffset  = TimeSlice-TimeSlicesForTrig.at(j);
 		    //fPedMean = fThreshAlg.PedMean();
 		    //fPedRMS  = fThreshAlg.PedRms();
-		    
+
 		    for(size_t k=0; k!=NPulses; ++k)
 		      {
 			if(fabs(fMaxTimeMean-fThreshAlg.GetPulse(k).t_max)<fMaxTimeThresh)
 			  {
-			    
+
 			    fPeak    = fThreshAlg.GetPulse(k).peak;
 			    fArea    = fThreshAlg.GetPulse(k).area;
 			    fTBegin  = fThreshAlg.GetPulse(k).t_start;
@@ -302,7 +302,7 @@ namespace opdet {
 			    fPedRMS  = fThreshAlg.GetPulse(k).ped_sigma;
 
 			    fPulseTree->Fill();
-			    
+
 			    fAreas[fChannel].push_back(fArea);
 			  }
 			else if(fMakeNonCoincTree)
@@ -312,11 +312,11 @@ namespace opdet {
 			    fTBegin  = fThreshAlg.GetPulse(k).t_start;
 			    fTEnd    = fThreshAlg.GetPulse(k).t_end;
 			    fTMax    = fThreshAlg.GetPulse(k).t_max;
-			    
+
 			    fPulseTreeNonCoinc->Fill();
 			  }
 		      }
-		  }		
+		  }
 	      }
 	  }
       }
@@ -329,14 +329,14 @@ namespace opdet {
     static std::map<uint32_t, uint32_t> ShaperToChannelMap;
     if(ShaperToChannelMap.size()==0)
       {
-	
+
 	// temporary
 	for(size_t i=0; i!=40; ++i)
 	  {
 	    ShaperToChannelMap[i]=i;
 	  }
       }
-    
+
     return ShaperToChannelMap[Shaper];
   }
 

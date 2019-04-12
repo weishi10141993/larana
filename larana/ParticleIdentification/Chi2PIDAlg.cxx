@@ -23,13 +23,13 @@ extern "C" {
 #include "TMath.h"
 
 // Framework includes
-#include "art/Framework/Principal/Handle.h" 
-#include "canvas/Persistency/Common/Ptr.h" 
-#include "canvas/Persistency/Common/PtrVector.h" 
-#include "art/Framework/Services/Registry/ServiceHandle.h" 
-#include "art/Framework/Services/Optional/TFileService.h" 
-#include "art/Framework/Services/Optional/TFileDirectory.h" 
-#include "messagefacility/MessageLogger/MessageLogger.h" 
+#include "art/Framework/Principal/Handle.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Optional/TFileService.h"
+#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 //------------------------------------------------------------------------------
 pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
@@ -50,9 +50,9 @@ void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
   //fCalorimetryModuleLabel = pset.get< std::string >("CalorimetryModuleLabel");
 
   cet::search_path sp("FW_SEARCH_PATH");
- 
+
   if( !sp.find_file(fTemplateFile, fROOTfile) )
-    throw cet::exception("Chi2ParticleID") << "cannot find the root template file: \n" 
+    throw cet::exception("Chi2ParticleID") << "cannot find the root template file: \n"
 					   << fTemplateFile
 					   << "\n bail ungracefully.\n";
   TFile *file = TFile::Open(fROOTfile.c_str());

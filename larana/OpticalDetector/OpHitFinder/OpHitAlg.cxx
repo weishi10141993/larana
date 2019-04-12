@@ -15,7 +15,7 @@
 
 namespace opdet{
   //----------------------------------------------------------------------------
-  void RunHitFinder(std::vector< raw::OpDetWaveform > const& 
+  void RunHitFinder(std::vector< raw::OpDetWaveform > const&
                                                     opDetWaveformVector,
                     std::vector< recob::OpHit >&    hitVector,
                     pmtana::PulseRecoManager const& pulseRecoMgr,
@@ -30,13 +30,13 @@ namespace opdet{
       const int channel = static_cast< int >(waveform.ChannelNumber());
 
       if (!geometry.IsValidOpChannel(channel)) {
-        mf::LogError("OpHitFinder") << "Error! unrecognized channel number " 
+        mf::LogError("OpHitFinder") << "Error! unrecognized channel number "
                          << channel << ". Ignoring pulse";
         continue;
       }
 
       pulseRecoMgr.Reconstruct(waveform);
-      
+
       // Get the result
       auto const& pulses = threshAlg.GetPulses();
 
@@ -51,11 +51,11 @@ namespace opdet{
                      hitVector,
                      detectorClocks,
                      calibrator);
-      
+
     }
   }
 
-   
+
   //----------------------------------------------------------------------------
   void ConstructHit(float                           hitThreshold,
                     int                             channel,
@@ -70,13 +70,13 @@ namespace opdet{
     double absTime = timeStamp + pulse.t_max*detectorClocks.OpticalClock().TickPeriod();
 
     double relTime = absTime - detectorClocks.TriggerTime();
-    
+
     int frame = detectorClocks.OpticalClock().Frame(timeStamp);
 
     double PE = 0.0;
     if (calibrator.UseArea()) PE = calibrator.PE(pulse.area, channel);
     else                      PE = calibrator.PE(pulse.peak, channel);
-    
+
     double width = (pulse.t_end - pulse.t_start) * detectorClocks.OpticalClock().TickPeriod();
 
     hitVector.emplace_back(channel,

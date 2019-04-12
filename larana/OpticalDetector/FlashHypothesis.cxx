@@ -1,40 +1,40 @@
 #include "FlashHypothesis.h"
 #include <limits>
 
-void opdet::FlashHypothesis::SetHypothesisVectorAndErrorVector( std::vector<float> v , std::vector<float> err) 
-{ 
+void opdet::FlashHypothesis::SetHypothesisVectorAndErrorVector( std::vector<float> v , std::vector<float> err)
+{
   if(err.size()!=0 && err.size()!=v.size())
     throw std::runtime_error("ERROR in FlashHypothesisVectorSetter: Vector sizes not equal");
-  
+
   _NPEs_Vector = v;
   if(err.size()==0){
-    _NPEs_Vector = v; 
-    _NPEs_ErrorVector.resize(v.size()); 
+    _NPEs_Vector = v;
+    _NPEs_ErrorVector.resize(v.size());
     for(size_t i=0; i<_NPEs_Vector.size(); i++)
       _NPEs_ErrorVector[i] = std::sqrt(_NPEs_Vector[i]);
   }
   else
     _NPEs_ErrorVector = err;
-  
+
 }
 
 void opdet::FlashHypothesis::SetHypothesisAndError( size_t i_opdet, float pe , float err)
-{  
-  SetHypothesis(i_opdet,pe); 
-  if(err>0) SetHypothesisError(i_opdet,err); 
-  else SetHypothesisError(i_opdet,std::sqrt(pe)); 
+{
+  SetHypothesis(i_opdet,pe);
+  if(err>0) SetHypothesisError(i_opdet,err);
+  else SetHypothesisError(i_opdet,std::sqrt(pe));
 }
 
 void opdet::FlashHypothesis::Normalize(float const& totalPE_target){
-  
+
   if( GetTotalPEs() < std::numeric_limits<float>::epsilon() ) return;
-  
+
   const float PE_ratio = totalPE_target/GetTotalPEs();
   for(size_t i_opdet=0; i_opdet<_NPEs_Vector.size(); i_opdet++){
     _NPEs_Vector[i_opdet] *= PE_ratio;
     _NPEs_ErrorVector[i_opdet] = std::sqrt(_NPEs_Vector[i_opdet]);
   }
-  
+
 }
 
 void opdet::FlashHypothesis::Print()
@@ -63,7 +63,7 @@ void opdet::FlashHypothesisCollection::SetPromptHypAndPromptFraction(const Flash
   _total_hyp = _prompt_hyp + _late_hyp;
 }
 
-void opdet::FlashHypothesisCollection::Normalize(float totalPE_target){  
+void opdet::FlashHypothesisCollection::Normalize(float totalPE_target){
   _prompt_hyp.Normalize(totalPE_target*_prompt_frac);
   _late_hyp.Normalize(totalPE_target*(1.-_prompt_frac));
   UpdateTotalHyp();
@@ -75,7 +75,7 @@ void opdet::FlashHypothesisCollection::CheckFrac(float f)
        std::abs(f-1.0) < std::numeric_limits<float>::epsilon() ||
        (f>0.0 && f<1.0) )
     return;
-  
+
   throw std::runtime_error("ERROR in FlashHypothesisCollection: Input fraction is not in valid range.");
 }
 
@@ -98,5 +98,5 @@ void opdet::FlashHypothesisCollection::Print()
   std::cout << "TotalHyp:" << std::endl;
   _total_hyp.Print();
   std::cout << "PromptFraction: " << _prompt_frac << std::endl;
-  
+
 }

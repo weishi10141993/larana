@@ -44,55 +44,55 @@
 class CRHitRemoval : public art::EDProducer
 {
 public:
-    
+
     // Copnstructors, destructor.
     explicit CRHitRemoval(fhicl::ParameterSet const & pset);
-    
+
     // Overrides.
     virtual void reconfigure(fhicl::ParameterSet const & pset);
     virtual void produce(art::Event & e);
     virtual void beginJob();
     virtual void endJob();
-    
+
 private:
     // define vector for hits to make sure of uniform use
     using HitPtrVector = std::vector<art::Ptr<recob::Hit>>;
-    
+
     // Methods
     void collectPFParticleHits(const recob::PFParticle*                            pfParticle,
                                const art::Handle<std::vector<recob::PFParticle> >& pfParticleHandle,
                                const art::FindManyP<recob::Cluster>&               partToClusAssns,
                                const art::FindManyP<recob::Hit>&                   clusToHitAssns,
                                HitPtrVector&                                       hitVec);
-    
+
     void copyAllHits(std::vector< art::Ptr<recob::Hit>>& ,
                      art::FindOneP<raw::RawDigit>&,
                      art::FindOneP<recob::Wire>&,
                      recob::HitCollectionCreator&);
-    
+
     void copyInTimeHits(std::vector< art::Ptr<recob::Hit>>& ,
                         art::FindOneP<raw::RawDigit>&,
                         art::FindOneP<recob::Wire>&,
                         recob::HitCollectionCreator&);
-    
+
     void FilterHits(HitPtrVector& hits, HitPtrVector& used_hits);
-    
+
     // Fcl parameters.
     std::vector<std::string> fCosmicProducerLabels;     ///< List of cosmic tagger producers
     std::string              fHitProducerLabel;         ///< The full collection of hits
     std::string              fPFParticleProducerLabel;  ///< PFParticle producer
     std::vector<std::string> fTrackProducerLabels;      ///< Track producer
     std::vector<std::string> fAssnProducerLabels;       ///< Track to PFParticle assns producer
-    
+
     std::vector<double>      fCosmicTagThresholds;      ///< Thresholds for tagging
-    
+
     int                      fEndTickPadding;           ///< Padding the end tick
-    
+
     int                      fDetectorWidthTicks;       ///< Effective drift time in ticks
     int                      fMinTickDrift;             ///< Starting tick
     int                      fMaxTickDrift;             ///< Ending tick
     int                      fMaxOutOfTime;             ///< Max hits that can be out of time before rejecting
-    
+
     // Statistics.
     int fNumEvent;        ///< Number of events seen.
     int fNumCRRejects;    ///< Number of tracks produced.
@@ -113,12 +113,12 @@ fNumEvent(0),
 fNumCRRejects(0)
 {
     reconfigure(pset);
-    
+
     // let HitCollectionCreator declare that we are going to produce
     // hits and associations with wires and raw digits
     // (with no particular product label)
     recob::HitCollectionCreator::declare_products(*this);
-    
+
     // Report.
     mf::LogInfo("CRHitRemoval") << "CRHitRemoval configured\n";
 }
@@ -149,10 +149,10 @@ void CRHitRemoval::beginJob()
     auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
     auto const* geo  = lar::providerFrom<geo::Geometry>();
     auto const* ts   = lar::providerFrom<detinfo::DetectorClocksService>();
-    
+
     float samplingRate  = detp->SamplingRate();
     float driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
-    
+
     fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*samplingRate/1000);
     fMinTickDrift       = ts->Time2Tick(ts->TriggerTime()); // this is the hardware trigger time
     fMaxTickDrift       = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
@@ -174,22 +174,22 @@ void CRHitRemoval::beginJob()
 void CRHitRemoval::produce(art::Event & evt)
 {
     ++fNumEvent;
-    
+
     // Start by looking up the original hits
     art::Handle< std::vector<recob::Hit> > hitHandle;
     evt.getByLabel(fHitProducerLabel, hitHandle);
-    
+
     // also get the associated wires and raw digits;
     // we assume they have been created by the same module as the hits
     art::FindOneP<raw::RawDigit> ChannelHitRawDigits(hitHandle, evt, fHitProducerLabel);
     art::FindOneP<recob::Wire>   ChannelHitWires(hitHandle, evt, fHitProducerLabel);
-    
+
     // If there are no hits then there should be no output
     if (!hitHandle.isValid()) return;
-    
+
     HitPtrVector ChHits;
     art::fill_ptr_vector(ChHits, hitHandle);
-    
+
     // this object contains the hit collection
     // and its associations to wires and raw digits:
     recob::HitCollectionCreator hcol(*this,
@@ -197,88 +197,88 @@ void CRHitRemoval::produce(art::Event & evt)
                                      /* doWireAssns */ ChannelHitWires.isValid(),
                                      /* doRawDigitAssns */ ChannelHitRawDigits.isValid()
                                      );
-    
+
     // Now recover thre remaining collections of objects in the event store that we need
     // Recover the PFParticles that are ultimately associated to tracks
     // This will be the key to recovering the hits
     art::Handle<std::vector<recob::PFParticle> > pfParticleHandle;
     evt.getByLabel(fPFParticleProducerLabel, pfParticleHandle);
-    
+
     // Without a valid collection of PFParticles we can't do the hit removal
     if (!pfParticleHandle.isValid())
     {
         copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
-        
+
         // put the hit collection and associations into the event
         hcol.put_into(evt);
-        
+
         return;
     }
-    
+
     // Recover the clusters so we can do associations to the hits
     // In theory the clusters come from the same producer as the PFParticles
     art::Handle<std::vector<recob::Cluster> > clusterHandle;
     evt.getByLabel(fPFParticleProducerLabel, clusterHandle);
-    
+
     // If there are no clusters then something is really wrong
     if (!clusterHandle.isValid())
     {
         copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
-        
+
         // put the hit collection and associations into the event
         hcol.put_into(evt);
-        
+
         return;
     }
-    
+
     // Build the list of cosmic tag producers, associations and thresholds
     std::vector<art::Handle<std::vector<anab::CosmicTag>>>              cosmicHandleVec;
     std::vector<std::map<int,std::vector<art::Ptr<recob::Track>>>>      cosmicToTrackVecMapVec;
     std::vector<std::map<int,std::vector<art::Ptr<recob::PFParticle>>>> trackToPFParticleVecMapVec;
     std::vector<double>                                                 thresholdVec;
-    
+
     for(size_t idx = 0; idx != fCosmicProducerLabels.size(); idx++)
     {
         std::string& handleLabel(fCosmicProducerLabels[idx]);
-        
+
         art::Handle<std::vector<anab::CosmicTag>> cosmicHandle;
         evt.getByLabel(handleLabel, cosmicHandle);
-        
+
         if (cosmicHandle.isValid())
         {
             // Look up the associations to tracks
             art::FindManyP<recob::Track> cosmicTrackAssns(cosmicHandle, evt, handleLabel);
-            
+
             // Get the handle to the tracks
             art::Handle<std::vector<recob::Track>> trackHandle;
             evt.getByLabel(fTrackProducerLabels[idx], trackHandle);
-            
+
             // This should be the case
             if (trackHandle.isValid())
             {
                 std::map<int,std::vector<art::Ptr<recob::Track>>>       cosmicToTrackVecMap;
                 std::map<int, std::vector<art::Ptr<recob::PFParticle>>> trackToPFParticleVecMap;
-                
+
                 // Loop through the cosmic tags
                 for(size_t cosmicIdx = 0; cosmicIdx < cosmicHandle->size(); cosmicIdx++)
                 {
                     art::Ptr<anab::CosmicTag> cosmicTag(cosmicHandle, cosmicIdx);
-                
+
                     std::vector<art::Ptr<recob::Track>> cosmicToTrackVec = cosmicTrackAssns.at(cosmicTag.key());
-                    
+
                     cosmicToTrackVecMap[cosmicTag.key()] = cosmicToTrackVec;
 
                     art::FindManyP<recob::PFParticle> trackPFParticleAssns(trackHandle, evt, fAssnProducerLabels[idx]);
-                
+
                     for(auto& track : cosmicToTrackVec)
                     {
                         std::vector<art::Ptr<recob::PFParticle>> trackToPFParticleVec = trackPFParticleAssns.at(track.key());
-                    
+
                         for(auto& pfParticle : trackToPFParticleVec)
                             trackToPFParticleVecMap[track.key()].push_back(pfParticle);
                     }
                 }
-            
+
                 // Store these collections
                 cosmicHandleVec.emplace_back(cosmicHandle);
                 cosmicToTrackVecMapVec.emplace_back(cosmicToTrackVecMap);
@@ -287,29 +287,29 @@ void CRHitRemoval::produce(art::Event & evt)
             }
         }
     }
-    
+
     // No cosmic tags then nothing to do here
     if (cosmicHandleVec.empty())
     {
         copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
-        
+
         // put the hit collection and associations into the event
         hcol.put_into(evt);
-        
+
         return;
     }
-    
+
     // Now we walk up the remaining list of associations needed to go from CR tags to hits
     // We'll need to go from tracks to PFParticles
     // From PFParticles we go to clusters
     art::FindManyP<recob::Cluster> clusterAssns(pfParticleHandle, evt, fPFParticleProducerLabel);
-    
+
     // Likewise, recover the collection of associations to hits
     art::FindManyP<recob::Hit> clusterHitAssns(clusterHandle, evt, fPFParticleProducerLabel);
-    
+
     // No point double counting hits
     std::set<const recob::PFParticle*> taggedSet;
-    
+
     // Start the identification of hits to remove. The outer loop is over the various producers of
     // the CosmicTag objects we're examininig
     for(size_t idx = 0; idx != cosmicHandleVec.size(); idx++)
@@ -318,22 +318,22 @@ void CRHitRemoval::produce(art::Event & evt)
         const art::Handle<std::vector<anab::CosmicTag> >&             cosmicHandle(cosmicHandleVec[idx]);
         const std::map<int,std::vector<art::Ptr<recob::Track>>>&      crTagTrackVec(cosmicToTrackVecMapVec[idx]);
         const std::map<int,std::vector<art::Ptr<recob::PFParticle>>>& trackToPFParticleVecMap(trackToPFParticleVecMapVec[idx]);
-        
+
         for(size_t crIdx = 0; crIdx != cosmicHandle->size(); crIdx++)
         {
             art::Ptr<anab::CosmicTag> cosmicTag(cosmicHandle, crIdx);
-            
+
             // If this was tagged as a CR muon then we have work to do!
             if (cosmicTag->CosmicScore() > thresholdVec[idx])
             {
                 // Recover the associated track
                 std::vector<art::Ptr<recob::Track>> trackVec(crTagTrackVec.at(cosmicTag.key()));
-                
+
                 // Loop over the tracks (almost always only 1)
                 for(const auto& track : trackVec)
                 {
                     std::map<int,std::vector<art::Ptr<recob::PFParticle>>>::const_iterator trackToPFParticleVecItr = trackToPFParticleVecMap.find(track.key());
-                    
+
                     if (trackToPFParticleVecItr != trackToPFParticleVecMap.end())
                     {
                         // Loop through them
@@ -341,10 +341,10 @@ void CRHitRemoval::produce(art::Event & evt)
                         {
                             // Get bare pointer
                             const recob::PFParticle* pfParticle = pfParticlePtr.get();
-                    
+
                             // A cosmic ray must be a primary (by fiat)
                             while(!pfParticle->IsPrimary()) pfParticle = art::Ptr<recob::PFParticle>(pfParticleHandle,pfParticle->Parent()).get();
-                            
+
                             // Add to our list of tagged PFParticles
                             taggedSet.insert(pfParticle);
                         }
@@ -353,7 +353,7 @@ void CRHitRemoval::produce(art::Event & evt)
             }
         }
     }
-    
+
     // If no PFParticles have been tagged then nothing to do
     if (!taggedSet.empty())
     {
@@ -362,41 +362,41 @@ void CRHitRemoval::produce(art::Event & evt)
         // as well as unassociated (as yet) hits.
         // One also needs to deal with a slight complication with hits in 2D which are shared between untagged PFParticles and
         // tagged ones... we should leave these in.
-        
+
         // All that is left is to go through the PFParticles which have not been tagged and collect up all their hits
         // to output to our new collection
         // Note that this SHOULD take care of the case of shared 2D hits automagically since if the PFParticle has not
         // been tagged and it shares hits we'll pick those up here.
         HitPtrVector taggedHits;
         HitPtrVector untaggedHits;
-        
+
         // Loop through the PFParticles and build out the list of hits on untagged PFParticle trees
         for(const auto& pfParticle : *pfParticleHandle)
         {
             // Start with only primaries
             if (!pfParticle.IsPrimary()) continue;
-            
+
             // Temporary container for these hits
             HitPtrVector tempHits;
-            
+
             // Find the hits associated to this untagged PFParticle
             collectPFParticleHits(&pfParticle, pfParticleHandle, clusterAssns, clusterHitAssns, tempHits);
 
             // One more possible chance at identifying tagged hits...
             // Check these hits to see if any lie outside time window
             bool goodHits(true);
-            
+
             if (taggedSet.find(&pfParticle) != taggedSet.end()) goodHits = false;
 
             if (goodHits)
             {
                 int nOutOfTime(0);
-                
+
                 for(const auto& hit : tempHits)
                 {
                     // Check on out of time hits
                     if (hit->PeakTimeMinusRMS() < fMinTickDrift || hit->PeakTimePlusRMS()  > fMaxTickDrift) nOutOfTime++;
-                    
+
                     if (nOutOfTime > fMaxOutOfTime)
                     {
                         goodHits = false;
@@ -404,24 +404,24 @@ void CRHitRemoval::produce(art::Event & evt)
                     }
                 }
             }
-            
+
             if (goodHits) std::copy(tempHits.begin(),tempHits.end(),std::back_inserter(untaggedHits));
             else          std::copy(tempHits.begin(),tempHits.end(),std::back_inserter(taggedHits));
         }
-        
+
         // First task - remove hits from the tagged hit collection that are inthe untagged hits (shared hits)
         FilterHits(taggedHits,untaggedHits);
-        
+
         // Now filter the tagged hits from the total hit collection
         FilterHits(ChHits, taggedHits);
     }
-    
+
     // Copy our new hit collection to the output
     copyInTimeHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
-    
+
     // put the hit collection and associations into the event
     hcol.put_into(evt);
-    
+
 }
 
 //----------------------------------------------------------------------------
@@ -447,31 +447,31 @@ void CRHitRemoval::collectPFParticleHits(const recob::PFParticle*               
 {
     // Recover the clusters associated to the input PFParticle
     std::vector<art::Ptr<recob::Cluster> > clusterVec = partToClusAssns.at(pfParticle->Self());
-    
+
     int minTick(fMinTickDrift);
     int maxTick(fMaxTickDrift);
-    
+
     // Loop over the clusters and grab the associated hits
     for(const auto& cluster : clusterVec)
     {
         std::vector<art::Ptr<recob::Hit> > clusHitVec = clusToHitAssns.at(cluster.key());
         hitVec.insert(hitVec.end(), clusHitVec.begin(), clusHitVec.end());
-        
+
         int minHitTick = (*std::min_element(clusHitVec.begin(),clusHitVec.end(),[](const auto& hit,const auto& min){return hit->PeakTimeMinusRMS() < min->PeakTimeMinusRMS();}))->PeakTimeMinusRMS();
         int maxHitTick = (*std::max_element(clusHitVec.begin(),clusHitVec.end(),[](const auto& hit,const auto& max){return hit->PeakTimePlusRMS() > max->PeakTimePlusRMS();}))->PeakTimePlusRMS();
-        
+
         if (minHitTick < minTick) minTick = minHitTick;
         if (maxHitTick < maxTick) maxTick = maxHitTick;
     }
-    
+
     // Loop over the daughters of this particle and remove their hits as well
     for(const auto& daughterId : pfParticle->Daughters())
     {
         art::Ptr<recob::PFParticle> daughter(pfParticleHandle, daughterId);
-        
+
         collectPFParticleHits(daughter.get(), pfParticleHandle, partToClusAssns, clusToHitAssns, hitVec);
     }
-    
+
     return;
 }
 
@@ -484,11 +484,11 @@ void CRHitRemoval::copyAllHits(std::vector< art::Ptr<recob::Hit>>& inputHits,
     {
         art::Ptr<recob::Wire>   wire      = wireAssns.at(hitPtr.key());
         art::Ptr<raw::RawDigit> rawdigits = rawDigitAssns.at(hitPtr.key());
-        
+
         // just copy it
         newHitCollection.emplace_back(*hitPtr, wire, rawdigits);
     }
-    
+
     return;
 }
 
@@ -501,14 +501,14 @@ void CRHitRemoval::copyInTimeHits(std::vector< art::Ptr<recob::Hit>>& inputHits,
     {
         // Check on out of time hits
         if (hitPtr->PeakTimeMinusRMS() < fMinTickDrift || hitPtr->PeakTimePlusRMS() > fMaxTickDrift) continue;
-        
+
         art::Ptr<recob::Wire>   wire      = wireAssns.at(hitPtr.key());
         art::Ptr<raw::RawDigit> rawdigits = rawDigitAssns.at(hitPtr.key());
-        
+
         // just copy it
         newHitCollection.emplace_back(*hitPtr, wire, rawdigits);
     }
-    
+
     return;
 }
 
@@ -528,11 +528,11 @@ void CRHitRemoval::FilterHits(HitPtrVector& hits, HitPtrVector& used_hits)
         // Make sure both hit collections are sorted.
         std::stable_sort(hits.begin(), hits.end());
         std::stable_sort(used_hits.begin(), used_hits.end());
-        
+
         // Do set difference operation.
         std::vector<art::Ptr<recob::Hit>>::iterator it
         = std::set_difference(hits.begin(), hits.end(), used_hits.begin(), used_hits.end(), hits.begin());
-        
+
         // Truncate hit collection.
         hits.erase(it, hits.end());
     }
@@ -544,7 +544,7 @@ void CRHitRemoval::FilterHits(HitPtrVector& hits, HitPtrVector& used_hits)
 void CRHitRemoval::endJob()
 {
     double aveCRPerEvent = fNumEvent > 0 ? double(fNumCRRejects) / double(fNumEvent) : 0.;
-    
+
     mf::LogInfo("CRHitRemoval")
     << "CRHitRemoval statistics:\n"
     << "  Number of events = " << fNumEvent << "\n"

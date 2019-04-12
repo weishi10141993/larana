@@ -26,7 +26,7 @@
 ///
 /// The module has been extended to also associate an anab::T0 object with a
 /// recob::Shower. It does this following the same algorithm, where
-/// recob::Track has been replaced with recob::Shower. 
+/// recob::Track has been replaced with recob::Shower.
 ///
 /// The module takes a reconstructed track as input.
 /// The module outputs an anab::T0 object
@@ -44,12 +44,12 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Event.h" 
-#include "canvas/Persistency/Common/Ptr.h" 
-#include "canvas/Persistency/Common/PtrVector.h" 
+#include "art/Framework/Principal/Event.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Services/Optional/TFileService.h" 
+#include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 
 #include "canvas/Utilities/InputTag.h"
@@ -101,7 +101,7 @@ public:
   // Plugins should not be copied or assigned.
   MCTruthT0Matching(MCTruthT0Matching const &) = delete;
   MCTruthT0Matching(MCTruthT0Matching &&) = delete;
-  MCTruthT0Matching & operator = (MCTruthT0Matching const &) = delete; 
+  MCTruthT0Matching & operator = (MCTruthT0Matching const &) = delete;
   MCTruthT0Matching & operator = (MCTruthT0Matching &&) = delete;
 
   // Required functions.
@@ -113,7 +113,7 @@ public:
 
 
 private:
-  
+
   // Params got from fcl file
   art::InputTag fTrackModuleLabel;
   art::InputTag fShowerModuleLabel;
@@ -125,13 +125,13 @@ private:
   bool fMakeHitAssns;
 
   bool fOverrideRealData;
-  
+
   // Variable in TFS branches
   TTree* fTree;
   int    TrackID         = 0;
   int    TrueTrackID     = 0;
   int    TrueTriggerType = 0;
-  double TrueTrackT0     = 0;  
+  double TrueTrackT0     = 0;
 
   int    ShowerID          = 0;
   int    ShowerMatchID     = 0;
@@ -154,7 +154,7 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
     produces< art::Assns<recob::Shower, anab::T0> > ();
     if (fMakePFParticleAssns){produces< art::Assns<recob::PFParticle, anab::T0> > ();}// only do PFParticles if desired by the user
   }
-  
+
   produces< art::Assns<recob::Track , simb::MCParticle, anab::BackTrackerMatchingData > > ();
   produces< art::Assns<recob::Shower, simb::MCParticle, anab::BackTrackerMatchingData > > ();
   if (fMakePFParticleAssns){ // only do PFParticles if desired by the user
@@ -204,21 +204,21 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
   art::Handle< std::vector<recob::Track> > trackListHandle;
   std::vector<art::Ptr<recob::Track> > tracklist;
   if (evt.getByLabel(fTrackModuleLabel,trackListHandle))
-    art::fill_ptr_vector(tracklist, trackListHandle); 
+    art::fill_ptr_vector(tracklist, trackListHandle);
   //if (!trackListHandle.isValid()) trackListHandle.clear();
 
   //ShowerList handle
   art::Handle< std::vector<recob::Shower> > showerListHandle;
   std::vector<art::Ptr<recob::Shower> > showerlist;
   if (evt.getByLabel(fShowerModuleLabel,showerListHandle))
-    art::fill_ptr_vector(showerlist, showerListHandle); 
+    art::fill_ptr_vector(showerlist, showerListHandle);
   //if (!showerListHandle.isValid()) showerListHandle.clear();
 
   //PFParticleList handle
   art::Handle< std::vector<recob::PFParticle> > pfparticleListHandle;
   std::vector<art::Ptr<recob::PFParticle> > pfparticlelist;
   if (evt.getByLabel(fPFParticleModuleLabel,pfparticleListHandle))
-    art::fill_ptr_vector(pfparticlelist, pfparticleListHandle); 
+    art::fill_ptr_vector(pfparticlelist, pfparticleListHandle);
   //if (!pfparticleListHandle.isValid()) pfparticleListHandle.clear();
 
 
@@ -259,7 +259,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
     //if we want to make per-hit assns
     if(fMakeHitAssns){
 
-     
+
 
       art::Handle< std::vector<recob::Hit> > hitListHandle;
       evt.getByLabel(fHitModuleLabel,hitListHandle);
@@ -298,7 +298,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	      }
 	      if(i_p==mcpartList.size()) trkid_lookup[t.trackID] = -1;
 	    }
-	    
+
 	  }//end loop on TrackIDs
 
 	  //now find the mcparticle and loop back through ...
@@ -312,39 +312,39 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
             bthmd.isMaxIDEN = ( t.first == maxntrkid );
 	    MCPartHitassn->addSingle(hitPtr, mcpartPtr, bthmd);
 	  }
-	  
-	  
+
+
 	}//end loop on hits
 
       }//end if handle valid
 
     }//end if make hit/mcpart assns
 
-    
+
     if (trackListHandle.isValid()){
       //Access tracks and hits
       art::FindManyP<recob::Hit> fmtht(trackListHandle, evt, fTrackModuleLabel);
-    
+
       size_t NTracks = tracklist.size();
-      
-      // Now to access MCTruth for each track... 
-      for(size_t iTrk=0; iTrk < NTracks; ++iTrk) { 
+
+      // Now to access MCTruth for each track...
+      for(size_t iTrk=0; iTrk < NTracks; ++iTrk) {
 	TrueTrackT0 = 0;
 	TrackID     = 0;
 	TrueTrackID = 0;
 	anab::BackTrackerMatchingData btdata;
 	std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(iTrk);
-	
+
 	std::map<int,double> trkide;
 	for(size_t h = 0; h < allHits.size(); ++h){
 	  art::Ptr<recob::Hit> hit = allHits[h];
 	  std::vector<sim::IDE> ides;
 	  std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
-	  
+
 	  for(size_t e = 0; e < TrackIDs.size(); ++e){
 	    trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
 	  }
-	  
+
 	}
 	// Work out which IDE despoited the most charge in the hit if there was more than one.
 	maxe = -1;
@@ -374,9 +374,9 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       TrueTrackID = particle.TrackId();
       TrueTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
       //std::cout << "Got particle, PDG = " << particle.PdgCode() << std::endl;
-      
+
       //std::cout << "Filling T0col with " << TrueTrackT0 << " " << TrueTriggerType << " " << TrueTrackID << " " << (*T0col).size() << std::endl;
-      
+
       T0col->push_back(anab::T0(TrueTrackT0,
 				TrueTriggerType,
 				TrueTrackID,
@@ -388,17 +388,17 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
         std::cout << "Error, the backtracker is doing weird things to your pointers!" << std::endl;
         throw std::exception();
       }
-      
+
       art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
       MCPartTrackassn->addSingle(tracklist[iTrk], mcpartPtr, btdata);
       if (fMakeT0Assns){
         util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);
       }
       fTree -> Fill();
-    
-    } // Loop over tracks   
+
+    } // Loop over tracks
   }
-  
+
   if (showerListHandle.isValid()){
     art::FindManyP<recob::Hit> fmsht(showerListHandle,evt, fShowerModuleLabel);
     // Now Loop over showers....
@@ -409,13 +409,13 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       ShowerT0          = 0;
       std::vector< art::Ptr<recob::Hit> > allHits = fmsht.at(Shower);
       anab::BackTrackerMatchingData btdata;
-      
+
       std::map<int,double> showeride;
       for(size_t h = 0; h < allHits.size(); ++h){
 	art::Ptr<recob::Hit> hit = allHits[h];
 	std::vector<sim::IDE> ides;
 	std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
-	
+
 	for(size_t e = 0; e < TrackIDs.size(); ++e){
 	  showeride[TrackIDs[e].trackID] += TrackIDs[e].energy;
 	}
@@ -455,7 +455,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 				ShowerID,
 				(*T0col).size()
 				));
-      
+
       auto diff = mcpart_i; // check I have a sensible value for this counter
       if (diff >= (int)mcpartHandle->size()){
         std::cout << "Error, the backtracker is doing weird things to your pointers!" << std::endl;
@@ -463,28 +463,28 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       }
       art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
       if (fMakeT0Assns){
-        util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);    
+        util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);
       }
       MCPartShowerassn->addSingle(showerlist[Shower], mcpartPtr, btdata);
-    
+
     }// Loop over showers
   }
-  
+
 
   if (pfparticleListHandle.isValid()){
     //Access pfparticles and hits
     art::FindManyP<recob::Cluster> fmcp(pfparticleListHandle, evt, fPFParticleModuleLabel);
       //art::FindManyP<recob::Hit> fmtht(pfparticleListHandle, evt, fPfparticleModuleLabel);
-    
+
     size_t NPfparticles = pfparticlelist.size();
-    
-    // Now to access MCTruth for each pfparticle... 
-    for(size_t iPfp=0; iPfp < NPfparticles; ++iPfp) { 
+
+    // Now to access MCTruth for each pfparticle...
+    for(size_t iPfp=0; iPfp < NPfparticles; ++iPfp) {
       TrueTrackT0 = 0;
       TrackID     = 0;
       TrueTrackID = 0;
       anab::BackTrackerMatchingData btdata;
-      
+
       std::vector< art::Ptr<recob::Hit> > allHits;
       //Get all hits through associated clusters
       std::vector< art::Ptr<recob::Cluster>> allClusters = fmcp.at(iPfp);
@@ -499,7 +499,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	art::Ptr<recob::Hit> hit = allHits[h];
 	std::vector<sim::IDE> ides;
 	std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
-	
+
 	for(size_t e = 0; e < TrackIDs.size(); ++e){
 	  trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
 	}
@@ -515,7 +515,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
 	}
       }
       btdata.cleanliness = maxe/tote;
-      
+
       // Now have trackID, so get PdG code and T0 etc.
       const simb::MCParticle *tmpParticle = pi_serv->TrackIdToParticle_P(TrackID);
       if (!tmpParticle) continue; // Retain this check that the BackTracker can find the right particle
@@ -532,9 +532,9 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
       TrueTrackID = particle.TrackId();
       TrueTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
       //std::cout << "Got particle, PDG = " << particle.PdgCode() << std::endl;
-      
+
       //std::cout << "Filling T0col with " << TrueTrackT0 << " " << TrueTriggerType << " " << TrueTrackID << " " << (*T0col).size() << std::endl;
-      
+
       T0col->push_back(anab::T0(TrueTrackT0,
 				TrueTriggerType,
 				TrueTrackID,
@@ -559,7 +559,7 @@ void t0::MCTruthT0Matching::produce(art::Event & evt)
         MCPartPFParticleassn->addSingle(pfparticlelist[iPfp], mcpartPtr, btdata);
       }
       fTree -> Fill();
-    } // Loop over tracks   
+    } // Loop over tracks
   }
 
   if (fMakeT0Assns){

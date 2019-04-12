@@ -66,12 +66,12 @@ void opdet::SimPhotonCounter::AddOnePhoton(size_t i_opdet, const sim::OnePhoton&
     throw std::runtime_error("ERROR in SimPhotonCounter: Opdet requested out of range!");
 
   if(Wavelength(photon) < _min_wavelength || Wavelength(photon) > _max_wavelength) return;
-  
+
   if(photon.Time > _min_prompt_time && photon.Time <= _max_prompt_time)
     _photonVector_prompt[i_opdet] += _qeVector[i_opdet];
   else if(photon.Time > _min_late_time && photon.Time < _max_late_time)
     _photonVector_late[i_opdet] += _qeVector[i_opdet];
-    
+
 }
 
 void opdet::SimPhotonCounter::AddSimPhotons(const sim::SimPhotons& photons)
@@ -89,7 +89,7 @@ void opdet::SimPhotonCounter::ClearVectors()
 }
 
 std::vector<float> opdet::SimPhotonCounter::TotalPhotonVector() const{
-  
+
   std::vector<float> totalPhotonVector(GetVectorSize());
   std::transform(PromptPhotonVector().begin(),PromptPhotonVector().end(),
 		 LatePhotonVector().begin(),
@@ -107,5 +107,5 @@ void opdet::SimPhotonCounter::Print()
   std::cout << "\t" << "i : QE / Prompt / Late / Total" << std::endl;
   for(size_t i=0; i<GetVectorSize(); i++)
     std::cout << "\t" << i << ": " << _qeVector[i] << " / " << _photonVector_prompt[i] << " / " << _photonVector_late[i] << " / " << TotalPhotonVector(i) << std::endl;
-  
+
 }

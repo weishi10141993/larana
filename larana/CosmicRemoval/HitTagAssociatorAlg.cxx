@@ -2,17 +2,17 @@
  * Title:   Hit <--> Cosmic Tag Associator Alg
  * Author:  Wes Ketchum (wketchum@lanl.gov)
  *
- * Description: Algorithm that will provide associations of Hits to 
+ * Description: Algorithm that will provide associations of Hits to
  *              cosmic tags, where both of those are associated to some
  *              intermediate object (like a track or cluster)
  * Input:       Assn<recob::Hit,???> and Assn<???,anab::CosmicTag>
- * Output:      Assn<recob::Hit,anab::CosmicTag> 
+ * Output:      Assn<recob::Hit,anab::CosmicTag>
 */
 
 #include "HitTagAssociatorAlg.h"
 #include <limits>
 
-cosmic::HitTagAssociatorAlg::HitTagAssociatorAlg(fhicl::ParameterSet const& p) 
+cosmic::HitTagAssociatorAlg::HitTagAssociatorAlg(fhicl::ParameterSet const& p)
 {
   this->reconfigure(p);
 }
@@ -32,7 +32,7 @@ void cosmic::HitTagAssociatorAlg::MakeHitTagAssociations(std::vector< std::vecto
     for(size_t i_bridge=0; i_bridge<bridges_per_hit[i_hit].size(); i_bridge++){
       tags_per_hit[i_hit].insert(tags_per_hit[i_hit].end(),
 				 tags_per_bridges[i_bridge].begin(),
-				 tags_per_bridges[i_bridge].end());  
+				 tags_per_bridges[i_bridge].end());
     }
   }
 
@@ -56,7 +56,7 @@ void cosmic::HitTagAssociatorAlg::MakeHitTagAssociations(std::vector< std::vecto
 
       if(tag_per_bridge[i_bridge]==std::numeric_limits<size_t>::max()) continue;
 
-      tags_per_hit[i_hit].push_back(tag_per_bridge[i_bridge]); 
+      tags_per_hit[i_hit].push_back(tag_per_bridge[i_bridge]);
     }//end loop over bridges
 
   }//end loop over hits

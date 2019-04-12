@@ -2,7 +2,7 @@
  * \file OpticalRecoException.h
  *
  * \ingroup OpticalDetector
- * 
+ *
  * \brief Class def header for exception classes in OpticalDetector package
  *
  * @author kazuhiro
@@ -39,5 +39,5 @@ namespace pmtana {
 
 }
 #endif
-/** @} */ // end of doxygen group 
+/** @} */ // end of doxygen group
 

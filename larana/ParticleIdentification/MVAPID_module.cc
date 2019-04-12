@@ -10,11 +10,11 @@
 
 // ### Framework includes ###
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/EDProducer.h" 
-#include "art/Framework/Principal/Event.h" 
-#include "fhiclcpp/ParameterSet.h" 
-#include "messagefacility/MessageLogger/MessageLogger.h" 
-#include "art/Framework/Services/Optional/TFileService.h" 
+#include "art/Framework/Core/EDProducer.h"
+#include "art/Framework/Principal/Event.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "art/Framework/Services/Optional/TFileService.h"
 #include "TTree.h"
 
 #include "MVAAlg.h"
@@ -29,24 +29,24 @@ namespace mvapid {
   public:
 
     explicit MVAPID(fhicl::ParameterSet const& pset);
-    virtual ~MVAPID();                               
-    void beginJob();        
-    void beginRun(art::Run& run); 
+    virtual ~MVAPID();
+    void beginJob();
+    void beginRun(art::Run& run);
     void reconfigure(fhicl::ParameterSet const& pset);
-    void produce(art::Event& evt);                   
-   
-   
+    void produce(art::Event& evt);
+
+
  private:
 
     MVAAlg fAlg;
     std::vector<anab::MVAPIDResult>* fResult;
     unsigned int fRun,fSubrun,fEvent;
     TTree* fTree;
-    
+
   }; // class MVAPID
 
 
- 
+
 //------------------------------------------------------------------------------
 MVAPID::MVAPID(fhicl::ParameterSet const& pset)
   : EDProducer{pset}
@@ -60,7 +60,7 @@ MVAPID::MVAPID(fhicl::ParameterSet const& pset)
 }
 
 //------------------------------------------------------------------------------
-void MVAPID::reconfigure(fhicl::ParameterSet const& pset) 
+void MVAPID::reconfigure(fhicl::ParameterSet const& pset)
 {
   return;
 }
@@ -86,12 +86,12 @@ void MVAPID::beginJob()
 
 void MVAPID::beginRun(art::Run&)
 {
-  
+
 }
 
 // ***************** //
 void MVAPID::produce(art::Event& evt)
-{ 
+{
   std::unique_ptr<std::vector<anab::MVAPIDResult> > result(new std::vector<anab::MVAPIDResult>);
   std::unique_ptr< art::Assns<recob::Track, anab::MVAPIDResult> > trackAssns(new art::Assns<recob::Track, anab::MVAPIDResult>);
   std::unique_ptr< art::Assns<recob::Shower, anab::MVAPIDResult> > showerAssns(new art::Assns<recob::Shower, anab::MVAPIDResult>);
@@ -105,8 +105,8 @@ void MVAPID::produce(art::Event& evt)
   evt.put(std::move(trackAssns));
   evt.put(std::move(showerAssns));
 }
-  
+
   DEFINE_ART_MODULE(MVAPID)
-  
-  
+
+
 } //namespace mvapid

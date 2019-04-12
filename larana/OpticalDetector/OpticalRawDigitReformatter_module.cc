@@ -24,18 +24,18 @@
 #include <cstring>
 
 namespace opdet {
- 
+
     class OpticalRawDigitReformatter : public art::EDProducer{
     public:
- 
+
         // Standard constructor and destructor for an ART module.
         explicit OpticalRawDigitReformatter(const fhicl::ParameterSet&);
 
         void reconfigure(fhicl::ParameterSet const& pset);
 
-        // The producer routine, called once per event. 
-        void produce (art::Event&); 
-    
+        // The producer routine, called once per event.
+        void produce (art::Event&);
+
 
     private:
 
@@ -48,7 +48,7 @@ namespace opdet {
     };
 
 
-} 
+}
 
 namespace opdet {
     DEFINE_ART_MODULE(OpticalRawDigitReformatter)
@@ -76,12 +76,12 @@ namespace opdet {
         CategoryLabels.push_back("FEMBeamLogicPulse");
         CategoryLabels.push_back("BeamPMTTrigger");
         CategoryLabels.push_back("CosmicPMTTrigger");
-    
-    
+
+
         // One for each category
         for (auto label : CategoryLabels)
             produces<std::vector< raw::OpDetWaveform > >(label);
-    
+
     }
 
     //---------------------------------------------
@@ -95,10 +95,10 @@ namespace opdet {
     }
 
     //-----------------------------------------------------------------------
-    void OpticalRawDigitReformatter::produce(art::Event& evt) 
+    void OpticalRawDigitReformatter::produce(art::Event& evt)
     {
 
-      
+
         // These are the storage pointers we will put in the event, one per category
         std::vector<std::unique_ptr<std::vector< raw::OpDetWaveform > > >  RawOpDetVecs;
         for (unsigned int i = 0; i < CategoryLabels.size(); i++) {
@@ -109,7 +109,7 @@ namespace opdet {
 
         std::vector<const sim::BeamGateInfo*> beamGateArray;
         try { evt.getView(fGenModule, beamGateArray); }
-        catch ( art::Exception const& err ){ 
+        catch ( art::Exception const& err ){
             if ( err.categoryCode() != art::errors::ProductNotFound ) throw;
         }
 
@@ -133,7 +133,7 @@ namespace opdet {
             RawOpDetVecs[category]->push_back(raw::OpDetWaveform(timeStamp, channel, ord));
         }
 
-    
+
 
         // Store results into the event
         for (unsigned int i = 0; i < CategoryLabels.size(); i++) {
@@ -142,7 +142,7 @@ namespace opdet {
                 evt.put(std::move(RawOpDetVecs[i]), CategoryLabels[i]);
             }
         }
-    
+
     }
 
 

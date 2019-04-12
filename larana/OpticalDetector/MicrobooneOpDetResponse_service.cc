@@ -19,7 +19,7 @@ namespace opdet{
     {
         this->doReconfigure(pset);
     }
-    
+
     //--------------------------------------------------------------------
     void MicrobooneOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
     {
@@ -50,9 +50,9 @@ namespace opdet{
     //--------------------------------------------------------------------
     bool MicrobooneOpDetResponse::doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const
     {
-        
+
         newOpChannel = OpChannel;
-        
+
         /**
          * Don't apply QE here.  It is applied in the uboone
          * electronics simulation.
@@ -60,7 +60,7 @@ namespace opdet{
         // Check QE
         if ( CLHEP::RandFlat::shoot(1.0) > fQE ) return false;
         **/
-        
+
         double wavel = wavelength(Phot.Energy);
         // Check wavelength acceptance
         if (wavel < fWavelengthCutLow) return false;
@@ -68,12 +68,12 @@ namespace opdet{
 
         return true;
     }
-    
+
     //--------------------------------------------------------------------
     bool MicrobooneOpDetResponse::doDetectedLite(int OpChannel, int &newOpChannel) const
     {
         newOpChannel = OpChannel;
-        
+
         /**
          * Don't apply QE here.  It is applied in the uboone
          * electronics simulation.

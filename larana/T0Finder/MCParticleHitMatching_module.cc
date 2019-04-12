@@ -10,8 +10,8 @@
 /// MCParticles (from LArG4 output). It originated from MCTruthT0Matching
 /// module, and follows a similar strategy. All MCParticles matching the hit
 /// are associated, with information on the amount of contributing energy and
-/// number of electrons stored in assn metadata. 
-/// 
+/// number of electrons stored in assn metadata.
+///
 /// Input: MCParticles (via Backtracker) and recob::Hit collection
 /// Output: recob::Hit/simb::MCParticle assns, with BackTrackerHitMatchingData.
 ///
@@ -21,7 +21,7 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Event.h" 
+#include "art/Framework/Principal/Event.h"
 #include "art/Utilities/make_tool.h"
 
 #include "canvas/Utilities/InputTag.h"
@@ -58,7 +58,7 @@ public:
     void reconfigure(fhicl::ParameterSet const & p) ;
 
 private:
-    
+
     // For keeping track of the replacement backtracker
     std::unique_ptr<IHitParticleAssociations> fHitParticleAssociations;
     bool                                      fOverrideRealData;      ///< if real data, tell it to run anyway (=0)
@@ -76,7 +76,7 @@ void MCParticleHitMatching::reconfigure(fhicl::ParameterSet const & pset)
 {
     // Get the tool for MC Truth matching
     //const fhicl::ParameterSet& hitPartAssnsParams = pset.get<fhicl::ParameterSet>("HitParticleAssociations"); // unused
-    
+
     fOverrideRealData = pset.get<bool>("OverrideRealData", false);
 
     // Get the tool for MC Truth matching
@@ -89,10 +89,10 @@ void MCParticleHitMatching::beginJob()
 
 void MCParticleHitMatching::produce(art::Event & evt)
 {
-   if(evt.isRealData() && !fOverrideRealData) return;    
+   if(evt.isRealData() && !fOverrideRealData) return;
 
     std::unique_ptr<HitParticleAssociations> MCPartHitassn( new HitParticleAssociations);
-    
+
     fHitParticleAssociations->CreateHitParticleAssociations(evt, MCPartHitassn.get());
 
     evt.put(std::move(MCPartHitassn));

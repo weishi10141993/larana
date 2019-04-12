@@ -33,15 +33,15 @@
 #include "math.h"
 
 namespace opdet {
- 
+
   class FIFOHistogramAna : public art::EDAnalyzer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     FIFOHistogramAna(const fhicl::ParameterSet&);
 
-    // The analyzer routine, called once per event. 
-    void analyze (const art::Event&); 
+    // The analyzer routine, called once per event.
+    void analyze (const art::Event&);
 
   private:
 
@@ -50,7 +50,7 @@ namespace opdet {
 
   };
 
-} 
+}
 
 namespace opdet {
 
@@ -61,13 +61,13 @@ namespace opdet {
   {
     // Indicate that the Input Module comes from .fcl
     fInputModule = pset.get<std::string>("InputModule");
-    
+
   }
 
   //-----------------------------------------------------------------------
-  void FIFOHistogramAna::analyze(const art::Event& evt) 
+  void FIFOHistogramAna::analyze(const art::Event& evt)
   {
-    
+
     art::ServiceHandle<art::TFileService> tfs;
 
     // Create a handle for our vector of pulses
@@ -82,20 +82,20 @@ namespace opdet {
     std::stringstream FolderName;
     FolderName.flush();
     FolderName<<"run"<<Run<<"_evt"<<EID;
-    
+
     art::TFileDirectory evtfolder = tfs->mkdir(FolderName.str().c_str());
 
     std::map<int, bool>                ChanFolderMade;
     std::map<uint32_t, int>            ChanFolderIndex;
     std::vector<art::TFileDirectory>   ChanFolders;
-  
+
 
     for(size_t i=0; i!=FIFOChannelHandle->size(); ++i)
       {
         uint32_t Frame     = FIFOChannelHandle->at(i).Frame();
 	uint32_t TimeSlice = FIFOChannelHandle->at(i).TimeSlice();
 	uint32_t Channel   = FIFOChannelHandle->at(i).ChannelNumber();
-	
+
 	if(!ChanFolderMade[Channel])
 	  {
 	    std::stringstream ChannelLabel;
@@ -104,15 +104,15 @@ namespace opdet {
 	    ChanFolderIndex[Channel] = ChanFolders.size();
 	    ChanFolders.push_back(evtfolder.mkdir(ChannelLabel.str().c_str()));
 	    ChanFolderMade[Channel] = true;
-	  } 
-	
+	  }
+
 	std::stringstream HistName;
 	HistName.flush();
 	HistName<<"frm"<<Frame<<"_"<<"tsl"<<TimeSlice;
 
-	
+
 	TH1D * ThisHist = ChanFolders[ChanFolderIndex[Channel] ].make<TH1D>(HistName.str().c_str(),HistName.str().c_str(),FIFOChannelHandle->at(i).size(), float(TimeSlice)-0.0001, float(FIFOChannelHandle->at(i).size())-0.0001+TimeSlice);
-	
+
 	for(size_t j=0; j!=FIFOChannelHandle->at(i).size(); ++j)
 	  {
 	    ThisHist->Fill(TimeSlice + j, FIFOChannelHandle->at(i).at(j));

@@ -2,14 +2,14 @@
  * \file PedAlgoUB.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of PedAlgoUB
  *
  * @author Kazu, Vic - Nevis 2013
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 
 #ifndef larana_OPTICALDETECTOR_PEDALGOUB_H
@@ -27,7 +27,7 @@ namespace pmtana
 
   /**
    \class PedAlgoUB
-   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").   
+   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").
   */
   class PedAlgoUB : public PMTPedestalBase{
 
@@ -35,7 +35,7 @@ namespace pmtana
 
     /// Default constructor
     PedAlgoUB(const std::string name="PedCD");
-    
+
     ///Alternative ctor
     PedAlgoUB(const fhicl::ParameterSet &pset,
     //PedAlgoUB(const ::fcllite::PSet &pset,
@@ -50,7 +50,7 @@ namespace pmtana
     bool ComputePedestal( const pmtana::Waveform_t& wf,
 			  pmtana::PedestalMean_t&   mean_v,
 			  pmtana::PedestalSigma_t&  sigma_v);
-    
+
   private:
 
 //m    PedAlgoRollingMean _beamgatealgo;

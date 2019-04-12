@@ -3,8 +3,8 @@
 // Module Type: producer
 // File:        BeamFlashTrackMatchTagger_module.cc
 // Author:      Wes Ketchum, based on code from Ben Jones
-// 
-// Description: Module that compares all tracks to the flash during the 
+//
+// Description: Module that compares all tracks to the flash during the
 //              beam gate, and determines if that track is consistent with
 //              having produced that flash.
 // Input:       recob::OpFlash, recob::Track
@@ -59,7 +59,7 @@ private:
   BeamFlashTrackMatchTaggerAlg fAlg;
   std::string fTrackModuleLabel;
   std::string fFlashModuleLabel;
-  
+
   HitTagAssociatorAlg fHitTagAssnsAlg;
   bool fMakeHitTagAssns;
   std::string fHitModuleLabel;
@@ -88,7 +88,7 @@ void cosmic::BeamFlashTrackMatchTagger::reconfigure(fhicl::ParameterSet const& p
   fhicl::ParameterSet hittagassnsalg_params = p.get<fhicl::ParameterSet>("HitTagAssociatorAlgParams");
   fHitTagAssnsAlg.reconfigure(hittagassnsalg_params);
 
-  fTrackModuleLabel = p.get<std::string>("TrackModuleLabel");   
+  fTrackModuleLabel = p.get<std::string>("TrackModuleLabel");
   fFlashModuleLabel = p.get<std::string>("FlashModuleLabel");
   fMakeHitTagAssns  = p.get<bool>("MakeHitTagAssns",false);
   fHitModuleLabel   = p.get<std::string>("HitModuleLabel","dummy_hit");
@@ -102,7 +102,7 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
     geo::Geometry,
     detinfo::LArPropertiesService
     >();
-  
+
   art::ServiceHandle<phot::PhotonVisibilityService const> pvsHandle;
   phot::PhotonVisibilityService const& pvs(*pvsHandle);
   art::ServiceHandle<opdet::OpDigiProperties const> opdigipHandle;
@@ -121,14 +121,14 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
   //Make the containger for the tag product to put onto the event.
   std::unique_ptr< std::vector<anab::CosmicTag> > cosmicTagPtr ( new std::vector<anab::CosmicTag>);
   std::vector<anab::CosmicTag> & cosmicTagVector(*cosmicTagPtr);
-  
-  //Make a container for the track<-->tag associations. 
+
+  //Make a container for the track<-->tag associations.
   //One entry per track, with entry equal to index in cosmic tag collection of associated tag.
   std::vector<size_t> assnTrackTagVector;
   std::unique_ptr< art::Assns<recob::Track,anab::CosmicTag> > assnTrackTag(new art::Assns<recob::Track,anab::CosmicTag>);
-  
+
   //run the alg!
-  fAlg.RunCompatibilityCheck(flashVector, trackVector, 
+  fAlg.RunCompatibilityCheck(flashVector, trackVector,
 			     cosmicTagVector, assnTrackTagVector,
 			     providers, pvs, opdigip);
 
@@ -137,9 +137,9 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
   for(size_t track_iter=0; track_iter<assnTrackTagVector.size(); track_iter++){
     if(assnTrackTagVector[track_iter]==std::numeric_limits<size_t>::max()) continue;
     art::Ptr<recob::Track> trk_ptr(trackHandle,track_iter);
-    util::CreateAssn(*this, evt, cosmicTagVector, trk_ptr, *assnTrackTag, assnTrackTagVector[track_iter]); 
+    util::CreateAssn(*this, evt, cosmicTagVector, trk_ptr, *assnTrackTag, assnTrackTagVector[track_iter]);
   }
-  
+
   //make hit<--> tag associations, if requested
   if(fMakeHitTagAssns){
 
@@ -150,7 +150,7 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
     //Get track<-->hit associations
     art::Handle< art::Assns<recob::Hit,recob::Track> > assnHitTrackHandle;
     evt.getByLabel(fTrackModuleLabel,assnHitTrackHandle);
-    std::vector< std::vector<size_t> > 
+    std::vector< std::vector<size_t> >
       track_indices_per_hit = util::GetAssociatedVectorManyI(assnHitTrackHandle,
 							     hitHandle);
 
@@ -165,12 +165,12 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)
     for(size_t hit_iter=0; hit_iter<assnHitTagVector.size(); hit_iter++){
       art::Ptr<recob::Hit> hit_ptr(hitHandle,hit_iter);
       for(size_t tag_iter=0; tag_iter<assnHitTagVector[hit_iter].size(); tag_iter++)
-	util::CreateAssn(*this, evt, cosmicTagVector, hit_ptr, *assnHitTag, assnHitTagVector[hit_iter][tag_iter]); 
+	util::CreateAssn(*this, evt, cosmicTagVector, hit_ptr, *assnHitTag, assnHitTagVector[hit_iter][tag_iter]);
     }
 
     evt.put( std::move(assnHitTag));
   }//end if makes hit<-->tag associations
-  
+
   //put the data on the event
   evt.put(std::move(cosmicTagPtr));
   evt.put(std::move(assnTrackTag));

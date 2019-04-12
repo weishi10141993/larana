@@ -2,14 +2,14 @@
  * \file PulseRecoManager.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of PulseRecoManager
  *
  * @author Kazu - Nevis 2013
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 
 #ifndef PULSERECOMANAGER_H
@@ -35,8 +35,8 @@ namespace pmtana
 
     /// Default constructor
     PulseRecoManager();
-    
-    /// Default constructor 
+
+    /// Default constructor
     ~PulseRecoManager();
 
     /// Implementation of ana_base::analyze method
@@ -44,7 +44,7 @@ namespace pmtana
 
     /// A method to set pulse reconstruction algorithm
     void AddRecoAlgo (pmtana::PMTPulseRecoBase* algo, PMTPedestalBase* ped_algo=nullptr);
-  
+
     /// A method to set a choice of pedestal estimation method
     void SetDefaultPedAlgo (pmtana::PMTPedestalBase* algo);
 

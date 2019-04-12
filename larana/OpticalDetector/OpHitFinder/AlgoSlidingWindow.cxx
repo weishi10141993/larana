@@ -26,7 +26,7 @@ namespace pmtana{
     _adc_thres = pset.get<float>("ADCThreshold");
 
     _end_adc_thres = pset.get<float>("EndADCThreshold");
-  
+
     _nsigma = pset.get<float>("NSigmaThreshold");
 
     _end_nsigma = pset.get<float>("EndNSigmaThreshold");
@@ -61,7 +61,7 @@ namespace pmtana{
     bool fire = false;
 
     bool in_tail = false;
-    
+
     double pulse_start_threshold=0;
     double pulse_tail_threshold =0;
 
@@ -80,7 +80,7 @@ namespace pmtana{
       else value = mean_v.at(i) - ((double)(wf[i]));
 
       float start_threshold = 0.;
-      
+
       if(sigma_v.at(i) * _nsigma < _adc_thres) start_threshold = _adc_thres;
       else start_threshold = sigma_v.at(i) * _nsigma;
 
@@ -90,13 +90,13 @@ namespace pmtana{
 	// If there's a pulse, end it
 	if(in_tail) {
 	  _pulse.t_end = i - 1;
-	  
+
 	  _pulse_v.push_back(_pulse);
-	  
+
 	  _pulse.reset_param();
-	  
+
 	  if(_verbose)
-	    std::cout << "\033[93mPulse End\033[00m: " 
+	    std::cout << "\033[93mPulse End\033[00m: "
 		      << "baseline: " << mean_v[i] << " ... " << " ... adc above: " << value << " T=" << i << std::endl;
 	}
 
@@ -134,11 +134,11 @@ namespace pmtana{
 	  if(pre_adc > 0.) _pulse.area += pre_adc;
 	}
 
-	if(_verbose) 
-	  std::cout << "\033[93mPulse Start\033[00m: " 
-		    << "baseline: " << mean_v[i] 
-		    << " ... threshold: " << start_threshold 
-		    << " ... adc above baseline: " << value 
+	if(_verbose)
+	  std::cout << "\033[93mPulse Start\033[00m: "
+		    << "baseline: " << mean_v[i]
+		    << " ... threshold: " << start_threshold
+		    << " ... adc above baseline: " << value
 		    << " ... pre-adc sum: " << _pulse.area
 		    << " T=" << i << std::endl;
 
@@ -148,29 +148,29 @@ namespace pmtana{
 
       if( (fire || in_tail) && _verbose ) {
 	std::cout << (fire ? "\033[93mPulsing\033[00m: " : "\033[93mPulse ending\033[00m: ")
-		  << "baseline: " << mean_v[i] 
+		  << "baseline: " << mean_v[i]
 		  << " std: " << sigma_v[i]
-		  << " ... adc above baseline " << value 
+		  << " ... adc above baseline " << value
 		  << " T=" << i << std::endl;
-	  
+
       }
 
       if( fire && value < pulse_start_threshold ) {
 	fire = false;
 	in_tail = true;
       }
-    
+
       if( (fire || in_tail) && value < pulse_tail_threshold ){
-      
+
 	// Found the end of a pulse
 	_pulse.t_end = i - 1;
-      
+
 	_pulse_v.push_back(_pulse);
 
 	if(_verbose)
-	  std::cout << "\033[93mPulse End\033[00m: " 
+	  std::cout << "\033[93mPulse End\033[00m: "
 		    << "baseline: " << mean_v[i] << " ... adc: " << value << " T=" << i << " ... area sum " << _pulse.area << std::endl;
-	
+
 	_pulse.reset_param();
 
 	fire = false;
@@ -199,14 +199,14 @@ namespace pmtana{
     if(fire || in_tail){
 
       // Take care of a pulse that did not finish within the readout window.
-    
+
       fire = false;
       in_tail = false;
 
       _pulse.t_end = wf.size() - 1;
-    
+
       _pulse_v.push_back(_pulse);
-    
+
       _pulse.reset_param();
 
     }

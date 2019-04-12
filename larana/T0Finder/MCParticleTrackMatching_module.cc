@@ -10,7 +10,7 @@
 /// to mcparticles. It also stores some idea of cleanliness of the matching.
 /// Note: it's probably better to do fancier things with the hit<->particle
 /// info, but this is a start of sorts.
-/// 
+///
 /// Input: recob::Tracks, recob::Hit collection, recob::Hit<--->simb::MCparticle assns
 /// Output: recob::Track/simb::MCParticle assns, with BackTrackerMatchingData.
 ///
@@ -21,12 +21,12 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Event.h" 
-#include "canvas/Persistency/Common/Ptr.h" 
-#include "canvas/Persistency/Common/PtrVector.h" 
+#include "art/Framework/Principal/Event.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Services/Optional/TFileService.h" 
+#include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 
 #include "canvas/Utilities/InputTag.h"
@@ -60,7 +60,7 @@ public:
   // Plugins should not be copied or assigned.
   MCParticleTrackMatching(MCParticleTrackMatching const &) = delete;
   MCParticleTrackMatching(MCParticleTrackMatching &&) = delete;
-  MCParticleTrackMatching & operator = (MCParticleTrackMatching const &) = delete; 
+  MCParticleTrackMatching & operator = (MCParticleTrackMatching const &) = delete;
  MCParticleTrackMatching & operator = (MCParticleTrackMatching &&) = delete;
 
   // Required functions.
@@ -72,12 +72,12 @@ public:
 
 
 private:
-  
+
   art::InputTag fTrackModuleLabel;
   art::InputTag fTrackHitAssnLabel;
   art::InputTag fHitModuleLabel;
   art::InputTag fHitParticleAssnLabel;
-  
+
 };
 
 
@@ -94,7 +94,7 @@ void t0::MCParticleTrackMatching::reconfigure(fhicl::ParameterSet const & p)
   fTrackHitAssnLabel = p.get<art::InputTag>("TrackHitAssnLabel",fTrackModuleLabel);
   fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
   fHitParticleAssnLabel = p.get<art::InputTag>("HitParticleAssnLabel");
-  
+
 }
 
 void t0::MCParticleTrackMatching::beginJob()
@@ -107,8 +107,8 @@ void t0::MCParticleTrackMatching::produce(art::Event & evt)
 
   //auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >("largeant");
   std::unique_ptr< art::Assns<recob::Track, simb::MCParticle, anab::BackTrackerMatchingData > > MCPartTrackassn( new art::Assns<recob::Track, simb::MCParticle, anab::BackTrackerMatchingData >);
-  
-  
+
+
   double maxe = -1;
   double tote = 0;
   // int    trkid = -1;
@@ -119,10 +119,10 @@ void t0::MCParticleTrackMatching::produce(art::Event & evt)
 
   anab::BackTrackerMatchingData btdata;
   std::unordered_map<int,double> trkide;
-  
+
   art::Handle< std::vector<recob::Track> > trackListHandle;
   evt.getByLabel(fTrackModuleLabel,trackListHandle);
-  
+
   art::Handle< std::vector<recob::Hit> > hitListHandle;
   evt.getByLabel(fHitModuleLabel,hitListHandle);
 
@@ -130,7 +130,7 @@ void t0::MCParticleTrackMatching::produce(art::Event & evt)
     std::cerr << "Track handle is not valid!" << std::endl;
     return;
   }
-  
+
   if(!hitListHandle.isValid()){
     std::cerr << "Hit handle is not valid!" << std::endl;
     return;
@@ -144,12 +144,12 @@ void t0::MCParticleTrackMatching::produce(art::Event & evt)
     art::Ptr<recob::Track> trkPtr(trackListHandle,i_t);
     trkide.clear();
     tote = 0; maxe=-1; art::Ptr<simb::MCParticle> maxp;
-    
+
     std::vector< art::Ptr<recob::Hit> > allHits = fmtht.at(i_t);
 
     std::vector<anab::BackTrackerHitMatchingData const*> bthmd_vec;
     std::vector< art::Ptr<simb::MCParticle> > matchedParticlePtrs;
-    
+
     art::FindManyP<simb::MCParticle,anab::BackTrackerHitMatchingData>
       particles_per_hit(hitListHandle, evt, fHitParticleAssnLabel);
 

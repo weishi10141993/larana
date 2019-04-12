@@ -31,31 +31,31 @@ namespace recob{
 
 
 namespace opdet {
-  
+
   bool TrackTimeAssoc_tracksort(art::Ptr<recob::Track> t1, art::Ptr<recob::Track> t2);
 
   class TrackTimeAssoc : public art::EDProducer{
   public:
-    
+
     TrackTimeAssoc(const fhicl::ParameterSet&);
     virtual ~TrackTimeAssoc();
-    
+
     void produce(art::Event&);
     void reconfigure(fhicl::ParameterSet const& p);
-      
+
     std::vector<double>               GetMIPHypotheses(trkf::BezierTrack* BTrack, double XOffset=0);
     std::vector<std::vector<double> > ScanMIPHypotheses(trkf::BezierTrack * Btrack);
     void                              PrintHypotheses(std::vector<std::vector<double> > TrackHypotheses);
     double                            GetChi2(std::vector<double> signal, std::vector<double> hypothesis, double UpperLim=0);
     double                            GetMinChi2(std::vector<std::vector<double> > ScannedHypotheses, std::vector<double> FlashShape);
 
-    
+
     void StoreFlashMatches(std::vector<art::Ptr<recob::Track> >& Tracks, std::vector<art::Ptr<recob::OpFlash> >& Flashes, std::vector<anab::FlashMatch>& Matches, art::Event& evt);
 
-    
+
     void beginJob();
-    
-    
+
+
   private:
     std::string fTrackModuleLabel;
     std::string fFlashModuleLabel;
@@ -65,7 +65,7 @@ namespace opdet {
     double      fPECut;
   };
 
-  
+
 
 }
 
@@ -149,13 +149,13 @@ namespace opdet {
 
   void TrackTimeAssoc::reconfigure(fhicl::ParameterSet const& pset)
   {
-    fTrackModuleLabel = pset.get<std::string>("TrackModuleLabel");   
+    fTrackModuleLabel = pset.get<std::string>("TrackModuleLabel");
     fFlashModuleLabel = pset.get<std::string>("FlashModuleLabel");
     fBezierResolution = pset.get<int>("BezierResolution");
     fLengthCut        = pset.get<double>("LengthCut");
     fPECut            = pset.get<double>("PECut");
     fPairingMode      = pset.get<int>("PairingMode");
-  
+
 
   }
 
@@ -188,14 +188,14 @@ namespace opdet {
     std::vector<std::vector<double> > ReturnVector(XSteps);
     for(size_t i=0; i!=XSteps; ++i)
       ReturnVector[i].resize(geom->NOpDets());
-    
+
     art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
 
     float TrackLength = Btrack->GetTrajectory().Length();
     float OldVertex   = Btrack->GetTrajectory().Start().X();
-    
+
     std::vector<bool> ValidTrajectory(XSteps, true);
-    
+
     double xyz[3];
     for (int b=0; b!=fBezierResolution; b++)
       {
@@ -206,26 +206,26 @@ namespace opdet {
 	double MIPdQdx    = 2.1;
 	double PromptFrac = 0.25;
 	double PromptMIPScintYield = MIPYield * QE * MIPdQdx * PromptFrac;
-	
+
 	//	std::cout<<"check : " << PromptMIPScintYield<<std::endl;
-	
+
 	float s               = float(b) / float(fBezierResolution);
 	float LightAmount     = PromptMIPScintYield * TrackLength/float(fBezierResolution);
-	
-	
+
+
 	for(size_t i=0; i!=XSteps; ++i)
 	  {
 	    if(ValidTrajectory[i])
 	      {
-		float NewVertex = MinX + float(i)/float(XSteps)*(MaxX-MinX);	
+		float NewVertex = MinX + float(i)/float(XSteps)*(MaxX-MinX);
 		Btrack->GetTrackPoint(s,xyz);
 		xyz[0] += NewVertex-OldVertex;
-		
-		if((xyz[0] > MaxX) || (xyz[0] < MinX) ) ValidTrajectory[i]=false; 
-		
+
+		if((xyz[0] > MaxX) || (xyz[0] < MinX) ) ValidTrajectory[i]=false;
+
 		auto const& PointVisibility = pvs->GetAllVisibilities(xyz);
                 if (!PointVisibility) continue; // point not covered by visibility service
-		
+
 		for(size_t OpDet =0; OpDet!=pvs->NOpChannels();  OpDet++)
 		  {
 		    ReturnVector.at(i).at(OpDet) += PointVisibility[OpDet] * LightAmount;
@@ -238,7 +238,7 @@ namespace opdet {
     return ReturnVector;
   }
 
-   
+
 
 
 
@@ -250,7 +250,7 @@ namespace opdet {
   {
     double MinChi2  = 10000;
     if(FlashShape.size()==0) return MinChi2;
-    
+
     for(size_t i=0; i!=ScannedHypotheses.size(); ++i)
       {
 	if(ScannedHypotheses.at(i).size()>0)
@@ -273,7 +273,7 @@ namespace opdet {
   {
     art::ServiceHandle<geo::Geometry const> geom;
     std::vector<double> ReturnVector(geom->NOpDets(),0);
-    
+
     art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
 
     float TrackLength = Btrack->GetLength();
@@ -283,13 +283,13 @@ namespace opdet {
       {
 	float s               = float(b) / float(fBezierResolution);
 	float dQdx            = 2.1;    // Assume MIP value
-	
+
 	Btrack->GetTrackPoint(s,xyz);
 	xyz[0]+=XOffset;
 	auto const& PointVisibility = pvs->GetAllVisibilities(xyz);
 	if (!PointVisibility) continue; // point not covered by the service
 	float LightAmount = dQdx*TrackLength/float(fBezierResolution);
-	
+
 	for(size_t OpDet =0; OpDet!=pvs->NOpChannels();  OpDet++)
 	  {
 	    ReturnVector.at(OpDet)+= PointVisibility[OpDet] * LightAmount;
@@ -303,10 +303,10 @@ namespace opdet {
 
   void TrackTimeAssoc::produce(art::Event& evt)
   {
-    
+
     //    int EventID = evt.id().event();
-    
-    
+
+
     // Read in flashes from the event
     art::Handle< std::vector<recob::OpFlash> > flashh;
     evt.getByLabel(fFlashModuleLabel, flashh);
@@ -335,28 +335,28 @@ namespace opdet {
     BTracks.clear();
     for(size_t i=0; i!=Tracks.size(); i++)
       BTracks.push_back(new trkf::BezierTrack(*Tracks.at(i)));
-        
+
     art::ServiceHandle<geo::Geometry const> geom;
     size_t NOpDets = geom->NOpDets();
-    
+
     std::map<int, bool> OnBeamFlashes;
-    
+
     std::vector<std::vector<std::vector<double> > > TrackHypotheses;
     std::vector<std::vector<double> > FlashShapes;
-       
+
 
     // For each track
     for (size_t i=0; i!=BTracks.size(); ++i)
       {
 	TrackHypotheses.push_back(ScanMIPHypotheses(BTracks.at(i)));
       }
-    
+
 
     for(size_t f=0; f!=Flashes.size(); ++f)
       {
 
 	std::vector<double> ThisFlashShape(NOpDets,0);
-	    
+
 	//	if(Flashes.at(f)->InBeamFrame())
 	//	  {
         for (unsigned int c = 0; c < geom->NOpChannels(); c++){
@@ -376,14 +376,14 @@ namespace opdet {
     // This map sorts the preferences of each track for each flash
     //    SortedPrefs[TrackID][Chi2] = {flashid1, flashid2, ...}
     std::vector<std::map<double, std::vector<int> > > SortedPrefs(Tracks.size());
-    
+
 
     for(size_t i=0; i!=TrackHypotheses.size(); ++i)
       {
-	for(size_t j=0; j!=FlashShapes.size(); ++j)	    
+	for(size_t j=0; j!=FlashShapes.size(); ++j)
 	  {
 	    double Chi2 = GetMinChi2(TrackHypotheses.at(i), FlashShapes.at(j));
-	    
+
 	    Chi2Map[i][j]=Chi2;
 	    SortedPrefs[i][Chi2].push_back(j);
 
@@ -393,7 +393,7 @@ namespace opdet {
 
     // This will hold the list of matches
     std::vector<anab::FlashMatch> Matches;
-	
+
 
 
     if(fPairingMode==0)
@@ -404,16 +404,16 @@ namespace opdet {
 	  for(size_t j=0; j!=Flashes.size(); ++j)
  	    Matches.push_back( anab::FlashMatch(Chi2Map[i][j], j, i, (Flashes.at(j)->OnBeamTime()>0)));
       }
-    
+
     else if(fPairingMode==1)
       {
  	// In pairing mode 1, use the stable marriage algorithm to make a guess
  	//   at good 1<->1 pairings
-	
+
 	bool StillPairing =true;
  	std::vector<int> FlashesPaired(Flashes.size(),-1);
  	std::vector<int> TracksPaired(BTracks.size(),-1);
-	
+
         // If we made a new match in the last round, don't stop
 	while(StillPairing)
 	  {
@@ -423,7 +423,7 @@ namespace opdet {
 		// If this track still to be paired
 		if(TracksPaired[i]<0)
 		  {
-		    // Find the flash with best remaining chi2 
+		    // Find the flash with best remaining chi2
 		    bool MadeMatch  = false;
 		    for(auto itPref = SortedPrefs[i].begin(); itPref!=SortedPrefs[i].end(); ++itPref)
 		      {
@@ -435,13 +435,13 @@ namespace opdet {
 			      {
 				// This flash is available - make pairing
 				TracksPaired[i]         = FlashID;
-				
-				// if the flash is on beam, claim to be 
+
+				// if the flash is on beam, claim to be
 				//  satisfied, but don't occupy flash
 				// if flash is cosmic, claim it.
 				if(!OnBeamFlashes[FlashID])
 				  FlashesPaired[FlashID]  = i;
-				
+
 				StillPairing = true;
 				MadeMatch    = true;
 			      }
@@ -458,7 +458,7 @@ namespace opdet {
 				    StillPairing = true;
 				    break;
 				  }
-				// or else just roll on...			    
+				// or else just roll on...
 			      }
 			  }
 			if(MadeMatch)  break;
@@ -466,15 +466,15 @@ namespace opdet {
 		  } // end if unpaired track
 	      } // end loop over tracks
 	  } // end loop until no more pairing
-	
-		
+
+
 	for(size_t i=0; i!=BTracks.size(); ++i)
 	  {
 	    if(TracksPaired[i]>0)
 	      {
 		int TrackID = i;
 		int FlashID = TracksPaired[i];
-		
+
 		Matches.push_back( anab::FlashMatch(Chi2Map[TrackID][FlashID], FlashID, TrackID, Flashes.at(FlashID)->OnBeamTime() ));
 	      }
 	  }
@@ -482,17 +482,17 @@ namespace opdet {
 
 
     StoreFlashMatches(Tracks, Flashes, Matches, evt);
-    
+
   }
 
 
   //--------------------------------------------------
-  // Get the chi2 between a flash hypothesis and a track 
+  // Get the chi2 between a flash hypothesis and a track
   //  Optional : stop counting if Chi2 bigger than UpperLim
   //
   double TrackTimeAssoc::GetChi2(std::vector<double> signal, std::vector<double> hypothesis, double UpperLim)
   {
-       
+
     double SignalIntegral = 0;
     double HypoIntegral = 0;
 
@@ -502,34 +502,34 @@ namespace opdet {
 	HypoIntegral+=hypothesis.at(i);
       }
 
-    // If light yield indicates >1 MIP light yield, 
+    // If light yield indicates >1 MIP light yield,
     //   Normalize the hypothesis to the signal size.
     //   We do not allow <1 MIP hypotheses.
 
     double NormFactor = SignalIntegral/HypoIntegral;
-    if(NormFactor > 1) 
+    if(NormFactor > 1)
       {
 	for(size_t i=0; i!=hypothesis.size(); ++i)
 	  {
 	    hypothesis.at(i) *= NormFactor;
 	  }
       }
-    
+
     double Chi2=0;
-    
+
     for(size_t i=0; i!=signal.size(); ++i)
-      {    
+      {
 	// We assume width = sqrt(hypothesis)
 
 	if(hypothesis.at(i)!=0)
-	  Chi2 += pow(hypothesis.at(i) - signal.at(i),2)/(hypothesis.at(i));	
-	
+	  Chi2 += pow(hypothesis.at(i) - signal.at(i),2)/(hypothesis.at(i));
+
 	if(Chi2>UpperLim)
 	  break;
       }
     return Chi2;
   }
-  
+
 
   //--------------------------------------------------
 
@@ -545,7 +545,7 @@ namespace opdet {
 	    mf::LogVerbatim("TrackTimeAssoc") << "Signal at PMT " << j << ", "  << TrackHypotheses.at(i).at(j)<<std::endl;
 	  }
       }
-    
+
   }
 
 
@@ -561,12 +561,12 @@ namespace opdet {
     for(size_t i=0; i!=Matches.size(); ++i)
       {
 	flash_matches->push_back(Matches.at(i));
-	
-	util::CreateAssn(*this, evt, *(flash_matches.get()), Tracks.at(Matches.at(i).SubjectID()), *(assn_track.get()), i); 
 
-	util::CreateAssn(*this, evt, *(flash_matches.get()), Flashes.at(Matches.at(i).FlashID()), *(assn_flash.get()), i); 
+	util::CreateAssn(*this, evt, *(flash_matches.get()), Tracks.at(Matches.at(i).SubjectID()), *(assn_track.get()), i);
+
+	util::CreateAssn(*this, evt, *(flash_matches.get()), Flashes.at(Matches.at(i).FlashID()), *(assn_flash.get()), i);
       }
-    
+
 
     evt.put(std::move(flash_matches));
     evt.put(std::move(assn_track));
@@ -579,7 +579,7 @@ namespace opdet {
   bool TrackTimeAssoc_tracksort(art::Ptr<recob::Track> t1, art::Ptr<recob::Track> t2)
   {
     return (t1->Length()>t2->Length());
-    
+
   }
 
 

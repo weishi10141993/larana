@@ -38,11 +38,11 @@ namespace opdet{
 		       const SimPhotonCounter&,
 		       const std::vector<float>&,
 		       const std::vector<float>&);
-    
+
   private:
 
     FlashUtilities fUtil;
-    
+
     void FillFlashHypothesisInfo(const FlashHypothesisCollection&,
 				 const std::vector<float>&,
 				 const std::vector<float>&);
@@ -56,7 +56,7 @@ namespace opdet{
 
     bool   fFillTree;
     TTree* fTree;
-    
+
     TH1F* fHypHist_p;
     TH1F* fSimHist_p;
     TH1F* fCompareHist_p;
@@ -72,11 +72,11 @@ namespace opdet{
 
     float fHypPEs_p;
     float fHypPEsError_p;
-    float fSimPEs_p;    
+    float fSimPEs_p;
     float fHypY_p;
-    float fSimY_p;    
+    float fSimY_p;
     float fHypRMSY_p;
-    float fSimRMSY_p;    
+    float fSimRMSY_p;
     float fHypZ_p;
     float fSimZ_p;
     float fHypRMSZ_p;
@@ -85,11 +85,11 @@ namespace opdet{
 
     float fHypPEs_l;
     float fHypPEsError_l;
-    float fSimPEs_l;    
+    float fSimPEs_l;
     float fHypY_l;
-    float fSimY_l;    
+    float fSimY_l;
     float fHypRMSY_l;
-    float fSimRMSY_l;    
+    float fSimRMSY_l;
     float fHypZ_l;
     float fSimZ_l;
     float fHypRMSZ_l;
@@ -98,18 +98,18 @@ namespace opdet{
 
     float fHypPEs_t;
     float fHypPEsError_t;
-    float fSimPEs_t;    
+    float fSimPEs_t;
     float fHypY_t;
-    float fSimY_t;    
+    float fSimY_t;
     float fHypRMSY_t;
-    float fSimRMSY_t;    
+    float fSimRMSY_t;
     float fHypZ_t;
     float fSimZ_t;
     float fHypRMSZ_t;
     float fSimRMSZ_t;
     float fCompare_t;
   };
-  
+
 }
 
 

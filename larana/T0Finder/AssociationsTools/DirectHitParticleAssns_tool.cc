@@ -42,20 +42,20 @@ public:
      *  @param  pset
      */
     explicit DirectHitParticleAssns(fhicl::ParameterSet const & pset);
-    
+
     // provide for initialization
     void reconfigure(fhicl::ParameterSet const & pset) override;
-    
+
     /**
      *  @brief This rebuilds the internal maps
      */
     void CreateHitParticleAssociations(art::Event&, HitParticleAssociations*) override;
-    
+
 private:
-    
+
     art::InputTag fHitModuleLabel;
     art::InputTag fMCParticleModuleLabel;
-    
+
     struct TrackIDEinfo {
         float E;
         float NumElectrons;
@@ -70,10 +70,10 @@ private:
 ///
 /// pset - Fcl parameters.
 ///
-DirectHitParticleAssns::DirectHitParticleAssns(fhicl::ParameterSet const & pset) 
+DirectHitParticleAssns::DirectHitParticleAssns(fhicl::ParameterSet const & pset)
 {
     reconfigure(pset);
-    
+
     // Report.
     mf::LogInfo("DirectHitParticleAssns") << "Configured\n";
 }
@@ -103,15 +103,15 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
     // This function handles the "direct" creation of hit<-->MCParticle associations through use of the BackTracker
     //
     auto mcpartHandle = evt.getValidHandle< std::vector<simb::MCParticle> >(fMCParticleModuleLabel);
-    
+
     art::Handle< std::vector<recob::Hit> > hitListHandle;
     evt.getByLabel(fHitModuleLabel,hitListHandle);
-    
+
     if(!hitListHandle.isValid()){
         std::cerr << "Hit handle is not valid! Returning empty collection" << std::endl;
         return;
     }
-    
+
     // Access art services...
     art::ServiceHandle<cheat::BackTrackerService const> btService;
     art::ServiceHandle<cheat::ParticleInventoryService const> piService;
@@ -125,18 +125,18 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
     int maxntrkid = -1;
     anab::BackTrackerHitMatchingData bthmd;
     std::unordered_map<int,int> trkid_lookup; //indexed by geant4trkid, delivers MC particle location
-    
+
     auto const& hitList(*hitListHandle);
     auto const& mcpartList(*mcpartHandle);
-    
+
     for(size_t i_h=0; i_h<hitList.size(); ++i_h){
         art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
         auto trkide_list = btService->HitToTrackIDEs(hitPtr);
-        
+
         maxe = -1; tote = 0; maxtrkid = -1;
         maxn = -1; totn = 0; maxntrkid = -1;
         fTrkIDECollector.clear();
-        
+
         //for(auto const& t : trkide_list){
         for(size_t i_t=0; i_t<trkide_list.size(); ++i_t){
             auto const& t(trkide_list[i_t]);
@@ -149,7 +149,7 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
                 maxn = fTrkIDECollector[t.trackID].NumElectrons;
                 maxntrkid = t.trackID;
             }
-            
+
             //if not found, find mc particle...
             if(trkid_lookup.find(t.trackID)==trkid_lookup.end()){
                 size_t i_p=0;
@@ -159,10 +159,10 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
                 }
                 if(i_p==mcpartList.size()) trkid_lookup[t.trackID] = -1;
             }
-            
+
         }
         //end loop on TrackIDs
-        
+
         //now find the mcparticle and loop back through ...
         for(auto const& t : fTrkIDECollector){
             int mcpart_i = trkid_lookup[t.first];
@@ -176,13 +176,13 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
             bthmd.numElectrons = t.second.NumElectrons;
             hitPartAssns->addSingle(mcpartPtr, hitPtr, bthmd);
         }
-        
+
     }//end loop on hits
-    
+
     return;
 }
 
 //----------------------------------------------------------------------------
-    
+
 DEFINE_ART_CLASS_TOOL(DirectHitParticleAssns)
 }

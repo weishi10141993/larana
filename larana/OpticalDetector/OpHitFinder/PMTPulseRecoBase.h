@@ -2,14 +2,14 @@
  * \file PMTPulseRecoBase.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of PMTPulseRecoBase
  *
  * @author Kazu - Nevis 2013
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 
 #ifndef PMTPULSERECOBASE_H
@@ -25,7 +25,7 @@
 #include "OpticalRecoTypes.h"
 namespace pmtana
 {
-  
+
   struct pulse_param{
   public:
     double peak, area, ped_mean, ped_sigma;
@@ -33,13 +33,13 @@ namespace pmtana
 
     //for vic
     double t_cfdcross;
-    
+
     pulse_param(){
       reset_param();
     }
 
     ~pulse_param(){}
-  
+
     void reset_param(){
       area = 0;
       peak = -1;
@@ -47,7 +47,7 @@ namespace pmtana
       t_start = t_max = t_end = -1;
       t_cfdcross = -1;
     }
-    
+
   };
 
   typedef std::vector<pmtana::pulse_param> pulse_param_array;
@@ -68,7 +68,7 @@ namespace pmtana
    when possible.
   */
   class PMTPulseRecoBase {
-    
+
   public:
 
     /// Default constructor with fhicl parameters
@@ -93,7 +93,7 @@ namespace pmtana
 		      const pmtana::PedestalMean_t&,
 		      const pmtana::PedestalSigma_t& );
 
-    /** A getter for the pulse_param struct object. 
+    /** A getter for the pulse_param struct object.
       Reconstruction algorithm may have more than one pulse reconstructed from an input waveform.
       Note you must, accordingly, provide an index key to specify which pulse_param object to be retrieved.
     */
@@ -112,13 +112,13 @@ namespace pmtana
 
     /// Status after pulse reconstruction
     bool _status;
-    
+
   protected:
 
     virtual bool RecoPulse( const pmtana::Waveform_t&,
 			    const pmtana::PedestalMean_t&,
 			    const pmtana::PedestalSigma_t&     ) = 0;
-    
+
     /// A container array of pulse_param struct objects to store (possibly multiple) reconstructed pulse(s).
     pulse_param_array _pulse_v;
 

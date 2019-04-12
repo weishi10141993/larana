@@ -71,7 +71,7 @@ void trk::TrackContainmentTagger::produce(art::Event & e)
 
   std::unique_ptr< std::vector< anab::CosmicTag > >              cosmicTagTrackVector( new std::vector<anab::CosmicTag> );
   std::unique_ptr< art::Assns<recob::Track, anab::CosmicTag > >  assnOutCosmicTagTrack( new art::Assns<recob::Track, anab::CosmicTag>);
-  
+
   fAlg.SetRunEvent(e.run(),e.event());
 
   std::vector< std::vector<recob::Track> > trackVectors;
@@ -82,7 +82,7 @@ void trk::TrackContainmentTagger::produce(art::Event & e)
     trackVectors.push_back(*trackHandle);
     trackHandles.push_back(trackHandle);
   }
-  
+
   art::ServiceHandle<geo::Geometry const> geoHandle;
   fAlg.ProcessTracks(trackVectors,*geoHandle);
 
@@ -98,7 +98,7 @@ void trk::TrackContainmentTagger::produce(art::Event & e)
 
   e.put(std::move(cosmicTagTrackVector));
   e.put(std::move(assnOutCosmicTagTrack));
-  
+
 }
 
 void trk::TrackContainmentTagger::reconfigure(fhicl::ParameterSet const & p)

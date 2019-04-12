@@ -27,9 +27,9 @@ namespace pmtana{
 
     _start_adc_thres = pset.get<double>("StartADCThreshold");
     _end_adc_thres = pset.get<double>("EndADCThreshold");
-  
+
     //_nsigma = pset.get<double>("NSigmaThreshold");
-    
+
     _nsigma_start = pset.get<double>("NSigmaThresholdStart");
     _nsigma_end   = pset.get<double>("NSigmaThresholdEnd");
 
@@ -56,7 +56,7 @@ namespace pmtana{
   //***************************************************************
   {
     bool fire = false;
-    
+
     double counter=0;
 
     double ped_mean = mean_v.front();
@@ -65,7 +65,7 @@ namespace pmtana{
     //double threshold = ( _adc_thres > (_nsigma * ped_rms) ? _adc_thres : (_nsigma * ped_rms) );
     auto start_threshold = ( _start_adc_thres > (_nsigma_start * ped_rms) ? _start_adc_thres : (_nsigma_start * ped_rms) );
     auto end_threshold   = ( _end_adc_thres   > (_nsigma_end   * ped_rms) ? _end_adc_thres   : (_nsigma_end * ped_rms) );
-    
+
     //    threshold += ped_mean
 
     start_threshold += ped_mean;
@@ -74,7 +74,7 @@ namespace pmtana{
     Reset();
 
     for(auto const &value : wf){
-      
+
       if( !fire && ((double)value) >= start_threshold ){
 
 	// Found a new pulse
@@ -88,18 +88,18 @@ namespace pmtana{
 
 	_pulse.t_start = counter - 1 > 0 ? counter - 1 : counter;
 	//std::cout << "counter: " << counter << " tstart : " << _pulse.t_start << "\n";
-	
+
       }
-      
+
       if( fire && ((double)value) < end_threshold ){
-	
+
 	// Found the end of a pulse
-	
+
 	fire = false;
 
 	//vic: i move t_start forward one, this helps with tail
 	_pulse.t_end = counter < wf.size()  ? counter : counter - 1;
-	
+
 	_pulse_v.push_back(_pulse);
 
 	_pulse.reset_param();
@@ -112,13 +112,13 @@ namespace pmtana{
       if(fire){
 
 	// Add this adc count to the integral
-	
+
 	_pulse.area += ((double)value - (double)ped_mean);
 
 	if(_pulse.peak < ((double)value - (double)ped_mean)) {
 
 	  // Found a new maximum
-	  
+
 	  _pulse.peak = ((double)value - (double)ped_mean);
 
 	  _pulse.t_max = counter;
@@ -126,20 +126,20 @@ namespace pmtana{
 	}
 
       }
-    
+
       counter++;
     }
 
     if(fire){
 
-      // Take care of a pulse that did not finish within the readout window.    
+      // Take care of a pulse that did not finish within the readout window.
 
       fire = false;
-   
+
       _pulse.t_end = counter - 1;
-    
+
       _pulse_v.push_back(_pulse);
-    
+
       _pulse.reset_param();
 
     }
@@ -147,5 +147,5 @@ namespace pmtana{
     return true;
 
   }
-  
+
 }

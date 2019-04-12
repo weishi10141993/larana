@@ -6,8 +6,8 @@
  * Class that contains utility functions for flash and flash hypotheses:
  * --- compare a flash hypothesis to a truth or reco vector
  * --- get an extent of a flash (central point, width)
- * These classes should operate using simple objects, and will need other 
- * classes/functions to fill those vectors properly. 
+ * These classes should operate using simple objects, and will need other
+ * classes/functions to fill those vectors properly.
 */
 
 #include <limits>
@@ -67,9 +67,9 @@ float opdet::FlashUtilities::CompareByFraction(const std::vector<float>& NPEs_Ve
 {
   if(compare_vector.size()!=NPEs_Vector.size())
     throw std::runtime_error("ERROR in FlashUtilities Compare: Mismatching vector sizes.");
-  
+
   result_vector.resize(NPEs_Vector.size());
-  
+
   float total_comp = 0;
   float total_hyp = 0;
   for(size_t i=0; i<NPEs_Vector.size(); i++){
@@ -108,7 +108,7 @@ void opdet::FlashUtilities::GetPosition(const std::vector<float>& pe_vector,
   if(sum < std::numeric_limits<float>::epsilon()){
     mean=0; rms=0; return;
   }
-  
+
   mean = std::inner_product(pe_vector.begin(),pe_vector.end(),pos_vector.begin(),0.0) / sum;
 
   rms=0;

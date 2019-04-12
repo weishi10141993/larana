@@ -38,7 +38,7 @@ public:
   OpFlashSimpleAna & operator = (OpFlashSimpleAna &&) = delete;
 
   void analyze(art::Event const & e) override;
-  
+
   void reconfigure(fhicl::ParameterSet const & p) ;
   void beginJob() override;
 
@@ -50,7 +50,7 @@ private:
   bool fMakeOpDetPEHist;
 
   OpFlashAnaAlg fAnaAlg;
-  
+
 };
 
 

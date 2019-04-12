@@ -4,7 +4,7 @@
  *
  * Description: Algorithm that calculates the PIDA from a calorimetry object
  * Input:       anab::Calorimetry
- * Output:      PIDA information 
+ * Output:      PIDA information
 */
 
 #include <iostream>
@@ -78,7 +78,7 @@ void pid::PIDAAlg::SetPIDATree(TTree *tree, TH1F* hist_vals, std::vector<TH1F*> 
   fPIDATree->Branch("kde_bandwidth",fPIDAProperties.kde_bandwidth,"kde_bandwidth[n_bandwidths]/F");
   fPIDATree->Branch("kde_mp",fPIDAProperties.kde_mp,"kde_mp[n_bandwidths]/F");
   fPIDATree->Branch("kde_fwhm",fPIDAProperties.kde_fwhm,"kde_fwhm[n_bandwidths]/F");
-  for(size_t i_hist=0; i_hist<hist_kde.size(); i_hist++){  
+  for(size_t i_hist=0; i_hist<hist_kde.size(); i_hist++){
     std::stringstream bname;
     bname << "hpida_kde_" << i_hist;
     fPIDATree->Branch(bname.str().c_str(),"TH1F",hPIDAKDE[i_hist]);
@@ -110,7 +110,7 @@ float pid::PIDAAlg::getPIDAKDEMostProbable(const size_t i_b){
 float pid::PIDAAlg::getPIDAKDEFullWidthHalfMax(const size_t i_b){
   if(fpida_kde_fwhm[i_b]==fPIDA_BOGUS)
     createKDE(i_b);
-  
+
   return fpida_kde_fwhm[i_b];
 }
 
@@ -151,13 +151,13 @@ void pid::PIDAAlg::RunPIDAAlg(std::vector<float> const& resRange,
     if(resRange[i_r]>fMaxResRange || resRange[i_r]<fMinResRange) continue;
 
     range_dEdx_map[ resRange[i_r] ] = dEdx[i_r];
-    
+
     float val = dEdx[i_r]*std::pow(resRange[i_r],fExponentConstant);
     if(val < fMaxPIDAValue){
       fpida_values.push_back(val);
       //fpida_errors.push_back(0);
     }
-    
+
   }
 
   calculatePIDAIntegral(range_dEdx_map);
@@ -167,9 +167,9 @@ void pid::PIDAAlg::RunPIDAAlg(std::vector<float> const& resRange,
 
 }
 
-void pid::PIDAAlg::FillPIDATree(unsigned int run, 
-				unsigned int event, 
-				unsigned int calo_index, 
+void pid::PIDAAlg::FillPIDATree(unsigned int run,
+				unsigned int event,
+				unsigned int calo_index,
 				anab::Calorimetry const& calo){
   RunPIDAAlg(calo);
   FillPIDAProperties(run,event,calo_index,calo);
@@ -200,11 +200,11 @@ void pid::PIDAAlg::calculatePIDASigma(){
 }
 
 void pid::PIDAAlg::calculatePIDAIntegral(std::map<double,double> const& range_dEdx_map){
-  
+
   if(range_dEdx_map.size()<2) return;
 
   fpida_integral_dedx = 0;
-  
+
   for( std::map<double,double>::const_iterator map_iter = range_dEdx_map.begin();
        map_iter != std::prev(range_dEdx_map.end());
        map_iter++)
@@ -213,7 +213,7 @@ void pid::PIDAAlg::calculatePIDAIntegral(std::map<double,double> const& range_dE
       fpida_integral_dedx +=  range_width*( std::next(map_iter)->second + 0.5*(map_iter->second-std::next(map_iter)->second));
     }
 
-  fpida_integral_pida = fpida_integral_dedx * (1-fExponentConstant) * 
+  fpida_integral_pida = fpida_integral_dedx * (1-fExponentConstant) *
     std::pow( (std::prev(range_dEdx_map.end())->first - range_dEdx_map.begin()->first),(fExponentConstant-1) );
 }
 
@@ -274,7 +274,7 @@ void pid::PIDAAlg::createKDE(const size_t i_b){
     if(fkde_distribution[i_b][i_step] < half_max) break;
     high_width += fKDEEvalStepSize;
   }
-  fpida_kde_fwhm[i_b] = low_width+high_width;  
+  fpida_kde_fwhm[i_b] = low_width+high_width;
 
 }
 
@@ -297,7 +297,7 @@ void pid::PIDAAlg::FillPIDAProperties(unsigned int run,
 
   fPIDAProperties.n_bandwidths = fKDEBandwidths.size();
   for(size_t i_b=0; i_b<fPIDAProperties.n_bandwidths; i_b++)
-  
+
   calculatePIDASigma();
   fPIDAProperties.n_pid_pts = fpida_values.size();
   fPIDAProperties.mean = fpida_mean;
@@ -305,7 +305,7 @@ void pid::PIDAAlg::FillPIDAProperties(unsigned int run,
 
   fPIDAProperties.integral_dedx = fpida_integral_dedx;
   fPIDAProperties.integral_pida = fpida_integral_pida;
-  
+
   createKDEs();
   for(size_t i_b=0; i_b<fPIDAProperties.n_bandwidths; i_b++){
     fPIDAProperties.kde_mp[i_b]        = fpida_kde_mp[i_b];
@@ -354,7 +354,7 @@ util::NormalDistribution::NormalDistribution(float max_sigma, float step_size){
 
   fStepSize = step_size;
   fMaxSigma = fStepSize * vector_size;
-  
+
 }
 
 float util::NormalDistribution::getValue(float x){
@@ -364,7 +364,7 @@ float util::NormalDistribution::getValue(float x){
 
   size_t bin_low = x / fStepSize;
   float remainder = (x - (bin_low*fStepSize)) / fStepSize;
-  
+
   return fValues[bin_low]*(1-remainder) + remainder*fValues[bin_low+1];
 
 }

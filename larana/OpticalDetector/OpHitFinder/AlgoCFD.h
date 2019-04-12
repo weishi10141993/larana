@@ -2,14 +2,14 @@
  * \file AlgoCFD.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of AlgoCFD
  *
  * @author vic - Nevis 2015
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 
 #ifndef ALGOCFD_H
@@ -39,7 +39,7 @@ namespace pmtana
 
     /// Default destructor
     virtual ~AlgoCFD();
-    
+
     /// Implementation of AlgoCFD::reset() method
     void Reset();
 
@@ -49,20 +49,20 @@ namespace pmtana
     bool RecoPulse(const pmtana::Waveform_t&,
 		   const pmtana::PedestalMean_t&,
 		   const pmtana::PedestalSigma_t&);
-    
+
 
     const std::map<unsigned,double> LinearZeroPointX(const std::vector<double>& trace);
-    
+
   private:
     float _F;
     int   _D;
-    
-    //int    _number_presample; 
+
+    //int    _number_presample;
     double _peak_thresh;
     double _start_thresh;
-    double _end_thresh;    
-    
-    
+    double _end_thresh;
+
+
   };
 
 }

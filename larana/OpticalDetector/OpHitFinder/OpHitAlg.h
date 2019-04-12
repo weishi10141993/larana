@@ -33,7 +33,7 @@ namespace opdet{
                     detinfo::DetectorClocks const&,
                     calib::IPhotonCalibrator const&);
 
-  void ConstructHit(float, 
+  void ConstructHit(float,
                     int,
                     double,
                     pmtana::pulse_param const&,

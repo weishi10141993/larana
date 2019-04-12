@@ -69,7 +69,7 @@ void pid::PIDAAnalyzer::beginJob(){
   fPIDAAlg.SetPIDATree(tfs->make<TTree>("pida","PIDAPropertiesTree"),
 		       tfs->make<TH1F>("hvals","PIDA Distribution",100,0,30),
 		       kde_hists);
-		      
+
 }
 
 void pid::PIDAAnalyzer::analyze(art::Event const & e)

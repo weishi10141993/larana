@@ -2,14 +2,14 @@
  * \file PMTPedestalBase.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of PMTPedestalBase
  *
  * @author Kazu - Nevis 2013
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 #ifndef larana_OPTICALDETECTOR_PMTPEDESTALBASE_H
 #define larana_OPTICALDETECTOR_PMTPEDESTALBASE_H
@@ -23,7 +23,7 @@ namespace pmtana
 
   /**
    \class PMTPedestalBase
-   A base class for pedestal calculation 
+   A base class for pedestal calculation
   */
   class PMTPedestalBase {
 
@@ -62,12 +62,12 @@ namespace pmtana
     virtual bool ComputePedestal( const ::pmtana::Waveform_t& wf,
 				  pmtana::PedestalMean_t&   mean_v,
 				  pmtana::PedestalSigma_t&  sigma_v) = 0;
-    
+
   private:
 
     /// Name
     std::string _name;
-    
+
     /// A variable holder for pedestal mean value
     pmtana::PedestalMean_t _mean_v;
 

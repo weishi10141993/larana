@@ -9,8 +9,8 @@
 
 #include "FlashHypothesisCreator.h"
 
-opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& track, 
+opdet::FlashHypothesisCollection
+opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& track,
 							    std::vector<float> const& dEdxVector,
 							    Providers_t providers,
 							    phot::PhotonVisibilityService const& pvs,
@@ -42,8 +42,8 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& 
   return fhc;
 }
 
-opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& mctrack, 
+opdet::FlashHypothesisCollection
+opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& mctrack,
 							    std::vector<float> const& dEdxVector,
 							    Providers_t providers,
 							    phot::PhotonVisibilityService const& pvs,
@@ -75,8 +75,8 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(sim::MCTrack const& 
   return fhc;
 }
 
-opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector, 
+opdet::FlashHypothesisCollection
+opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3> const& trajVector,
 							    std::vector<float> const& dEdxVector,
 							    Providers_t providers,
 							    phot::PhotonVisibilityService const& pvs,
@@ -108,8 +108,8 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(std::vector<TVector3
   return fhc;
 }
 
-opdet::FlashHypothesisCollection 
-opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2, 
+opdet::FlashHypothesisCollection
+opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(TVector3 const& pt1, TVector3 const& pt2,
 							    float const& dEdx,
 							    Providers_t providers,
 							    phot::PhotonVisibilityService const& pvs,
@@ -120,7 +120,7 @@ opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(TVector3 const& pt1,
 }
 
 opdet::FlashHypothesisCollection
-opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2, 
+opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& pt1, TVector3 const& pt2,
 							    float const& dEdx,
 							    Providers_t providers,
 							    phot::PhotonVisibilityService const& pvs,
@@ -133,15 +133,15 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
   FlashHypothesisCollection fhc(nOpDets);
 
   FlashHypothesis prompt_hyp = FlashHypothesis(nOpDets);
-  
+
   std::vector<double> xyz_segment(_calc.SegmentMidpoint(pt1,pt2,XOffset));
-  
+
   //get the visibility vector
   auto const& PointVisibility = pvs.GetAllVisibilities(&xyz_segment[0]);
-  
+
   //check visibility pointer, as it may be null if given a y/z outside some range
   if (!PointVisibility) return fhc;
-  
+
   //klugey ... right now, set a qe_vector that gives constant qe across all opdets
   std::vector<float> qe_vector(nOpDets,opdigip.QE());
   _calc.FillFlashHypothesis(larp->ScintYield()*larp->ScintYieldRatio(),
@@ -150,7 +150,7 @@ opdet::FlashHypothesisCreator::CreateFlashHypothesesFromSegment(TVector3 const& 
 			    qe_vector,
 			    PointVisibility,
 			    prompt_hyp);
-  
+
   fhc.SetPromptHypAndPromptFraction(prompt_hyp,larp->ScintYieldRatio());
   return fhc;
 }

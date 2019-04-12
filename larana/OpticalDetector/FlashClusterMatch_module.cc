@@ -22,27 +22,27 @@ namespace recob{
 
 
 namespace opdet {
-  
+
 
   class FlashClusterMatch : public art::EDProducer{
   public:
-    
+
     FlashClusterMatch(const fhicl::ParameterSet&);
     virtual ~FlashClusterMatch();
-    
+
     void produce(art::Event&);
     void reconfigure(fhicl::ParameterSet const& p);
-      
-    
+
+
     void beginJob();
-    
-    
+
+
   private:
-    
+
     std::vector<double>  GetLightHypothesis(std::vector<recob::SpacePoint> spts);
     bool                 CheckCompatibility(std::vector<double>& hypothesis, std::vector<double>& signal);
 
-    
+
     trkf::SpacePointAlg       *  fSptalg;
     calo::CalorimetryAlg      *  fCaloAlg;
 
@@ -104,7 +104,7 @@ namespace opdet{
 namespace opdet {
 
   //-------------------------------------------------
-  
+
   FlashClusterMatch::FlashClusterMatch(fhicl::ParameterSet const& pset)
     : EDProducer{pset}
   {
@@ -119,7 +119,7 @@ namespace opdet {
 
   void FlashClusterMatch::reconfigure(fhicl::ParameterSet const& pset)
   {
-    fClusterModuleLabel = pset.get<std::string>("ClusterModuleLabel");   
+    fClusterModuleLabel = pset.get<std::string>("ClusterModuleLabel");
     fFlashModuleLabel   = pset.get<std::string>("FlashModuleLabel");
     fMinSptsForOverlap  = pset.get<int>("MinSptsForOverlap");
 
@@ -128,7 +128,7 @@ namespace opdet {
 
     fSptalg             = new trkf::SpacePointAlg(pset.get<fhicl::ParameterSet>("SpacePointAlg"));
     fCaloAlg            = new calo::CalorimetryAlg(pset.get< fhicl::ParameterSet >("CaloAlg"));
-    
+
   }
 
 
@@ -170,18 +170,18 @@ namespace opdet {
 
     std::cerr<< " Warning : you have disabled the RecoBaseDefaultCtor message."  ;
     std::cerr<< "  Should only ever be done when trying to avoid messages when getting hits out of an event, not when trying to produce new hits to store in the event."<< std::endl;
-    
+
     ++n;
     if(n<10) goto top;
 
 
-    
+
     std::unique_ptr< std::vector<anab::CosmicTag> > cosmic_tags ( new std::vector<anab::CosmicTag>);
     std::unique_ptr< art::Assns<recob::Cluster, anab::CosmicTag > > assn_tag( new art::Assns<recob::Cluster, anab::CosmicTag>);
 
 
 
-    
+
     // Read in flashes from the event
     art::Handle< std::vector<recob::OpFlash> > flashh;
     evt.getByLabel(fFlashModuleLabel, flashh);
@@ -201,7 +201,7 @@ namespace opdet {
 	art::Ptr<recob::Cluster> cluster(clusterh,i);
 	Clusters.push_back(cluster);
       }
-    
+
     // Pull associated hits from event
     art::FindManyP<recob::Hit> hits(clusterh, evt, fClusterModuleLabel);
 
@@ -244,9 +244,9 @@ namespace opdet {
 	    double Time = hits.at(iClus).at(iHit)->PeakTime();
 	    if(Time > MaxTime[iClus]) MaxTime[iClus] = Time;
 	    if(Time < MinTime[iClus]) MinTime[iClus] = Time;
-	    
+
 	    //  Equivalent info for wires, maybe we want it later.
-	    //	    int Wire = hits.at(iClus).at(iHit)->WireID().Wire;	 
+	    //	    int Wire = hits.at(iClus).at(iHit)->WireID().Wire;
 	    //	    if(Wire < MinWire[iClus]) MinWire[iClus] = Wire;
 	    //	    if(Wire > MaxWire[iClus]) MaxWire[iClus] = Wire;
 
@@ -265,20 +265,20 @@ namespace opdet {
 	    int indexW = SortedByViews[2][nW];
 
 	    bool NoOverlap = false;
-	    
+
 	    // Skip over clusters with no time overlap
 	    for(size_t v=0; v!=3; ++v)
 	      {
 		int v1 = (v+1)%3;
 		int v2 = (v+2)%3;
-		
+
 		if(MinTime[v] > std::min(MaxTime[v1],MaxTime[v2]))
 		  NoOverlap = true;
 
 		if(MaxTime[v] < std::max(MinTime[v1],MinTime[v2]))
 		  NoOverlap = true;
 	      }
-	    
+
 	    if(NoOverlap) continue;
 
 	    // Prepare flattened vector for space pointery
@@ -298,7 +298,7 @@ namespace opdet {
 	    std::vector<double> hypothesis = GetLightHypothesis(spts);
 
 	    bool IsCompatible = false;
-	    
+
 	    // Check for each flash, whether this subevent is compatible
 	    for(size_t jFlash=0; jFlash!=FlashShapes.size(); ++jFlash)
 	      {
@@ -306,7 +306,7 @@ namespace opdet {
 		if(CheckCompatibility(hypothesis,FlashShapes.at(jFlash)))
 		  {
 		    IsCompatible=true;
-		  }	      
+		  }
 	      }
 
 	    // If not compatible with any beam flash, throw out
@@ -317,11 +317,11 @@ namespace opdet {
 		util::CreateAssn(*this, evt, *(cosmic_tags.get()), Clusters.at(indexV), *(assn_tag.get()), cosmic_tags->size()-1);
 		util::CreateAssn(*this, evt, *(cosmic_tags.get()), Clusters.at(indexW), *(assn_tag.get()), cosmic_tags->size()-1);
 	      }
-	    
-	  }
-    
 
-    
+	  }
+
+
+
 
     evt.put(std::move(cosmic_tags));
     evt.put(std::move(assn_tag));
@@ -344,18 +344,18 @@ namespace opdet {
     for (size_t s=0; s!=spts.size(); s++)
       {
 	const art::PtrVector<recob::Hit>& assochits = fSptalg->getAssociatedHits(spts.at(s));
-	
+
 	double Charge     = 0;
 	double WirePitch  = 0.3;
-	
+
 	for(size_t iHit=0; iHit!=assochits.size(); ++iHit)
 	  if(assochits.at(iHit)->View()==2) Charge += WirePitch * fCaloAlg->dEdx_AMP(assochits.at(iHit), 1);
-	
-	
+
+
       	double xyz[3];
-	
+
 	for(size_t i=0; i!=3; ++i) xyz[i] = spts.at(s).XYZ()[i];
-	
+
         auto const& PointVisibility = pvs->GetAllVisibilities(xyz);
 	if (!PointVisibility) continue; // point not covered by the service
         for(size_t OpDet =0; OpDet!=pvs->NOpChannels();  OpDet++)
@@ -365,7 +365,7 @@ namespace opdet {
       }
     double PhotonYield = 24000;
     double QE          = 0.01;
-    
+
     for(size_t i=0; i!=ReturnVector.size(); ++i)
       {
 	ReturnVector[i] *= QE * PhotonYield;

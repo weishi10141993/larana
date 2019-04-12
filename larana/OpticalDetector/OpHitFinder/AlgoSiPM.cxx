@@ -35,12 +35,12 @@ namespace pmtana {
 			    const pmtana::PedestalMean_t& ped_mean,
 			    const pmtana::PedestalSigma_t& ped_rms )
   {
-    
+
     bool   fire          = false;
     bool   first_found   = false;
     bool   record_hit    = false;
     int    counter       = 0;
-    //    double threshold   = (_2nd_thres > (_nsigma*_ped_rms) ? _2nd_thres 
+    //    double threshold   = (_2nd_thres > (_nsigma*_ped_rms) ? _2nd_thres
     //                                                    : (_nsigma*_ped_rms));
     double pedestal      = _pedestal;
     double threshold     = _adc_thres;
@@ -53,7 +53,7 @@ namespace pmtana {
     for (short const &value : wf) {
 
       if (!fire && (double(value) >= pre_threshold)) {
-        
+
         // Found a new pulse
         fire           = true;
         first_found    = false;
@@ -67,7 +67,7 @@ namespace pmtana {
         // Found the end of a pulse
         fire = false;
         _pulse.t_end = counter - 1;
-        if (record_hit && ((_pulse.t_end - _pulse.t_start) >= _min_width)) 
+        if (record_hit && ((_pulse.t_end - _pulse.t_start) >= _min_width))
         {
           _pulse_v.push_back(_pulse);
           record_hit = false;
@@ -84,7 +84,7 @@ namespace pmtana {
         // Add this ADC count to the integral
         _pulse.area += (double(value) - double(pedestal));
 
-        if (!first_found && 
+        if (!first_found &&
             (_pulse.peak < (double(value) - double(pedestal)))) {
 
           // Found a new maximum
@@ -99,7 +99,7 @@ namespace pmtana {
       }
 
       counter++;
-    
+
     }
 
     if (fire) {
@@ -107,7 +107,7 @@ namespace pmtana {
       // Take care of a pulse that did not finish within the readout window
       fire = false;
       _pulse.t_end = counter - 1;
-      if (record_hit && ((_pulse.t_end - _pulse.t_start) >= _min_width)) 
+      if (record_hit && ((_pulse.t_end - _pulse.t_start) >= _min_width))
       {
         _pulse_v.push_back(_pulse);
         record_hit = false;

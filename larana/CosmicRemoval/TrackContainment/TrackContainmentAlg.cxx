@@ -51,7 +51,7 @@ anab::CosmicTagID_t trk::TrackContainmentAlg::GetCosmicTagID(recob::Track const&
 {
 
   auto id = anab::CosmicTagID_t::kNotTagged;
-  
+
   if(track.Vertex().Z() < (0+fZBuffer) || track.Vertex().Z() > (geo.DetLength()-fZBuffer))
     id = anab::CosmicTagID_t::kGeometry_Z;
   else if(track.Vertex().Y() < (-1*geo.DetHalfHeight()+fYBuffer) || track.Vertex().Y() > (geo.DetHalfHeight()-fYBuffer))
@@ -170,7 +170,7 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
   fCosmicTags.resize(tracksVec.size());
 
   //first, loop through tracks and see what's not contained
-  
+
   for(size_t i_tc=0; i_tc<tracksVec.size(); ++i_tc){
     fTrackContainmentLevel[i_tc].resize(tracksVec[i_tc].size(),-1);
     fMinDistances[i_tc].resize(tracksVec[i_tc].size(),9e12);
@@ -183,10 +183,10 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
 	fTrackContainmentLevel[i_tc][i_t] = 0;
 	fTrackContainmentIndices.back().emplace_back(i_tc,i_t);
 	if(fDebug){
-	  std::cout << "\tTrack (" << i_tc << "," << i_t << ")" 
+	  std::cout << "\tTrack (" << i_tc << "," << i_t << ")"
 		    << " " << containment_level << std::endl;
 	}
-	
+
       }//end if contained
     }//end loop over tracks
 
@@ -201,7 +201,7 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
     track_linked=false;
     ++containment_level;
     fTrackContainmentIndices.push_back( std::vector< std::pair<int,int> >() );
-    
+
     for(size_t i_tc=0; i_tc<tracksVec.size(); ++i_tc){
       for(size_t i_t=0; i_t<tracksVec[i_tc].size(); ++i_t){
 	if(fTrackContainmentLevel[i_tc][i_t]>=0)
@@ -216,12 +216,12 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
 		std::cout << "\t\t" << MinDistanceEndPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]) << std::endl;
 	      }
 	      */
-	      
+
 	      if(MinDistanceStartPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second])<fMinDistances[i_tc][i_t])
 		fMinDistances[i_tc][i_t] = MinDistanceStartPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]);
 	      if(MinDistanceEndPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second])<fMinDistances[i_tc][i_t])
 		fMinDistances[i_tc][i_t] = MinDistanceEndPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]);
-	      
+
 	      if(MinDistanceStartPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second])<fIsolation ||
 		 MinDistanceEndPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second])<fIsolation){
 		if(!track_linked) track_linked=true;
@@ -232,13 +232,13 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
 		  std::cout << "\tTrackPair (" << i_tc << "," << i_t << ") and (" << i_tr.first << "," << i_tr.second << ")"
 			    << " " << containment_level << std::endl;
 		}
-		
+
 	      }//end if track not isolated
 
 	    }//end loop over existing uncontained/linked tracks
 
 	  }//end if track not already linked
-	
+
       }//end loops over tracks
     }//end loop over track collections
   }//end while linking tracks
@@ -246,7 +246,7 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
 
   if(fDebug)
     std::cout << "All done! Now let's make the tree and tags!" << std::endl;
-  
+
   //now we're going to will the tree and create tags if requested
   for(size_t i_tc=0; i_tc<tracksVec.size(); ++i_tc){
     for(size_t i_t=0; i_t<tracksVec[i_tc].size(); ++i_t){
@@ -260,7 +260,7 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
 	fContainment = fTrackContainmentLevel[i_tc][i_t];
 	fTrackTree->Fill();
       }
-      
+
       if(fMakeCosmicTags){
 
 	//default (if track looks contained and isolated)
@@ -286,10 +286,10 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
 	    score,id);
       }//end cosmic tag making
 
-      
+
       //some debug work
       if(fTrackContainmentLevel[i_tc][i_t]<0 && fDebug){
-	std::cout << "Track (" << i_tc << "," << i_t << ")" 
+	std::cout << "Track (" << i_tc << "," << i_t << ")"
 		  << " " << fTrackContainmentLevel[i_tc][i_t]
 		  << " " << fMinDistances[i_tc][i_t] << std::endl;
 	std::cout << "\tS_(X,Y,Z) = ("
@@ -309,10 +309,10 @@ void trk::TrackContainmentAlg::ProcessTracks(std::vector< std::vector<recob::Tra
 	std::cout << "\tLength=" << tracksVec[i_tc][i_t].Length() << std::endl;
 	std::cout << "\tSimple_length=" << (tracksVec[i_tc][i_t].End()-tracksVec[i_tc][i_t].Vertex()).R() << std::endl;
       }//end debug statements if track contained
-      
+
     }//end loops over tracks
   }//end loop over track collections
-  
+
 }//end ProcessTracks
 
 

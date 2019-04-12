@@ -5,9 +5,9 @@
  * Title:   OpFlashAnaAlg Class
  * Author:  Wes Ketchum (wketchum@lanl.gov)
  *
- * Description: 
+ * Description:
  * Alg that stores flash information in a handy tree.
- * 
+ *
 */
 
 #include <vector>
@@ -28,10 +28,10 @@ namespace opdet{
     OpFlashAnaAlg(){ fMakeOpDetPEHist=false; }
     void SetOpFlashTree(TTree*, bool makeOpDetPEHist=true);
     void SetOpHitTree(TTree*);
-    
+
     void FillOpFlashes(const std::vector<recob::OpFlash>&);
     void FillOpHits(const std::vector<recob::OpHit>&);
-    
+
   private:
 
     struct FlashAnaStruct{
@@ -57,12 +57,12 @@ namespace opdet{
       ~FlashAnaStruct() { delete FlashOpDetPEHist; }
     };
 
-    FlashAnaStruct fOpFlashAnaStruct;    
+    FlashAnaStruct fOpFlashAnaStruct;
     bool fMakeOpDetPEHist;
 
     TTree* fOpFlashTree;
     void   FillOpFlashTree(const std::vector<recob::OpFlash>&);
-    
+
 
     struct HitAnaStruct{
       double        HitPeakTime;
@@ -86,7 +86,7 @@ namespace opdet{
     void   FillOpHitTree(const std::vector<recob::OpHit>&);
 
   };
-  
+
 }
 
 #endif

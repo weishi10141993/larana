@@ -139,7 +139,7 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
 
     // Doing some checks on the cluster to determine if it's a cosmic
      bool failClusterTickCheck = false;
-     
+
      //int timeLimit = 0;//5;
      const std::pair<double, double> t_minmax
        = std::minmax(tCluster->StartTick(), tCluster->EndTick());
@@ -153,7 +153,7 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
      if( t1-fTickLimit > fMaxTickDrift ) { // This is into the post-spill window
        failClusterTickCheck = true;
      }
-     
+
      if(failClusterTickCheck) {
        cosmicScore=1.;
        tag_id = anab::CosmicTagID_t::kOutsideDrift_Partial;
@@ -165,17 +165,17 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
 	 endPt2.push_back( -999 );
        }
      }
-     
-     
+
+
      // Making stuff to save!
      //std::cerr << "Cosmic Score, isCosmic, t0, t1: " << cosmicScore << " " << isCosmic << " t's: " << t0 << " " << t1 << " | " << fReadOutWindowSize<< " | " << fDetectorWidthTicks << std::endl;
      cosmicTagClusterVector->emplace_back( endPt1,
 					   endPt2,
 					   cosmicScore,
 					   tag_id);
-     
+
      util::CreateAssn(*this, e, *cosmicTagClusterVector, tCluster, *assnOutCosmicTagCluster );
-     
+
   }
 
   /////////////////////////////////
@@ -209,7 +209,7 @@ void cosmic::CosmicClusterTagger::beginJob() {
 
 void cosmic::CosmicClusterTagger::reconfigure(fhicl::ParameterSet const & p) {
   // Implementation of optional member function here.
- 
+
   auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
   auto const* geo = lar::providerFrom<geo::Geometry>();
 

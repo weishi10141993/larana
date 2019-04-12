@@ -35,7 +35,7 @@ namespace pmtana{
     if(method < 0 || method > kBOTH) throw OpticalRecoException("PedAlgoEdges received invalid \"Method\" parameter value!");
 
     _method = (PED_METHOD)method;
-    
+
   }
 
   //***************************

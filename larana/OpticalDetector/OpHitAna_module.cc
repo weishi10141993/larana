@@ -12,22 +12,22 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 
 // ROOT classes.
-class TH1D; 
+class TH1D;
 class TTree;
 
 // C++ includes
 #include <cstring>
 
 namespace opdet {
- 
+
   class OpHitAna : public art::EDAnalyzer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     OpHitAna(const fhicl::ParameterSet&);
 
-    // The analyzer routine, called once per event. 
-    void analyze (const art::Event&); 
+    // The analyzer routine, called once per event.
+    void analyze (const art::Event&);
 
   private:
 
@@ -45,7 +45,7 @@ namespace opdet {
     bool fMakeHistPerChannel;
     bool fMakeHistAllChannels;
     bool fMakeHitTree;
- 
+
     // Output TTree and its branch variables
     TTree * fHitTree;
     Int_t   fEventID;
@@ -53,10 +53,10 @@ namespace opdet {
     Float_t fPeakTime;
     Float_t fNPe;
 
-    
+
   };
 
-} 
+}
 
 
 // OpHitAna_module.cc
@@ -110,7 +110,7 @@ namespace opdet {
   OpHitAna::OpHitAna(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
   {
-    
+
     // Indicate that the Input Module comes from .fcl
     fInputModule = pset.get<std::string>("InputModule");
 
@@ -125,14 +125,14 @@ namespace opdet {
     fMakeHitTree     = pset.get<bool>("MakeHitTree");
 
     // If required, make TTree for output
-        
+
     if(fMakeHitTree)
       {
         art::ServiceHandle<art::TFileService const> tfs;
 	fHitTree = tfs->make<TTree>("HitTree","HitTree");
 	fHitTree->Branch("EventID",   &fEventID,   "EventID/I");
 	fHitTree->Branch("OpChannel", &fOpChannel, "OpChannel/I");
-	fHitTree->Branch("PeakTime",  &fPeakTime,  "PeakTime/F"); 
+	fHitTree->Branch("PeakTime",  &fPeakTime,  "PeakTime/F");
 	fHitTree->Branch("NPe",       &fNPe,       "NPe/F");
       }
 
@@ -140,15 +140,15 @@ namespace opdet {
   }
 
   //-----------------------------------------------------------------------
-  void OpHitAna::analyze(const art::Event& evt) 
+  void OpHitAna::analyze(const art::Event& evt)
   {
-    
+
     // Create a handle for our vector of pulses
     art::Handle< std::vector< recob::OpHit > > HitHandle;
 
     // Create string for histogram name
     char HistName[50];
-   
+
 
     // Read in HitHandle
     evt.getByLabel(fInputModule, HitHandle);
@@ -156,32 +156,32 @@ namespace opdet {
     // Access ART's TFileService, which will handle creating and writing
     // histograms for us.
     art::ServiceHandle<art::TFileService const> tfs;
-    
+
     art::ServiceHandle<geo::Geometry const> geom;
     int NOpChannels = geom->NOpChannels();
 
     std::vector<TH1D*> HitHist;
-    
+
     sprintf(HistName, "Event %d AllOpDets", evt.id().event());
-    
+
     TH1D * AllHits = nullptr;
     if(fMakeHistAllChannels)
       {
-	AllHits = tfs->make<TH1D>(HistName, ";t (ns);", 
-				  int((fTimeEnd - fTimeBegin) * fSampleFreq), 
-				  fTimeBegin * 1000., 
+	AllHits = tfs->make<TH1D>(HistName, ";t (ns);",
+				  int((fTimeEnd - fTimeBegin) * fSampleFreq),
+				  fTimeBegin * 1000.,
 				  fTimeEnd * 1000.);
       }
-    
+
     for(int i=0; i!=NOpChannels; ++i)
       {
-	
+
 	sprintf(HistName, "Event %d OpDet %i", evt.id().event(), i);
-	if(fMakeHistPerChannel) HitHist.push_back ( tfs->make<TH1D>(HistName, ";t (ns);", 
-							      int((fTimeEnd - fTimeBegin) * fSampleFreq), 
-							      fTimeBegin * 1000., 
+	if(fMakeHistPerChannel) HitHist.push_back ( tfs->make<TH1D>(HistName, ";t (ns);",
+							      int((fTimeEnd - fTimeBegin) * fSampleFreq),
+							      fTimeBegin * 1000.,
 							      fTimeEnd * 1000.));
-	
+
       }
 
 
@@ -194,11 +194,11 @@ namespace opdet {
 	// Get OpHit
 	art::Ptr< recob::OpHit > TheHitPtr(HitHandle, i);
 	recob::OpHit TheHit = *TheHitPtr;
-	
+
 	fOpChannel = TheHit.OpChannel();
 	fNPe       = TheHit.PE();
         fPeakTime  = TheHit.PeakTime();
-	
+
 	if(fMakeHitTree)
 	  fHitTree->Fill();
 
@@ -210,9 +210,9 @@ namespace opdet {
 	      }
 	    HitHist[fOpChannel]->Fill(fPeakTime,fNPe);
 	  }
-	
+
 	if(fMakeHistAllChannels) AllHits->Fill(fPeakTime, fNPe);
-	
+
       }
 
   }

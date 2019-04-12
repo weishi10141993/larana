@@ -38,12 +38,12 @@ namespace opdet
         // Can only uniquely go from readout to geometry since
         // one geometrical channel goes to multiple readout channels
         virtual int  readoutToGeoChannel(int readoutChannel) const;
-        
+
         virtual bool detected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const;
         virtual bool detected(int OpChannel, const sim::OnePhoton& Phot) const;
         virtual bool detectedLite(int OpChannel, int &newOpChannel) const;
         virtual bool detectedLite(int OpChannel) const;
-        
+
         virtual float wavelength(double energy) const;
 
     private:
@@ -51,13 +51,13 @@ namespace opdet
 
         virtual int  doNOpChannels() const;
         virtual int  doReadoutToGeoChannel(int readoutChannel) const;
-        
+
         virtual bool doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const = 0;
         virtual bool doDetectedLite(int OpChannel, int &newOpChannel) const = 0;
 
     }; // class OpDetResponse
 
-    
+
     //-------------------------------------------------------------------------------------------------------------
     inline void OpDetResponseInterface::reconfigure(fhicl::ParameterSet const& p)
     {
@@ -65,8 +65,8 @@ namespace opdet
     }
 
 
-    
-    
+
+
     //-------------------------------------------------------------------------------------------------------------
     inline int OpDetResponseInterface::NOpChannels() const
     {
@@ -80,7 +80,7 @@ namespace opdet
         art::ServiceHandle<geo::Geometry const> geom;
         return geom->NOpChannels();
     }
-    
+
     //-------------------------------------------------------------------------------------------------------------
     inline int OpDetResponseInterface::readoutToGeoChannel(int readoutChannel) const
     {
@@ -96,7 +96,7 @@ namespace opdet
     }
 
 
-    
+
 
     //-------------------------------------------------------------------------------------------------------------
     inline bool OpDetResponseInterface::detected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const
@@ -110,7 +110,7 @@ namespace opdet
         int newOpChannel;
         return doDetected(OpChannel, Phot, newOpChannel);
     }
-    
+
     //-------------------------------------------------------------------------------------------------------------
     inline bool OpDetResponseInterface::detectedLite(int OpChannel, int &newOpChannel) const
     {

@@ -36,8 +36,8 @@ namespace opdet{
   //----------------------------------------------------------------------------
   void checkOnBeamFlash(std::vector< recob::OpFlash > const& FlashVector) {
 
-    for (auto const& flash : FlashVector) 
-      if (flash.OnBeamTime() == 1) 
+    for (auto const& flash : FlashVector)
+      if (flash.OnBeamTime() == 1)
         std::cout << "OnBeamFlash with time " << flash.Time() << std::endl;
 
   }
@@ -54,21 +54,21 @@ namespace opdet{
                       float const&                       TrigCoinc) {
 
     // Initial size for accumulators - will be automatically extended if needed
-    int initialsize = 6400; 
-    
+    int initialsize = 6400;
+
     // These are the accumulators which will hold broad-binned light yields
     std::vector< double > Binned1(initialsize);
     std::vector< double > Binned2(initialsize);
-    
+
     // These will keep track of which pulses put activity in each bin
     std::vector< std::vector< int > > Contributors1(initialsize);
     std::vector< std::vector< int > > Contributors2(initialsize);
-    
+
     // These will keep track of where we have met the flash condition
     // (in order to prevent second pointless loop)
     std::vector< int > FlashesInAccumulator1;
     std::vector< int > FlashesInAccumulator2;
-    
+
     double minTime = std::numeric_limits< float >::max();
     for (auto const& hit : HitVector)
       if (hit.PeakTime() < minTime) minTime = hit.PeakTime();
@@ -79,12 +79,12 @@ namespace opdet{
 
       unsigned int AccumIndex1 = GetAccumIndex(peakTime,
                                                minTime,
-                                               BinWidth, 
+                                               BinWidth,
                                                0.0);
 
       unsigned int AccumIndex2 = GetAccumIndex(peakTime,
                                                minTime,
-                                               BinWidth, 
+                                               BinWidth,
                                                BinWidth/2.0);
 
       // Extend accumulators if needed (2 always larger than 1)
@@ -97,7 +97,7 @@ namespace opdet{
       }
 
       size_t const hitIndex = &hit - &HitVector[0];
-      
+
       FillAccumulator(AccumIndex1,
                       hitIndex,
                       hit.PE(),
@@ -119,7 +119,7 @@ namespace opdet{
     // Now start to create flashes.
     // First, need vector to keep track of which hits belong to which flashes
     std::vector< std::vector< int > > HitsPerFlash;
-    
+
     //if (Frame == 1) writeHistogram(Binned1);
 
     AssignHitsToFlash(FlashesInAccumulator1,
@@ -132,8 +132,8 @@ namespace opdet{
                       HitsPerFlash,
                       FlashThreshold);
 
-    // Now we do the fine grained part.  
-    // Subdivide each flash into sub-flashes with overlaps within hit widths 
+    // Now we do the fine grained part.
+    // Subdivide each flash into sub-flashes with overlaps within hit widths
     // (assumed wider than photon travel time)
     std::vector< std::vector< int > > RefinedHitsPerFlash;
     for (auto const& HitsThisFlash : HitsPerFlash)
@@ -142,8 +142,8 @@ namespace opdet{
                         RefinedHitsPerFlash,
                         WidthTolerance,
                         FlashThreshold);
-    
-    // Now we have all our hits assigned to a flash. 
+
+    // Now we have all our hits assigned to a flash.
     // Make the recob::OpFlash objects
     for (auto const& HitsPerFlashVec : RefinedHitsPerFlash)
       ConstructFlash(HitsPerFlashVec,
@@ -162,13 +162,13 @@ namespace opdet{
     // back_inserter tacks the result onto the end of AssocList
     for (auto& HitIndicesThisFlash : RefinedHitsPerFlash)
       AssocList.push_back(HitIndicesThisFlash);
-    
+
   } // End RunFlashFinder
 
   //----------------------------------------------------------------------------
-  unsigned int GetAccumIndex(double const& PeakTime, 
-                             double const& MinTime, 
-                             double const& BinWidth, 
+  unsigned int GetAccumIndex(double const& PeakTime,
+                             double const& MinTime,
+                             double const& BinWidth,
                              double const& BinOffset) {
 
     return static_cast< int >((PeakTime - MinTime + BinOffset)/BinWidth);
@@ -186,10 +186,10 @@ namespace opdet{
 
     Contributors.at(AccumIndex).push_back(HitIndex);
 
-    Binned.at(AccumIndex) += PE; 
+    Binned.at(AccumIndex) += PE;
 
     // If this wasn't a flash already, add it to the list
-    if (Binned.at(AccumIndex) >= FlashThreshold && 
+    if (Binned.at(AccumIndex) >= FlashThreshold &&
         (Binned.at(AccumIndex) - PE) < FlashThreshold)
       FlashesInAccumulator.push_back(AccumIndex);
 
@@ -199,8 +199,8 @@ namespace opdet{
   void FillFlashesBySizeMap(std::vector< int > const&     FlashesInAccumulator,
                             std::vector< double > const&  BinnedPE,
                             int const&                    Accumulator,
-                            std::map< double, 
-                              std::map< int, std::vector< int > >, 
+                            std::map< double,
+                              std::map< int, std::vector< int > >,
                                 std::greater< double > >& FlashesBySize){
 
     for (auto const& flash : FlashesInAccumulator)
@@ -209,12 +209,12 @@ namespace opdet{
   }
 
   //----------------------------------------------------------------------------
-  void FillHitsThisFlash(std::vector< std::vector< int > > const& 
+  void FillHitsThisFlash(std::vector< std::vector< int > > const&
                                                              Contributors,
                          int const&                          Bin,
                          std::vector< int > const&           HitClaimedByFlash,
                          std::vector< int >&                 HitsThisFlash) {
-    
+
     // For each hit in the flash
     for (auto const& HitIndex : Contributors.at(Bin))
       // If unclaimed, claim it
@@ -234,17 +234,17 @@ namespace opdet{
     double PE = 0;
     for (auto const& Hit : HitsThisFlash)
       PE += HitVector.at(Hit).PE();
-    
+
     if (PE < FlashThreshold) return;
-    
+
     // Add the flash to the list
     HitsPerFlash.push_back(HitsThisFlash);
-    
+
     // And claim all the hits
     for (auto const& Hit : HitsThisFlash)
       if (HitClaimedByFlash.at(Hit) == -1)
         HitClaimedByFlash.at(Hit) = HitsPerFlash.size() - 1;
-    
+
   }
 
   //----------------------------------------------------------------------------
@@ -259,9 +259,9 @@ namespace opdet{
                          float const&                          FlashThreshold) {
 
     // Sort all the flashes found by size. The structure is:
-    // FlashesBySize[flash size][accumulator_num] = [flash_index1, flash_index2...]     
-    std::map< double, 
-      std::map< int, std::vector< int > >, 
+    // FlashesBySize[flash size][accumulator_num] = [flash_index1, flash_index2...]
+    std::map< double,
+      std::map< int, std::vector< int > >,
         std::greater< double > > FlashesBySize;
 
     // Sort the flashes by size using map
@@ -277,7 +277,7 @@ namespace opdet{
     // This keeps track of which hits are claimed by which flash
     std::vector< int > HitClaimedByFlash(HitVector.size(), -1);
 
-    // Walk from largest to smallest, claiming hits. 
+    // Walk from largest to smallest, claiming hits.
     // The biggest flash always gets dibbs,
     // but we keep track of overlaps for re-merging later (do we? ---WK)
     for (auto const& itFlash : FlashesBySize)
@@ -285,7 +285,7 @@ namespace opdet{
       for (auto const& itAcc : itFlash.second) {
 
         int Accumulator = itAcc.first;
-        
+
         // Walk through flash-tagged bins in this accumulator
         for (auto const& Bin : itAcc.second) {
 
@@ -307,16 +307,16 @@ namespace opdet{
                     FlashThreshold,
                     HitsPerFlash,
                     HitClaimedByFlash);
-          
+
         } // End loop over this accumulator
 
       } // End loops over accumulators
     // End of loops over sorted flashes
-    
+
   } // End AssignHitsToFlash
 
   //----------------------------------------------------------------------------
-  void FindSeedHit(std::map< double, std::vector< int >, 
+  void FindSeedHit(std::map< double, std::vector< int >,
                      std::greater< double > > const&  HitsBySize,
                    std::vector< bool >&               HitsUsed,
                    std::vector< recob::OpHit > const& HitVector,
@@ -331,15 +331,15 @@ namespace opdet{
         if (HitsUsed.at(HitID)) continue;
 
         PEAccumulated = HitVector.at(HitID).PE();
-        FlashMaxTime  = HitVector.at(HitID).PeakTime() + 
+        FlashMaxTime  = HitVector.at(HitID).PeakTime() +
           0.5*HitVector.at(HitID).Width();
-        FlashMinTime  = HitVector.at(HitID).PeakTime() - 
+        FlashMinTime  = HitVector.at(HitID).PeakTime() -
           0.5*HitVector.at(HitID).Width();
 
         HitsThisRefinedFlash.clear();
         HitsThisRefinedFlash.push_back(HitID);
 
-        HitsUsed.at(HitID) = true; 
+        HitsUsed.at(HitID) = true;
         return;
 
       } // End loop over inner vector
@@ -358,13 +358,13 @@ namespace opdet{
                      double&              FlashMinTime) {
 
     if (HitsUsed.at(HitID)) return;
-    
+
     double HitTime    = currentHit.PeakTime();
     double HitWidth   = 0.5*currentHit.Width();
     double FlashTime  = 0.5*(FlashMaxTime + FlashMinTime);
     double FlashWidth = 0.5*(FlashMaxTime - FlashMinTime);
 
-    if (std::abs(HitTime - FlashTime) > 
+    if (std::abs(HitTime - FlashTime) >
         WidthTolerance*(HitWidth + FlashWidth)) return;
 
     HitsThisRefinedFlash.push_back(HitID);
@@ -372,17 +372,17 @@ namespace opdet{
     FlashMinTime    = std::min(FlashMinTime, HitTime - HitWidth);
     PEAccumulated  += currentHit.PE();
     HitsUsed[HitID] = true;
-    
+
   } // End AddHitToFlash
 
   //----------------------------------------------------------------------------
-  void CheckAndStoreFlash(std::vector< std::vector< int > >& 
+  void CheckAndStoreFlash(std::vector< std::vector< int > >&
                                                     RefinedHitsPerFlash,
                           std::vector< int > const& HitsThisRefinedFlash,
                           double const&             PEAccumulated,
                           float const&              FlashThreshold,
                           std::vector< bool >&      HitsUsed) {
-    
+
     // If above threshold, we just add hits to the flash vector, and move on
     if (PEAccumulated >= FlashThreshold) {
       RefinedHitsPerFlash.push_back(HitsThisRefinedFlash);
@@ -393,8 +393,8 @@ namespace opdet{
     if (HitsThisRefinedFlash.size() == 1) return;
 
     // We need to release all other hits (allow possible reuse)
-    for (std::vector< int >::const_iterator hitIterator = 
-                          std::next(HitsThisRefinedFlash.begin()); 
+    for (std::vector< int >::const_iterator hitIterator =
+                          std::next(HitsThisRefinedFlash.begin());
          hitIterator != HitsThisRefinedFlash.end(); ++hitIterator)
       HitsUsed.at(*hitIterator) = false;
 
@@ -412,7 +412,7 @@ namespace opdet{
     std::map< double, std::vector< int >, std::greater< double > > HitsBySize;
     for (auto const& HitID : HitsThisFlash)
       HitsBySize[HitVector.at(HitID).PE()].push_back(HitID);
-    
+
     // Heres what we do:
     //  1.Start with the biggest remaining hit
     //  2.Look for any within one width of this hit
@@ -420,16 +420,16 @@ namespace opdet{
     //  4.Collect again
     //  5.Repeat until no new hits collected
     //  6.Remove these hits from consideration and repeat
-    
+
     std::vector< bool > HitsUsed(HitVector.size(),false);
     double PEAccumulated, FlashMaxTime, FlashMinTime;
     std::vector< int > HitsThisRefinedFlash;
 
     while (true) {
-      
+
       HitsThisRefinedFlash.clear();
       PEAccumulated = 0; FlashMaxTime = 0; FlashMinTime = 0;
-      
+
       FindSeedHit(HitsBySize,
                   HitsUsed,
                   HitVector,
@@ -437,17 +437,17 @@ namespace opdet{
                   PEAccumulated,
                   FlashMaxTime,
                   FlashMinTime);
-      
+
       if (HitsThisRefinedFlash.size() == 0) return;
-      
+
       // Start this at zero to do the while at least once
       size_t NHitsThisRefinedFlash = 0;
-      
-      // If size of HitsThisRefinedFlash is same size, 
+
+      // If size of HitsThisRefinedFlash is same size,
       // that means we're not adding anymore
       while (NHitsThisRefinedFlash < HitsThisRefinedFlash.size()) {
         NHitsThisRefinedFlash = HitsThisRefinedFlash.size();
-        
+
         for (auto const& itHit : HitsBySize)
           for (auto const& HitID : itHit.second)
             AddHitToFlash(HitID,
@@ -459,7 +459,7 @@ namespace opdet{
                           FlashMaxTime,
                           FlashMinTime);
       }
-      
+
       // We did our collecting, now check if the flash is
       // still good and push back
       CheckAndStoreFlash(RefinedHitsPerFlash,
@@ -467,11 +467,11 @@ namespace opdet{
                          PEAccumulated,
                          FlashThreshold,
                          HitsUsed);
-      
+
     } // End while there are hits left
-    
+
   } // End RefineHitsInFlash
-  
+
   //----------------------------------------------------------------------------
   void AddHitContribution(recob::OpHit const&    currentHit,
                           double&                MaxTime,
@@ -486,13 +486,13 @@ namespace opdet{
     double TimeThisHit = currentHit.PeakTime();
     if (TimeThisHit > MaxTime) MaxTime = TimeThisHit;
     if (TimeThisHit < MinTime) MinTime = TimeThisHit;
-    
-    // These quantities for the flash are defined 
+
+    // These quantities for the flash are defined
     // as the weighted averages over the hits
     AveTime     += PEThisHit*TimeThisHit;
     FastToTotal += PEThisHit*currentHit.FastToTotal();
     AveAbsTime  += PEThisHit*currentHit.PeakTimeAbs();
-    
+
     // These are totals
     TotalPE     += PEThisHit;
     PEs.at(static_cast< unsigned int >(currentHit.OpChannel())) += PEThisHit;
@@ -504,15 +504,15 @@ namespace opdet{
                           geo::GeometryCore const& geom,
                           std::vector< double >&   sumw,
                           std::vector< double >&   sumw2,
-                          double&                  sumy, 
+                          double&                  sumy,
                           double&                  sumy2,
-                          double&                  sumz, 
+                          double&                  sumz,
                           double&                  sumz2) {
 
     double xyz[3];
     geom.OpDetGeoFromOpChannel(currentHit.OpChannel()).GetCenter(xyz);
     double PEThisHit = currentHit.PE();
-    
+
     geo::TPCID tpc = geom.FindTPCAtPosition(xyz);
     // if the point does not fall into any TPC,
     // it does not contribute to the average wire position
@@ -524,16 +524,16 @@ namespace opdet{
         sumw2.at(p) += PEThisHit*w*w;
       }
     } // if we found the TPC
-    sumy  += PEThisHit*xyz[1]; 
+    sumy  += PEThisHit*xyz[1];
     sumy2 += PEThisHit*xyz[1]*xyz[1];
-    sumz  += PEThisHit*xyz[2]; 
+    sumz  += PEThisHit*xyz[2];
     sumz2 += PEThisHit*xyz[2]*xyz[2];
-    
+
   }
 
   //----------------------------------------------------------------------------
-  double CalculateWidth(double const& sum, 
-                        double const& sum_squared, 
+  double CalculateWidth(double const& sum,
+                        double const& sum_squared,
                         double const& weights_sum) {
 
     if (sum_squared*weights_sum - sum*sum < 0) return 0;
@@ -551,12 +551,12 @@ namespace opdet{
 
     double MaxTime = -1e9;
     double MinTime =  1e9;
-    
+
     std::vector< double > PEs(geom.MaxOpChannel() + 1, 0.0);
     unsigned int Nplanes = geom.Nplanes();
     std::vector< double > sumw (Nplanes, 0.0);
     std::vector< double > sumw2(Nplanes, 0.0);
-    
+
     double TotalPE     = 0;
     double AveTime     = 0;
     double AveAbsTime  = 0;
@@ -579,25 +579,25 @@ namespace opdet{
                          geom,
                          sumw,
                          sumw2,
-                         sumy, 
+                         sumy,
                          sumy2,
-                         sumz, 
+                         sumz,
                          sumz2);
     }
 
     AveTime     /= TotalPE;
     AveAbsTime  /= TotalPE;
     FastToTotal /= TotalPE;
-    
+
     double meany = sumy/TotalPE;
     double meanz = sumz/TotalPE;
-    
+
     double widthy = CalculateWidth(sumy, sumy2, TotalPE);
     double widthz = CalculateWidth(sumz, sumz2, TotalPE);
-    
+
     std::vector< double > WireCenters(Nplanes, 0.0);
     std::vector< double > WireWidths(Nplanes, 0.0);
-    
+
     for (size_t p = 0; p != Nplanes; ++p) {
       WireCenters.at(p) = sumw.at(p)/TotalPE;
       WireWidths.at(p)  = CalculateWidth(sumw.at(p), sumw2.at(p), TotalPE);
@@ -607,29 +607,29 @@ namespace opdet{
     // Eventual solution - remove frames
     int Frame = ts.OpticalClock().Frame(AveAbsTime - 18.1);
     if (Frame == 0) Frame = 1;
-    
+
     int BeamFrame = ts.OpticalClock().Frame(ts.TriggerTime());
     bool InBeamFrame = false;
     if (!(ts.TriggerTime() < 0)) InBeamFrame = (Frame == BeamFrame);
 
     double TimeWidth = (MaxTime - MinTime)/2.0;
 
-    int OnBeamTime = 0; 
+    int OnBeamTime = 0;
     if (InBeamFrame && (std::abs(AveTime) < TrigCoinc)) OnBeamTime = 1;
-    
+
     FlashVector.emplace_back(AveTime,
                              TimeWidth,
                              AveAbsTime,
                              Frame,
-                             PEs, 
+                             PEs,
                              InBeamFrame,
                              OnBeamTime,
                              FastToTotal,
-                             meany, 
-                             widthy, 
-                             meanz, 
-                             widthz, 
-                             WireCenters, 
+                             meany,
+                             widthy,
+                             meanz,
+                             widthz,
+                             WireCenters,
                              WireWidths);
 
   }
@@ -662,7 +662,7 @@ namespace opdet{
       double iTime  = FlashVector.at(iFlash).Time();
       double iPE    = FlashVector.at(iFlash).TotalPE();
       double iWidth = FlashVector.at(iFlash).TimeWidth();
-      
+
       for (size_t jFlash = iFlash + 1; jFlash != FlashVector.size(); ++jFlash) {
 
         if (MarkedForRemoval.at(jFlash - BeginFlash)) continue;
@@ -673,7 +673,7 @@ namespace opdet{
 
         // If smaller than, or within 2sigma of expectation,
         // attribute to late light and toss out
-        if (GetLikelihoodLateLight(iPE, iTime, iWidth, 
+        if (GetLikelihoodLateLight(iPE, iTime, iWidth,
                                    jPE, jTime, jWidth) < 3.0)
           MarkedForRemoval.at(jFlash - BeginFlash) = true;
 
@@ -684,11 +684,11 @@ namespace opdet{
   }
 
   //----------------------------------------------------------------------------
-  void RemoveFlashesFromVectors(std::vector< bool > const&     
+  void RemoveFlashesFromVectors(std::vector< bool > const&
                                                           MarkedForRemoval,
                                 std::vector< recob::OpFlash >& FlashVector,
                                 size_t const&                  BeginFlash,
-                                std::vector< std::vector< int > >& 
+                                std::vector< std::vector< int > >&
                                                        RefinedHitsPerFlash) {
 
     for (int iFlash = MarkedForRemoval.size() - 1; iFlash != -1; --iFlash)
@@ -710,7 +710,7 @@ namespace opdet{
     recob::OpFlashSortByTime sort_flash_by_time;
 
     // Determine the sort of FlashVector starting at BeginFlash
-    auto sort_order = sort_permutation(FlashVector, BeginFlash, 
+    auto sort_order = sort_permutation(FlashVector, BeginFlash,
                                             sort_flash_by_time);
 
     // Sort the RefinedHitsPerFlash in the same way as tail end of FlashVector
@@ -733,13 +733,13 @@ namespace opdet{
 
   //----------------------------------------------------------------------------
   template < typename T, typename Compare >
-    std::vector< int > sort_permutation(std::vector< T > const& vec, 
+    std::vector< int > sort_permutation(std::vector< T > const& vec,
                                         int offset, Compare compare) {
 
     std::vector< int > p(vec.size() - offset);
     std::iota(p.begin(), p.end(), 0);
-    std::sort(p.begin(), p.end(), 
-              [&](int i, int j){ return compare(vec[i + offset], 
+    std::sort(p.begin(), p.end(),
+              [&](int i, int j){ return compare(vec[i + offset],
                                                 vec[j + offset]); });
     return p;
 
@@ -755,5 +755,5 @@ namespace opdet{
     vec = sorted_vec;
 
   }
-    
+
 } // End namespace opdet

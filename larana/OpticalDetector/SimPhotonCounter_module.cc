@@ -69,50 +69,50 @@
 #include "CLHEP/Random/RandGaussQ.h"
 
 namespace opdet {
-  
+
   class SimPhotonCounter : public art::EDAnalyzer{
     public:
-      
+
       SimPhotonCounter(const fhicl::ParameterSet&);
       virtual ~SimPhotonCounter();
-      
+
       void analyze(art::Event const&);
-      
+
       void beginJob();
       void endJob();
-      
+
     private:
-      
+
       // Trees to output
-    
+
       TTree * fThePhotonTreeAll;
       TTree * fThePhotonTreeDetected;
       TTree * fTheOpDetTree;
       TTree * fTheEventTree;
-      
-      
+
+
       // Parameters to read in
-      
+
       std::vector<std::string> fInputModule;      // Input tag for OpDet collection
-      
+
       int fVerbosity;                // Level of output to write to std::out
-      
+
       bool fMakeDetectedPhotonsTree; //
       bool fMakeAllPhotonsTree;      //
       bool fMakeOpDetsTree;         // Switches to turn on or off each output
       bool fMakeOpDetEventsTree;          //
-      
+
     //  float fQE;                     // Quantum efficiency of tube
-      
-    //  float fWavelengthCutLow;       // Sensitive wavelength range 
-    //  float fWavelengthCutHigh;      // 
-      
+
+    //  float fWavelengthCutLow;       // Sensitive wavelength range
+    //  float fWavelengthCutHigh;      //
+
       TVector3 initialPhotonPosition;
       TVector3 finalPhotonPosition;
-      
-      
+
+
       // Data to store in trees
-       
+
       Float_t fWavelength;
       Float_t fTime;
     //  Int_t fCount;
@@ -120,19 +120,19 @@ namespace opdet {
       Int_t fCountOpDetDetected;
       Int_t fCountOpDetReflDetected;
       Float_t fT0_vis;
-      
+
       Int_t fCountEventAll;
       Int_t fCountEventDetected;
-    //  Int_t fCountEventDetectedwithRefl;    
-      
+    //  Int_t fCountEventDetectedwithRefl;
+
       Int_t fEventID;
       Int_t fOpChannel;
-      
-      //for the analysis tree of the light (gamez)                                                                      
+
+      //for the analysis tree of the light (gamez)
       bool fMakeLightAnalysisTree;
       std::vector<std::vector<std::vector<double> > > fSignals_vuv;
       std::vector<std::vector<std::vector<double> > > fSignals_vis;
-      
+
       TTree * fLightAnalysisTree;
       int fRun, fTrackID, fpdg, fmotherTrackID;
       double fEnergy, fdEdx;
@@ -142,14 +142,14 @@ namespace opdet {
       std::vector<std::vector<double> > fSignalsvuv;
       std::vector<std::vector<double> > fSignalsvis;
       std::string fProcess;
-      
+
       cheat::ParticleInventoryService const* pi_serv = nullptr;
   };
 }
 
 namespace opdet {
-  
-  
+
+
   SimPhotonCounter::SimPhotonCounter(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
   {
@@ -169,10 +169,10 @@ namespace opdet {
     fMakeLightAnalysisTree=    pset.get<bool>("MakeLightAnalysisTree", false);
     //fQE=                       pset.get<double>("QuantumEfficiency");
     //fWavelengthCutLow=         pset.get<double>("WavelengthCutLow");
-    //fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");  
+    //fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");
   }
-  
-  
+
+
   void SimPhotonCounter::beginJob()
   {
     // Get file service to store trees
@@ -192,8 +192,8 @@ namespace opdet {
     std::cout<<"Cryo Boundaries"<<std::endl;
     std::cout<<"Xmin: "<<CryoBounds[0]<<" Xmax: "<<CryoBounds[1]<<" Ymin: "<<CryoBounds[2]
 	     <<" Ymax: "<<CryoBounds[3]<<" Zmin: "<<CryoBounds[4]<<" Zmax: "<<CryoBounds[5]<<std::endl;
-    
-    try { 
+
+    try {
       pi_serv = &*(art::ServiceHandle<cheat::ParticleInventoryService const>());
     }
     catch (art::Exception const& e) {
@@ -204,7 +204,7 @@ namespace opdet {
         " In the meanwhile, some checks to particles will be skipped."
         ;
     }
-    
+
     // Create and assign branch addresses to required tree
     if(fMakeAllPhotonsTree)
     {
@@ -214,7 +214,7 @@ namespace opdet {
       fThePhotonTreeAll->Branch("OpChannel",       &fOpChannel,            "OpChannel/I");
       fThePhotonTreeAll->Branch("Time",        &fTime,             "Time/F");
     }
-    
+
     if(fMakeDetectedPhotonsTree)
     {
       fThePhotonTreeDetected = tfs->make<TTree>("DetectedPhotons","DetectedPhotons");
@@ -223,7 +223,7 @@ namespace opdet {
       fThePhotonTreeDetected->Branch("OpChannel",       &fOpChannel,            "OpChannel/I");
       fThePhotonTreeDetected->Branch("Time",        &fTime,             "Time/F");
     }
-    
+
     if(fMakeOpDetsTree)
     {
       fTheOpDetTree    = tfs->make<TTree>("OpDets","OpDets");
@@ -235,7 +235,7 @@ namespace opdet {
         fTheOpDetTree->Branch("CountReflDetected",  &fCountOpDetReflDetected, "CountReflDetected/I");
       fTheOpDetTree->Branch("Time",                   &fTime,                          "Time/F");
     }
-    
+
     if(fMakeOpDetEventsTree)
     {
       fTheEventTree  = tfs->make<TTree>("OpDetEvents","OpDetEvents");
@@ -244,10 +244,10 @@ namespace opdet {
       fTheEventTree->Branch("CountDetected",&fCountEventDetected,"CountDetected/I");
       if(pvs->StoreReflected())
         fTheOpDetTree->Branch("CountReflDetected",  &fCountOpDetReflDetected, "CountReflDetected/I");
-      
+
     }
-    
-    //generating the tree for the light analysis:                                                                    
+
+    //generating the tree for the light analysis:
     if(fMakeLightAnalysisTree)
     {
       fLightAnalysisTree = tfs->make<TTree>("LightAnalysis","LightAnalysis");
@@ -264,50 +264,50 @@ namespace opdet {
       fLightAnalysisTree->Branch("SignalsVisible",&fSignalsvis);
       fLightAnalysisTree->Branch("Process",&fProcess);
     }
-    
+
   }
-  
-  
-  SimPhotonCounter::~SimPhotonCounter() 
+
+
+  SimPhotonCounter::~SimPhotonCounter()
   {
   }
-  
+
   void SimPhotonCounter::endJob()
   {
     art::ServiceHandle<phot::PhotonVisibilityService> vis;
-    
+
     if(vis->IsBuildJob())
     {
       vis->StoreLibrary();
     }
   }
-  
+
   void SimPhotonCounter::analyze(art::Event const& evt)
   {
-    
+
     // Lookup event ID from event
     art::EventNumber_t event = evt.id().event();
     fEventID=Int_t(event);
-    
+
     art::ServiceHandle<phot::PhotonVisibilityService const> pvs;
-    
+
     art::ServiceHandle<sim::LArG4Parameters const> lgp;
     bool fUseLitePhotons = lgp->UseLitePhotons();
-    
+
     // Service for determining opdet responses
     art::ServiceHandle<opdet::OpDetResponseInterface const> odresponse;
-    
+
     // get the geometry to be able to figure out signal types and chan -> plane mappings
     art::ServiceHandle<geo::Geometry const> geo;
 
-    // get the MCtrue info of the particles                              
+    // get the MCtrue info of the particles
     art::Handle< std::vector<simb::MCParticle> > mclistLARG4;
     evt.getByLabel("largeant",mclistLARG4);
     std::vector<simb::MCParticle> const& mcpartVec(*mclistLARG4);
 
-    //-------------------------initializing light tree vectors------------------------     
+    //-------------------------initializing light tree vectors------------------------
     size_t maxNtracks = 1000;//mcpartVec.size(); --- { to be fixed soon! ]
-    //size_t maxNtracks = mcpartVec.size(); 
+    //size_t maxNtracks = mcpartVec.size();
     fSignals_vuv.clear();
     fSignals_vuv.resize(maxNtracks);
     fSignals_vis.clear();
@@ -318,21 +318,21 @@ namespace opdet {
     }
     fstepPositions.clear();
     fstepTimes.clear();
-    //-------------------------stimation of dedx per trackID------------------------      
+    //-------------------------stimation of dedx per trackID------------------------
     //get the list of particles from this event
     std::vector<double> totalEnergy_track(maxNtracks, 0.);
     if(fMakeLightAnalysisTree){
       const sim::ParticleList* plist = pi_serv? &(pi_serv->ParticleList()): nullptr;
-      
-      // loop over all sim::SimChannels in the event and make sure there are no             
-      // sim::IDEs with trackID values that are not in the sim::ParticleList                
+
+      // loop over all sim::SimChannels in the event and make sure there are no
+      // sim::IDEs with trackID values that are not in the sim::ParticleList
       std::vector<const sim::SimChannel*> sccol;
       //evt.getView(fG4ModuleLabel, sccol);
-     for(auto const& mod : fInputModule){                                      
+     for(auto const& mod : fInputModule){
       evt.getView(mod, sccol);
       double totalCharge=0.0;
       double totalEnergy=0.0;
-      //loop over the sim channels collection  
+      //loop over the sim channels collection
       for(size_t sc = 0; sc < sccol.size(); ++sc){
         double numIDEs=0.0;
         double scCharge=0.0;
@@ -356,7 +356,7 @@ namespace opdet {
             scCharge += idevec[iv].numElectrons;
             totalEnergy +=idevec[iv].energy;
             scEnergy += idevec[iv].energy;
-            
+
             totalEnergy_track[idevec[iv].trackID] += idevec[iv].energy/3.;
           }
         }
@@ -364,10 +364,10 @@ namespace opdet {
      }
     }//End of if(fMakeLightAnalysisTree)
 
-    
+
     if(!fUseLitePhotons)
     {
-      
+
       //Reset counters
       fCountEventAll=0;
       fCountEventDetected=0;
@@ -377,18 +377,18 @@ namespace opdet {
       evt.getManyByType(photon_handles);
       if (photon_handles.size() == 0)
 	throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
-    
+
       for(auto const& mod : fInputModule){
       // sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,mod);
       //switching off to add reading in of labelled collections: Andrzej, 02/26/19
-       
+
         for (auto const& ph_handle: photon_handles) {
          // Do some checking before we proceed
-	 if (!ph_handle.isValid()) continue;  
+	 if (!ph_handle.isValid()) continue;
 	 if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
-	 	
+
 	bool Reflected = (ph_handle.provenance()->productInstanceName() == "Reflected");
-        
+
 	if((*ph_handle).size()>0)
 	{
 	  if(fMakeLightAnalysisTree) {
@@ -402,11 +402,11 @@ namespace opdet {
 	    }
 	  }
 	}
-        
-        
+
+
 //      if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< TheHitCollection.size()<<std::endl;
 	if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*ph_handle).size()<<std::endl;
-	
+
         if((*ph_handle).size()>0)
         {
 //           for(sim::SimPhotonsCollection::const_iterator itOpDet=TheHitCollection.begin(); itOpDet!=TheHitCollection.end(); itOpDet++)
@@ -418,29 +418,29 @@ namespace opdet {
             fCountOpDetReflDetected=0;
             //Reset t0 for visible light
             fT0_vis = 999.;
-            
+
             //Get data from HitCollection entry
             fOpChannel=itOpDet.OpChannel();
             const sim::SimPhotons& TheHit=itOpDet;
-            
+
             //std::cout<<"OpDet " << fOpChannel << " has size " << TheHit.size()<<std::endl;
-            
-            // Loop through OpDet phots.  
+
+            // Loop through OpDet phots.
             //   Note we make the screen output decision outside the loop
-            //   in order to avoid evaluating large numbers of unnecessary 
-            //   if conditions. 
-            
-           
+            //   in order to avoid evaluating large numbers of unnecessary
+            //   if conditions.
+
+
               for(const sim::OnePhoton& Phot: TheHit)
               {
                 // Calculate wavelength in nm
-                fWavelength= odresponse->wavelength(Phot.Energy);  
-                
+                fWavelength= odresponse->wavelength(Phot.Energy);
+
                 //Get arrival time from phot
-                fTime= Phot.Time;             
-	
-		// special case for LibraryBuildJob: no working "Reflected" handle and all photons stored in single object - must sort using wavelength instead 
-		if(pvs->IsBuildJob() && !Reflected) { // all photons contained in object with Reflected = false flag  
+                fTime= Phot.Time;
+
+		// special case for LibraryBuildJob: no working "Reflected" handle and all photons stored in single object - must sort using wavelength instead
+		if(pvs->IsBuildJob() && !Reflected) { // all photons contained in object with Reflected = false flag
 	 	  // Increment per OpDet counters and fill per phot trees
                   fCountOpDetAll++;
                   if(fMakeAllPhotonsTree){
@@ -448,20 +448,20 @@ namespace opdet {
          	      fThePhotonTreeAll->Fill();
                     }
 		  }
-                
+
                   if(odresponse->detected(fOpChannel, Phot))
                   {
                     if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
                     //only store direct direct light
-                    if(fWavelength < 200) 
+                    if(fWavelength < 200)
                       fCountOpDetDetected++;
                     // reflected and shifted light is in visible range
                     else if(pvs->StoreReflected() && fWavelength > 200 ) {
                       fCountOpDetReflDetected++;
-                      // find the first visible arrival time 
+                      // find the first visible arrival time
                       if(pvs->StoreReflT0() && fTime < fT0_vis)
-                        fT0_vis = fTime;  
-                    }  
+                        fT0_vis = fTime;
+                    }
                     if(fVerbosity > 3)
                       std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                   }
@@ -469,7 +469,7 @@ namespace opdet {
 		    if(fVerbosity > 3)
                       std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
 		  }
-		  
+
 		}
 
 		else {
@@ -481,20 +481,20 @@ namespace opdet {
          	      fThePhotonTreeAll->Fill();
                     }
 		   }
-                
+
                   if(odresponse->detected(fOpChannel, Phot))
                   {
                     if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
                     //only store direct direct light
-                    if(!Reflected) 
+                    if(!Reflected)
                       fCountOpDetDetected++;
                     // reflected and shifted light is in visible range
                     else if(pvs->StoreReflected() && Reflected ) {
                       fCountOpDetReflDetected++;
-                      // find the first visible arrival time 
+                      // find the first visible arrival time
                       if(pvs->StoreReflT0() && fTime < fT0_vis)
-                        fT0_vis = fTime;  
-                    }  
+                        fT0_vis = fTime;
+                    }
                     if(fVerbosity > 3)
                       std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                   }
@@ -504,12 +504,12 @@ namespace opdet {
 		  }
 		}
               }
-            
-        
-            
+
+
+
             // If this is a library building job, fill relevant entry
             art::ServiceHandle<phot::PhotonVisibilityService> pvs;
-            if(pvs->IsBuildJob() && !Reflected) // for library build job, both componenents stored in first object with Reflected = false 
+            if(pvs->IsBuildJob() && !Reflected) // for library build job, both componenents stored in first object with Reflected = false
             {
               int VoxID; double NProd;
               pvs->RetrieveLightProd(VoxID, NProd);
@@ -518,31 +518,31 @@ namespace opdet {
               //store reflected light
               if(pvs->StoreReflected())
                 pvs->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetReflDetected)/NProd,true);
-              //store reflected first arrival time 
+              //store reflected first arrival time
               if(pvs->StoreReflected() && pvs->StoreReflT0())
                 pvs->SetLibraryReflT0Entry(VoxID, fOpChannel, fT0_vis);
             }
-            
-            // Incremenent per event and fill Per OpDet trees      
+
+            // Incremenent per event and fill Per OpDet trees
             if(fMakeOpDetsTree) fTheOpDetTree->Fill();
             fCountEventAll+=fCountOpDetAll;
             fCountEventDetected+=fCountOpDetDetected;
-            
+
             // Give per OpDet output
-            if(fVerbosity >2) std::cout<<"OpDetResponseInterface PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 
+            if(fVerbosity >2) std::cout<<"OpDetResponseInterface PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;
           }
-          
+
           // Fill per event tree
           if(fMakeOpDetEventsTree) fTheEventTree->Fill();
-          
+
           // Give per event output
-          if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;   
-          
+          if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;
+
         }
         else
         {
-          // if empty OpDet hit collection, 
-          // add an empty record to the per event tree 
+          // if empty OpDet hit collection,
+          // add an empty record to the per event tree
           if(fMakeOpDetEventsTree) fTheEventTree->Fill();
         }
         if(fMakeLightAnalysisTree) {
@@ -550,21 +550,21 @@ namespace opdet {
           //---------------Filling the analysis tree-----------:
           fRun = evt.run();
           std::vector<double> this_xyz;
-          
-          //loop over the particles 
+
+          //loop over the particles
           for(size_t i_p=0; i_p < mcpartVec.size(); i_p++){
 
 	    const simb::MCParticle pPart = mcpartVec[i_p];
 	    if(pPart.Process() == "primary")
 	      fEnergy = pPart.E();
-	    
-            //resetting the vectors                                                                         
+
+            //resetting the vectors
             fstepPositions.clear();
             fstepTimes.clear();
             fSignalsvuv.clear();
             fSignalsvis.clear();
             fdEdx = -1.;
-            //filling the tree fields  
+            //filling the tree fields
 	    fTrackID = pPart.TrackId();
 	    fpdg = pPart.PdgCode();
 	    fmotherTrackID = pPart.Mother();
@@ -572,7 +572,7 @@ namespace opdet {
 	    fSignalsvuv = fSignals_vuv[fTrackID];
 	    fSignalsvis = fSignals_vis[fTrackID];
 	    fProcess = pPart.Process();
-            //filling the center positions of each step                                   
+            //filling the center positions of each step
             for(size_t i_s=1; i_s < pPart.NumberTrajectoryPoints(); i_s++){
 	      this_xyz.clear();
 	      this_xyz.resize(3);
@@ -588,7 +588,7 @@ namespace opdet {
 	}
       }
      }
-    }  
+    }
    if (fUseLitePhotons)
     {
 
@@ -600,60 +600,60 @@ namespace opdet {
 
      //Get SimPhotonsLite from Event
      for(auto const& mod : fInputModule){
-      //art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle; 
+      //art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle;
       //evt.getByLabel(mod, photonHandle);
 
 	// Loop over direct/reflected photons
 	for (auto const& ph_handle: photon_handles) {
           // Do some checking before we proceed
-          if (!ph_handle.isValid()) continue;  
+          if (!ph_handle.isValid()) continue;
           if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
- 
+
           bool Reflected = (ph_handle.provenance()->productInstanceName() == "Reflected");
 
-      
-      
+
+
       //Reset counters
       fCountEventAll=0;
       fCountEventDetected=0;
-      
+
       if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*ph_handle).size()<<std::endl;
-      
-      
+
+
       if((*ph_handle).size()>0)
       {
-        
+
         for ( auto const& photon : (*ph_handle) )
         {
           //Get data from HitCollection entry
           fOpChannel=photon.OpChannel;
           std::map<int, int> PhotonsMap = photon.DetectedPhotons;
-          
+
           //Reset Counters
           fCountOpDetAll=0;
           fCountOpDetDetected=0;
-	  fCountOpDetReflDetected=0;         
-                   
+	  fCountOpDetReflDetected=0;
+
          for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
            {
              // Calculate wavelength in nm
 	     if (Reflected) {
-		fWavelength = 450; 
+		fWavelength = 450;
 	     }
 	     else {
 	     fWavelength= 128;   // original
 	     }
-              
+
              //Get arrival time from phot
              fTime= it->first;
              //std::cout<<"Arrival time: " << fTime<<std::endl;
-              
+
              for(int i = 0; i < it->second ; i++)
              {
                 // Increment per OpDet counters and fill per phot trees
                 fCountOpDetAll++;
                 if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
-                
+
 		if(odresponse->detectedLite(fOpChannel))
                 {
                   if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
@@ -674,37 +674,37 @@ namespace opdet {
 		  }
               }
             }
-          
-          
-          
-          // Incremenent per event and fill Per OpDet trees      
+
+
+
+          // Incremenent per event and fill Per OpDet trees
           if(fMakeOpDetsTree) fTheOpDetTree->Fill();
           fCountEventAll+=fCountOpDetAll;
           fCountEventDetected+=fCountOpDetDetected;
-          
+
           // Give per OpDet output
-          if(fVerbosity >2) std::cout<<"OpDetResponseInterface PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl; 
+          if(fVerbosity >2) std::cout<<"OpDetResponseInterface PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;
         }
         // Fill per event tree
         if(fMakeOpDetEventsTree) fTheEventTree->Fill();
-        
+
         // Give per event output
-        if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;   
-        
+        if(fVerbosity >1) std::cout<<"OpDetResponseInterface PerEvent : Event "<<fEventID<<" All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;
+
       }
       else
       {
-        // if empty OpDet hit collection, 
-        // add an empty record to the per event tree 
+        // if empty OpDet hit collection,
+        // add an empty record to the per event tree
         if(fMakeOpDetEventsTree) fTheEventTree->Fill();
       }
-     } 
+     }
     }
   }
   }
 }
 namespace opdet{
-  
+
   DEFINE_ART_MODULE(SimPhotonCounter)
-    
+
 }//end namespace opdet

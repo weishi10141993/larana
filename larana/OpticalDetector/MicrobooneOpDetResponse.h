@@ -30,15 +30,15 @@ namespace opdet
         virtual bool doDetectedLite(int OpChannel, int &newOpChannel) const;
 
         float fQE;                     // Quantum efficiency of tube
-        
-        float fWavelengthCutLow;       // Sensitive wavelength range 
-        float fWavelengthCutHigh;      // 
-        
+
+        float fWavelengthCutLow;       // Sensitive wavelength range
+        float fWavelengthCutHigh;      //
+
 
 
     }; // class MicrobooneOpDetResponse
 
-    
+
 } //namespace opdet
 
 

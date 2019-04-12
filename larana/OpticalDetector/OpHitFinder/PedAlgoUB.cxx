@@ -16,7 +16,7 @@ namespace pmtana{
       _beamgatealgo(name)
   //************************************************
   {}
-  
+
   //*************************************************************
   PedAlgoUB::PedAlgoUB(const fhicl::ParameterSet &pset,
   //PedAlgoUB::PedAlgoUB(const ::fcllite::PSet &pset,
@@ -28,7 +28,7 @@ namespace pmtana{
   {
     _beam_gate_samples = pset.get<unsigned int>("BeamGateSamples");
   }
-  
+
   //***************************
   PedAlgoUB::~PedAlgoUB()
   //***************************
@@ -41,16 +41,16 @@ namespace pmtana{
   //*********************************************************************
   {
 
-    if ( wf.size() < _beam_gate_samples ) { 
-    
+    if ( wf.size() < _beam_gate_samples ) {
+
       double ped_mean  = wf.front(); //first sample
       double ped_sigma = 0;
 
       for( auto &v : mean_v  ) v = ped_mean;
       for( auto &v : sigma_v ) v = ped_sigma;
-    
+
       return true;
-    
+
     }
 
     else {
@@ -61,7 +61,7 @@ namespace pmtana{
 
       return true;
     }
-    
+
   }
 
 }

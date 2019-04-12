@@ -2,7 +2,7 @@
  * \file PMTAna_module.cc
  *
  * \ingroup PMTAna
- * 
+ *
  * \brief Class definition file of PMTAna
  *
  * @author Kazu - Nevis 2013
@@ -49,7 +49,7 @@ namespace pmtana {
   /**
      \class PMTAna
      PMTAna module to copy LArSoft data contents into LArLight data formatted file
-  */ 
+  */
   class PMTAna : public art::EDAnalyzer{
 
   public:
@@ -77,7 +77,7 @@ namespace pmtana {
     AlgoFixedWindow   _fw_algo;
     PedAlgoEdges      _ped_algo;
   };
-  
+
 }
 
 // PMTAna.cc
@@ -93,7 +93,7 @@ namespace pmtana {
 
   //#######################################################################################################
   PMTAna::PMTAna(fhicl::ParameterSet const& pset) :
-    EDAnalyzer(pset), 
+    EDAnalyzer(pset),
     _preco_man(),
     _th_algo(),
     _fw_algo(),
@@ -111,7 +111,7 @@ namespace pmtana {
     _tree = fileService->make<TTree>("pmt_tree","Analysis Tree");
 
     //
-    // Demonstration purpose ... 
+    // Demonstration purpose ...
     //
     _preco_man.AddRecoAlgo(&_th_algo);
     _preco_man.AddRecoAlgo(&_fw_algo);
@@ -127,7 +127,7 @@ namespace pmtana {
 
 
   //#######################################################################################################
-  void PMTAna::analyze(const art::Event& evt) 
+  void PMTAna::analyze(const art::Event& evt)
   //#######################################################################################################
   {
 
@@ -171,8 +171,8 @@ namespace pmtana {
       //
       //
     }
-    
-    
+
+
   }
 
 }

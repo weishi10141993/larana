@@ -20,15 +20,15 @@
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 namespace opdet {
- 
+
   class OpFlashMCTruthAna : public art::EDAnalyzer{
   public:
- 
+
     // Standard constructor and destructor for an ART module.
     OpFlashMCTruthAna(const fhicl::ParameterSet&);
 
-    // The analyzer routine, called once per event. 
-    void analyze (const art::Event&); 
+    // The analyzer routine, called once per event.
+    void analyze (const art::Event&);
 
   private:
 
@@ -36,10 +36,10 @@ namespace opdet {
     // go from this custom example to your own task.
 
     // The parameters we'll read from the .fcl file.
-    std::string fFlashInputModule; 
-    std::string fTruthInputModule; 
-    
-    
+    std::string fFlashInputModule;
+    std::string fTruthInputModule;
+
+
     TTree * fAnalysisTree;
     TTree * fPerEventTree;
 
@@ -53,11 +53,11 @@ namespace opdet {
     Float_t fCenterX, fCenterY, fCenterZ;
     Float_t fDistFlashCenter, fDistFlashVertex;
     Float_t fDistFlashCenterNorm, fDistFlashVertexNorm;
-  
-    
+
+
   };
 
-} 
+}
 
 
 // OpFlashMCTruthAna_module.cc
@@ -108,15 +108,15 @@ namespace opdet {
   OpFlashMCTruthAna::OpFlashMCTruthAna(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
   {
-    
+
     // Indicate that the Input Module comes from .fcl
     fFlashInputModule = pset.get<std::string>("FlashInputModule");
     fTruthInputModule = pset.get<std::string>("TruthInputModule");
 
 
-    
+
     art::ServiceHandle<art::TFileService const> tfs;
-    
+
     fPerEventTree = tfs->make<TTree>("PerEventTree", "PerEventTree");
 
     fPerEventTree->Branch("EventID",   &fEventID,   "EventID/I");
@@ -125,7 +125,7 @@ namespace opdet {
     fPerEventTree->Branch("VertexX",    &fVertexX,    "VertexX/F");
     fPerEventTree->Branch("VertexY",    &fVertexY,    "VertexY/F");
     fPerEventTree->Branch("VertexZ",    &fVertexZ,    "VertexZ/F");
-    
+
     fPerEventTree->Branch("TrueE",      &fTrueE,      "TrueE/F");
     fPerEventTree->Branch("TruePDG",    &fTruePDG,    "TruePDG/I");
 
@@ -136,10 +136,10 @@ namespace opdet {
 
 
     fAnalysisTree = tfs->make<TTree>("AnalysisTree", "AnalysisTree");
-  
+
     fAnalysisTree->Branch("EventID",   &fEventID,   "EventID/I");
     fAnalysisTree->Branch("NFlashes",  &fNFlashes,  "NFlashes/I");
-    
+
     fAnalysisTree->Branch("FlashY",    &fFlashY,    "FlashY/F");
     fAnalysisTree->Branch("FlashZ",    &fFlashZ,    "FlashZ/F");
     fAnalysisTree->Branch("FlashU",    &fFlashU,    "FlashU/F");
@@ -157,7 +157,7 @@ namespace opdet {
     fAnalysisTree->Branch("VertexX",    &fVertexX,    "VertexX/F");
     fAnalysisTree->Branch("VertexY",    &fVertexY,    "VertexY/F");
     fAnalysisTree->Branch("VertexZ",    &fVertexZ,    "VertexZ/F");
-    
+
     fAnalysisTree->Branch("TrueE",      &fTrueE,      "TrueE/F");
     fAnalysisTree->Branch("TruePDG",    &fTruePDG,    "TruePDG/I");
 
@@ -167,14 +167,14 @@ namespace opdet {
 
     fAnalysisTree->Branch("DistFlashCenter",    &fDistFlashCenter,    "DistFlashCenter/F");
     fAnalysisTree->Branch("DistFlashVertex",    &fDistFlashVertex,    "DistFlashVertex/F");
-   
-    
+
+
   }
 
   //-----------------------------------------------------------------------
-  void OpFlashMCTruthAna::analyze(const art::Event& evt) 
+  void OpFlashMCTruthAna::analyze(const art::Event& evt)
   {
-    
+
     // Create a handles
     art::Handle< std::vector< recob::OpFlash > > FlashHandle;
     art::Handle< std::vector< simb::MCTruth > >  TruthHandle;
@@ -184,80 +184,80 @@ namespace opdet {
     evt.getByLabel(fTruthInputModule, TruthHandle);
 
     fEventID=evt.id().event();
-    
+
     fNTruths  = TruthHandle->at(0).NParticles();
     fNFlashes = FlashHandle->size();
-    
+
     std::cout<<"Size of truth collection : " << TruthHandle->size()<<std::endl;
     std::cout<<"We found " << fNTruths<<" truth particles and " << fNFlashes<<" flashes" <<std::endl;
 
-  
+
     for(int iPart=0; iPart!=fNTruths; ++iPart)
       {
 	const simb::MCParticle ThisPart = TruthHandle->at(0).GetParticle(iPart);
 	fTruePDG = ThisPart.PdgCode();
 	fTrueE   = ThisPart.E(0);
-	
+
 	fVertexX = ThisPart.Vx(0);
 	fVertexY = ThisPart.Vy(0);
 	fVertexZ = ThisPart.Vz(0);
 	fVertexT = ThisPart.T(0);
-	
+
 	fCenterX = (ThisPart.Vx(0) + ThisPart.EndX())/2.;
 	fCenterY = (ThisPart.Vy(0) + ThisPart.EndY())/2.;
 	fCenterZ = (ThisPart.Vz(0) + ThisPart.EndZ())/2.;
-	
-	
+
+
 	for(unsigned int i = 0; i < FlashHandle->size(); ++i)
 	  {
-	    
+
 	    // Get OpFlash
 	    art::Ptr< recob::OpFlash > TheFlashPtr(FlashHandle, i);
-	    
+
 	    fFlashT    = TheFlashPtr->Time();
 	    fFlashPE   = TheFlashPtr->TotalPE();
 	    fFlashFastToTotal   = TheFlashPtr->FastToTotal();
-	    
+
 	    fFlashY    = TheFlashPtr->YCenter();
 	    fFlashZ    = TheFlashPtr->ZCenter();
 	    fFlashU    = TheFlashPtr->WireCenters().at(0);
 	    fFlashV    = TheFlashPtr->WireCenters().at(1);
-	    
+
 	    fFlashWidthY  = TheFlashPtr->YWidth();
 	    fFlashWidthZ  = TheFlashPtr->ZWidth();
 	    fFlashWidthU  = TheFlashPtr->WireWidths().at(0);
 	    fFlashWidthV  = TheFlashPtr->WireWidths().at(1);
-	    
-	    
-	    
-	    
-	    
+
+
+
+
+
 	    fDistFlashCenter = pow(
 				   pow(fCenterY - fFlashY,2) +
-				   pow(fCenterZ - fFlashZ,2), 
+				   pow(fCenterZ - fFlashZ,2),
 				   0.5);
 
 	    fDistFlashVertex = pow(
 				   pow(fVertexY - fFlashY,2) +
-				   pow(fVertexZ - fFlashZ,2), 
+				   pow(fVertexZ - fFlashZ,2),
 				   0.5);
 
 	    fDistFlashCenterNorm = pow(
 				       pow((fCenterY - fFlashY)/fFlashWidthY,2) +
-				       pow((fCenterZ - fFlashZ)/fFlashWidthZ,2), 
+				       pow((fCenterZ - fFlashZ)/fFlashWidthZ,2),
 				       0.5);
 
 	    fDistFlashVertexNorm = pow(
 				       pow((fVertexY - fFlashY)/fFlashWidthY,2) +
-				       pow((fVertexZ - fFlashZ)/fFlashWidthZ,2), 
+				       pow((fVertexZ - fFlashZ)/fFlashWidthZ,2),
 				       0.5);
-	    
+
 	    fAnalysisTree->Fill();
-	    
+
 	  }
-	
+
       }
-   
+
     fPerEventTree->Fill();
   }
 

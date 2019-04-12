@@ -40,11 +40,11 @@ namespace opreco {
 
   class OpticalRecoAna : public art::EDAnalyzer{
   public:
- 
+
     OpticalRecoAna(const fhicl::ParameterSet&);
 
     void beginJob();
-    void analyze (const art::Event&); 
+    void analyze (const art::Event&);
 
   private:
 
@@ -64,13 +64,13 @@ namespace opreco {
     float update_MC_particle_time(simb::MCParticle const&, bool& ,geo::Geometry const&);
 
     //matching functions
-    void match_flashes_to_tracks(std::vector<recob::OpFlash> const& , 
+    void match_flashes_to_tracks(std::vector<recob::OpFlash> const& ,
 				 std::vector<recob::Track> const&);
     void compare_track_and_flash(recob::Track const&,
 				 recob::OpFlash const&,
 				 bool &);
 
-    void match_flashes_to_particles(std::vector<recob::OpFlash> const&, 
+    void match_flashes_to_particles(std::vector<recob::OpFlash> const&,
 				    std::vector<simb::MCParticle> const&,
 				    float const&,
 				    geo::Geometry const&);
@@ -80,15 +80,15 @@ namespace opreco {
 				    float const&,
 				    geo::Geometry const&);
 
-    void match_flashes_to_particles(std::vector<recob::Track> const&, 
+    void match_flashes_to_particles(std::vector<recob::Track> const&,
 				    std::vector<simb::MCParticle> const&,
 				    geo::Geometry const&);
     void compare_particle_and_track(simb::MCParticle const&,
 				    recob::Track const&,
 				    bool &,
-				    geo::Geometry const&);    
+				    geo::Geometry const&);
 
-    void FillMatchTree_PF(std::vector<recob::OpFlash> const&, 
+    void FillMatchTree_PF(std::vector<recob::OpFlash> const&,
 			  std::vector<simb::MCParticle> const&,
 			  float const&,
 			  geo::Geometry const&);
@@ -97,7 +97,7 @@ namespace opreco {
     TH1F *fTimeDiff;
     TH1F *fTimeDiff_fine;
     TH1I *fNBeamFlashes;
-    
+
     TTree *fMatchTree_PF;
     TTree *fMatchTree_PF_NotNu;
     int fRun;
@@ -123,7 +123,7 @@ namespace opreco {
 
   };
 
-} 
+}
 
 
 

@@ -2,14 +2,14 @@
  * \file PedAlgoEdges.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of PedAlgoEdges
  *
  * @author Kazu - Nevis 2013
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 
 #ifndef larana_OPTICALDETECTOR_PEDALGOEDGES_H
@@ -25,7 +25,7 @@ namespace pmtana
 
   /**
    \class PedAlgoEdges
-   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").   
+   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").
   */
   class PedAlgoEdges : public PMTPedestalBase{
 
@@ -40,7 +40,7 @@ namespace pmtana
 
     /// Default destructor
     virtual ~PedAlgoEdges();
-    
+
     /// enum to define algorithm options
     enum PED_METHOD{
       kHEAD = 0, ///< Use first N samples
@@ -53,12 +53,12 @@ namespace pmtana
     bool ComputePedestal( const pmtana::Waveform_t& wf,
 			  pmtana::PedestalMean_t&   mean_v,
 			  pmtana::PedestalSigma_t&  sigma_v);
-    
+
   private:
     size_t _nsample_front; ///< # ADC sample in front to be used
     size_t _nsample_tail;  ///< # ADC sample in tail to be used
     PED_METHOD _method;    ///< Methods
-    
+
   };
 }
 #endif

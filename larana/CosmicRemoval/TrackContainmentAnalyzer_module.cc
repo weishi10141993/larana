@@ -52,7 +52,7 @@ private:
   trk::TrackContainmentAlg fAlg;
 
   std::vector<std::string> fTrackModuleLabels;
-  
+
 };
 
 
@@ -70,14 +70,14 @@ void trk::TrackContainmentAnalyzer::analyze(art::Event const & e)
 {
 
   fAlg.SetRunEvent(e.run(),e.event());
-  
+
   std::vector< std::vector<recob::Track> > trackVectors;
   for(size_t i_l=0; i_l<fTrackModuleLabels.size(); ++i_l){
     art::Handle< std::vector<recob::Track> > trackHandle;
     e.getByLabel(fTrackModuleLabels[i_l],trackHandle);
     trackVectors.push_back(*trackHandle);
   }
-  
+
   art::ServiceHandle<geo::Geometry const> geoHandle;
 
   fAlg.ProcessTracks(trackVectors,*geoHandle);

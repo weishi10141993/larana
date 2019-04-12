@@ -5,7 +5,7 @@
  * Title:   SimPhotonCounter Class
  * Author:  Wes Ketchum (wketchum@lanl.gov)
  *
- * Description: Class that counts up sim photons, leading towards 
+ * Description: Class that counts up sim photons, leading towards
  *              comparisons with flashes and flash hypotheses.
 */
 
@@ -23,21 +23,21 @@ namespace opdet{
     SimPhotonCounter(float t_p1, float t_p2, float t_l1, float t_l2, float min_w, float max_w, const std::vector<float>& eV);
 
     void SetVectorSize(size_t s)
-    { _photonVector_prompt.resize(s); _photonVector_late.resize(s); _qeVector.resize(s); }  
+    { _photonVector_prompt.resize(s); _photonVector_late.resize(s); _qeVector.resize(s); }
     size_t GetVectorSize() const { return _photonVector_prompt.size(); }
 
     void SetWavelengthRanges(float min_w, float max_w);
 
     float MinWavelength() const { return _min_wavelength; }
     float MaxWavelength() const { return _max_wavelength; }
-    
+
     void SetTimeRanges(float t_p1, float t_p2, float t_l1, float t_l2);
-    
+
     float MinPromptTime() const { return _min_prompt_time; }
     float MaxPromptTime() const { return _max_prompt_time; }
     float MinLateTime() const { return _min_late_time; }
     float MaxLateTime() const { return _max_late_time; }
-    
+
     void SetQE(size_t i, float e) { _qeVector.at(i) = e; }
     float QE(size_t i) const { return _qeVector.at(i); }
 
@@ -63,9 +63,9 @@ namespace opdet{
     float LatePhotonTotal() const
     { return std::accumulate(_photonVector_late.begin(),_photonVector_late.end(),0.0); }
     float PhotonTotal() const { return (PromptPhotonTotal()+LatePhotonTotal()); }
-    
+
     void Print();
-    
+
   private:
 
     std::vector<float> _photonVector_prompt;
@@ -79,11 +79,11 @@ namespace opdet{
 
     float _min_wavelength; //in nm
     float _max_wavelength;
-    
+
     float Wavelength(const sim::OnePhoton& ph);
-    
+
   };
-  
+
 }
 
 #endif

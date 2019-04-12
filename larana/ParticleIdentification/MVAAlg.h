@@ -12,7 +12,7 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Core/EDProducer.h" 
+#include "art/Framework/Core/EDProducer.h"
 
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/Cluster.h"
@@ -34,7 +34,7 @@ namespace mvapid{
 
 
 
-  //--------------------------------------------------------------- 
+  //---------------------------------------------------------------
   class MVAAlg {
   public:
 
@@ -47,12 +47,12 @@ struct SortedObj{
 struct SumDistance2 {
   // the TGraph is a data member of the object
  TGraph2D* fGraph;
-  
+
  SumDistance2(TGraph2D* g) : fGraph(g) {}
-  
+
   // implementation of the function to be minimized
   double operator() (const double * p) {
-    
+
     ROOT::Math::XYZVector x0(p[0], p[2], p[4] );
     ROOT::Math::XYZVector u(p[1],p[3], p[5] );
 
@@ -63,19 +63,19 @@ struct SumDistance2 {
     int npoints = fGraph->GetN();
     double sum = 0;
     for (int i  = 0; i < npoints; ++i) {
-      ROOT::Math::XYZVector xp(x[i],y[i],z[i]); 
+      ROOT::Math::XYZVector xp(x[i],y[i],z[i]);
       sum += ((xp-x0).Cross(u)) .Mag2();
     }
     return sum;
   }
 };
-        
+
     MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule);
-    
+
     void GetDetectorEdges();
 
     void GetWireNormals();
-    
+
     void reconfigure(fhicl::ParameterSet const& p);
 
     void RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& result,
@@ -85,9 +85,9 @@ struct SumDistance2 {
   private:
 
     int IsInActiveVol(const TVector3& pos);
- 
+
     void PrepareEvent(const art::Event& event);
-    
+
     void FitAndSortTrack(art::Ptr<recob::Track> track,int& isStoppingReco,
 			 SortedObj& sortedObj);
 
@@ -100,19 +100,19 @@ struct SumDistance2 {
     void _Var_Shape(const SortedObj& track,
 		    double& coreHaloRatio,double& concentration,
 		    double& conicalness);
-    
+
     double CalcSegmentdEdxFrac(const SortedObj& track,double start,double end);
-    
+
     double CalcSegmentdEdxDist(const SortedObj& track,double start,double end);
 
     double CalcSegmentdEdxDistAtEnd(const mvapid::MVAAlg::SortedObj& track,double distAtEnd);
-    
+
     int LinFit(const art::Ptr<recob::Track> track,TVector3& trackPoint,TVector3& trackDir);
 
     int LinFitShower(const art::Ptr<recob::Shower> shower,TVector3& showerPoint,TVector3& showerDir);
-    
+
     const calo::CalorimetryAlg fCaloAlg;
-    
+
     double fEventT0;
 
     double fDetMinX, fDetMaxX, fDetMinY, fDetMaxY, fDetMinZ, fDetMaxZ;
@@ -132,7 +132,7 @@ struct SumDistance2 {
     std::vector<art::Ptr<recob::Shower> > fShowers;
     std::vector<art::Ptr<recob::SpacePoint> > fSpacePoints;
     std::vector<art::Ptr<recob::Hit> > fHits;
-  
+
     std::map<art::Ptr<recob::Track>,std::vector<art::Ptr<recob::Hit> > > fTracksToHits;
     std::map<art::Ptr<recob::Track>,std::vector<art::Ptr<recob::SpacePoint> > > fTracksToSpacePoints;
     std::map<art::Ptr<recob::Shower>,std::vector<art::Ptr<recob::Hit> > > fShowersToHits;
@@ -143,7 +143,7 @@ struct SumDistance2 {
     anab::MVAPIDResult fResHolder;
 
     TMVA::Reader fReader;
-    
+
     std::vector<std::string> fMVAMethods;
     std::vector<std::string> fWeightFiles;
 

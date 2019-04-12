@@ -2,14 +2,14 @@
  * \file PedAlgoRmsSlider.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of PedAlgoRmsSlider
  *
  * @author Marco - Oxford 2017
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 
 #ifndef larana_OPTICALDETECTOR_PEDALGORMSSLIDER_H
@@ -26,7 +26,7 @@ namespace pmtana
 
   /**
    \class PedAlgoRmsSlider
-   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").   
+   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").
   */
   class PedAlgoRmsSlider : public PMTPedestalBase{
 
@@ -51,7 +51,7 @@ namespace pmtana
     bool ComputePedestal( const pmtana::Waveform_t& wf,
 			  pmtana::PedestalMean_t&   mean_v,
 			  pmtana::PedestalSigma_t&  sigma_v);
-    
+
   private:
 
     size_t _sample_size;  ///< How many samples are used to calculate local rms and mean
@@ -64,7 +64,7 @@ namespace pmtana
     bool _verbose;        ///< For debugging
     int _n_wf_to_csvfile; ///< If greater than zero saves firsts waveforms with pedestal to csv file
     int _wf_saved = 0;
-    std::ofstream _csvfile;    
+    std::ofstream _csvfile;
 
     /// Returns the mean of the elements of the vector from start to start+nsample
     double CalcMean(const std::vector<double>& wf, size_t start, size_t nsample);

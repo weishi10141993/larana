@@ -2,14 +2,14 @@
  * \file AlgoFixedWindow.h
  *
  * \ingroup PulseReco
- * 
+ *
  * \brief Class definition file of AlgoFixedWindow
  *
  * @author Kazu - Nevis 2013
  */
 
 /** \addtogroup PulseReco
-    
+
 @{*/
 
 #ifndef ALGOFIXEDWINDOW_H
@@ -27,7 +27,7 @@ namespace pmtana
    This class implements fixed_window algorithm to AlgoFixedWindow class.
    The algorithm defines a pulse in user-specified time window.
    A typical usage is to set the beginning of the window to be 0 (= start of the waveform)
-   and integrate over the time of interest. By default, the ending is set to index=0, in 
+   and integrate over the time of interest. By default, the ending is set to index=0, in
    which case it uses the ending index of the input waveform (i.e. full integration).
   */
   class AlgoFixedWindow : public PMTPulseRecoBase {
@@ -36,14 +36,14 @@ namespace pmtana
 
     /// Default ctor
     AlgoFixedWindow(const std::string name="FixedWindow");
-    
+
     /// Alternative ctor
     AlgoFixedWindow(const fhicl::ParameterSet &pset,const std::string name="FixedWindow");
     //AlgoFixedWindow(const ::fcllite::PSet &pset,const std::string name="FixedWindow");
 
     /// Default destructor
     virtual ~AlgoFixedWindow();
-    
+
     /// Implementation of AlgoFixedWindow::reset() method
     void Reset();
 

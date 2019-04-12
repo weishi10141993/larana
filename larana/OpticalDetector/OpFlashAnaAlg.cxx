@@ -4,7 +4,7 @@ void opdet::OpFlashAnaAlg::SetOpFlashTree(TTree* tree, bool makeOpDetPEHist)
 {
   fOpFlashTree = tree;
   fMakeOpDetPEHist = makeOpDetPEHist;
-  
+
   fOpFlashTree->Branch(fOpFlashTree->GetName(),
                             &fOpFlashAnaStruct,
             fOpFlashAnaStruct.LeafList.c_str());
@@ -13,7 +13,7 @@ void opdet::OpFlashAnaAlg::SetOpFlashTree(TTree* tree, bool makeOpDetPEHist)
     fOpFlashAnaStruct.FlashOpDetPEHist->SetTitle("PEs per Optical Detector; OpDet Number; PE");
     fOpFlashTree->Branch("flash_OpDetPEHist","TH1D",&(fOpFlashAnaStruct.FlashOpDetPEHist));
   }
-  
+
 }
 
 void opdet::OpFlashAnaAlg::SetOpHitTree(TTree* tree)
@@ -65,7 +65,7 @@ void opdet::OpFlashAnaAlg::FillOpFlashTree(const std::vector<recob::OpFlash>& fl
 void opdet::OpFlashAnaAlg::FillOpHitTree(const std::vector<recob::OpHit>& hitVector)
 {
   for(auto const& hit : hitVector){
-    
+
     fOpHitAnaStruct.HitPeakTime = hit.PeakTime();
     fOpHitAnaStruct.HitPeakTimeAbs = hit.PeakTimeAbs();
     fOpHitAnaStruct.HitWidth = hit.Width();
