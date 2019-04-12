@@ -42,7 +42,6 @@
 #include "Rtypes.h"
 #include "TH1D.h"
 #include "TF1.h"
-#include "TTree.h"
 #include "TRandom.h"
 
 // nutools

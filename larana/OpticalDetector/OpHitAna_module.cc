@@ -98,7 +98,6 @@ namespace opdet {
 #include "TTree.h"
 #include "THStack.h"
 #include "TLorentzVector.h"
-#include "TVector3.h"
 
 // C++ Includes
 #include <cstring>

@@ -11,7 +11,6 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "TPrincipal.h"
-#include "TFile.h"
 //#include "TF1.h"
 //#include "TF2.h"
 #include "TMatrix.h"

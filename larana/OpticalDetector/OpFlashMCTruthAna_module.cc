@@ -95,7 +95,6 @@ namespace opdet {
 
 // ROOT includes
 #include "TLorentzVector.h"
-#include "TVector3.h"
 
 // C++ Includes
 #include <iostream>

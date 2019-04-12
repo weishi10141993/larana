@@ -39,7 +39,6 @@
 
 #include "TMatrixD.h"
 #include "TDecompSVD.h"
-#include "TVector3.h"
 #include "TTree.h"
 #include "TH1.h"
 #include "TStopwatch.h"

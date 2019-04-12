@@ -7,7 +7,6 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TLorentzVector.h"
-#include "TVector3.h"
 #include "TTree.h"
 
 // C++ includes

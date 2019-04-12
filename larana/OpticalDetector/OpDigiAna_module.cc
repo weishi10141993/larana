@@ -28,7 +28,6 @@
 #include "THStack.h"
 #include "TF1.h"
 #include "TLorentzVector.h"
-#include "TVector3.h"
 
 // C++ Includes
 #include <cstring>

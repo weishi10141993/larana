@@ -43,7 +43,6 @@
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 
-#include "TVector3.h"
 
 namespace cosmic
 {
