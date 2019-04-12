@@ -26,7 +26,6 @@
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "larcore/Geometry/Geometry.h"
@@ -49,7 +48,6 @@ public:
     explicit CRHitRemoval(fhicl::ParameterSet const & pset);
 
     // Overrides.
-    virtual void reconfigure(fhicl::ParameterSet const & pset);
     virtual void produce(art::Event & e);
     virtual void beginJob();
     virtual void endJob();
@@ -112,26 +110,6 @@ EDProducer{pset},
 fNumEvent(0),
 fNumCRRejects(0)
 {
-    reconfigure(pset);
-
-    // let HitCollectionCreator declare that we are going to produce
-    // hits and associations with wires and raw digits
-    // (with no particular product label)
-    recob::HitCollectionCreator::declare_products(*this);
-
-    // Report.
-    mf::LogInfo("CRHitRemoval") << "CRHitRemoval configured\n";
-}
-
-//----------------------------------------------------------------------------
-/// Reconfigure method.
-///
-/// Arguments:
-///
-/// pset - Fcl parameter set.
-///
-void CRHitRemoval::reconfigure(fhicl::ParameterSet const & pset)
-{
     fCosmicProducerLabels    = pset.get<std::vector<std::string> >("CosmicProducerLabels");
     fHitProducerLabel        = pset.get<std::string>("HitProducerLabel");
     fPFParticleProducerLabel = pset.get<std::string>("PFParticleProducerLabel");
@@ -140,6 +118,14 @@ void CRHitRemoval::reconfigure(fhicl::ParameterSet const & pset)
     fCosmicTagThresholds     = pset.get<std::vector<double> >("CosmicTagThresholds");
     fEndTickPadding          = pset.get<int>("EndTickPadding", 50);
     fMaxOutOfTime            = pset.get<int>("MaxOutOfTime",    4);
+
+    // let HitCollectionCreator declare that we are going to produce
+    // hits and associations with wires and raw digits
+    // (with no particular product label)
+    recob::HitCollectionCreator::declare_products(*this);
+
+    // Report.
+    mf::LogInfo("CRHitRemoval") << "CRHitRemoval configured\n";
 }
 
 //----------------------------------------------------------------------------

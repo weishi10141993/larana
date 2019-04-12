@@ -18,7 +18,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 // C++ Includes
 #include <cstring>
@@ -30,8 +29,6 @@ namespace opdet {
 
         // Standard constructor and destructor for an ART module.
         explicit OpticalRawDigitReformatter(const fhicl::ParameterSet&);
-
-        void reconfigure(fhicl::ParameterSet const& pset);
 
         // The producer routine, called once per event.
         void produce (art::Event&);
@@ -61,8 +58,9 @@ namespace opdet {
     OpticalRawDigitReformatter::OpticalRawDigitReformatter(const fhicl::ParameterSet & pset)
       : EDProducer{pset}
     {
-
-        reconfigure(pset);
+        // Indicate that the Input Module comes from .fcl
+        fInputModule    = pset.get<std::string>("InputModule");
+        fGenModule      = pset.get<std::string>("GenModule");
 
         CategoryLabels.push_back("Undefined");
         CategoryLabels.push_back("HighGain");
@@ -81,16 +79,6 @@ namespace opdet {
         // One for each category
         for (auto label : CategoryLabels)
             produces<std::vector< raw::OpDetWaveform > >(label);
-
-    }
-
-    //---------------------------------------------
-
-    void OpticalRawDigitReformatter::reconfigure(fhicl::ParameterSet const& pset)
-    {
-        // Indicate that the Input Module comes from .fcl
-        fInputModule    = pset.get<std::string>("InputModule");
-        fGenModule      = pset.get<std::string>("GenModule");
 
     }
 

@@ -109,7 +109,7 @@ namespace opdet {
     getline(fTextFile, sub, ',');
     if(sub.substr(0,3)!=std::string("evt"))
       {
-	mf::LogInfo("BoDataFrameInput")<<"Warning: first command in text file is not an evt block as expected. Trying to persevere anyway : " << sub;
+        mf::LogInfo("BoDataFrameInput")<<"Warning: first command in text file is not an evt block as expected. Trying to persevere anyway : " << sub;
       }
 
 
@@ -147,7 +147,7 @@ namespace opdet {
 
     if(!fTextFile)
       {
-	mf::LogError("BoDataFrameInput")<<"Error in reading input file : " << fInputFile;
+        mf::LogError("BoDataFrameInput")<<"Error in reading input file : " << fInputFile;
       }
 
     // Build an array of comma separated commands
@@ -176,138 +176,138 @@ namespace opdet {
 
     while(fTextFile.good() && ContinueRead)
       {
-	getline(fTextFile, line);
-	std::stringstream linestream(line);
-	while(linestream.good() && ContinueRead)
-	  {
-	    getline(linestream, sub, ',');
-	    std::stringstream ss(sub);
-	    std::string Command("");
-	    int Value=0;
-	    ss>>Command;
-	    ss>>Value;
-	    mf::LogInfo("BoDataFrameInput")<<"Parsed a single line as  C: " << Command<< "  V: "<<Value;
+        getline(fTextFile, line);
+        std::stringstream linestream(line);
+        while(linestream.good() && ContinueRead)
+          {
+            getline(linestream, sub, ',');
+            std::stringstream ss(sub);
+            std::string Command("");
+            int Value=0;
+            ss>>Command;
+            ss>>Value;
+            mf::LogInfo("BoDataFrameInput")<<"Parsed a single line as  C: " << Command<< "  V: "<<Value;
 
-	    // Structural commands
-	    if(Command=="evt")
-	      {
-		// This command specifies the beginning of the next readout event.
-		//  if we find it, finish processing for now.
-		mf::LogInfo("BoDataFrameInput")<<"Found start of next event, ID = " <<  Value<<", finish frame readout";
-		ContinueRead=false;
-	      }
-	    else if(Command=="nch")
-	      {
-		// Number of channels in this event readout
-		if(ChannelsThisEvent==0)
-		  ChannelsThisEvent=Value;
-		else
-		  mf::LogInfo("BoDataFrameInput")<<"Confused by data input: nch specified twice for the same event. Persevering anyway...";
-	      }
-	    else if(Command=="mod")
-	      {
-		// ID of the FEM module
-		FEMModule=Value;
-		Value=FEMModule; // This line just suppresses a compiler warning
-	      }
-	    else if(Command=="tid")
-	      {
-		// Trigger type (cosmic, michel, etc)
-		TriggerID=Value;
-		Value = TriggerID; // This line just suppresses a compiler warning
-	      }
-	    else if(Command=="efr")
-	      {
-		// The event frame number - see longer note under pfr
-		EventFrameNumber=Value;
-	      }
+            // Structural commands
+            if(Command=="evt")
+              {
+                // This command specifies the beginning of the next readout event.
+                //  if we find it, finish processing for now.
+                mf::LogInfo("BoDataFrameInput")<<"Found start of next event, ID = " <<  Value<<", finish frame readout";
+                ContinueRead=false;
+              }
+            else if(Command=="nch")
+              {
+                // Number of channels in this event readout
+                if(ChannelsThisEvent==0)
+                  ChannelsThisEvent=Value;
+                else
+                  mf::LogInfo("BoDataFrameInput")<<"Confused by data input: nch specified twice for the same event. Persevering anyway...";
+              }
+            else if(Command=="mod")
+              {
+                // ID of the FEM module
+                FEMModule=Value;
+                Value=FEMModule; // This line just suppresses a compiler warning
+              }
+            else if(Command=="tid")
+              {
+                // Trigger type (cosmic, michel, etc)
+                TriggerID=Value;
+                Value = TriggerID; // This line just suppresses a compiler warning
+              }
+            else if(Command=="efr")
+              {
+                // The event frame number - see longer note under pfr
+                EventFrameNumber=Value;
+              }
 
 
-	    // Per readout window commands
+            // Per readout window commands
 
-	    else if(Command=="chn")
-	      {
-		// chn tells us the channel number on the shaper board
-		mf::LogInfo("BoDataFrameInput")<<"Beginning channel " <<Value;
+            else if(Command=="chn")
+              {
+                // chn tells us the channel number on the shaper board
+                mf::LogInfo("BoDataFrameInput")<<"Beginning channel " <<Value;
 
-		CurrentChannel = Value;
-		PulsesThisEvent[CurrentChannel].push_back( new raw::OpDetPulse(CurrentChannel) );
+                CurrentChannel = Value;
+                PulsesThisEvent[CurrentChannel].push_back( new raw::OpDetPulse(CurrentChannel) );
 
-		FirstSample    = 0;
-		PMTFrameNumber = 0;
-	      }
-	    else if(Command=="cid")
-	      {
-		// This gives the trigger type. Encoding not totally clear,
-		// but we know 16 = external trigger
-		TriggerTypeThisChannel=Value;
-		Value =TriggerTypeThisChannel; // This line just suppresses a compiler warning
-	      }
-	    else if(Command=="smp")
-	      {
-		// smp tells us which sample to start at within the window
-		FirstSample=Value;
-		PulsesThisEvent[CurrentChannel].at(PulsesThisEvent[CurrentChannel].size()-1)->SetFirstSample(FirstSample);
-	      }
-	    else if(Command=="pfr")
-	      {
-		// This part is a bit complicated.
-		// The PMT frame number tells us which readout frame
-		//  this signal occupies.
-		// The PMT frame always occurs after the event frame.
-		// The pfr value is the last 3 bits of the PMT frame number
-		// So the goal is to find the first number after efr with
-		//  these last 3 bits.
+                FirstSample    = 0;
+                PMTFrameNumber = 0;
+              }
+            else if(Command=="cid")
+              {
+                // This gives the trigger type. Encoding not totally clear,
+                // but we know 16 = external trigger
+                TriggerTypeThisChannel=Value;
+                Value =TriggerTypeThisChannel; // This line just suppresses a compiler warning
+              }
+            else if(Command=="smp")
+              {
+                // smp tells us which sample to start at within the window
+                FirstSample=Value;
+                PulsesThisEvent[CurrentChannel].at(PulsesThisEvent[CurrentChannel].size()-1)->SetFirstSample(FirstSample);
+              }
+            else if(Command=="pfr")
+              {
+                // This part is a bit complicated.
+                // The PMT frame number tells us which readout frame
+                //  this signal occupies.
+                // The PMT frame always occurs after the event frame.
+                // The pfr value is the last 3 bits of the PMT frame number
+                // So the goal is to find the first number after efr with
+                //  these last 3 bits.
 
-		// In practice :
-		//  if the last 3 bits of efr are > pfr
-		//    the PMT frame is (all but 3 lsb of)efr + 8 + pfr
-		//  if the last 3 bits of efr are < pfr
-		//    the PMT frame is (all but 3 lsb of)efr + pfr
+                // In practice :
+                //  if the last 3 bits of efr are > pfr
+                //    the PMT frame is (all but 3 lsb of)efr + 8 + pfr
+                //  if the last 3 bits of efr are < pfr
+                //    the PMT frame is (all but 3 lsb of)efr + pfr
 
-		// This mask gets the 3LSB
-		int mask = 0x007;
+                // This mask gets the 3LSB
+                int mask = 0x007;
 
-		int EvLowBits =  EventFrameNumber & mask;
-		int EvHighBits = EventFrameNumber & ~mask;
+                int EvLowBits =  EventFrameNumber & mask;
+                int EvHighBits = EventFrameNumber & ~mask;
 
-		if(Value < EvLowBits)
-		  {
-		    PMTFrameNumber = EvHighBits + 8 + Value;
-		  }
-		else if(Value > EvLowBits)
-		  {
-		    PMTFrameNumber = EvHighBits + Value;
-		  }
-		else if(Value == EvLowBits)
-		  {
-		    PMTFrameNumber = EvHighBits + EvLowBits;
-		  }
-		else
-		  {
-		    mf::LogError("BoDataFrameInput") << "pfr routine confused - this should be impossible";
-		  }
+                if(Value < EvLowBits)
+                  {
+                    PMTFrameNumber = EvHighBits + 8 + Value;
+                  }
+                else if(Value > EvLowBits)
+                  {
+                    PMTFrameNumber = EvHighBits + Value;
+                  }
+                else if(Value == EvLowBits)
+                  {
+                    PMTFrameNumber = EvHighBits + EvLowBits;
+                  }
+                else
+                  {
+                    mf::LogError("BoDataFrameInput") << "pfr routine confused - this should be impossible";
+                  }
 
-		PulsesThisEvent[CurrentChannel].at(PulsesThisEvent[CurrentChannel].size()-1)->SetPMTFrame(PMTFrameNumber);
+                PulsesThisEvent[CurrentChannel].at(PulsesThisEvent[CurrentChannel].size()-1)->SetPMTFrame(PMTFrameNumber);
 
-	      }
-	    else if(Command=="adc")
-	      {
-		// Add one sample to the pulse object
-		PulsesThisEvent[CurrentChannel].at(PulsesThisEvent[CurrentChannel].size()-1)->Waveform().push_back(Value);
-	      }
-	  }
+              }
+            else if(Command=="adc")
+              {
+                // Add one sample to the pulse object
+                PulsesThisEvent[CurrentChannel].at(PulsesThisEvent[CurrentChannel].size()-1)->Waveform().push_back(Value);
+              }
+          }
       }
 
 
     // Now pack away the pulses we found into the event
     for(std::map<int, std::vector<raw::OpDetPulse*> >::const_iterator it = PulsesThisEvent.begin();
-	it!=PulsesThisEvent.end(); ++it)
+        it!=PulsesThisEvent.end(); ++it)
       {
-	for(size_t pulse=0; pulse!=it->second.size(); ++pulse)
-	  {
-	    StoragePtr->push_back( *(it->second.at(pulse)) );
-	  }
+        for(size_t pulse=0; pulse!=it->second.size(); ++pulse)
+          {
+            StoragePtr->push_back( *(it->second.at(pulse)) );
+          }
       }
 
     evt.put(std::move(StoragePtr));

@@ -48,13 +48,8 @@ class TrackPFParticleMatch : public art::EDProducer
 {
 public:
     explicit TrackPFParticleMatch(fhicl::ParameterSet const & p);
-    virtual ~TrackPFParticleMatch();
 
     void produce(art::Event & e) override;
-
-    void beginJob() override;
-    void reconfigure(fhicl::ParameterSet const & p) ;
-    void endJob() override;
 
 private:
     std::string fPFParticleModuleLabel;
@@ -65,15 +60,11 @@ private:
 TrackPFParticleMatch::TrackPFParticleMatch(fhicl::ParameterSet const & p)
   : EDProducer{p}
 {
-    this->reconfigure(p);
+    fPFParticleModuleLabel = p.get< std::string >("PFParticleModuleLabel");
+    fTrackModuleLabel      = p.get< std::string >("TrackModuleLabel", "track");
 
     // Call appropriate Produces<>() functions here.
     produces< art::Assns<recob::Track, recob::PFParticle>>();
-}
-
-TrackPFParticleMatch::~TrackPFParticleMatch()
-{
-    // Clean up dynamic memory and other resources here.
 }
 
 void TrackPFParticleMatch::produce(art::Event & evt)
@@ -215,20 +206,6 @@ void TrackPFParticleMatch::produce(art::Event & evt)
 
 } // end of produce
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TrackPFParticleMatch::beginJob()
-{
-}
-
-void TrackPFParticleMatch::reconfigure(fhicl::ParameterSet const & p)
-{
-    fPFParticleModuleLabel = p.get< std::string >("PFParticleModuleLabel");
-    fTrackModuleLabel      = p.get< std::string >("TrackModuleLabel", "track");
-}
-
-void TrackPFParticleMatch::endJob() {
-  // Implementation of optional member function here.
-}
 
 DEFINE_ART_MODULE(TrackPFParticleMatch)
 

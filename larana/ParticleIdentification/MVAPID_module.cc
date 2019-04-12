@@ -29,10 +29,7 @@ namespace mvapid {
   public:
 
     explicit MVAPID(fhicl::ParameterSet const& pset);
-    virtual ~MVAPID();
     void beginJob();
-    void beginRun(art::Run& run);
-    void reconfigure(fhicl::ParameterSet const& pset);
     void produce(art::Event& evt);
 
 
@@ -52,22 +49,10 @@ MVAPID::MVAPID(fhicl::ParameterSet const& pset)
   : EDProducer{pset}
   , fAlg(pset,this)
 {
-  this->reconfigure(pset);
   produces< std::vector<anab::MVAPIDResult> >();
   produces< art::Assns<recob::Track, anab::MVAPIDResult, void> >();
   produces< art::Assns<recob::Shower, anab::MVAPIDResult, void> >();
   fResult=new std::vector<anab::MVAPIDResult>;
-}
-
-//------------------------------------------------------------------------------
-void MVAPID::reconfigure(fhicl::ParameterSet const& pset)
-{
-  return;
-}
-
-//------------------------------------------------------------------------------
-MVAPID::~MVAPID()
-{
 }
 
 // ***************** //
@@ -83,11 +68,6 @@ void MVAPID::beginJob()
   fAlg.GetWireNormals();
 }
 
-
-void MVAPID::beginRun(art::Run&)
-{
-
-}
 
 // ***************** //
 void MVAPID::produce(art::Event& evt)

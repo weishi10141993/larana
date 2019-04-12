@@ -100,7 +100,6 @@ public:
 
   // Selected optional functions.
   void beginJob() override;
-  void reconfigure(fhicl::ParameterSet const & p) ;
 
 
 private:
@@ -168,12 +167,7 @@ lbne::PhotonCounterT0Matching::PhotonCounterT0Matching(fhicl::ParameterSet const
   produces< std::vector<anab::T0>               >();
   produces< art::Assns<recob::Track , anab::T0> >();
   produces< art::Assns<recob::Shower, anab::T0> > ();
-  reconfigure(p);
-}
 
-void lbne::PhotonCounterT0Matching::reconfigure(fhicl::ParameterSet const & p)
-{
-  // Implementation of optional member function here.
   fTrackModuleLabel   = (p.get< std::string > ("TrackModuleLabel" ) );
   fShowerModuleLabel  = (p.get< std::string > ("ShowerModuleLabel") );
   fHitsModuleLabel    = (p.get< std::string > ("HitsModuleLabel"  ) );

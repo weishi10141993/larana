@@ -36,7 +36,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Utilities/Exception.h"
 
 // ROOT includes
@@ -55,18 +54,13 @@ namespace opdet {
     explicit OpHitFinder(const fhicl::ParameterSet&);
     virtual ~OpHitFinder();
 
-    void beginJob();
-    void endJob();
-    void reconfigure(fhicl::ParameterSet const& pset);
-
     // The producer routine, called once per event.
     void produce(art::Event&);
 
+  private:
     std::map< int, int >  GetChannelMap();
     std::vector< double > GetSPEScales();
     std::vector< double > GetSPEShifts();
-
-  private:
 
     // The parameters we'll read from the .fcl file.
     std::string fInputModule; // Input tag for OpDetWaveform collection
@@ -98,8 +92,42 @@ namespace opdet {
     EDProducer{pset},
     fPulseRecoMgr()
   {
+    // Indicate that the Input Module comes from .fcl
+    fInputModule   = pset.get< std::string >("InputModule");
+    fGenModule     = pset.get< std::string >("GenModule");
+    fInputLabels   = pset.get< std::vector< std::string > >("InputLabels");
 
-    reconfigure(pset);
+    for (auto const& ch : pset.get< std::vector< unsigned int > >
+                            ("ChannelMasks", std::vector< unsigned int >()))
+      fChannelMasks.insert(ch);
+
+    fHitThreshold = pset.get< float >("HitThreshold");
+    bool useCalibrator = pset.get< bool > ("UseCalibrator", false);
+
+    auto const& geometry(*lar::providerFrom< geo::Geometry >());
+    fMaxOpChannel = geometry.MaxOpChannel();
+
+    if (useCalibrator) {
+      // If useCalibrator, get it from ART
+      fCalib = lar::providerFrom<calib::IPhotonCalibratorService>();
+    }
+    else {
+      // If not useCalibrator, make an internal one based
+      // on fhicl settings to hit finder.
+      bool  areaToPE      = pset.get< bool > ("AreaToPE");
+      float SPEArea       = pset.get< float >("SPEArea");
+      float SPEShift      = pset.get< float >("SPEShift", 0.);
+
+      // Reproduce behavior from GetSPEScales()
+      if (!areaToPE) SPEArea = 20;
+
+      // Delete and replace if we are reconfiguring
+      if (fCalib) {
+        delete fCalib;
+      }
+
+      fCalib = new calib::PhotonCalibratorStandard(SPEArea, SPEShift, areaToPE);
+    }
 
     // Initialize the hit finder algorithm
     auto const hit_alg_pset = pset.get< fhicl::ParameterSet >("HitAlgoPset");
@@ -138,48 +166,6 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void OpHitFinder::reconfigure(fhicl::ParameterSet const& pset)
-  {
-
-    // Indicate that the Input Module comes from .fcl
-    fInputModule   = pset.get< std::string >("InputModule");
-    fGenModule     = pset.get< std::string >("GenModule");
-    fInputLabels   = pset.get< std::vector< std::string > >("InputLabels");
-
-    for (auto const& ch : pset.get< std::vector< unsigned int > >
-                            ("ChannelMasks", std::vector< unsigned int >()))
-      fChannelMasks.insert(ch);
-
-    fHitThreshold = pset.get< float >("HitThreshold");
-    bool useCalibrator = pset.get< bool > ("UseCalibrator", false);
-
-    auto const& geometry(*lar::providerFrom< geo::Geometry >());
-    fMaxOpChannel = geometry.MaxOpChannel();
-
-    if (useCalibrator) {
-      // If useCalibrator, get it from ART
-      fCalib = lar::providerFrom<calib::IPhotonCalibratorService>();
-    }
-    else {
-      // If not useCalibrator, make an internal one based
-      // on fhicl settings to hit finder.
-      bool  areaToPE      = pset.get< bool > ("AreaToPE");
-      float SPEArea       = pset.get< float >("SPEArea");
-      float SPEShift      = pset.get< float >("SPEShift", 0.);
-
-      // Reproduce behavior from GetSPEScales()
-      if (!areaToPE) SPEArea = 20;
-
-      // Delete and replace if we are reconfiguring
-      if (fCalib) {
-        delete fCalib;
-      }
-
-      fCalib = new calib::PhotonCalibratorStandard(SPEArea, SPEShift, areaToPE);
-    }
-  }
-
-  //----------------------------------------------------------------------------
   // Destructor
   OpHitFinder::~OpHitFinder()
   {
@@ -187,16 +173,6 @@ namespace opdet {
     delete fThreshAlg;
     delete fPedAlg;
 
-  }
-
-  //----------------------------------------------------------------------------
-  void OpHitFinder::beginJob()
-  {
-  }
-
-  //----------------------------------------------------------------------------
-  void OpHitFinder::endJob()
-  {
   }
 
   //----------------------------------------------------------------------------

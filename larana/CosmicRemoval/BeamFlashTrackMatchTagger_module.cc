@@ -49,7 +49,6 @@ public:
   BeamFlashTrackMatchTagger(BeamFlashTrackMatchTagger &&) = delete;
   BeamFlashTrackMatchTagger & operator = (BeamFlashTrackMatchTagger const &) = delete;
   BeamFlashTrackMatchTagger & operator = (BeamFlashTrackMatchTagger &&) = delete;
-  void reconfigure(fhicl::ParameterSet const& p);
   void produce(art::Event & e) override;
 
 
@@ -79,20 +78,6 @@ cosmic::BeamFlashTrackMatchTagger::BeamFlashTrackMatchTagger(fhicl::ParameterSet
   produces< std::vector<anab::CosmicTag> >();
   produces< art::Assns<recob::Track, anab::CosmicTag> >();
   if(fMakeHitTagAssns) produces< art::Assns<recob::Hit, anab::CosmicTag> >();
-}
-
-void cosmic::BeamFlashTrackMatchTagger::reconfigure(fhicl::ParameterSet const& p){
-  fhicl::ParameterSet alg_params = p.get<fhicl::ParameterSet>("BeamFlashTrackMatchAlgParams");
-  fAlg.reconfigure(alg_params);
-
-  fhicl::ParameterSet hittagassnsalg_params = p.get<fhicl::ParameterSet>("HitTagAssociatorAlgParams");
-  fHitTagAssnsAlg.reconfigure(hittagassnsalg_params);
-
-  fTrackModuleLabel = p.get<std::string>("TrackModuleLabel");
-  fFlashModuleLabel = p.get<std::string>("FlashModuleLabel");
-  fMakeHitTagAssns  = p.get<bool>("MakeHitTagAssns",false);
-  fHitModuleLabel   = p.get<std::string>("HitModuleLabel","dummy_hit");
-
 }
 
 void cosmic::BeamFlashTrackMatchTagger::produce(art::Event & evt)

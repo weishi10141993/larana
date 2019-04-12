@@ -43,9 +43,6 @@ public:
   // Required functions.
   void analyze(art::Event const & e) override;
 
-  // Selected optional functions.
-  void reconfigure(fhicl::ParameterSet const & p) ;
-
 private:
 
   // Declare member data here.
@@ -61,7 +58,9 @@ trk::TrackContainmentAnalyzer::TrackContainmentAnalyzer(fhicl::ParameterSet cons
   EDAnalyzer(p)  // ,
  // More initializers here.
 {
-  this->reconfigure(p);
+  fAlg.Configure(p.get<fhicl::ParameterSet>("TrackContainmentAlg"));
+  fTrackModuleLabels = p.get< std::vector<std::string> >("TrackModuleLabels");
+  fAlg.setFillOutputTree();
   art::ServiceHandle<art::TFileService const> tfs;
   fAlg.SetupOutputTree(tfs->make<TTree>("myanatree","MyAnalysis Tree"));
 }
@@ -82,13 +81,6 @@ void trk::TrackContainmentAnalyzer::analyze(art::Event const & e)
 
   fAlg.ProcessTracks(trackVectors,*geoHandle);
 
-}
-
-void trk::TrackContainmentAnalyzer::reconfigure(fhicl::ParameterSet const & p)
-{
-  fAlg.Configure(p.get<fhicl::ParameterSet>("TrackContainmentAlg"));
-  fTrackModuleLabels = p.get< std::vector<std::string> >("TrackModuleLabels");
-  fAlg.setFillOutputTree();
 }
 
 DEFINE_ART_MODULE(trk::TrackContainmentAnalyzer)

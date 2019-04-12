@@ -24,7 +24,6 @@
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 // ROOT includes
 
@@ -39,11 +38,6 @@ namespace opdet {
 
     // Standard constructor and destructor for an ART module.
     explicit OpFlashFinder(const fhicl::ParameterSet&);
-    virtual ~OpFlashFinder();
-
-    void beginJob();
-    void endJob();
-    void reconfigure(fhicl::ParameterSet const& pset);
 
     // The producer routine, called once per event.
     void produce(art::Event&);
@@ -74,17 +68,6 @@ namespace opdet {
     : EDProducer{pset}
   {
 
-    reconfigure(pset);
-
-    produces< std::vector< recob::OpFlash > >();
-    produces< art::Assns< recob::OpFlash, recob::OpHit > >();
-
-  }
-
-  //----------------------------------------------------------------------------
-  void OpFlashFinder::reconfigure(fhicl::ParameterSet const& pset)
-  {
-
     // Indicate that the Input Module comes from .fcl
     fInputModule = pset.get< std::string >("InputModule");
 
@@ -93,22 +76,9 @@ namespace opdet {
     fWidthTolerance = pset.get< float > ("WidthTolerance");
     fTrigCoinc      = pset.get< double >("TrigCoinc");
 
-  }
+    produces< std::vector< recob::OpFlash > >();
+    produces< art::Assns< recob::OpFlash, recob::OpHit > >();
 
-  //----------------------------------------------------------------------------
-  // Destructor
-  OpFlashFinder::~OpFlashFinder()
-  {
-  }
-
-  //----------------------------------------------------------------------------
-  void OpFlashFinder::beginJob()
-  {
-  }
-
-  //----------------------------------------------------------------------------
-  void OpFlashFinder::endJob()
-  {
   }
 
   //----------------------------------------------------------------------------

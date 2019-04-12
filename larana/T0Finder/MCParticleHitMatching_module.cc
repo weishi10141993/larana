@@ -50,14 +50,9 @@ public:
     MCParticleHitMatching & operator = (MCParticleHitMatching const &) = delete;
     MCParticleHitMatching & operator = (MCParticleHitMatching &&) = delete;
 
+private:
     // Required functions.
     void produce(art::Event & e) override;
-
-    // Selected optional functions.
-    void beginJob() override;
-    void reconfigure(fhicl::ParameterSet const & p) ;
-
-private:
 
     // For keeping track of the replacement backtracker
     std::unique_ptr<IHitParticleAssociations> fHitParticleAssociations;
@@ -68,12 +63,6 @@ private:
 MCParticleHitMatching::MCParticleHitMatching(fhicl::ParameterSet const & pset)
   : EDProducer{pset}
 {
-    reconfigure(pset);
-    produces<HitParticleAssociations> ();
-}
-
-void MCParticleHitMatching::reconfigure(fhicl::ParameterSet const & pset)
-{
     // Get the tool for MC Truth matching
     //const fhicl::ParameterSet& hitPartAssnsParams = pset.get<fhicl::ParameterSet>("HitParticleAssociations"); // unused
 
@@ -81,10 +70,8 @@ void MCParticleHitMatching::reconfigure(fhicl::ParameterSet const & pset)
 
     // Get the tool for MC Truth matching
     fHitParticleAssociations = art::make_tool<IHitParticleAssociations>(pset.get<fhicl::ParameterSet>("HitParticleAssociations"));
-}
 
-void MCParticleHitMatching::beginJob()
-{
+    produces<HitParticleAssociations> ();
 }
 
 void MCParticleHitMatching::produce(art::Event & evt)

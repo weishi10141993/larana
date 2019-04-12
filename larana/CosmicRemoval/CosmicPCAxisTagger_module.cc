@@ -60,13 +60,8 @@ class cosmic::CosmicPCAxisTagger : public art::EDProducer
 {
 public:
     explicit CosmicPCAxisTagger(fhicl::ParameterSet const & p);
-    virtual ~CosmicPCAxisTagger();
 
     void produce(art::Event & e) override;
-
-    void beginJob() override;
-    void reconfigure(fhicl::ParameterSet const & p) ;
-    void endJob() override;
 
 private:
     typedef std::vector<reco::ClusterHit2D> Hit2DVector;
@@ -94,17 +89,35 @@ cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const & p) :
 // :
 // Initialize member data here.
 {
-    this->reconfigure(p);
+
+    ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
+    fDetector = lar::providerFrom<detinfo::DetectorPropertiesService>();
+    art::ServiceHandle<geo::Geometry const> geo;
+
+    fDetHalfHeight = geo->DetHalfHeight();
+    fDetWidth      = 2.*geo->DetHalfWidth();
+    fDetLength     = geo->DetLength();
+
+    float fSamplingRate = fDetector->SamplingRate();
+
+    fPFParticleModuleLabel = p.get<std::string >("PFParticleModuleLabel");
+    fPCAxisModuleLabel     = p.get< std::string >("PCAxisModuleLabel");
+
+    fPcaAlg.reconfigure(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"));
+
+    fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
+    fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
+    fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
+
+    const double driftVelocity = fDetector->DriftVelocity( fDetector->Efield(), fDetector->Temperature() ); // cm/us
+
+    //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
+    fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
 
     // Call appropriate Produces<>() functions here.
     produces< std::vector<anab::CosmicTag> >();
     produces< art::Assns<recob::PFParticle, anab::CosmicTag> >();
     produces< art::Assns<recob::PCAxis,     anab::CosmicTag> >();
-}
-
-cosmic::CosmicPCAxisTagger::~CosmicPCAxisTagger()
-{
-    // Clean up dynamic memory and other resources here.
 }
 
 void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
@@ -390,43 +403,6 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event & evt)
 
 } // end of produce
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void cosmic::CosmicPCAxisTagger::beginJob()
-{
-}
-
-void cosmic::CosmicPCAxisTagger::reconfigure(fhicl::ParameterSet const & p)
-{
-    // Implementation of optional member function here.
-
-    ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-    fDetector = lar::providerFrom<detinfo::DetectorPropertiesService>();
-    art::ServiceHandle<geo::Geometry const> geo;
-
-    fDetHalfHeight = geo->DetHalfHeight();
-    fDetWidth      = 2.*geo->DetHalfWidth();
-    fDetLength     = geo->DetLength();
-
-    float fSamplingRate = fDetector->SamplingRate();
-
-    fPFParticleModuleLabel = p.get<std::string >("PFParticleModuleLabel");
-    fPCAxisModuleLabel     = p.get< std::string >("PCAxisModuleLabel");
-
-    fPcaAlg.reconfigure(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"));
-
-    fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
-    fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
-    fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
-
-    const double driftVelocity = fDetector->DriftVelocity( fDetector->Efield(), fDetector->Temperature() ); // cm/us
-
-    //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
-    fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
-}
-
-void cosmic::CosmicPCAxisTagger::endJob() {
-  // Implementation of optional member function here.
-}
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 void cosmic::CosmicPCAxisTagger::RecobToClusterHits(const art::PtrVector<recob::Hit>& recobHitVec,

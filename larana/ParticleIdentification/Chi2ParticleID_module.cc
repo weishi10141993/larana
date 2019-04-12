@@ -24,15 +24,15 @@ extern "C" {
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
 #include "canvas/Persistency/Common/FindManyP.h"
-#include "art/Framework/Principal/Event.h" 
-#include "fhiclcpp/ParameterSet.h" 
-#include "art/Framework/Principal/Handle.h" 
-#include "canvas/Persistency/Common/Ptr.h" 
-#include "canvas/Persistency/Common/PtrVector.h" 
-#include "art/Framework/Services/Registry/ServiceHandle.h" 
+#include "art/Framework/Principal/Event.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Principal/Handle.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art_root_io/TFileService.h"
 #include "art_root_io/TFileDirectory.h"
-#include "messagefacility/MessageLogger/MessageLogger.h" 
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace pid {
   class Chi2ParticleID;
@@ -41,9 +41,6 @@ namespace pid {
 class pid::Chi2ParticleID : public art::EDProducer {
 public:
   explicit Chi2ParticleID(fhicl::ParameterSet const & p);
-  virtual ~Chi2ParticleID();
-
-  void reconfigure(fhicl::ParameterSet const& p);
 
   virtual void produce(art::Event & e);
 
@@ -60,20 +57,12 @@ pid::Chi2ParticleID::Chi2ParticleID(fhicl::ParameterSet const & p)
   : EDProducer{p}
   , fChiAlg(p.get< fhicl::ParameterSet >("Chi2PIDAlg"))
 {
-  this->reconfigure(p);
-  produces< std::vector<anab::ParticleID>              >();
-  produces< art::Assns<recob::Track, anab::ParticleID> >();
-}
-
-pid::Chi2ParticleID::~Chi2ParticleID()
-{
-}
-
-void pid::Chi2ParticleID::reconfigure(fhicl::ParameterSet const & p)
-{
   fTrackModuleLabel = p.get< std::string >("TrackModuleLabel");
   fCalorimetryModuleLabel = p.get< std::string >("CalorimetryModuleLabel");
   fChiAlg.reconfigure(p.get< fhicl::ParameterSet >("Chi2PIDAlg"));
+
+  produces< std::vector<anab::ParticleID>              >();
+  produces< art::Assns<recob::Track, anab::ParticleID> >();
 }
 
 void pid::Chi2ParticleID::produce(art::Event & evt)

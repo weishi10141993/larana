@@ -60,16 +60,8 @@ namespace cosmic {
 class cosmic::CosmicClusterTagger : public art::EDProducer {
 public:
   explicit CosmicClusterTagger(fhicl::ParameterSet const & p);
-  virtual ~CosmicClusterTagger();
 
   void produce(art::Event & e) override;
-
-  void beginJob() override;
-  void reconfigure(fhicl::ParameterSet const & p) ;
-  void endJob() override;
-
-
-
 
 private:
 
@@ -93,18 +85,23 @@ cosmic::CosmicClusterTagger::CosmicClusterTagger(fhicl::ParameterSet const & p)
   : EDProducer{p}
 {
 
-  this->reconfigure(p);
+  auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
+  auto const* geo = lar::providerFrom<geo::Geometry>();
+
+  fSamplingRate = detp->SamplingRate();
+  fClusterModuleLabel = p.get< std::string >("ClusterModuleLabel", "cluster");
+  fTickLimit = p.get< int >("TickLimit", 0);
+  const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
+
+  //  std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
+  fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
+  //  std::cerr << fDetectorWidthTicks<< std::endl;
+  fMinTickDrift = p.get("MinTickDrift", 3200);
+  fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks;
 
   // Call appropriate Produces<>() functions here.
   produces< std::vector<anab::CosmicTag> >();
   produces< art::Assns<recob::Cluster, anab::CosmicTag> >();
-
-
-
-}
-
-cosmic::CosmicClusterTagger::~CosmicClusterTagger() {
-  // Clean up dynamic memory and other resources here.
 }
 
 void cosmic::CosmicClusterTagger::produce(art::Event & e) {
@@ -161,8 +158,8 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
 
      if( endPt1.size()<1 ) {
        for(int s=0; s<3; s++ ) {
-	 endPt1.push_back( -999 );
-	 endPt2.push_back( -999 );
+         endPt1.push_back( -999 );
+         endPt2.push_back( -999 );
        }
      }
 
@@ -170,9 +167,9 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
      // Making stuff to save!
      //std::cerr << "Cosmic Score, isCosmic, t0, t1: " << cosmicScore << " " << isCosmic << " t's: " << t0 << " " << t1 << " | " << fReadOutWindowSize<< " | " << fDetectorWidthTicks << std::endl;
      cosmicTagClusterVector->emplace_back( endPt1,
-					   endPt2,
-					   cosmicScore,
-					   tag_id);
+                                           endPt2,
+                                           cosmicScore,
+                                           tag_id);
 
      util::CreateAssn(*this, e, *cosmicTagClusterVector, tCluster, *assnOutCosmicTagCluster );
 
@@ -192,43 +189,5 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
 } // end of produce
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
-
-void cosmic::CosmicClusterTagger::beginJob() {
-
-}
-
-
-
-void cosmic::CosmicClusterTagger::reconfigure(fhicl::ParameterSet const & p) {
-  // Implementation of optional member function here.
-
-  auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
-  auto const* geo = lar::providerFrom<geo::Geometry>();
-
-  fSamplingRate = detp->SamplingRate();
-  fClusterModuleLabel = p.get< std::string >("ClusterModuleLabel", "cluster");
-  fTickLimit = p.get< int >("TickLimit", 0);
-  const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
-
-  //  std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
-  fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
-  //  std::cerr << fDetectorWidthTicks<< std::endl;
-  fMinTickDrift = p.get("MinTickDrift", 3200);
-  fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks;
-
-
-}
-
-void cosmic::CosmicClusterTagger::endJob() {
-  // Implementation of optional member function here.
-}
 
 DEFINE_ART_MODULE(cosmic::CosmicClusterTagger)
