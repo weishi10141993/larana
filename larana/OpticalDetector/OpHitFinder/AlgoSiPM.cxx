@@ -42,7 +42,8 @@ namespace pmtana {
     int    counter       = 0;
     //    double threshold   = (_2nd_thres > (_nsigma*_ped_rms) ? _2nd_thres
     //                                                    : (_nsigma*_ped_rms));
-    double pedestal      = _pedestal;
+    //    double pedestal      = _pedestal;
+    double pedestal = ped_mean.front();  //Switch pedestal definition to incoroprate pedestal finder - K.S. 04/18/2019
     double threshold     = _adc_thres;
     threshold           += pedestal;
     double pre_threshold = _2nd_thres;
@@ -89,7 +90,7 @@ namespace pmtana {
 
           // Found a new maximum
           _pulse.peak  = (double(value) - double(pedestal));
-          _pulse.t_max = counter;
+          _pulse.t_max = counter; 
 
         }
         else if (!first_found)
