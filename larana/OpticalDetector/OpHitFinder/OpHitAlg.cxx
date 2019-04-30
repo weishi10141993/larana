@@ -82,11 +82,6 @@ namespace opdet{
 
     double width = (pulse.t_end - pulse.t_start) * detectorClocks.OpticalClock().TickPeriod();
     
-    
-    std::cout<<std::setprecision(17) << "\nThe timestamp is: " << timeStamp << "\nWith peak time: "<<absTime<<"\nWith delay time: "<<absTime-timeStamp<<"\n";
-    
-
-
     hitVector.emplace_back(channel,
                            relTime,
                            absTime,
