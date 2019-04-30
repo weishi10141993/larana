@@ -38,11 +38,8 @@ namespace opdet {
   public:
 
     TrackTimeAssoc(const fhicl::ParameterSet&);
-    virtual ~TrackTimeAssoc();
 
     void produce(art::Event&);
-    void reconfigure(fhicl::ParameterSet const& p);
-
     std::vector<double>               GetMIPHypotheses(trkf::BezierTrack* BTrack, double XOffset=0);
     std::vector<std::vector<double> > ScanMIPHypotheses(trkf::BezierTrack * Btrack);
     void                              PrintHypotheses(std::vector<std::vector<double> > TrackHypotheses);
@@ -51,9 +48,6 @@ namespace opdet {
 
 
     void StoreFlashMatches(std::vector<art::Ptr<recob::Track> >& Tracks, std::vector<art::Ptr<recob::OpFlash> >& Flashes, std::vector<anab::FlashMatch>& Matches, art::Event& evt);
-
-
-    void beginJob();
 
 
   private:
@@ -113,8 +107,8 @@ namespace opdet{
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "TH2D.h"
@@ -141,37 +135,12 @@ namespace opdet {
     produces< art::Assns<recob::Track, anab::FlashMatch> >();
     produces< art::Assns<recob::OpFlash, anab::FlashMatch> >();
 
-    this->reconfigure(pset);
-   }
-
-
-  //-------------------------------------------------
-
-  void TrackTimeAssoc::reconfigure(fhicl::ParameterSet const& pset)
-  {
     fTrackModuleLabel = pset.get<std::string>("TrackModuleLabel");
     fFlashModuleLabel = pset.get<std::string>("FlashModuleLabel");
     fBezierResolution = pset.get<int>("BezierResolution");
     fLengthCut        = pset.get<double>("LengthCut");
     fPECut            = pset.get<double>("PECut");
     fPairingMode      = pset.get<int>("PairingMode");
-
-
-  }
-
-
-  //-------------------------------------------------
-
-  void TrackTimeAssoc::beginJob()
-  {
-  }
-
-
-
-  //-------------------------------------------------
-
-  TrackTimeAssoc::~TrackTimeAssoc()
-  {
   }
 
 

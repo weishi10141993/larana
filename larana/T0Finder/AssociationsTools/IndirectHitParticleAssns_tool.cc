@@ -1,6 +1,5 @@
 #include "larana/T0Finder/AssociationsTools/IHitParticleAssociations.h"
 
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Utilities/ToolMacros.h"

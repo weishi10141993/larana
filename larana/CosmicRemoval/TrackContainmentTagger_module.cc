@@ -15,7 +15,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 
 #include "TTree.h"
 
@@ -42,9 +42,6 @@ public:
   // Required functions.
   void produce(art::Event & e) override;
 
-  // Selected optional functions.
-  void reconfigure(fhicl::ParameterSet const & p) ;
-
 private:
 
   // Declare member data here.
@@ -60,7 +57,16 @@ trk::TrackContainmentTagger::TrackContainmentTagger(fhicl::ParameterSet const & 
 {
   art::ServiceHandle<art::TFileService const> tfs;
   fAlg.SetupOutputTree(tfs->make<TTree>("myanatree","MyAnalysis Tree"));
-  this->reconfigure(p);
+
+  fAlg.Configure(p.get<fhicl::ParameterSet>("TrackContainmentAlg"));
+  fTrackModuleLabels = p.get< std::vector<std::string> >("TrackModuleLabels");
+  fApplyTags = p.get< std::vector<bool> >("ApplyTags",std::vector<bool>(fTrackModuleLabels.size(),true));
+
+  if(fApplyTags.size()!=fTrackModuleLabels.size())
+    throw cet::exception("TrackContainmentTagger::reconfigure")
+      << "ApplyTags not same size as TrackModuleLabels. ABORT!!!";
+
+  fAlg.setMakeCosmicTags();
 
   produces< std::vector<anab::CosmicTag> >();
   produces< art::Assns<recob::Track, anab::CosmicTag> >();
@@ -99,19 +105,6 @@ void trk::TrackContainmentTagger::produce(art::Event & e)
   e.put(std::move(cosmicTagTrackVector));
   e.put(std::move(assnOutCosmicTagTrack));
 
-}
-
-void trk::TrackContainmentTagger::reconfigure(fhicl::ParameterSet const & p)
-{
-  fAlg.Configure(p.get<fhicl::ParameterSet>("TrackContainmentAlg"));
-  fTrackModuleLabels = p.get< std::vector<std::string> >("TrackModuleLabels");
-  fApplyTags = p.get< std::vector<bool> >("ApplyTags",std::vector<bool>(fTrackModuleLabels.size(),true));
-
-  if(fApplyTags.size()!=fTrackModuleLabels.size())
-    throw cet::exception("TrackContainmentTagger::reconfigure")
-      << "ApplyTags not same size as TrackModuleLabels. ABORT!!!";
-
-  fAlg.setMakeCosmicTags();
 }
 
 DEFINE_ART_MODULE(trk::TrackContainmentTagger)

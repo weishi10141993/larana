@@ -27,8 +27,8 @@ extern "C" {
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 //------------------------------------------------------------------------------
@@ -53,8 +53,8 @@ void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
 
   if( !sp.find_file(fTemplateFile, fROOTfile) )
     throw cet::exception("Chi2ParticleID") << "cannot find the root template file: \n"
-					   << fTemplateFile
-					   << "\n bail ungracefully.\n";
+                                           << fTemplateFile
+                                           << "\n bail ungracefully.\n";
   TFile *file = TFile::Open(fROOTfile.c_str());
   dedx_range_pro = (TProfile*)file->Get("dedx_range_pro");
   dedx_range_ka  = (TProfile*)file->Get("dedx_range_ka");
@@ -71,7 +71,7 @@ void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
 
 //------------------------------------------------------------------------------
 void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
-				  anab::ParticleID &pidOut){
+                                  anab::ParticleID &pidOut){
   int npt = 0;
   double chi2pro = 0;
   double chi2ka = 0;
@@ -101,35 +101,35 @@ void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
     if (bin>=1&&bin<=dedx_range_pro->GetNbinsX()){
       double bincpro = dedx_range_pro->GetBinContent(bin);
       if (bincpro<1e-6){//for 0 bin content, using neighboring bins
-	bincpro = (dedx_range_pro->GetBinContent(bin-1)+dedx_range_pro->GetBinContent(bin+1))/2;
+        bincpro = (dedx_range_pro->GetBinContent(bin-1)+dedx_range_pro->GetBinContent(bin+1))/2;
       }
       double bincka = dedx_range_ka->GetBinContent(bin);
       if (bincka<1e-6){
-	bincka = (dedx_range_ka->GetBinContent(bin-1)+dedx_range_ka->GetBinContent(bin+1))/2;
+        bincka = (dedx_range_ka->GetBinContent(bin-1)+dedx_range_ka->GetBinContent(bin+1))/2;
       }
       double bincpi = dedx_range_pi->GetBinContent(bin);
       if (bincpi<1e-6){
-	bincpi = (dedx_range_pi->GetBinContent(bin-1)+dedx_range_pi->GetBinContent(bin+1))/2;
+        bincpi = (dedx_range_pi->GetBinContent(bin-1)+dedx_range_pi->GetBinContent(bin+1))/2;
       }
       double bincmu = dedx_range_mu->GetBinContent(bin);
       if (bincmu<1e-6){
-	bincmu = (dedx_range_mu->GetBinContent(bin-1)+dedx_range_mu->GetBinContent(bin+1))/2;
+        bincmu = (dedx_range_mu->GetBinContent(bin-1)+dedx_range_mu->GetBinContent(bin+1))/2;
       }
       double binepro = dedx_range_pro->GetBinError(bin);
       if (binepro<1e-6){
-	binepro = (dedx_range_pro->GetBinError(bin-1)+dedx_range_pro->GetBinError(bin+1))/2;
+        binepro = (dedx_range_pro->GetBinError(bin-1)+dedx_range_pro->GetBinError(bin+1))/2;
       }
       double bineka = dedx_range_ka->GetBinError(bin);
       if (bineka<1e-6){
-	bineka = (dedx_range_ka->GetBinError(bin-1)+dedx_range_ka->GetBinError(bin+1))/2;
+        bineka = (dedx_range_ka->GetBinError(bin-1)+dedx_range_ka->GetBinError(bin+1))/2;
       }
       double binepi = dedx_range_pi->GetBinError(bin);
       if (binepi<1e-6){
-	binepi = (dedx_range_pi->GetBinError(bin-1)+dedx_range_pi->GetBinError(bin+1))/2;
+        binepi = (dedx_range_pi->GetBinError(bin-1)+dedx_range_pi->GetBinError(bin+1))/2;
       }
       double binemu = dedx_range_mu->GetBinError(bin);
       if (binemu<1e-6){
-	binemu = (dedx_range_mu->GetBinError(bin-1)+dedx_range_mu->GetBinError(bin+1))/2;
+        binemu = (dedx_range_mu->GetBinError(bin-1)+dedx_range_mu->GetBinError(bin+1))/2;
       }
       //double errke = 0.05*trkdedx[i];   //5% KE resolution
       double errdedx = 0.04231+0.0001783*trkdedx[i]*trkdedx[i]; //resolution on dE/dx
@@ -159,13 +159,13 @@ void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
     // find the minimal chi2 and next-to-minimal chi2
     for (int ichi2 = 0; ichi2<4; ++ichi2){
       if (chi2[ichi2]<chi2min){
-	imin = ichi2;
-	chi2min2 = chi2min;
-	chi2min = chi2[ichi2];
+        imin = ichi2;
+        chi2min2 = chi2min;
+        chi2min = chi2[ichi2];
       }
       else if (chi2[ichi2]<chi2min2){
-	//imin2 = ichi2;
-	chi2min2 = chi2[ichi2];
+        //imin2 = ichi2;
+        chi2min2 = chi2[ichi2];
       }
     }
     if (imin>-1){
@@ -209,4 +209,3 @@ void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,
   pidOut.fMissingE = missinge;
   pidOut.fMissingEavg = missingeavg;
 }
-

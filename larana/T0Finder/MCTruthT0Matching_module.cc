@@ -49,8 +49,8 @@
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -109,8 +109,6 @@ public:
 
   // Selected optional functions.
   void beginJob() override;
-  void reconfigure(fhicl::ParameterSet const & p) ;
-
 
 private:
 
@@ -144,7 +142,16 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
   : EDProducer{p}
 {
   // Call appropriate produces<>() functions here.
-  reconfigure(p);
+  fTrackModuleLabel  = (p.get< art::InputTag > ("TrackModuleLabel" ) );
+  fShowerModuleLabel = (p.get< art::InputTag > ("ShowerModuleLabel") );
+  fPFParticleModuleLabel = (p.get< art::InputTag > ("PFParticleModuleLabel", "pandoraNu") );
+  fMakeT0Assns = (p.get< bool > ("makeT0Assns", true) );
+  fMakePFParticleAssns =  (p.get< bool > ("makePFParticleAssns", false) );
+
+  fMakeHitAssns = p.get<bool>("makeHitAssns",true);
+  if(fMakeHitAssns) fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
+  fOverrideRealData = p.get<bool>("OverrideRealData",false);
+
   if (fMakeT0Assns){ // T0 assns are deprecated - this allows one to use deprecated funcionality. Added 2017-08-15. Should not be kept around forever
     std::cout << "WARNING - You are using deprecated functionality\n";
     std::cout << "MCTruthT0Matching T0 assns will be removed soon\n";
@@ -164,20 +171,6 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const & p)
   if(fMakeHitAssns)
     produces< art::Assns<recob::Hit , simb::MCParticle, anab::BackTrackerHitMatchingData > > ();
 
-}
-
-void t0::MCTruthT0Matching::reconfigure(fhicl::ParameterSet const & p)
-{
-  // Implementation of optional member function here.
-  fTrackModuleLabel  = (p.get< art::InputTag > ("TrackModuleLabel" ) );
-  fShowerModuleLabel = (p.get< art::InputTag > ("ShowerModuleLabel") );
-  fPFParticleModuleLabel = (p.get< art::InputTag > ("PFParticleModuleLabel", "pandoraNu") );
-  fMakeT0Assns = (p.get< bool > ("makeT0Assns", true) );
-  fMakePFParticleAssns =  (p.get< bool > ("makePFParticleAssns", false) );
-
-  fMakeHitAssns = p.get<bool>("makeHitAssns",true);
-  if(fMakeHitAssns) fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
-  fOverrideRealData = p.get<bool>("OverrideRealData",false);
 }
 
 void t0::MCTruthT0Matching::beginJob()

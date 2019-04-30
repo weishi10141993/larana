@@ -16,7 +16,7 @@
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 
 #include "PIDAAlg.h"
 
@@ -38,7 +38,6 @@ public:
 
   void analyze(art::Event const & e) override;
 
-  void reconfigure(fhicl::ParameterSet const & p) ;
   void beginJob() override;
 
 private:
@@ -82,12 +81,6 @@ void pid::PIDAAnalyzer::analyze(art::Event const & e)
     fPIDAAlg.FillPIDATree(e.run(),e.event(),i_calo,caloVector[i_calo]);
   }
 
-}
-
-void pid::PIDAAnalyzer::reconfigure(fhicl::ParameterSet const & p)
-{
-  fCaloModuleLabel = p.get<std::string>("CaloModuleLabel");
-  fPIDAAlg.reconfigure(p.get<fhicl::ParameterSet>("PIDAAlg"));
 }
 
 DEFINE_ART_MODULE(pid::PIDAAnalyzer)

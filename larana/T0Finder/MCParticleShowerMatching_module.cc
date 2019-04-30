@@ -26,8 +26,8 @@
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -66,11 +66,6 @@ public:
   // Required functions.
   void produce(art::Event & e) override;
 
-  // Selected optional functions.
-  void beginJob() override;
-  void reconfigure(fhicl::ParameterSet const & p) ;
-
-
 private:
 
   art::InputTag fShowerModuleLabel;
@@ -84,21 +79,12 @@ private:
 t0::MCParticleShowerMatching::MCParticleShowerMatching(fhicl::ParameterSet const & p)
   : EDProducer{p}
 {
-  reconfigure(p);
-  produces< art::Assns<recob::Shower , simb::MCParticle, anab::BackTrackerMatchingData > > ();
-}
-
-void t0::MCParticleShowerMatching::reconfigure(fhicl::ParameterSet const & p)
-{
   fShowerModuleLabel = p.get<art::InputTag>("ShowerModuleLabel");
   fShowerHitAssnLabel = p.get<art::InputTag>("ShowerHitAssnLabel",fShowerModuleLabel);
   fHitModuleLabel = p.get<art::InputTag>("HitModuleLabel");
   fHitParticleAssnLabel = p.get<art::InputTag>("HitParticleAssnLabel");
 
-}
-
-void t0::MCParticleShowerMatching::beginJob()
-{
+  produces< art::Assns<recob::Shower , simb::MCParticle, anab::BackTrackerMatchingData > > ();
 }
 
 void t0::MCParticleShowerMatching::produce(art::Event & evt)

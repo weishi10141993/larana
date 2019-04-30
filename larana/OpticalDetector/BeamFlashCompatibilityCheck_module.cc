@@ -39,18 +39,12 @@ namespace opdet {
   public:
 
     BeamFlashCompatabilityCheck(const fhicl::ParameterSet&);
-    virtual ~BeamFlashCompatabilityCheck();
 
     void produce(art::Event&);
-    void reconfigure(fhicl::ParameterSet const& p);
-
-    std::vector<double>               GetMIPHypotheses(trkf::BezierTrack* BTrack, double XOffset=0);
-    bool                              CheckCompatibility(std::vector<double>& hypothesis, std::vector<double>& signal);
-
-    void beginJob();
-
 
   private:
+    std::vector<double>               GetMIPHypotheses(trkf::BezierTrack* BTrack, double XOffset=0);
+    bool                              CheckCompatibility(std::vector<double>& hypothesis, std::vector<double>& signal);
     std::string fTrackModuleLabel;
     std::string fFlashModuleLabel;
     int         fBezierResolution;
@@ -106,8 +100,8 @@ namespace opdet{
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "TH2D.h"
@@ -132,40 +126,12 @@ namespace opdet {
     produces< std::vector<anab::CosmicTag> >();
     produces< art::Assns<recob::Track, anab::CosmicTag> >();
 
-    this->reconfigure(pset);
-   }
-
-
-  //-------------------------------------------------
-
-  void BeamFlashCompatabilityCheck::reconfigure(fhicl::ParameterSet const& pset)
-  {
     fTrackModuleLabel = pset.get<std::string>("TrackModuleLabel");
     fFlashModuleLabel = pset.get<std::string>("FlashModuleLabel");
     fBezierResolution = pset.get<int>("BezierResolution");
     fSingleChannelCut = pset.get<int>("SingleChannelCut");
     fIntegralCut      = pset.get<int>("IntegralCut");
   }
-
-
-  //-------------------------------------------------
-
-  void BeamFlashCompatabilityCheck::beginJob()
-  {
-  }
-
-
-
-  //-------------------------------------------------
-
-  BeamFlashCompatabilityCheck::~BeamFlashCompatabilityCheck()
-  {
-  }
-
-
-
-
-
 
 
   // Get a hypothesis for the light collected for a bezier track

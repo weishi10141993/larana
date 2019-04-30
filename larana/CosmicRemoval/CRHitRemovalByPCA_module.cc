@@ -24,7 +24,7 @@
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "larcore/Geometry/Geometry.h"
@@ -74,9 +74,7 @@ public:
     explicit CRHitRemovalByPCA(fhicl::ParameterSet const & pset);
 
     // Overrides.
-    virtual void reconfigure(fhicl::ParameterSet const & pset);
     virtual void produce(art::Event & e);
-    virtual void beginJob();
     virtual void endJob();
 
 private:
@@ -114,32 +112,15 @@ CRHitRemovalByPCA::CRHitRemovalByPCA(fhicl::ParameterSet const & pset) :
   fNumEvent(0),
   fNumCRRejects(0)
 {
-    reconfigure(pset);
-    produces<std::vector<recob::Hit> >();
-
-    // Report.
-    mf::LogInfo("CRHitRemovalByPCA") << "CRHitRemovalByPCA configured\n";
-}
-
-//----------------------------------------------------------------------------
-/// Reconfigure method.
-///
-/// Arguments:
-///
-/// pset - Fcl parameter set.
-///
-void CRHitRemovalByPCA::reconfigure(fhicl::ParameterSet const & pset)
-{
     fCosmicProducerLabel     = pset.get<std::string>("CosmicProducerLabel");
     fHitProducerLabel        = pset.get<std::string>("HitProducerLabel");
     fPFParticleProducerLabel = pset.get<std::string>("PFParticleProducerLabel");
     fCosmicTagThreshold      = pset.get<double>     ("CosmicTagThreshold");
-}
 
-//----------------------------------------------------------------------------
-/// Begin job method.
-void CRHitRemovalByPCA::beginJob()
-{
+    produces<std::vector<recob::Hit> >();
+
+    // Report.
+    mf::LogInfo("CRHitRemovalByPCA") << "CRHitRemovalByPCA configured\n";
 }
 
 //----------------------------------------------------------------------------

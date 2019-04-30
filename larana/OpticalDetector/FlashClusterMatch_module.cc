@@ -28,14 +28,8 @@ namespace opdet {
   public:
 
     FlashClusterMatch(const fhicl::ParameterSet&);
-    virtual ~FlashClusterMatch();
 
     void produce(art::Event&);
-    void reconfigure(fhicl::ParameterSet const& p);
-
-
-    void beginJob();
-
 
   private:
 
@@ -89,8 +83,8 @@ namespace opdet{
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "larreco/Calorimetry/CalorimetryAlg.h"
@@ -111,14 +105,6 @@ namespace opdet {
     produces< std::vector<anab::CosmicTag> >();
     produces< art::Assns<recob::Cluster, anab::CosmicTag> >();
 
-    this->reconfigure(pset);
-   }
-
-
-  //-------------------------------------------------
-
-  void FlashClusterMatch::reconfigure(fhicl::ParameterSet const& pset)
-  {
     fClusterModuleLabel = pset.get<std::string>("ClusterModuleLabel");
     fFlashModuleLabel   = pset.get<std::string>("FlashModuleLabel");
     fMinSptsForOverlap  = pset.get<int>("MinSptsForOverlap");
@@ -128,26 +114,7 @@ namespace opdet {
 
     fSptalg             = new trkf::SpacePointAlg(pset.get<fhicl::ParameterSet>("SpacePointAlg"));
     fCaloAlg            = new calo::CalorimetryAlg(pset.get< fhicl::ParameterSet >("CaloAlg"));
-
   }
-
-
-  //-------------------------------------------------
-
-  void FlashClusterMatch::beginJob()
-  {
-  }
-
-
-
-  //-------------------------------------------------
-
-  FlashClusterMatch::~FlashClusterMatch()
-  {
-  }
-
-
-
 
 
   //-------------------------------------------------

@@ -13,7 +13,7 @@
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iostream>
@@ -58,19 +58,10 @@ namespace cosmic {
 class cosmic::CosmicTrackTagger : public art::EDProducer {
 public:
   explicit CosmicTrackTagger(fhicl::ParameterSet const & p);
-  virtual ~CosmicTrackTagger();
 
   void produce(art::Event & e) override;
 
-  void beginJob() override;
-  void reconfigure(fhicl::ParameterSet const & p) ;
-  void endJob() override;
-
-
 private:
-
-  // Length of reconstructed track, trajectory by trajectory.
-  double length(art::Ptr<recob::Track> track);
 
   //  float fTotalBoundaryLimit; // 15
   //  float f3DSpillDistance;    // 12
@@ -94,15 +85,35 @@ private:
 cosmic::CosmicTrackTagger::CosmicTrackTagger(fhicl::ParameterSet const & p)
   : EDProducer{p}
 {
-  this->reconfigure(p);
+
+  ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
+  auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
+  auto const* geo = lar::providerFrom<geo::Geometry>();
+  auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
+
+  fDetHalfHeight = geo->DetHalfHeight();
+  fDetWidth      = 2.*geo->DetHalfWidth();
+  fDetLength     = geo->DetLength();
+
+  float fSamplingRate = detp->SamplingRate();
+
+  fTrackModuleLabel = p.get< std::string >("TrackModuleLabel", "track");
+  fEndTickPadding   = p.get<    int      >("EndTickPadding",   50);
+
+  fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
+  fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
+  fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
+
+  const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
+
+  //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
+  fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
+  fMinTickDrift = ts->Time2Tick(ts->TriggerTime());
+  fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 
   // Call appropriate Produces<>() functions here.
   produces< std::vector<anab::CosmicTag> >();
   produces< art::Assns<recob::Track, anab::CosmicTag> >();
-}
-
-cosmic::CosmicTrackTagger::~CosmicTrackTagger() {
-  // Clean up dynamic memory and other resources here.
 }
 
 void cosmic::CosmicTrackTagger::produce(art::Event & e) {
@@ -277,9 +288,9 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
          */
 
         cosmicTagTrackVector->emplace_back( endPt1,
-					  endPt2,
-					  cosmicScore,
-					  tag_id);
+                                          endPt2,
+                                          cosmicScore,
+                                          tag_id);
 
 //      std::cerr << "The IsCosmic value is "<< isCosmic << " end pts "
 //		<< trackEndPt1_X<<","<< trackEndPt1_Y << "," << trackEndPt1_Z<< " | | "
@@ -337,7 +348,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
             auto NumS    = (tStart-tStartI).Cross(tStart-tEndI);
             auto DenS    = tEndI-tStartI;
             dS = NumS.R()/DenS.R();
-            if (((dS<5 && temp<5) || (dS<temp && dS<5)) && (length(tTrk)<60)){
+            if (((dS<5 && temp<5) || (dS<temp && dS<5)) && (tTrk->Length()<60)){
                 (*cosmicTagTrackVector)[iTrk].CosmicScore() = IScore-0.05;
                 (*cosmicTagTrackVector)[iTrk].CosmicType()  = IType;
           //util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrk, *assnOutCosmicTagTrack, iTrk);
@@ -347,7 +358,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 
  /*std::cout<<"\n"<<Trk_h->size()<<"\t"<<(*cosmicTagTrackVector).size();
    for(unsigned int f=0;f<Trk_h->size();f++){
-   	std::cout<<"\n\t"<<f<<"\t"<<(*cosmicTagTrackVector)[f].CosmicScore()<<"\t"<<(*cosmicTagTrackVector)[f].CosmicType();
+        std::cout<<"\n\t"<<f<<"\t"<<(*cosmicTagTrackVector)[f].CosmicScore()<<"\t"<<(*cosmicTagTrackVector)[f].CosmicType();
    }*/
 
   // e.put( std::move(outTracksForTags) );
@@ -359,48 +370,5 @@ void cosmic::CosmicTrackTagger::produce(art::Event & e) {
 } // end of produce
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-// Length of reconstructed track, trajectory by trajectory.
-double cosmic::CosmicTrackTagger::length(art::Ptr<recob::Track> track){
-  return track->Length();
-}
-
-
-void cosmic::CosmicTrackTagger::beginJob(){
-}
-
-
-void cosmic::CosmicTrackTagger::reconfigure(fhicl::ParameterSet const & p) {
-  // Implementation of optional member function here.
-
-  ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-  auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
-  auto const* geo = lar::providerFrom<geo::Geometry>();
-  auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
-
-  fDetHalfHeight = geo->DetHalfHeight();
-  fDetWidth      = 2.*geo->DetHalfWidth();
-  fDetLength     = geo->DetLength();
-
-  float fSamplingRate = detp->SamplingRate();
-
-  fTrackModuleLabel = p.get< std::string >("TrackModuleLabel", "track");
-  fEndTickPadding   = p.get<    int      >("EndTickPadding",   50);
-
-  fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
-  fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
-  fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
-
-  const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
-
-  //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
-  fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
-  fMinTickDrift = ts->Time2Tick(ts->TriggerTime());
-  fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
-}
-
-void cosmic::CosmicTrackTagger::endJob() {
-  // Implementation of optional member function here.
-}
 
 DEFINE_ART_MODULE(cosmic::CosmicTrackTagger)

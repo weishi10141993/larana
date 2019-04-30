@@ -17,7 +17,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 
 #include "OpFlashAnaAlg.h"
 
@@ -58,7 +58,11 @@ opdet::OpFlashSimpleAna::OpFlashSimpleAna(fhicl::ParameterSet const & p)
   :
   EDAnalyzer(p)  // ,
  // More initializers here.
-{ this->reconfigure(p); }
+{
+  fOpFlashModuleLabel = p.get<std::string>("OpFlashModuleLabel","");
+  fOpHitModuleLabel   = p.get<std::string>("OpFlashModuleLabel","");
+  fMakeOpDetPEHist    = p.get<bool>("MakeOpDetPEHist",true);
+}
 
 void opdet::OpFlashSimpleAna::analyze(art::Event const & e)
 {
@@ -84,13 +88,6 @@ void opdet::OpFlashSimpleAna::beginJob()
 			   fMakeOpDetPEHist);
   if(fOpHitModuleLabel.size()>0)
     fAnaAlg.SetOpHitTree(tfs->make<TTree>("OpHitTree","OpFlashSimpleAna: Hit Tree"));
-}
-
-void opdet::OpFlashSimpleAna::reconfigure(fhicl::ParameterSet const & p)
-{
-  fOpFlashModuleLabel = p.get<std::string>("OpFlashModuleLabel","");
-  fOpHitModuleLabel   = p.get<std::string>("OpFlashModuleLabel","");
-  fMakeOpDetPEHist    = p.get<bool>("MakeOpDetPEHist",true);
 }
 
 DEFINE_ART_MODULE(opdet::OpFlashSimpleAna)

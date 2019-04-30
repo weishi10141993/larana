@@ -19,7 +19,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iostream>
@@ -56,13 +56,8 @@ class cosmic::CosmicPFParticleTagger : public art::EDProducer
 {
 public:
     explicit CosmicPFParticleTagger(fhicl::ParameterSet const & p);
-    virtual ~CosmicPFParticleTagger();
 
     void produce(art::Event & e) override;
-
-    void beginJob() override;
-    void reconfigure(fhicl::ParameterSet const & p) ;
-    void endJob() override;
 
 private:
     std::string fPFParticleModuleLabel;
@@ -79,17 +74,38 @@ private:
 cosmic::CosmicPFParticleTagger::CosmicPFParticleTagger(fhicl::ParameterSet const & p)
   : EDProducer{p}
 {
-    this->reconfigure(p);
+
+    ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
+    auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
+    auto const* geo = lar::providerFrom<geo::Geometry>();
+    auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
+
+    fDetHalfHeight = geo->DetHalfHeight();
+    fDetWidth      = 2.*geo->DetHalfWidth();
+    fDetLength     = geo->DetLength();
+
+    float fSamplingRate = detp->SamplingRate();
+
+    fPFParticleModuleLabel = p.get< std::string >("PFParticleModuleLabel");
+    fTrackModuleLabel      = p.get< std::string >("TrackModuleLabel", "track");
+    fEndTickPadding        = p.get<    int      >("EndTickPadding",   50);     // Fudge the TPC edge in ticks...
+    fMaxOutOfTime          = p.get<    int      >("MaxOutOfTime",      4);
+
+    fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
+    fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
+    fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
+
+    const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
+
+    //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
+    fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
+    fMinTickDrift = ts->Time2Tick(ts->TriggerTime());
+    fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 
     // Call appropriate Produces<>() functions here.
     produces< std::vector<anab::CosmicTag>>();
     produces< art::Assns<anab::CosmicTag,   recob::Track>>();
     produces< art::Assns<recob::PFParticle, anab::CosmicTag>>();
-}
-
-cosmic::CosmicPFParticleTagger::~CosmicPFParticleTagger()
-{
-    // Clean up dynamic memory and other resources here.
 }
 
 void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
@@ -341,45 +357,5 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event & evt)
 
 } // end of produce
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void cosmic::CosmicPFParticleTagger::beginJob()
-{
-}
-
-void cosmic::CosmicPFParticleTagger::reconfigure(fhicl::ParameterSet const & p)
-{
-    // Implementation of optional member function here.
-
-    ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-    auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
-    auto const* geo = lar::providerFrom<geo::Geometry>();
-    auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
-
-    fDetHalfHeight = geo->DetHalfHeight();
-    fDetWidth      = 2.*geo->DetHalfWidth();
-    fDetLength     = geo->DetLength();
-
-    float fSamplingRate = detp->SamplingRate();
-
-    fPFParticleModuleLabel = p.get< std::string >("PFParticleModuleLabel");
-    fTrackModuleLabel      = p.get< std::string >("TrackModuleLabel", "track");
-    fEndTickPadding        = p.get<    int      >("EndTickPadding",   50);     // Fudge the TPC edge in ticks...
-    fMaxOutOfTime          = p.get<    int      >("MaxOutOfTime",      4);
-
-    fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
-    fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
-    fTPCZBoundary = p.get< float >("TPCZBoundary", 5);
-
-    const double driftVelocity = detp->DriftVelocity( detp->Efield(), detp->Temperature() ); // cm/us
-
-    //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
-    fDetectorWidthTicks = 2*geo->DetHalfWidth()/(driftVelocity*fSamplingRate/1000); // ~3200 for uB
-    fMinTickDrift = ts->Time2Tick(ts->TriggerTime());
-    fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
-}
-
-void cosmic::CosmicPFParticleTagger::endJob() {
-  // Implementation of optional member function here.
-}
 
 DEFINE_ART_MODULE(cosmic::CosmicPFParticleTagger)
