@@ -63,7 +63,7 @@ standard_algo_sipm:
 {
     Name:           "SiPM"
     ADCThreshold:      13
-    MinWidth:          10
+    MinWidth:          60
     SecondThreshold:    1
     Pedestal:        1500
 }
