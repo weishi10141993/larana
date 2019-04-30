@@ -12,6 +12,7 @@
  */
 
 #include "OpHitAlg.h"
+#include <iostream>
 
 namespace opdet{
   //----------------------------------------------------------------------------
@@ -67,10 +68,12 @@ namespace opdet{
 
     if (pulse.peak < hitThreshold) return;
 
+    //double absTime = pulse.t_max*detectorClocks.OpticalClock().TickPeriod();//timeStamp + pulse.t_max*detectorClocks.OpticalClock().TickPeriod();
     double absTime = timeStamp + pulse.t_max*detectorClocks.OpticalClock().TickPeriod();
 
-    double relTime = absTime - detectorClocks.TriggerTime();
-
+    //double relTime = absTime - detectorClocks.TriggerTime();
+    double relTime = pulse.t_max*detectorClocks.OpticalClock().TickPeriod() -  detectorClocks.TriggerTime() ;
+    
     int frame = detectorClocks.OpticalClock().Frame(timeStamp);
 
     double PE = 0.0;
@@ -78,6 +81,11 @@ namespace opdet{
     else                      PE = calibrator.PE(pulse.peak, channel);
 
     double width = (pulse.t_end - pulse.t_start) * detectorClocks.OpticalClock().TickPeriod();
+    
+    
+    std::cout<<std::setprecision(17) << "\nThe timestamp is: " << timeStamp << "\nWith peak time: "<<absTime<<"\nWith delay time: "<<absTime-timeStamp<<"\n";
+    
+
 
     hitVector.emplace_back(channel,
                            relTime,
