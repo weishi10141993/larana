@@ -71,8 +71,8 @@ namespace opdet{
     //double absTime = pulse.t_max*detectorClocks.OpticalClock().TickPeriod();//timeStamp + pulse.t_max*detectorClocks.OpticalClock().TickPeriod();
     double absTime = timeStamp + pulse.t_max*detectorClocks.OpticalClock().TickPeriod();
 
-    //double relTime = absTime - detectorClocks.TriggerTime();
-    double relTime = pulse.t_max*detectorClocks.OpticalClock().TickPeriod() -  detectorClocks.TriggerTime() ;
+    double relTime = absTime - detectorClocks.TriggerTime();
+    //double relTime = pulse.t_max*detectorClocks.OpticalClock().TickPeriod() -  detectorClocks.TriggerTime() ;
     
     int frame = detectorClocks.OpticalClock().Frame(timeStamp);
 
