@@ -5,7 +5,7 @@ DirectHitParticleAssnsTool:
 {
   tool_type:          "DirectHitParticleAssns"
   MCParticleLabel:    "largeant"
-  HitModuleLabel:     "gaushit"
+  HitModuleLabels:    ["gaushit"]
 }
 
 IndirectHitParticleAssnsTool:
@@ -13,7 +13,7 @@ IndirectHitParticleAssnsTool:
   tool_type:             "IndirectHitParticleAssns"
   HitPartAssnsLabel:     "gaushitTruthMatch"
   MCParticleModuleLabel: "largeant"
-  HitModuleLabel:        "pandoraCosmicHitRemoval"
+  HitModuleLabels:       ["pandoraCosmicHitRemoval"]
 }
 
 END_PROLOG
