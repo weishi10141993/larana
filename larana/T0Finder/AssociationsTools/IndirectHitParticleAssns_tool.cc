@@ -51,9 +51,9 @@ public:
 
 private:
 
-    art::InputTag fHitModuleLabel;
-    art::InputTag fMCParticleModuleLabel;
-    art::InputTag fHitPartAssnsModuleLabel;
+    std::vector<art::InputTag> fHitModuleLabels;
+    art::InputTag              fMCParticleModuleLabel;
+    art::InputTag              fHitPartAssnsModuleLabel;
 
 };
 
@@ -81,9 +81,9 @@ IndirectHitParticleAssns::IndirectHitParticleAssns(fhicl::ParameterSet const & p
 ///
 void IndirectHitParticleAssns::reconfigure(fhicl::ParameterSet const & pset)
 {
-    fHitPartAssnsModuleLabel = pset.get<art::InputTag>("HitPartAssnsLabel");
-    fMCParticleModuleLabel   = pset.get<art::InputTag>("MCParticleModuleLabel");
-    fHitModuleLabel          = pset.get<art::InputTag>("HitModuleLabel");
+    fHitPartAssnsModuleLabel = pset.get<art::InputTag             >("HitPartAssnsLabel");
+    fMCParticleModuleLabel   = pset.get<art::InputTag             >("MCParticleModuleLabel");
+    fHitModuleLabels         = pset.get<std::vector<art::InputTag>>("HitModuleLabels");
 }
 
 //----------------------------------------------------------------------------
@@ -110,67 +110,72 @@ void IndirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, Hi
         throw cet::exception("IndirectHitParticleAssns") << "===>> NO MCParticle <--> Hit associations found for run/subrun/event: " << evt.run() << "/" << evt.subRun() << "/" << evt.id().event();
     }
 
-    // Look up the hits we want to process as well, since if they are not there then no point in proceeding
-    art::Handle< std::vector<recob::Hit> > hitListHandle;
-    evt.getByLabel(fHitModuleLabel,hitListHandle);
-
-    if(!hitListHandle.isValid()){
-        throw cet::exception("IndirectHitParticleAssns") << "===>> NO Hit collection found to process for run/subrun/event: " << evt.run() << "/" << evt.subRun() << "/" << evt.id().event();
-    }
-
-    // Go through the associations and build out our (hopefully sparse) data structure
-    using ParticleDataPair         = std::pair<size_t, const anab::BackTrackerHitMatchingData*>;
-    using MCParticleDataSet        = std::set<ParticleDataPair>;
-    using TickToPartDataMap        = std::unordered_map<raw::TDCtick_t,   MCParticleDataSet>;
-    using ChannelToTickPartDataMap = std::unordered_map<raw::ChannelID_t, TickToPartDataMap>;
-
-    ChannelToTickPartDataMap chanToTickPartDataMap;
-
-    // Build out the maps between hits/particles
-    for(HitParticleAssociations::const_iterator partHitItr = partHitAssnsHandle->begin(); partHitItr != partHitAssnsHandle->end(); ++partHitItr)
+    // Loop over input hit collections
+    for(const auto& inputTag : fHitModuleLabels)
     {
-        const art::Ptr<simb::MCParticle>&       mcParticle = partHitItr->first;
-        const art::Ptr<recob::Hit>&             recoHit    = partHitItr->second;
-        const anab::BackTrackerHitMatchingData* data       = &partHitAssnsHandle->data(partHitItr);
+        // Look up the hits we want to process as well, since if they are not there then no point in proceeding
+        art::Handle< std::vector<recob::Hit> > hitListHandle;
+        evt.getByLabel(inputTag,hitListHandle);
 
-        TickToPartDataMap& tickToPartDataMap = chanToTickPartDataMap[recoHit->Channel()];
-
-        for(raw::TDCtick_t tick = recoHit->PeakTimeMinusRMS(); tick <= recoHit->PeakTimePlusRMS(); tick++)
-        {
-            tickToPartDataMap[tick].insert(ParticleDataPair(mcParticle.key(),data));
-        }
-    }
-
-    // Armed with the map, process the hit list
-    for(size_t hitIdx = 0; hitIdx < hitListHandle->size(); hitIdx++)
-    {
-        art::Ptr<recob::Hit> hit(hitListHandle,hitIdx);
-
-        TickToPartDataMap& tickToPartDataMap = chanToTickPartDataMap[hit->Channel()];
-
-        if (tickToPartDataMap.empty())
-        {
-            mf::LogInfo("IndirectHitParticleAssns") << "No channel information found for hit " << hit << "\n";
+        if(!hitListHandle.isValid()){
+            mf::LogInfo("IndirectHitParticleAssns") << "===>> NO Hit collection found to process for run/subrun/event: " << evt.run() << "/" << evt.subRun() << "/" << evt.id().event() << "\n";
             continue;
         }
 
-        // Keep track of results
-        MCParticleDataSet particleDataSet;
-
-        // Go through the ticks in this hit and recover associations
-        for(raw::TDCtick_t tick = hit->PeakTimeMinusRMS(); tick <= hit->PeakTimePlusRMS(); tick++)
+        // Go through the associations and build out our (hopefully sparse) data structure
+        using ParticleDataPair         = std::pair<size_t, const anab::BackTrackerHitMatchingData*>;
+        using MCParticleDataSet        = std::set<ParticleDataPair>;
+        using TickToPartDataMap        = std::unordered_map<raw::TDCtick_t,   MCParticleDataSet>;
+        using ChannelToTickPartDataMap = std::unordered_map<raw::ChannelID_t, TickToPartDataMap>;
+        
+        ChannelToTickPartDataMap chanToTickPartDataMap;
+        
+        // Build out the maps between hits/particles
+        for(HitParticleAssociations::const_iterator partHitItr = partHitAssnsHandle->begin(); partHitItr != partHitAssnsHandle->end(); ++partHitItr)
         {
-            TickToPartDataMap::iterator hitInfoItr = tickToPartDataMap.find(tick);
-
-            if (hitInfoItr != tickToPartDataMap.end())
+            const art::Ptr<simb::MCParticle>&       mcParticle = partHitItr->first;
+            const art::Ptr<recob::Hit>&             recoHit    = partHitItr->second;
+            const anab::BackTrackerHitMatchingData* data       = &partHitAssnsHandle->data(partHitItr);
+            
+            TickToPartDataMap& tickToPartDataMap = chanToTickPartDataMap[recoHit->Channel()];
+            
+            for(raw::TDCtick_t tick = recoHit->PeakTimeMinusRMS(); tick <= recoHit->PeakTimePlusRMS(); tick++)
             {
-                for(const auto& partData : hitInfoItr->second) particleDataSet.insert(partData);
+                tickToPartDataMap[tick].insert(ParticleDataPair(mcParticle.key(),data));
             }
         }
-
-        // Now create new associations for the hit in question
-        for(const auto& partData : particleDataSet)
-            hitPartAssns->addSingle(art::Ptr<simb::MCParticle>(mcParticleHandle, partData.first), hit, *partData.second);
+        
+        // Armed with the map, process the hit list
+        for(size_t hitIdx = 0; hitIdx < hitListHandle->size(); hitIdx++)
+        {
+            art::Ptr<recob::Hit> hit(hitListHandle,hitIdx);
+            
+            TickToPartDataMap& tickToPartDataMap = chanToTickPartDataMap[hit->Channel()];
+            
+            if (tickToPartDataMap.empty())
+            {
+                mf::LogInfo("IndirectHitParticleAssns") << "No channel information found for hit " << hit << "\n";
+                continue;
+            }
+            
+            // Keep track of results
+            MCParticleDataSet particleDataSet;
+            
+            // Go through the ticks in this hit and recover associations
+            for(raw::TDCtick_t tick = hit->PeakTimeMinusRMS(); tick <= hit->PeakTimePlusRMS(); tick++)
+            {
+                TickToPartDataMap::iterator hitInfoItr = tickToPartDataMap.find(tick);
+                
+                if (hitInfoItr != tickToPartDataMap.end())
+                {
+                    for(const auto& partData : hitInfoItr->second) particleDataSet.insert(partData);
+                }
+            }
+            
+            // Now create new associations for the hit in question
+            for(const auto& partData : particleDataSet)
+                hitPartAssns->addSingle(art::Ptr<simb::MCParticle>(mcParticleHandle, partData.first), hit, *partData.second);
+        }
     }
 
     return;
