@@ -51,7 +51,7 @@ public:
 
 private:
 
-    std::vector<art::InputTag> fHitModuleLabels;
+    std::vector<art::InputTag> fHitModuleLabelVec;
     art::InputTag              fMCParticleModuleLabel;
     art::InputTag              fHitPartAssnsModuleLabel;
 
@@ -83,7 +83,7 @@ void IndirectHitParticleAssns::reconfigure(fhicl::ParameterSet const & pset)
 {
     fHitPartAssnsModuleLabel = pset.get<art::InputTag             >("HitPartAssnsLabel");
     fMCParticleModuleLabel   = pset.get<art::InputTag             >("MCParticleModuleLabel");
-    fHitModuleLabels         = pset.get<std::vector<art::InputTag>>("HitModuleLabels");
+    fHitModuleLabelVec       = pset.get<std::vector<art::InputTag>>("HitModuleLabelVec");
 }
 
 //----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void IndirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, Hi
     }
 
     // Loop over input hit collections
-    for(const auto& inputTag : fHitModuleLabels)
+    for(const auto& inputTag : fHitModuleLabelVec)
     {
         // Look up the hits we want to process as well, since if they are not there then no point in proceeding
         art::Handle< std::vector<recob::Hit> > hitListHandle;

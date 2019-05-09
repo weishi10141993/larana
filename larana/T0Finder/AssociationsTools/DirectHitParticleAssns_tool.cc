@@ -53,7 +53,7 @@ public:
 
 private:
 
-    std::vector<art::InputTag> fHitModuleLabels;
+    std::vector<art::InputTag> fHitModuleLabelVec;
     art::InputTag              fMCParticleModuleLabel;
 
     struct TrackIDEinfo {
@@ -88,7 +88,7 @@ DirectHitParticleAssns::DirectHitParticleAssns(fhicl::ParameterSet const & pset)
 void DirectHitParticleAssns::reconfigure(fhicl::ParameterSet const & pset)
 {
     fMCParticleModuleLabel = pset.get<art::InputTag             >("MCParticleLabel");
-    fHitModuleLabels       = pset.get<std::vector<art::InputTag>>("HitModuleLabels");
+    fHitModuleLabelVec     = pset.get<std::vector<art::InputTag>>("HitModuleLabelVec");
 }
 
 //----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt, HitP
     art::ServiceHandle<cheat::ParticleInventoryService const> piService;
 
     // Loop over input hit producer labels
-    for(const auto& inputTag : fHitModuleLabels)
+    for(const auto& inputTag : fHitModuleLabelVec)
     {
         art::Handle< std::vector<recob::Hit> > hitListHandle;
         evt.getByLabel(inputTag,hitListHandle);
