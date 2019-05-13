@@ -549,8 +549,8 @@ namespace opdet{
                       detinfo::DetectorClocks const&     ts,
                       float const&                       TrigCoinc) {
 
-    double MaxTime = -1e9;
-    double MinTime =  1e9;
+    double MaxTime = -std::numeric_limits<double>::max();
+    double MinTime = std::numeric_limits<double>::max();
 
     std::vector< double > PEs(geom.MaxOpChannel() + 1, 0.0);
     unsigned int Nplanes = geom.Nplanes();
