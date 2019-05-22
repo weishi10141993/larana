@@ -81,8 +81,8 @@ namespace opdet {
     Int_t   fEventID;
     Int_t   fFlashID;
     Int_t   fHitID;
-    Float_t fFlashTime;
-    Float_t fAbsTime;
+    Double_t fFlashTime;
+    Double_t fAbsTime;
     bool    fInBeamFrame;
     int     fOnBeamTime;
     Float_t fTotalPE;
@@ -95,8 +95,8 @@ namespace opdet {
     Float_t fZWidth;
 
     Int_t   fOpChannel;
-    Float_t fPeakTimeAbs;
-    Float_t fPeakTime;
+    Double_t fPeakTimeAbs;
+    Double_t fPeakTime;
     Int_t   fFrame;
     Float_t fWidth;
     Float_t fArea;
@@ -110,8 +110,8 @@ namespace opdet {
     std::vector< float > fZCenterVector;
     std::vector< float > fYWidthVector;
     std::vector< float > fZWidthVector;
-    std::vector< float > fFlashTimeVector;
-    std::vector< float > fAbsTimeVector;
+    std::vector< double > fFlashTimeVector;
+    std::vector< double > fAbsTimeVector;
     std::vector< int >   fFlashFrameVector;
     std::vector< bool >  fInBeamFrameVector;
     std::vector< int >   fOnBeamTimeVector;
@@ -171,9 +171,9 @@ namespace opdet {
       fFlashBreakdownTree->Branch("EventID",    &fEventID,     "EventID/I");
       fFlashBreakdownTree->Branch("FlashID",    &fFlashID,     "FlashID/I");
       fFlashBreakdownTree->Branch("OpChannel",  &fOpChannel,   "OpChannel/I");
-      fFlashBreakdownTree->Branch("FlashTime",  &fFlashTime,   "FlashTime/F");
+      fFlashBreakdownTree->Branch("FlashTime",  &fFlashTime,   "FlashTime/D");
       fFlashBreakdownTree->Branch("NPe",        &fNPe,         "NPe/F");
-      fFlashBreakdownTree->Branch("AbsTime",    &fAbsTime,     "AbsTime/F");
+      fFlashBreakdownTree->Branch("AbsTime",    &fAbsTime,     "AbsTime/D");
       fFlashBreakdownTree->Branch("FlashFrame", &fFlashFrame,  "FlashFrame/I");
       fFlashBreakdownTree->Branch("InBeamFrame",&fInBeamFrame, "InBeamFrame/B");
       fFlashBreakdownTree->Branch("OnBeamTime", &fOnBeamTime,  "OnBeamTime/I");
@@ -190,8 +190,8 @@ namespace opdet {
       fPerOpHitTree->Branch("EventID",     &fEventID,      "EventID/I");
       fPerOpHitTree->Branch("HitID",       &fHitID,        "HitID/I");
       fPerOpHitTree->Branch("OpChannel",   &fOpChannel,    "OpChannel/I");
-      fPerOpHitTree->Branch("PeakTimeAbs", &fPeakTimeAbs,  "PeakTimeAbs/F");
-      fPerOpHitTree->Branch("PeakTime",    &fPeakTime,     "PeakTime/F");
+      fPerOpHitTree->Branch("PeakTimeAbs", &fPeakTimeAbs,  "PeakTimeAbs/D");
+      fPerOpHitTree->Branch("PeakTime",    &fPeakTime,     "PeakTime/D");
       fPerOpHitTree->Branch("Frame",       &fFrame,        "Frame/I");
       fPerOpHitTree->Branch("Width",       &fWidth,        "Width/F");
       fPerOpHitTree->Branch("Area",        &fArea,         "Area/F");
@@ -209,8 +209,8 @@ namespace opdet {
       fPerFlashTree->Branch("ZCenter",    &fZCenter,     "ZCenter/F");
       fPerFlashTree->Branch("YWidth",     &fYWidth,      "YWidth/F");
       fPerFlashTree->Branch("ZWidth",     &fZWidth,      "ZWidth/F");
-      fPerFlashTree->Branch("FlashTime",  &fFlashTime,   "FlashTime/F");
-      fPerFlashTree->Branch("AbsTime",    &fAbsTime,     "AbsTime/F");
+      fPerFlashTree->Branch("FlashTime",  &fFlashTime,   "FlashTime/D");
+      fPerFlashTree->Branch("AbsTime",    &fAbsTime,     "AbsTime/D");
       fPerFlashTree->Branch("FlashFrame", &fFlashFrame,  "FlashFrame/I");
       fPerFlashTree->Branch("InBeamFrame",&fInBeamFrame, "InBeamFrame/B");
       fPerFlashTree->Branch("OnBeamTime", &fOnBeamTime,  "OnBeamTime/I");
@@ -250,8 +250,8 @@ namespace opdet {
       fFlashHitMatchTree->Branch("HitPeakTime",   &fPeakTime,   "HitPeakTime/F");
       fFlashHitMatchTree->Branch("HitPE",         &fPE,         "HitPE/F");
       fFlashHitMatchTree->Branch("FlashPE",       &fTotalPE,    "FlashPE/F");
-      fFlashHitMatchTree->Branch("FlashTimeAbs",  &fAbsTime,    "FlashTimeAbs/F");
-      fFlashHitMatchTree->Branch("FlashTime",     &fFlashTime,  "FlashTime/F");
+      fFlashHitMatchTree->Branch("FlashTimeAbs",  &fAbsTime,    "FlashTimeAbs/D");
+      fFlashHitMatchTree->Branch("FlashTime",     &fFlashTime,  "FlashTime/D");
       fFlashHitMatchTree->Branch("HitFrame",      &fFrame,      "HitFrame/I");
       fFlashHitMatchTree->Branch("FlashFrame",    &fFlashFrame, "FlashFrame/I");
     }
