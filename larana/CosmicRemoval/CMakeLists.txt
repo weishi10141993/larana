@@ -34,7 +34,7 @@ art_make(
   larreco_RecoAlg
   larreco_RecoAlg_Cluster3DAlgs
   larsim_Simulation nutools_ParticleNavigation lardataobj_Simulation
-  lardata_RecoObjects larreco_Deprecated
+  lardata_RecoObjects
   lardataobj_RecoBase
   lardata_ArtDataHelper
   lardataobj_MCBase
