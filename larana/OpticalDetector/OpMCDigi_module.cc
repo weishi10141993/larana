@@ -47,7 +47,7 @@
 #include "TRandom.h"
 
 // nutools
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 // C++ language includes
 #include <cstring>
