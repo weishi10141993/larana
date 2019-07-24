@@ -33,7 +33,7 @@ art_make(
   larsim_MCCheater_ParticleInventoryService_service
   larreco_RecoAlg
   larreco_RecoAlg_Cluster3DAlgs
-  larsim_Simulation nutools_ParticleNavigation lardataobj_Simulation
+  larsim_Simulation nug4_ParticleNavigation lardataobj_Simulation
   lardata_RecoObjects
   lardataobj_RecoBase
   lardata_ArtDataHelper
@@ -45,7 +45,7 @@ art_make(
   larreco_Calorimetry
   lardataobj_AnalysisBase
   lardata_Utilities
-  nutools_MagneticField_MagneticField_service
+  nug4_MagneticField_MagneticField_service
   nusimdata_SimulationBase
   ${ART_FRAMEWORK_CORE}
   ${ART_FRAMEWORK_PRINCIPAL}
