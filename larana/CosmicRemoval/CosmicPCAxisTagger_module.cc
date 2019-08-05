@@ -21,30 +21,23 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art_root_io/TFileService.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <iostream>
-#include <cmath>
 #include <algorithm>
-#include <numeric>
+#include <cmath>
+#include <iostream>
 #include <iterator>
 
 #include "larcore/Geometry/Geometry.h"
-#include "larcorealg/Geometry/geo.h"
-
-#include "lardataobj/RecoBase/PFParticle.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "lardataobj/RecoBase/Cluster.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/PCAxis.h"
+#include "lardataobj/RecoBase/PFParticle.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
 #include "larreco/RecoAlg/Cluster3DAlgs/Cluster3D.h"
-
-#include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "larreco/RecoAlg/Cluster3DAlgs/PrincipalComponentsAlg.h"
-#include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
-#include "lardata/DetectorInfoServices/LArPropertiesService.h"
 
 #include "TVector3.h"
 
@@ -52,7 +45,6 @@ namespace cosmic
 {
     class CosmicPCAxisTagger;
     class SpacePoint;
-    class Track;
 }
 
 

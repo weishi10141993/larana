@@ -7,6 +7,8 @@
 #include "AlgoCFD.h"
 #include "UtilFunc.h"
 
+#include "fhiclcpp/ParameterSet.h"
+
 #include <unordered_map>
 
 namespace pmtana{

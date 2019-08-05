@@ -9,8 +9,15 @@
  */
 
 #include "FlashHypothesisComparison.h"
+
+#include "larana/OpticalDetector/FlashHypothesis.h"
+#include "larana/OpticalDetector/FlashUtilities.h"
+#include "larana/OpticalDetector/SimPhotonCounter.h"
+
 #include "TTree.h"
 #include "TH1F.h"
+
+#include <iostream>
 
 void opdet::FlashHypothesisComparison::SetOutputObjects(TTree *tree,
 							TH1F* h_h_p, TH1F* h_s_p, TH1F* h_c_p,

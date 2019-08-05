@@ -12,6 +12,19 @@
 
 #include "OpFlashAlg.h"
 
+#include "TFile.h"
+#include "TH1.h"
+
+#include "larcorealg/Geometry/OpDetGeo.h"
+#include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
+#include "lardataalg/DetectorInfo/DetectorClocks.h"
+#include "lardataalg/DetectorInfo/ElecClock.h"
+#include "lardataobj/RecoBase/OpFlash.h"
+#include "lardataobj/RecoBase/OpHit.h"
+
+#include <algorithm>
+#include <cmath>
+#include <iostream>
 #include <numeric> // std::iota()
 
 namespace opdet{

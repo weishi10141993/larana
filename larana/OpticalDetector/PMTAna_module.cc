@@ -13,31 +13,24 @@
 @{*/
 
 // ART includes
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art_root_io/TFileService.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // LArSoft
-//#include "OpticalDetectorData/FIFOChannel.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
-#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
-#include "larcore/Geometry/Geometry.h"
+
 // STL
-#include <cmath>
 #include <functional>
 #include <numeric>
-
+#include <string>
 
 // ROOT
-#include <TString.h>
 #include <TTree.h>
+
 // My modules
 #include "OpHitFinder/AlgoThreshold.h"
 #include "OpHitFinder/AlgoFixedWindow.h"
@@ -79,11 +72,6 @@ namespace pmtana {
   };
 
 }
-
-// PMTAna.cc
-
-// Framework includes
-#include "art/Framework/Core/ModuleMacros.h"
 
 namespace pmtana {
   DEFINE_ART_MODULE(PMTAna)

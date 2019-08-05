@@ -12,18 +12,11 @@
 #include "lardataobj/RecoBase/OpHit.h"
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "larcorealg/Geometry/GeometryCore.h"
-#include "larcorealg/Geometry/OpDetGeo.h"
-#include "lardataalg/DetectorInfo/DetectorClocks.h"
-
-#include "TH1D.h"
-#include "TFile.h"
+namespace detinfo { class DetectorClocks; }
 
 #include <functional>
-#include <algorithm>
-#include <limits>
 #include <vector>
 #include <map>
-#include <iostream>
 
 namespace opdet{
 

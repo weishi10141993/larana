@@ -10,11 +10,12 @@
 #ifndef ALGOSIPM_H
 #define ALGOSIPM_H
 
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/fwd.h"
 
 #include "PMTPulseRecoBase.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
-#include <vector>
+#include <string>
 
 namespace pmtana {
 

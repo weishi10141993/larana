@@ -7,6 +7,7 @@
 #include "PedAlgoRmsSlider.h"
 #include "OpticalRecoException.h"
 #include "UtilFunc.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <iostream>
 #include <fstream>

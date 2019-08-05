@@ -7,11 +7,19 @@
  * Output:      PIDA information
 */
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <sstream>
-#include <cmath>
 
 #include "PIDAAlg.h"
+#include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
+#include "lardataobj/AnalysisBase/Calorimetry.h"
+
+#include "fhiclcpp/ParameterSet.h"
+
+#include "TH1F.h"
+#include "TTree.h"
 
 void pid::PIDAAlg::reconfigure(fhicl::ParameterSet const& p){
   fExponentConstant = p.get<float>("ExponentConstant",0.42);

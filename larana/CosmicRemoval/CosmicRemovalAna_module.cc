@@ -16,35 +16,25 @@
 #include "art/Framework/Principal/Handle.h" 
 #include "art/Framework/Services/Registry/ServiceHandle.h" 
 #include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
 #include "fhiclcpp/ParameterSet.h" 
-#include "messagefacility/MessageLogger/MessageLogger.h" 
 
 // LArSoft Includes
-#include "larcore/Geometry/Geometry.h"
-#include "nusimdata/SimulationBase/MCTruth.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
-#include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
-#include "lardataobj/RecoBase/Track.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardataobj/AnalysisBase/CosmicTag.h"
+#include "lardataobj/MCBase/MCHitCollection.h"
+#include "lardataobj/RawData/RawDigit.h"
 #include "lardataobj/RecoBase/Cluster.h"
 #include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/RawData/RawDigit.h"
-#include "lardataobj/MCBase/MCHitCollection.h"
-#include "lardataobj/AnalysisBase/CosmicTag.h"
-
+#include "lardataobj/RecoBase/Track.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
 
 // ROOT Includes
 #include "TTree.h"
 
-#include <vector>
 #include <string>
-#include <fstream>
-#include <algorithm>
-#include <functional>
-#include <iterator>
-
-
+#include <vector>
 
 namespace microboone {
 

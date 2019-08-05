@@ -4,6 +4,8 @@
 
 #include "AlgoSiPM.h"
 
+#include "fhiclcpp/ParameterSet.h"
+
 namespace pmtana {
 
   //---------------------------------------------------------------------------

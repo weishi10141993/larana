@@ -6,7 +6,6 @@
 
 // LArSoft includes
 #include "lardataobj/OpticalDetectorData/OpticalRawDigit.h"
-#include "lardataobj/OpticalDetectorData/FIFOChannel.h"
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"

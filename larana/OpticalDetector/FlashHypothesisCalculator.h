@@ -9,14 +9,14 @@
 */
 
 #include<vector>
-#include<iostream>
 
 #include "larsim/PhotonPropagation/PhotonVisibilityTypes.h" // phot::MappedCounts_t
 
-#include "FlashHypothesis.h"
 #include "TVector3.h"
 
 namespace opdet{
+
+  class FlashHypothesis;
 
   class FlashHypothesisCalculator{
 

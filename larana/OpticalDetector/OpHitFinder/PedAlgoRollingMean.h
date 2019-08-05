@@ -15,10 +15,11 @@
 #ifndef larana_OPTICALDETECTOR_PEDALGOROLLINGMEAN_H
 #define larana_OPTICALDETECTOR_PEDALGOROLLINGMEAN_H
 
-// STL
 #include "PMTPedestalBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//#include "FhiclLite/PSet.h"
+#include "fhiclcpp/fwd.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
+#include <string>
 
 namespace pmtana
 {

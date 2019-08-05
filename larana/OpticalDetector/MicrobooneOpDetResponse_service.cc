@@ -4,12 +4,8 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-
 #include "larana/OpticalDetector/MicrobooneOpDetResponse.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-#include "lardataalg/DetectorInfo/LArProperties.h"
-#include "CLHEP/Random/RandFlat.h"
-
+#include "lardataobj/Simulation/SimPhotons.h"
 
 namespace opdet{
 

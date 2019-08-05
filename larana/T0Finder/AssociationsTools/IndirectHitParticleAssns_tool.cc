@@ -1,16 +1,8 @@
 #include "larana/T0Finder/AssociationsTools/IHitParticleAssociations.h"
 
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Utilities/ToolMacros.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "canvas/Persistency/Common/FindManyP.h"
-
-#include "lardata/Utilities/AssociationUtil.h"
-#include "larsim/MCCheater/BackTrackerService.h"
-
-#include <cmath>
-#include <algorithm>
 
 namespace t0
 {

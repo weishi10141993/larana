@@ -11,11 +11,11 @@
 #include <string>
 #include <vector>
 
+#include "fhiclcpp/fwd.h"
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
 
-#include "TTree.h"
-#include "fhiclcpp/ParameterSet.h"
+class TTree;
 
 namespace geo{ class GeometryCore; }
 

@@ -5,8 +5,8 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "PedAlgoUB.h"
-#include "UtilFunc.h"
-#include "OpticalRecoException.h"
+
+#include "fhiclcpp/ParameterSet.h"
 
 namespace pmtana{
 

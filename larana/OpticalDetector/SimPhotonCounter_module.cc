@@ -27,11 +27,6 @@
 // double  WavelengthCutLow   - Sensitive wavelength range of OpDet
 // double  WavelengthCutHigh
 
-// ROOT includes.
-#include "TTree.h"
-#include "TFile.h"
-#include <Rtypes.h>
-
 // FMWK includes
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
@@ -40,33 +35,34 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // LArSoft includes
-#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "larana/OpticalDetector/OpDetResponseInterface.h"
-#include "larsim/Simulation/SimListUtils.h"
-#include "lardataobj/Simulation/sim.h"
-#include "larsim/Simulation/LArG4Parameters.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larcorealg/Geometry/CryostatGeo.h"
+#include "larcorealg/Geometry/OpDetGeo.h"
 #include "lardataobj/MCBase/MCTrack.h"
 #include "lardataobj/Simulation/SimChannel.h"
+#include "lardataobj/Simulation/SimPhotons.h"
+#include "lardataobj/Simulation/sim.h"
 #include "larsim/MCCheater/ParticleInventoryService.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
+#include "larsim/Simulation/LArG4Parameters.h"
 
-#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 // ROOT includes
-#include <TH1D.h>
-#include <TF1.h>
-#include <TTree.h>
+#include "RtypesCore.h"
+#include "TH1D.h"
+#include "TTree.h"
+#include "TLorentzVector.h"
+#include "TVector3.h"
 
 // C++ language includes
 #include <iostream>
 #include <cstring>
-
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
 namespace opdet {
 

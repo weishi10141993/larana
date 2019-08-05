@@ -15,10 +15,12 @@
 #ifndef larana_OPTICALDETECTOR_PEDALGOEDGES_H
 #define larana_OPTICALDETECTOR_PEDALGOEDGES_H
 
-// STL
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
 #include "PMTPedestalBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//#include "FhiclLite/PSet.h"
+#include "fhiclcpp/fwd.h"
+
+#include <string>
 
 namespace pmtana
 {

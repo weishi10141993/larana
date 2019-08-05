@@ -12,11 +12,7 @@
 #ifndef TRUNCMEAN_H
 #define TRUNCMEAN_H
 
-#include <iostream>
-#include <algorithm>
-#include <cmath>
 #include <vector>
-#include <climits>
 #include <limits>
 
 /**

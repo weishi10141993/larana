@@ -4,6 +4,8 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "fhiclcpp/ParameterSet.h"
+
 #include "AlgoFixedWindow.h"
 
 namespace pmtana{

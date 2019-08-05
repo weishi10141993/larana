@@ -11,10 +11,10 @@
 */
 
 #include <vector>
-#include <memory>
+#include <string>
 
-#include "TTree.h"
 #include "TH1.h"
+class TTree;
 
 #include "lardataobj/RecoBase/OpHit.h"
 #include "lardataobj/RecoBase/OpFlash.h"

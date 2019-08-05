@@ -10,12 +10,9 @@
  * Input:       Assn<recob::Hit,???> and Assn<???,anab::CosmicTag>
  * Output:      Assn<recob::Hit,anab::CosmicTag>
 */
-#include <iostream>
+#include <vector>
 
-#include "fhiclcpp/ParameterSet.h"
-
-#include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/AnalysisBase/CosmicTag.h"
+#include "fhiclcpp/fwd.h"
 
 namespace cosmic{
   class HitTagAssociatorAlg;

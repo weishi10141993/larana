@@ -20,16 +20,11 @@
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Utilities/make_tool.h"
-
-#include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
-#include <iterator>
 
 // LArSoft
 #include "larana/T0Finder/AssociationsTools/IHitParticleAssociations.h"

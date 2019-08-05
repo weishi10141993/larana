@@ -12,46 +12,23 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art_root_io/TFileService.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iostream>
-#include <cmath>
-#include <algorithm>
-#include <numeric>
-#include <iterator>
 
 #include "larcore/Geometry/Geometry.h"
-#include "larcorealg/Geometry/geo.h"
 
-#include "lardataobj/RecoBase/SpacePoint.h"
 #include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/RecoBase/SpacePoint.h"
-#include "lardataobj/RecoBase/Cluster.h"
-#include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/Track.h"
 
 #include "lardataobj/AnalysisBase/CosmicTag.h"
-#include "larreco/RecoAlg/SpacePointAlg.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
-#include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 
-#include "TMatrixD.h"
-#include "TDecompSVD.h"
-#include "TTree.h"
-#include "TH1.h"
 #include "TStopwatch.h"
-
-class TTree;
-class TH1;
 
 namespace cosmic {
   class CosmicTrackTagger;
-  class SpacePoint;
-  class Track;
 }
 
 

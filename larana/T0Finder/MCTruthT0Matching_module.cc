@@ -46,15 +46,10 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Event.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
 #include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
 
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
 #include <iostream>
@@ -63,30 +58,20 @@
 
 // LArSoft
 #include "larcore/Geometry/Geometry.h"
-#include "larcorealg/Geometry/PlaneGeo.h"
-#include "larcorealg/Geometry/WireGeo.h"
 #include "lardataobj/AnalysisBase/T0.h"
 #include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/RecoBase/SpacePoint.h"
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/Cluster.h"
 #include "lardataobj/RecoBase/PFParticle.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/DetectorInfoServices/LArPropertiesService.h"
-#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
-#include "nusimdata/SimulationBase/MCTruth.h"
 #include "larsim/MCCheater/BackTrackerService.h"
 #include "larsim/MCCheater/ParticleInventoryService.h"
-#include "lardataobj/RawData/ExternalTrigger.h"
-#include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h"
-#include "lardataobj/AnalysisBase/ParticleID.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 
 // ROOT
 #include "TTree.h"
-#include "TFile.h"
 
 namespace t0 {
   class MCTruthT0Matching;

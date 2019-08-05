@@ -13,7 +13,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // CLHEP includes
-#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandGauss.h"
 
 // C++ includes
 #include <fstream>

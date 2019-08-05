@@ -20,6 +20,8 @@ class TH1F;
 
 namespace opdet{
 
+  class SimPhotonCounter;
+
   class FlashHypothesisComparison{
 
   public:

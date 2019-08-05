@@ -6,9 +6,10 @@
 
 #include "PedAlgoRollingMean.h"
 #include "UtilFunc.h"
+#include "fhiclcpp/ParameterSet.h"
 
-//#include <ctime>
 #include <iostream>
+
 namespace pmtana{
 
   //*****************************************************************

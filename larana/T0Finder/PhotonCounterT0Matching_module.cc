@@ -32,50 +32,29 @@
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "canvas/Persistency/Common/FindManyP.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Event.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-
-#include "canvas/Utilities/InputTag.h"
+#include "canvas/Persistency/Common/FindManyP.h"
+#include "canvas/Persistency/Common/Ptr.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <memory>
 #include <iostream>
-#include <map>
-#include <iterator>
+#include <memory>
 
 // LArSoft
 #include "larcore/Geometry/Geometry.h"
-#include "larcorealg/Geometry/PlaneGeo.h"
-#include "larcorealg/Geometry/WireGeo.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/AnalysisBase/T0.h"
 #include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/RecoBase/SpacePoint.h"
-#include "lardataobj/RecoBase/Track.h"
-#include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/OpFlash.h"
-#include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/DetectorInfoServices/LArPropertiesService.h"
-#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
-#include "lardata/DetectorInfoServices/DetectorClocksService.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
-#include "nusimdata/SimulationBase/MCTruth.h"
-//#include "larsim/MCCheater/BackTrackerService.h" //No BackTracker functions are actually used in this module (all commented out.
-// #include "larsim/MCCheater/ParticleInventoryService.h"
-#include "lardataobj/RawData/ExternalTrigger.h"
-#include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h"
-#include "lardataobj/AnalysisBase/ParticleID.h"
+#include "lardataobj/RecoBase/Shower.h"
+#include "lardataobj/RecoBase/Track.h"
 
 // ROOT
 #include "TTree.h"
-#include "TFile.h"
 #include "TH1D.h"
 #include "TH2D.h"
 

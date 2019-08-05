@@ -14,8 +14,8 @@
 #ifndef larana_OPTICALDETECTOR_OPTICALRECOEXCEPTION_H
 #define larana_OPTICALDETECTOR_OPTICALRECOEXCEPTION_H
 
-#include <iostream>
 #include <exception>
+#include <string>
 
 namespace pmtana {
   /**
@@ -40,4 +40,3 @@ namespace pmtana {
 }
 #endif
 /** @} */ // end of doxygen group
-

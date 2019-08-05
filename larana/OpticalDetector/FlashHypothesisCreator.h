@@ -10,10 +10,7 @@
  * Output:      FlashHypotheses
 */
 
-#include <iostream>
-#include <numeric>
-
-#include "fhiclcpp/ParameterSet.h"
+#include <vector>
 
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/MCBase/MCTrack.h"

@@ -4,31 +4,30 @@
 ////////////////////////////////////////////////////////////////////
 #ifndef MVAAlg_H
 #define MVAAlg_H
+
 #include <vector>
 #include <map>
-#include <iostream>
 
 #include "fhiclcpp/ParameterSet.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Core/EDProducer.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Core/Frameworkfwd.h"
 
 #include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/RecoBase/Cluster.h"
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
 #include "larreco/Calorimetry/CalorimetryAlg.h"
+#include "lardataobj/AnalysisBase/MVAPIDResult.h"
 
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/Vector3Dfwd.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
 #include "TGraph2D.h"
-#include <Math/Vector3D.h>
 #include "TMVA/Reader.h"
-
-#include "lardataobj/AnalysisBase/MVAPIDResult.h"
-
 
 namespace mvapid{
 

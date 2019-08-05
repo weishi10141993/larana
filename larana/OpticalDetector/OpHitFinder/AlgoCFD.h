@@ -16,8 +16,12 @@
 #define ALGOCFD_H
 
 #include "PMTPulseRecoBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//#include "FhiclLite/PSet.h"
+#include "fhiclcpp/fwd.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
+#include <map>
+#include <string>
+#include <vector>
 
 namespace pmtana
 {
@@ -69,4 +73,3 @@ namespace pmtana
 #endif
 
 /** @} */ // end of doxygen group
-

@@ -8,13 +8,10 @@
 #ifndef CHI2PIDALG_H
 #define CHI2PIDALG_H
 
-#include "TMath.h"
-#include <vector>
 #include <string>
 
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Principal/Event.h"
-
+#include "fhiclcpp/fwd.h"
+#include "canvas/Persistency/Common/Ptr.h"
 
 class TProfile;
 

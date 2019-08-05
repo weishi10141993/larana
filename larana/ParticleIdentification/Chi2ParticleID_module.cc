@@ -6,33 +6,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-extern "C" {
-#include <sys/types.h>
-#include <sys/stat.h>
-}
-
-#include "lardataobj/RecoBase/Track.h"
-#include "lardataobj/AnalysisBase/ParticleID.h"
-#include "lardata/Utilities/AssociationUtil.h"
 #include "larana/ParticleIdentification/Chi2PIDAlg.h"
-
-// ROOT includes
-#include "TFile.h"
-#include "TProfile.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardataobj/AnalysisBase/ParticleID.h"
+#include "lardataobj/RecoBase/Track.h"
 
 // Framework includes
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
-#include "canvas/Persistency/Common/FindManyP.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace pid {
   class Chi2ParticleID;

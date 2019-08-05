@@ -16,13 +16,11 @@
 #define PMTPULSERECOBASE_H
 
 // STL
+#include <string>
 #include <vector>
-#include <cmath>
-#include <functional>
-#include <numeric>
-#include <iostream>
 
 #include "OpticalRecoTypes.h"
+
 namespace pmtana
 {
 

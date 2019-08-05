@@ -6,6 +6,9 @@
 
 #include "PMTPulseRecoBase.h"
 
+#include <iostream>
+#include <numeric>
+
 namespace pmtana{
 
   //*************************************************************************

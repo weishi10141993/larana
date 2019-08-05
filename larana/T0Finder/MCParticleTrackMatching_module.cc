@@ -19,33 +19,22 @@
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "canvas/Persistency/Common/FindManyP.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
+#include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
 #include <iostream>
-#include <map>
 #include <iterator>
 
 // LArSoft
+#include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/Track.h"
-
-#include "lardata/Utilities/AssociationUtil.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
-#include "nusimdata/SimulationBase/MCTruth.h"
-#include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 
 namespace t0 {
   class MCParticleTrackMatching;

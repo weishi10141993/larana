@@ -8,11 +8,16 @@
  * Input:       anab::Calorimetry
  * Output:      PIDA information
 */
-#include "fhiclcpp/ParameterSet.h"
-#include "lardataobj/AnalysisBase/Calorimetry.h"
 
-#include "TTree.h"
-#include "TH1F.h"
+#include <map>
+#include <string>
+#include <vector>
+
+#include "fhiclcpp/fwd.h"
+namespace anab { class Calorimetry; }
+
+class TH1F;
+class TTree;
 
 namespace util{
   class NormalDistribution;

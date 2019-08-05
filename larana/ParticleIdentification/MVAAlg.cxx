@@ -5,22 +5,18 @@
 
 #include "larana/ParticleIdentification/MVAAlg.h"
 #include "larcore/Geometry/Geometry.h"
-//#include "larcorealg/Geometry/TPCGeo.h"
-#include "lardataalg/DetectorInfo/DetectorProperties.h"
-#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
-#include "TPrincipal.h"
-//#include "TF1.h"
-//#include "TF2.h"
-#include "TMatrix.h"
-#include "TVectorD.h"
 #include "larcorealg/CoreUtils/quiet_Math_Functor.h" // remove the wrapper when ROOT header is fixed
-#include <Fit/Fitter.h>
-//#include "TVirtualFitter.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
+#include "lardata/Utilities/AssociationUtil.h"
+#include "lardataalg/DetectorInfo/DetectorProperties.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOneP.h"
-#include "lardata/Utilities/AssociationUtil.h"
+
+#include "TPrincipal.h"
+#include <Fit/Fitter.h>
 
 #include <cmath>
 

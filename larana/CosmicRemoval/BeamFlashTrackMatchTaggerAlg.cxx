@@ -11,7 +11,11 @@
 
 #include "BeamFlashTrackMatchTaggerAlg.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
+
 #include <limits>
+
+#include "TH1F.h"
+#include "TTree.h"
 
 cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p)
   : COSMIC_TYPE_FLASHMATCH(anab::CosmicTagID_t::kFlash_BeamIncompatible),

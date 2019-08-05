@@ -19,21 +19,22 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
 #include <algorithm>
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h"
-#include "art_root_io/TFileService.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/FindManyP.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "larcore/Geometry/Geometry.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/Cluster.h"
-#include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/RecoBase/PFParticle.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
-#include "lardata/Utilities/AssociationUtil.h"
 
 // Local functions.
 namespace
@@ -64,7 +65,7 @@ namespace
     }
 }
 
-class Propagator;
+// class Propagator;
 
 class CRHitRemovalByPCA : public art::EDProducer
 {

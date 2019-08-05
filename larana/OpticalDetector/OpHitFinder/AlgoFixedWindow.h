@@ -16,8 +16,10 @@
 #define ALGOFIXEDWINDOW_H
 
 #include "PMTPulseRecoBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//#include "FhiclLite/PSet.h"
+#include "fhiclcpp/fwd.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
+#include <string>
 
 namespace pmtana
 {
