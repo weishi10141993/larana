@@ -1,53 +1,28 @@
-include_directories ( ${PROJECT_SOURCE_DIR} )
-art_make( 
-
+art_make(
   LIB_LIBRARIES
-  nusimdata_SimulationBase
-  lardataobj_AnalysisBase
-  larreco_Calorimetry
-  lardata_Utilities
-  lardataobj_RecoBase
-  larcorealg_Geometry
-  ${ART_FRAMEWORK_CORE}
-  ${ART_FRAMEWORK_PRINCIPAL}
-  ${ART_FRAMEWORK_SERVICES_REGISTRY}
-  ${ART_FRAMEWORK_SERVICES_BASIC}
-  ${ART_ROOT_IO_TFILE_SUPPORT} ${ROOT_CORE}
-  ${ART_ROOT_IO_TFILESERVICE_SERVICE}
-  art_Persistency_Common
-  art_Persistency_Provenance
-  art_Utilities
-  canvas
-  ${MF_MESSAGELOGGER}
-  
-  ${FHICLCPP}
-  cetlib cetlib_except
-  ${CLHEP}
-  ${ROOT_BASIC_LIB_LIST}
-  ${ROOT_GEOM}
-  ${ROOT_TMVA}
-  ${Boost_SYSTEM_LIBRARY}
-  MODULE_LIBRARIES 
-  nusimdata_SimulationBase
-  larana_ParticleIdentification
-  lardataobj_RecoBase
-  larcorealg_Geometry
-  larcore_Geometry_Geometry_service
-  larreco_Calorimetry
-  lardataobj_AnalysisBase
-  ${ART_FRAMEWORK_CORE}
-  ${ART_FRAMEWORK_PRINCIPAL}
-  ${ART_FRAMEWORK_SERVICES_REGISTRY}
-  ${ART_FRAMEWORK_SERVICES_BASIC}
-  ${ART_ROOT_IO_TFILE_SUPPORT} ${ROOT_CORE}
-  ${ART_ROOT_IO_TFILESERVICE_SERVICE}
-  art_Persistency_Common
-  art_Utilities
-  canvas
-  ${MF_MESSAGELOGGER}
-  
-  ${FHICLCPP}
-  cetlib cetlib_except
+    ${ART_FRAMEWORK_PRINCIPAL}
+    ${ART_FRAMEWORK_SERVICES_REGISTRY}
+    ${ART_PERSISTENCY_PROVENANCE}
+    ${ART_ROOT_IO_TFILESERVICE_SERVICE}
+    ${ART_ROOT_IO_TFILE_SUPPORT}
+    ${FHICLCPP}
+    ${MF_MESSAGELOGGER}
+    ${ROOT_CORE}
+    ${ROOT_HIST}
+    ${ROOT_MATHCORE}
+    ${ROOT_PHYSICS}
+    ${ROOT_RIO}
+    ${ROOT_TMVA}
+    ${ROOT_TREE}
+    canvas
+    cetlib
+    cetlib_except
+    larcorealg_Geometry
+    lardataobj_AnalysisBase
+    larreco_Calorimetry
+    nusimdata_SimulationBase
+  MODULE_LIBRARIES
+   larana_ParticleIdentification
   )
 
 install_headers()
