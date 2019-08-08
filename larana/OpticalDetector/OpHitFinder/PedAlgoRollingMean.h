@@ -39,9 +39,6 @@ namespace pmtana
     PedAlgoRollingMean(const fhicl::ParameterSet &pset,const std::string name="PedRollingMean");
     //PedAlgoRollingMean(const ::fcllite::PSet &pset,const std::string name="PedRollingMean");
 
-    /// Default destructor
-    virtual ~PedAlgoRollingMean();
-
   protected:
 
     /// Method to compute a pedestal of the input waveform using "nsample" ADC samples from "start" index.

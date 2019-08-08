@@ -24,17 +24,6 @@
 //------------------------------------------------------------------------------
 pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
 {
-  this->reconfigure(pset);
-}
-
-//------------------------------------------------------------------------------
-pid::Chi2PIDAlg::~Chi2PIDAlg()
-{
-}
-
-//------------------------------------------------------------------------------
-void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
-{
   fTemplateFile           = pset.get< std::string >("TemplateFile");
   fUseMedian              = pset.get< bool >("UseMedian");
   //fCalorimetryModuleLabel = pset.get< std::string >("CalorimetryModuleLabel");
@@ -54,10 +43,7 @@ void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
 //  std::cout<<"Chi2PIDAlg configuration:"<<std::endl;
 //  std::cout<<"Template file: "<<fROOTfile<<std::endl;
 //  std::cout<<"fUseMedian: "<<fUseMedian<<std::endl;
-
-  return;
 }
-
 
 //------------------------------------------------------------------------------
 void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,

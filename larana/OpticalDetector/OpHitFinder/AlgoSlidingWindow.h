@@ -39,9 +39,6 @@ namespace pmtana
     AlgoSlidingWindow(const fhicl::ParameterSet &pset,const std::string name="SlidingWindow");
     //AlgoSlidingWindow(const ::fcllite::PSet &pset,const std::string name="SlidingWindow");
 
-    /// Default destructor
-    virtual ~AlgoSlidingWindow();
-
     /// Implementation of AlgoSlidingWindow::reset() method
     void Reset();
 

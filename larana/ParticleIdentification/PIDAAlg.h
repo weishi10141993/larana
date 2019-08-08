@@ -47,11 +47,7 @@ const unsigned int MAX_BANDWIDTHS=100;
 
 class pid::PIDAAlg{
  public:
- PIDAAlg(fhicl::ParameterSet const& p):
-  fPIDA_BOGUS(-9999)
-    { this->reconfigure(p); }
-
-  void reconfigure(fhicl::ParameterSet const& p);
+  PIDAAlg(fhicl::ParameterSet const& p);
 
   void RunPIDAAlg(std::vector<float> const&, std::vector<float> const&);
   void RunPIDAAlg(anab::Calorimetry const&);

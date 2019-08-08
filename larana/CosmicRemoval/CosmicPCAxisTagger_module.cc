@@ -95,8 +95,6 @@ cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const & p) :
     fPFParticleModuleLabel = p.get<std::string >("PFParticleModuleLabel");
     fPCAxisModuleLabel     = p.get< std::string >("PCAxisModuleLabel");
 
-    fPcaAlg.reconfigure(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"));
-
     fTPCXBoundary = p.get< float >("TPCXBoundary", 5);
     fTPCYBoundary = p.get< float >("TPCYBoundary", 5);
     fTPCZBoundary = p.get< float >("TPCZBoundary", 5);

@@ -42,7 +42,6 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   using Providers_t = lar::ProviderPack<geo::GeometryCore, detinfo::LArProperties>;
 
   BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p);
-  void reconfigure(fhicl::ParameterSet const& p);
 
   //how to run the algorithm
   void RunCompatibilityCheck(std::vector<recob::OpFlash> const&,

@@ -21,22 +21,20 @@
 #include "TH1F.h"
 #include "TTree.h"
 
-void pid::PIDAAlg::reconfigure(fhicl::ParameterSet const& p){
-  fExponentConstant = p.get<float>("ExponentConstant",0.42);
-  fMinResRange      = p.get<float>("MinResRange",0);
-  fMaxResRange      = p.get<float>("MaxResRange",30);
-  fMaxPIDAValue     = p.get<float>("MaxPIDAValue",50);
-
-  fKDEEvalMaxSigma      = p.get<float>("KDEEvalMaxSigma",3);
-  fKDEEvalStepSize      = p.get<float>("KDEEvalStepSize",0.01);
-  fKDEBandwidths        = p.get< std::vector<float> >("KDEBandwidths");
-
-  fnormalDist = util::NormalDistribution(fKDEEvalMaxSigma,fKDEEvalStepSize);
-
-  fPIDAHistNbins = p.get<unsigned int>("PIDAHistNbins",100);
-  fPIDAHistMin   = p.get<float>("PIDAHistMin",0.0);
-  fPIDAHistMax   = p.get<float>("PIDAHistMax",50.0);
-
+pid::PIDAAlg::PIDAAlg(fhicl::ParameterSet const& p) :
+  fPIDA_BOGUS(-9999),
+  fExponentConstant(p.get<float>("ExponentConstant",0.42)),
+  fMinResRange(p.get<float>("MinResRange",0)),
+  fMaxResRange(p.get<float>("MaxResRange",30)),
+  fMaxPIDAValue(p.get<float>("MaxPIDAValue",50)),
+  fKDEEvalMaxSigma(p.get<float>("KDEEvalMaxSigma",3)),
+  fKDEEvalStepSize(p.get<float>("KDEEvalStepSize",0.01)),
+  fKDEBandwidths(p.get< std::vector<float> >("KDEBandwidths")),
+  fnormalDist(util::NormalDistribution(fKDEEvalMaxSigma,fKDEEvalStepSize)),
+  fPIDAHistNbins(p.get<unsigned int>("PIDAHistNbins",100)),
+  fPIDAHistMin(p.get<float>("PIDAHistMin",0.0)),
+  fPIDAHistMax(p.get<float>("PIDAHistMax",50.0))
+{
   ClearInternalData();
 }
 

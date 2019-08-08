@@ -61,9 +61,6 @@ public:
   /// Default constructor
   TrackContainmentAlg();
 
-  /// Default destructor
-  virtual ~TrackContainmentAlg(){};
-
   void SetupOutputTree(TTree*);
 
   void Configure(fhicl::ParameterSet const&);

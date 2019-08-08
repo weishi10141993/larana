@@ -46,11 +46,6 @@ namespace pmtana{
     //srand(static_cast<unsigned int>(time(0)));
   }
 
-  //*******************************************
-  PedAlgoRollingMean::~PedAlgoRollingMean()
-  //*******************************************
-  {}
-
   //****************************************************************************
   bool PedAlgoRollingMean::ComputePedestal( const pmtana::Waveform_t& wf,
 					    pmtana::PedestalMean_t&   mean_v,

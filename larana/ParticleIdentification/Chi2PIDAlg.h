@@ -27,9 +27,6 @@ namespace pid {
   public:
 
     Chi2PIDAlg(fhicl::ParameterSet const& pset);
-    virtual ~Chi2PIDAlg();
-
-    void reconfigure(fhicl::ParameterSet const& pset);
 
     void DoParticleID(art::Ptr<anab::Calorimetry> calo,
 		      anab::ParticleID &pidOut);

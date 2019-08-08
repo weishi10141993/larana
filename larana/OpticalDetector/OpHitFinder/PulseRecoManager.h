@@ -38,9 +38,6 @@ namespace pmtana
     /// Default constructor
     PulseRecoManager();
 
-    /// Default constructor
-    ~PulseRecoManager();
-
     /// Implementation of ana_base::analyze method
     bool Reconstruct(const pmtana::Waveform_t&) const;
 

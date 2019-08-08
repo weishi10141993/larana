@@ -40,9 +40,6 @@ namespace pmtana
     PedAlgoEdges(const fhicl::ParameterSet &pset,const std::string name="PedEdges");
     //PedAlgoEdges(const ::fcllite::PSet &pset,const std::string name="PedEdges");
 
-    /// Default destructor
-    virtual ~PedAlgoEdges();
-
     /// enum to define algorithm options
     enum PED_METHOD{
       kHEAD = 0, ///< Use first N samples

@@ -40,11 +40,6 @@ namespace pmtana{
 
   }
 
-  //***************************
-  PedAlgoEdges::~PedAlgoEdges()
-  //***************************
-  {}
-
   //*********************************************************************
   bool PedAlgoEdges::ComputePedestal( const pmtana::Waveform_t& wf,
 				      pmtana::PedestalMean_t&   mean_v,

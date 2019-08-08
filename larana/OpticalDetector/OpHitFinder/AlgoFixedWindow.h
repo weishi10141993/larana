@@ -43,9 +43,6 @@ namespace pmtana
     AlgoFixedWindow(const fhicl::ParameterSet &pset,const std::string name="FixedWindow");
     //AlgoFixedWindow(const ::fcllite::PSet &pset,const std::string name="FixedWindow");
 
-    /// Default destructor
-    virtual ~AlgoFixedWindow();
-
     /// Implementation of AlgoFixedWindow::reset() method
     void Reset();
 

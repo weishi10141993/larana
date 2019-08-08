@@ -36,8 +36,6 @@ namespace pmtana
       reset_param();
     }
 
-    ~pulse_param(){}
-
     void reset_param(){
       area = 0;
       peak = -1;
@@ -73,13 +71,13 @@ namespace pmtana
     PMTPulseRecoBase(const std::string name="noname");
 
     /// Default destructor
-    virtual ~PMTPulseRecoBase();
+    virtual ~PMTPulseRecoBase() = default;
 
     /// Name getter
     const std::string& Name() const;
 
     /// Status getter
-    const bool Status() const;
+    bool Status() const;
 
     /// A method to be called event-wise to reset parameters
     virtual void Reset();

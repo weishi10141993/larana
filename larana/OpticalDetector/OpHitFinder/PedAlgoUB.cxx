@@ -29,11 +29,6 @@ namespace pmtana{
     _beam_gate_samples = pset.get<unsigned int>("BeamGateSamples");
   }
 
-  //***************************
-  PedAlgoUB::~PedAlgoUB()
-  //***************************
-  {}
-
   //*********************************************************************
   bool PedAlgoUB::ComputePedestal( const pmtana::Waveform_t& wf,
 				   pmtana::PedestalMean_t&   mean_v,

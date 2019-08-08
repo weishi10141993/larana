@@ -75,8 +75,6 @@ struct SumDistance2 {
 
     void GetWireNormals();
 
-    void reconfigure(fhicl::ParameterSet const& p);
-
     void RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& result,
 		art::Assns<recob::Track, anab::MVAPIDResult, void>& trackAssns,
 		art::Assns<recob::Shower, anab::MVAPIDResult, void>& showerAssns);

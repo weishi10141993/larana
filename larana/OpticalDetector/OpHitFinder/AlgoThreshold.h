@@ -43,9 +43,6 @@ namespace pmtana
     AlgoThreshold(const fhicl::ParameterSet &pset,const std::string name="AlgoThreshold");
     //AlgoThreshold(const ::fcllite::PSet &pset,const std::string name="AlgoThreshold");
 
-    /// Default destructor
-    virtual ~AlgoThreshold();
-
     /// Implementation of AlgoThreshold::reset() method
     void Reset();
 

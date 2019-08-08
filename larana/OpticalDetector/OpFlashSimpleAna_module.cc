@@ -37,7 +37,6 @@ public:
 
   void analyze(art::Event const & e) override;
 
-  void reconfigure(fhicl::ParameterSet const & p) ;
   void beginJob() override;
 
 private:

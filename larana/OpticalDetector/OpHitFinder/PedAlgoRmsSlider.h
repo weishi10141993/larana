@@ -39,9 +39,6 @@ namespace pmtana
     /// Alternative ctor
     PedAlgoRmsSlider(const fhicl::ParameterSet &pset,const std::string name="PedRmsSlider");
 
-    /// Default destructor
-    virtual ~PedAlgoRmsSlider();
-
     /// Print settings
     void PrintInfo();
 

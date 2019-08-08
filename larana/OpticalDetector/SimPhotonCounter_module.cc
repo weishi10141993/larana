@@ -70,7 +70,6 @@ namespace opdet {
     public:
 
       SimPhotonCounter(const fhicl::ParameterSet&);
-      virtual ~SimPhotonCounter();
 
       void analyze(art::Event const&);
 
@@ -263,10 +262,6 @@ namespace opdet {
 
   }
 
-
-  SimPhotonCounter::~SimPhotonCounter()
-  {
-  }
 
   void SimPhotonCounter::endJob()
   {

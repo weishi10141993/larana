@@ -58,7 +58,7 @@ trk::TrackContainmentTagger::TrackContainmentTagger(fhicl::ParameterSet const & 
   fApplyTags = p.get< std::vector<bool> >("ApplyTags",std::vector<bool>(fTrackModuleLabels.size(),true));
 
   if(fApplyTags.size()!=fTrackModuleLabels.size())
-    throw cet::exception("TrackContainmentTagger::reconfigure")
+    throw cet::exception("TrackContainmentTagger::TrackContainmentTagger")
       << "ApplyTags not same size as TrackModuleLabels. ABORT!!!";
 
   fAlg.setMakeCosmicTags();

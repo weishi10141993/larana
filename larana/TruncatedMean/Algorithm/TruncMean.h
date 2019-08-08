@@ -34,12 +34,6 @@ class TruncMean{
 
  public:
 
-  /// Default constructor
-  TruncMean(){}
-
-  /// Default destructor
-  ~TruncMean(){}
-
   /**
      @brief Given residual range and dq vectors return truncated local dq.
      Input vectors are assumed to be match pair-wise (nth entry in rr_v

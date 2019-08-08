@@ -41,9 +41,6 @@ namespace pmtana
     AlgoCFD(const fhicl::ParameterSet &pset,const std::string name="CFD");
     //AlgoCFD(const ::fcllite::PSet &pset,const std::string name="CFD");
 
-    /// Default destructor
-    virtual ~AlgoCFD();
-
     /// Implementation of AlgoCFD::reset() method
     void Reset();
 

@@ -30,14 +30,12 @@ namespace opdet
 
       OpDigiProperties(fhicl::ParameterSet const& pset);
 
-      void reconfigure(fhicl::ParameterSet const& p);
-
       /// Returns sample frequency in MHz
-      double SampleFreq()   { return fSampleFreq; }
+      double SampleFreq() const noexcept { return fSampleFreq; }
       /// Returns window start time in us ... with respect to MC photon T0
-      double TimeBegin()    { return fTimeBegin;  }
+      double TimeBegin() const noexcept { return fTimeBegin;  }
       /// Returns window end time in us ... with respect to MC photon T0
-      double TimeEnd()      { return fTimeEnd;    }
+      double TimeEnd() const noexcept { return fTimeEnd;    }
 
       /**
 	 DEPRECATED as far as Kazu is concerned for UBooNE PMT simulation.
@@ -52,49 +50,49 @@ namespace opdet
       optdata::TimeSlice_t GetTimeSlice(double time_ns);
 
       /// Returns quantum efficiency
-      double QE()              const { return fQE;              }
+      double QE()              const noexcept { return fQE;              }
       /// Returns rate of dark noise
-      double DarkRate()        const { return fDarkRate;        }
+      double DarkRate()        const noexcept { return fDarkRate;        }
       /// Returns rate of pedestal fluctuation
-      double PedFlucRate()     const { return fPedFlucRate;     }
+      double PedFlucRate()     const noexcept { return fPedFlucRate;     }
       /// Returns amplitude of pedestal fluctuation
-      optdata::ADC_Count_t PedFlucAmp()      const { return fPedFlucAmp;      }
+      optdata::ADC_Count_t PedFlucAmp()      const noexcept { return fPedFlucAmp;      }
       /// Returns the saturation scale of the electronics
-      optdata::ADC_Count_t SaturationScale() const { return fSaturationScale; }
+      optdata::ADC_Count_t SaturationScale() const noexcept { return fSaturationScale; }
       /// Returns the ADCBaseline set mean value
-      optdata::ADC_Count_t ADCBaseline() const { return fADCBaseline; }
+      optdata::ADC_Count_t ADCBaseline() const noexcept { return fADCBaseline; }
       /// Returns WF time constant used in analytical model
-      double WFTimeConstant()  const { return fWFTimeConstant;  }
+      double WFTimeConstant()  const noexcept { return fWFTimeConstant;  }
       /// Returns WF power factor used in analytical model
-      double WFPowerFactor()   const { return fWFPowerFactor;   }
+      double WFPowerFactor()   const noexcept { return fWFPowerFactor;   }
       /// Returns set mean gain value for LOW gain
-      double LowGainMean  () const { return fLowGainMean;  }
+      double LowGainMean  () const noexcept { return fLowGainMean;  }
       /// Returns set mean gain value for HIGH gain
-      double HighGainMean () const { return fHighGainMean; }
+      double HighGainMean () const noexcept { return fHighGainMean; }
       /// Returns generated LOW gain value for input channel (PMT-to-PMT spread applied)
       double LowGainMean  (optdata::Channel_t ch) const;
       /// Returns generated HIGH gain value for input channel (PMT-to-PMT spread applied)
       double HighGainMean (optdata::Channel_t ch) const;
 
       /// Returns set value for intrinsic gain spread (common to HIGH and LOW)
-      double GainSpread        () const { return fGainSpread;         }
+      double GainSpread        () const noexcept { return fGainSpread;         }
       /// Returns set value for PMT-to-PMT gain spread
-      double GainSpread_PMT2PMT() const { return fGainSpread_PMT2PMT; }
+      double GainSpread_PMT2PMT() const noexcept { return fGainSpread_PMT2PMT; }
       /// Generate & return LOW gain value for an input channel using mean & spread for this channel
       double LowGain(optdata::Channel_t ch) const;
       /// Generate & return HIGH gain value for an input channel using mean & spread for this channel
       double HighGain(optdata::Channel_t ch) const;
 
       /// Returns a vector of double which represents a binned SPE waveform
-      std::vector<double> SinglePEWaveform() const { return fWaveform;        }
+      std::vector<double> const& SinglePEWaveform() const noexcept { return fWaveform;        }
       /// Returns an array of HIGH gain
-      std::vector<double> HighGainArray()    const { return fHighGainArray;   }
+      std::vector<double> const& HighGainArray()    const noexcept { return fHighGainArray;   }
       /// Returns an array of LOW gain
-      std::vector<double> LowGainArray()     const { return fLowGainArray;    }
+      std::vector<double> const& LowGainArray()     const noexcept { return fLowGainArray;    }
       /// Returns an array of gain spread
-      std::vector<double> GainSpreadArray()  const { return fGainSpreadArray; }
+      std::vector<double> const& GainSpreadArray()  const noexcept { return fGainSpreadArray; }
       /// Returns an array of generated pedestal mean value per channel
-      std::vector<optdata::ADC_Count_t> PedMeanArray() const {return fPedMeanArray;}
+      std::vector<optdata::ADC_Count_t> const& PedMeanArray() const noexcept {return fPedMeanArray;}
 
       /// Utility function ... To be verified (Kazu 08/05/13)
       double GetSPEArea();

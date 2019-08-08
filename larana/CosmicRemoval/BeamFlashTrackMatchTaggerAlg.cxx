@@ -20,25 +20,18 @@
 cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p)
   : COSMIC_TYPE_FLASHMATCH(anab::CosmicTagID_t::kFlash_BeamIncompatible),
     COSMIC_TYPE_OUTSIDEDRIFT(anab::CosmicTagID_t::kOutsideDrift_Partial),
-    DEBUG_FLAG(p.get<bool>("RunDebugMode",false))
-{
-  this->reconfigure(p);
-}
-
-void cosmic::BeamFlashTrackMatchTaggerAlg::reconfigure(fhicl::ParameterSet const& p){
-  fMinTrackLength = p.get<float>("MinTrackLength");
-  fMinOpHitPE     = p.get<float>("MinOpHitPE",0.1);
-  fMIPdQdx        = p.get<float>("MIPdQdx",2.1);
-  fOpDetSaturation = p.get<float>("OpDetSaturation",200.);
-
-  fSingleChannelCut           = p.get<float>("SingleChannelCut");
-  fCumulativeChannelThreshold = p.get<float>("CumulativeChannelThreshold");
-  fCumulativeChannelCut       = p.get<unsigned int>("CumulativeChannelCut");
-  fIntegralCut                = p.get<float>("IntegralCut");
-
-  fMakeOutsideDriftTags       = p.get<bool>("MakeOutsideDriftTags",false);
-  fNormalizeHypothesisToFlash = p.get<bool>("NormalizeHypothesisToFlash");
-}
+    DEBUG_FLAG(p.get<bool>("RunDebugMode",false)),
+    fMinTrackLength(p.get<float>("MinTrackLength")),
+    fMinOpHitPE(p.get<float>("MinOpHitPE",0.1)),
+    fMIPdQdx(p.get<float>("MIPdQdx",2.1)),
+    fOpDetSaturation(p.get<float>("OpDetSaturation",200.)),
+    fSingleChannelCut(p.get<float>("SingleChannelCut")),
+    fCumulativeChannelThreshold(p.get<float>("CumulativeChannelThreshold")),
+    fCumulativeChannelCut(p.get<unsigned int>("CumulativeChannelCut")),
+    fIntegralCut(p.get<float>("IntegralCut")),
+    fMakeOutsideDriftTags(p.get<bool>("MakeOutsideDriftTags",false)),
+    fNormalizeHypothesisToFlash(p.get<bool>("NormalizeHypothesisToFlash"))
+{}
 
 void cosmic::BeamFlashTrackMatchTaggerAlg::SetHypothesisComparisonTree(TTree* tree,
 								       TH1F* hist_flash, TH1F* hist_hyp){

@@ -40,9 +40,6 @@ namespace pmtana
     //PedAlgoUB(const ::fcllite::PSet &pset,
 	      const std::string name = "PedAlgoUB");
 
-    /// Default destructor
-    virtual ~PedAlgoUB();
-
   protected:
 
     /// Method to compute a pedestal of the input waveform using "nsample" ADC samples from "start" index.

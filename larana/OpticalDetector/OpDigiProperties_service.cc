@@ -21,10 +21,64 @@
 namespace opdet{
 
   //--------------------------------------------------------------------
-  OpDigiProperties::OpDigiProperties(fhicl::ParameterSet const& pset)
+  OpDigiProperties::OpDigiProperties(fhicl::ParameterSet const& p)
     : fAnalyticalSPE(0)
   {
-    this->reconfigure(pset);
+    fSampleFreq        = p.get< double       >("SampleFreq"       );
+    fTimeBegin         = p.get< double       >("TimeBegin"        );
+    fTimeEnd           = p.get< double       >("TimeEnd"          );
+    fWaveformFile      = p.get< std::string  >("WaveformFile"     );
+    fPERescale         = p.get< double       >("PERescale"        );
+
+    // PMT properties
+    fQE              = p.get<double>("QE");
+    fDarkRate        = p.get<double>("DarkRate");
+    fSaturationScale = p.get<optdata::ADC_Count_t>("SaturationScale");
+
+    // Shaper properties
+    fUseEmpiricalGain= p.get<bool        >("UseEmpiricalGain");
+    fHighGainFile    = p.get<std::string >("HighGainFile");
+    fLowGainFile     = p.get<std::string >("LowGainFile");
+    fGainSpreadFile  = p.get<std::string >("GainSpreadFile");
+
+    fHighGainMean       = p.get<double   >("HighGainMean");
+    fLowGainMean        = p.get<double   >("LowGainMean");
+    fGainSpread          = p.get<double   >("GainSpread");
+    fGainSpread_PMT2PMT  = p.get<double   >("GainSpread_PMT2PMT");
+
+    // Digitization ped fluc
+    fPedFlucRate     = p.get<double>("PedFlucRate");
+    fPedFlucAmp      = p.get<optdata::ADC_Count_t>("PedFlucAmp");
+    fADCBaseline     = p.get<optdata::ADC_Count_t>("ADCBaseline");
+    fADCBaseSpread   = p.get<double>("ADCBaseSpread");
+
+    // WF related stuff
+    fUseEmpiricalShape = p.get< bool         >("UseEmpiricalShape");
+    fWFLength          = p.get< double       >("WFLength"         );
+
+    fWaveformFile      = p.get< std::string  >("WaveformFile"     );
+    fChargeNormalized      = p.get< bool  >("WaveformChargeNormalized", false);
+
+    // Option 2: WF from analytical function
+    fWFPowerFactor     = p.get< double       >("WFPowerFactor"    );
+    fWFTimeConstant    = p.get< double       >("WFTimeConstant"   );
+    fVoltageAmpForSPE  = p.get< double       >("VoltageAmpForSPE" );
+
+    // Generate the SPE waveform (i.e. fWaveform)
+    GenerateWaveform();
+
+    // Fill gain array
+    FillGainArray();
+
+    // Fill baseline mean
+    FillPedMeanArray();
+
+    // Report
+    std::string msg(Form("%-10s ... %-10s ... %-10s ... %-10s\n","Ch. Number","Pedestal","High Gain","Low Gain"));
+    for(unsigned int i=0;i<fGeometry->NOpChannels();++i) {
+      msg+=Form("%-10d ... %-10d ... %-10g ... %-10g\n",i,fPedMeanArray[i],fHighGainArray[i],fLowGainArray[i]);
+    }
+    mf::LogInfo(__FUNCTION__)<<msg.c_str();
   }
 
   //--------------------------------------------------------------------
@@ -98,69 +152,6 @@ namespace opdet{
     if( time_ns/1.e3 > (fTimeEnd-fTimeBegin)) return std::numeric_limits<optdata::TimeSlice_t>::max();
 
     else return optdata::TimeSlice_t((time_ns/1.e3-fTimeBegin)*fSampleFreq);
-  }
-
-
-  //--------------------------------------------------------------------
-  void OpDigiProperties::reconfigure(fhicl::ParameterSet const& p)
-  {
-    fSampleFreq        = p.get< double       >("SampleFreq"       );
-    fTimeBegin         = p.get< double       >("TimeBegin"        );
-    fTimeEnd           = p.get< double 	     >("TimeEnd"          );
-    fWaveformFile      = p.get< std::string  >("WaveformFile"     );
-    fPERescale         = p.get< double       >("PERescale"        );
-
-    // PMT properties
-    fQE              = p.get<double>("QE");
-    fDarkRate        = p.get<double>("DarkRate");
-    fSaturationScale = p.get<optdata::ADC_Count_t>("SaturationScale");
-
-    // Shaper properties
-    fUseEmpiricalGain= p.get<bool        >("UseEmpiricalGain");
-    fHighGainFile    = p.get<std::string >("HighGainFile");
-    fLowGainFile     = p.get<std::string >("LowGainFile");
-    fGainSpreadFile  = p.get<std::string >("GainSpreadFile");
-
-    fHighGainMean       = p.get<double   >("HighGainMean");
-    fLowGainMean        = p.get<double   >("LowGainMean");
-    fGainSpread          = p.get<double   >("GainSpread");
-    fGainSpread_PMT2PMT  = p.get<double   >("GainSpread_PMT2PMT");
-
-    // Digitization ped fluc
-    fPedFlucRate     = p.get<double>("PedFlucRate");
-    fPedFlucAmp      = p.get<optdata::ADC_Count_t>("PedFlucAmp");
-    fADCBaseline     = p.get<optdata::ADC_Count_t>("ADCBaseline");
-    fADCBaseSpread   = p.get<double>("ADCBaseSpread");
-
-    // WF related stuff
-    fUseEmpiricalShape = p.get< bool         >("UseEmpiricalShape");
-    fWFLength          = p.get< double       >("WFLength"         );
-
-    fWaveformFile      = p.get< std::string  >("WaveformFile"     );
-    fChargeNormalized      = p.get< bool  >("WaveformChargeNormalized", false);
-
-    // Option 2: WF from analytical function
-    fWFPowerFactor     = p.get< double       >("WFPowerFactor"    );
-    fWFTimeConstant    = p.get< double       >("WFTimeConstant"   );
-    fVoltageAmpForSPE  = p.get< double       >("VoltageAmpForSPE" );
-
-    // Generate the SPE waveform (i.e. fWaveform)
-    GenerateWaveform();
-
-    // Fill gain array
-    FillGainArray();
-
-    // Fill baseline mean
-    FillPedMeanArray();
-
-    // Report
-    std::string msg(Form("%-10s ... %-10s ... %-10s ... %-10s\n","Ch. Number","Pedestal","High Gain","Low Gain"));
-    for(unsigned int i=0;i<fGeometry->NOpChannels();++i) {
-      msg+=Form("%-10d ... %-10d ... %-10g ... %-10g\n",i,fPedMeanArray[i],fHighGainArray[i],fLowGainArray[i]);
-    }
-    mf::LogInfo(__FUNCTION__)<<msg.c_str();
-
-    return;
   }
 
   //

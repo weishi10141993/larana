@@ -46,7 +46,6 @@ pid::Chi2ParticleID::Chi2ParticleID(fhicl::ParameterSet const & p)
 {
   fTrackModuleLabel = p.get< std::string >("TrackModuleLabel");
   fCalorimetryModuleLabel = p.get< std::string >("CalorimetryModuleLabel");
-  fChiAlg.reconfigure(p.get< fhicl::ParameterSet >("Chi2PIDAlg"));
 
   produces< std::vector<anab::ParticleID>              >();
   produces< art::Assns<recob::Track, anab::ParticleID> >();

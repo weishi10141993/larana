@@ -50,17 +50,10 @@ namespace pmtana {
     /// Constructor
     PMTAna(const fhicl::ParameterSet&);
 
-    /// Function to be called per sub run
-    void beginSubRun(const art::SubRun& /*srun*/){}
-
     /// Function to be called per event
     void analyze (const art::Event&);
 
   private:
-
-
-    /// Function to clear event-wise variables
-    void ClearEventData();
 
     std::string _fifo_mod_name; ///< Input FIFOChannel producer name
     TTree*      _tree;          ///< output data holder TTree
@@ -106,13 +99,6 @@ namespace pmtana {
     _preco_man.SetDefaultPedAlgo(&_ped_algo);
 
   }
-
-  //#######################################################################################################
-  void PMTAna::ClearEventData()
-  //#######################################################################################################
-  {
-  }
-
 
   //#######################################################################################################
   void PMTAna::analyze(const art::Event& evt)

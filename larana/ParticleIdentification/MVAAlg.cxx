@@ -64,8 +64,6 @@ mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* p
   }
 }
 
-void mvapid::MVAAlg::reconfigure(fhicl::ParameterSet const& p){}
-
 int mvapid::MVAAlg::IsInActiveVol(const TVector3& pos)
 {
   const double fiducialDist = 5.0;

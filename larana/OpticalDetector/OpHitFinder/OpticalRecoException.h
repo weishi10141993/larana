@@ -28,8 +28,6 @@ namespace pmtana {
 
     OpticalRecoException(const std::string& msg="");
 
-    virtual ~OpticalRecoException() throw(){};
-
     virtual const char* what() const throw();
 
   private:
