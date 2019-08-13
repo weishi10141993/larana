@@ -1,9 +1,10 @@
 #include "UtilFunc.h"
 #include "OpticalRecoException.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
 #include <algorithm>
 #include <numeric>
 #include <cmath>
-#include <iostream>
 
 #include "TH1D.h"
 

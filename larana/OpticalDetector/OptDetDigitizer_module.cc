@@ -9,7 +9,6 @@
 // LArSoft includes
 #include "larsim/Simulation/SimListUtils.h"
 #include "lardataobj/Simulation/SimPhotons.h"
-#include "lardataobj/Simulation/sim.h"
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"
 #include "lardataobj/OpticalDetectorData/ChannelData.h"
 #include "lardataobj/OpticalDetectorData/ChannelDataGroup.h"
@@ -21,16 +20,13 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // nutools
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // CLHEP includes
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoisson.h"
 
 // C++ language includes

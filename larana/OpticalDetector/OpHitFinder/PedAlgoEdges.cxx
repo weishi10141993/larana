@@ -8,6 +8,8 @@
 #include "UtilFunc.h"
 #include "OpticalRecoException.h"
 
+#include "fhiclcpp/ParameterSet.h"
+
 namespace pmtana{
 
   //************************************************
@@ -37,11 +39,6 @@ namespace pmtana{
     _method = (PED_METHOD)method;
 
   }
-
-  //***************************
-  PedAlgoEdges::~PedAlgoEdges()
-  //***************************
-  {}
 
   //*********************************************************************
   bool PedAlgoEdges::ComputePedestal( const pmtana::Waveform_t& wf,

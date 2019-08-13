@@ -4,6 +4,8 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "fhiclcpp/ParameterSet.h"
+
 #include "AlgoSlidingWindow.h"
 
 namespace pmtana{
@@ -38,11 +40,6 @@ namespace pmtana{
     Reset();
 
   }
-
-  //***************************************************************
-  AlgoSlidingWindow::~AlgoSlidingWindow()
-  //***************************************************************
-  {}
 
   //***************************************************************
   void AlgoSlidingWindow::Reset()

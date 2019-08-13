@@ -10,6 +10,18 @@
 
 #include "FlashHypothesisAnaAlg.h"
 
+#include "larana/OpticalDetector/FlashHypothesis.h"
+#include "larana/OpticalDetector/FlashHypothesisComparison.h"
+#include "larana/OpticalDetector/FlashHypothesisCreator.h"
+#include "larana/OpticalDetector/SimPhotonCounterAlg.h"
+#include "larcore/Geometry/Geometry.h"
+#include "larcorealg/Geometry/CryostatGeo.h"
+#include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/OpDetGeo.h"
+#include "lardataobj/MCBase/MCTrack.h"
+
+#include "TTree.h"
+
 void opdet::FlashHypothesisAnaAlg::SetOutputObjects(TTree *tree,
 						    TH1F* h_h_p, TH1F* h_s_p, TH1F* h_c_p,
 						    TH1F* h_h_l, TH1F* h_s_l, TH1F* h_c_l,

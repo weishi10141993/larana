@@ -9,13 +9,8 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "canvas/Utilities/InputTag.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
 #include "art_root_io/TFileService.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "TTree.h"
 
@@ -63,7 +58,7 @@ trk::TrackContainmentTagger::TrackContainmentTagger(fhicl::ParameterSet const & 
   fApplyTags = p.get< std::vector<bool> >("ApplyTags",std::vector<bool>(fTrackModuleLabels.size(),true));
 
   if(fApplyTags.size()!=fTrackModuleLabels.size())
-    throw cet::exception("TrackContainmentTagger::reconfigure")
+    throw cet::exception("TrackContainmentTagger::TrackContainmentTagger")
       << "ApplyTags not same size as TrackModuleLabels. ABORT!!!";
 
   fAlg.setMakeCosmicTags();

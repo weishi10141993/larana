@@ -12,7 +12,16 @@
  */
 
 #include "OpHitAlg.h"
-#include <iostream>
+
+#include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
+#include "lardataalg/DetectorInfo/DetectorClocks.h"
+#include "lardataalg/DetectorInfo/ElecClock.h"
+#include "lardataobj/RawData/OpDetWaveform.h"
+#include "lardataobj/RecoBase/OpHit.h"
+#include "larreco/Calibrator/IPhotonCalibrator.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <vector>
 
 namespace opdet{
   //----------------------------------------------------------------------------

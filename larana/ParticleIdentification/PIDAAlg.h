@@ -8,11 +8,16 @@
  * Input:       anab::Calorimetry
  * Output:      PIDA information
 */
-#include "fhiclcpp/ParameterSet.h"
-#include "lardataobj/AnalysisBase/Calorimetry.h"
 
-#include "TTree.h"
-#include "TH1F.h"
+#include <map>
+#include <string>
+#include <vector>
+
+#include "fhiclcpp/fwd.h"
+namespace anab { class Calorimetry; }
+
+class TH1F;
+class TTree;
 
 namespace util{
   class NormalDistribution;
@@ -42,11 +47,7 @@ const unsigned int MAX_BANDWIDTHS=100;
 
 class pid::PIDAAlg{
  public:
- PIDAAlg(fhicl::ParameterSet const& p):
-  fPIDA_BOGUS(-9999)
-    { this->reconfigure(p); }
-
-  void reconfigure(fhicl::ParameterSet const& p);
+  PIDAAlg(fhicl::ParameterSet const& p);
 
   void RunPIDAAlg(std::vector<float> const&, std::vector<float> const&);
   void RunPIDAAlg(anab::Calorimetry const&);

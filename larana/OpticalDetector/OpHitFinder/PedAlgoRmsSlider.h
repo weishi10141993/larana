@@ -15,9 +15,10 @@
 #ifndef larana_OPTICALDETECTOR_PEDALGORMSSLIDER_H
 #define larana_OPTICALDETECTOR_PEDALGORMSSLIDER_H
 
-// STL
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
 #include "PMTPedestalBase.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/fwd.h"
 
 #include <fstream>
 
@@ -37,9 +38,6 @@ namespace pmtana
 
     /// Alternative ctor
     PedAlgoRmsSlider(const fhicl::ParameterSet &pset,const std::string name="PedRmsSlider");
-
-    /// Default destructor
-    virtual ~PedAlgoRmsSlider();
 
     /// Print settings
     void PrintInfo();

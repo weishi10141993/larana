@@ -15,10 +15,12 @@
 #ifndef larana_OPTICALDETECTOR_PEDALGOEDGES_H
 #define larana_OPTICALDETECTOR_PEDALGOEDGES_H
 
-// STL
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
 #include "PMTPedestalBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//#include "FhiclLite/PSet.h"
+#include "fhiclcpp/fwd.h"
+
+#include <string>
 
 namespace pmtana
 {
@@ -37,9 +39,6 @@ namespace pmtana
     /// Alternative ctor
     PedAlgoEdges(const fhicl::ParameterSet &pset,const std::string name="PedEdges");
     //PedAlgoEdges(const ::fcllite::PSet &pset,const std::string name="PedEdges");
-
-    /// Default destructor
-    virtual ~PedAlgoEdges();
 
     /// enum to define algorithm options
     enum PED_METHOD{

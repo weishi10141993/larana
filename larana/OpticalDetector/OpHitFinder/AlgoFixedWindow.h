@@ -16,8 +16,10 @@
 #define ALGOFIXEDWINDOW_H
 
 #include "PMTPulseRecoBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//#include "FhiclLite/PSet.h"
+#include "fhiclcpp/fwd.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
+#include <string>
 
 namespace pmtana
 {
@@ -40,9 +42,6 @@ namespace pmtana
     /// Alternative ctor
     AlgoFixedWindow(const fhicl::ParameterSet &pset,const std::string name="FixedWindow");
     //AlgoFixedWindow(const ::fcllite::PSet &pset,const std::string name="FixedWindow");
-
-    /// Default destructor
-    virtual ~AlgoFixedWindow();
 
     /// Implementation of AlgoFixedWindow::reset() method
     void Reset();

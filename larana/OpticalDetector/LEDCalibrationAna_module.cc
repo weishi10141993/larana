@@ -6,7 +6,10 @@
 //
 
 // LArSoft includes
-#include "larcore/Geometry/Geometry.h"
+#include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
+#include "larcore/CoreUtils/ServiceUtil.h"
+#include "lardataalg/DetectorInfo/DetectorClocks.h"
+#include "lardataalg/DetectorInfo/ElecClock.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
 #include "larana/OpticalDetector/OpHitFinder/AlgoThreshold.h"
 #include "larana/OpticalDetector/OpHitFinder/PedAlgoEdges.h"
@@ -21,14 +24,10 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // ROOT includes
 #include "TH1.h"
-#include "THStack.h"
 #include "TF1.h"
-#include "TLorentzVector.h"
 #include <TTree.h>
 
 // C++ Includes

@@ -1,9 +1,5 @@
-art_make(
-          LIB_LIBRARIES
-        )
-
+art_make()
 
 install_headers()
 install_fhicl()
 install_source()
-

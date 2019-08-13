@@ -13,31 +13,24 @@
 @{*/
 
 // ART includes
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art_root_io/TFileService.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // LArSoft
-//#include "OpticalDetectorData/FIFOChannel.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
-#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
-#include "larcore/Geometry/Geometry.h"
+
 // STL
-#include <cmath>
 #include <functional>
 #include <numeric>
-
+#include <string>
 
 // ROOT
-#include <TString.h>
 #include <TTree.h>
+
 // My modules
 #include "OpHitFinder/AlgoThreshold.h"
 #include "OpHitFinder/AlgoFixedWindow.h"
@@ -57,17 +50,10 @@ namespace pmtana {
     /// Constructor
     PMTAna(const fhicl::ParameterSet&);
 
-    /// Function to be called per sub run
-    void beginSubRun(const art::SubRun& /*srun*/){}
-
     /// Function to be called per event
     void analyze (const art::Event&);
 
   private:
-
-
-    /// Function to clear event-wise variables
-    void ClearEventData();
 
     std::string _fifo_mod_name; ///< Input FIFOChannel producer name
     TTree*      _tree;          ///< output data holder TTree
@@ -79,11 +65,6 @@ namespace pmtana {
   };
 
 }
-
-// PMTAna.cc
-
-// Framework includes
-#include "art/Framework/Core/ModuleMacros.h"
 
 namespace pmtana {
   DEFINE_ART_MODULE(PMTAna)
@@ -118,13 +99,6 @@ namespace pmtana {
     _preco_man.SetDefaultPedAlgo(&_ped_algo);
 
   }
-
-  //#######################################################################################################
-  void PMTAna::ClearEventData()
-  //#######################################################################################################
-  {
-  }
-
 
   //#######################################################################################################
   void PMTAna::analyze(const art::Event& evt)

@@ -13,11 +13,7 @@
 #include <limits>
 
 cosmic::HitTagAssociatorAlg::HitTagAssociatorAlg(fhicl::ParameterSet const& p)
-{
-  this->reconfigure(p);
-}
-
-void cosmic::HitTagAssociatorAlg::reconfigure(fhicl::ParameterSet const& p){}
+{}
 
 void cosmic::HitTagAssociatorAlg::MakeHitTagAssociations(std::vector< std::vector<size_t> > const& bridges_per_hit,
 							 std::vector< std::vector<size_t> > const& tags_per_bridges,

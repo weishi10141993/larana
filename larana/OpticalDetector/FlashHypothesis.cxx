@@ -1,5 +1,7 @@
 #include "FlashHypothesis.h"
+
 #include <limits>
+#include <iostream>
 
 void opdet::FlashHypothesis::SetHypothesisVectorAndErrorVector( std::vector<float> v , std::vector<float> err)
 {

@@ -15,12 +15,13 @@
 #include "lardataobj/RecoBase/OpHit.h"
 #include "lardataalg/DetectorInfo/DetectorClocks.h"
 #include "larreco/Calibrator/IPhotonCalibrator.h"
-#include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
 #include <vector>
+
+namespace calib { class IPhotonCalibrator; }
+namespace detinfo { class DetectorClocks; }
+namespace pmtana { class PulseRecoManager; }
 
 namespace opdet{
 

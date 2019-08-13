@@ -16,13 +16,11 @@
 #define PMTPULSERECOBASE_H
 
 // STL
+#include <string>
 #include <vector>
-#include <cmath>
-#include <functional>
-#include <numeric>
-#include <iostream>
 
 #include "OpticalRecoTypes.h"
+
 namespace pmtana
 {
 
@@ -37,8 +35,6 @@ namespace pmtana
     pulse_param(){
       reset_param();
     }
-
-    ~pulse_param(){}
 
     void reset_param(){
       area = 0;
@@ -75,13 +71,13 @@ namespace pmtana
     PMTPulseRecoBase(const std::string name="noname");
 
     /// Default destructor
-    virtual ~PMTPulseRecoBase();
+    virtual ~PMTPulseRecoBase() = default;
 
     /// Name getter
     const std::string& Name() const;
 
     /// Status getter
-    const bool Status() const;
+    bool Status() const;
 
     /// A method to be called event-wise to reset parameters
     virtual void Reset();

@@ -6,7 +6,11 @@
 
 #include "PulseRecoManager.h"
 #include "OpticalRecoException.h"
+#include "larana/OpticalDetector/OpHitFinder/PMTPedestalBase.h"
+#include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
+
 #include <sstream>
+
 namespace pmtana{
 
   //*******************************************************
@@ -15,11 +19,6 @@ namespace pmtana{
   {
     _reco_algo_v.clear();
   }
-
-  //***************************************************************
-  PulseRecoManager::~PulseRecoManager()
-  //***************************************************************
-  {}
 
   //************************************************************************************
   void PulseRecoManager::AddRecoAlgo (PMTPulseRecoBase* algo, PMTPedestalBase* ped_algo)

@@ -16,8 +16,10 @@
 #define ALGOTHRESHOLD_H
 
 #include "PMTPulseRecoBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//#include "FhiclLite/PSet.h"
+#include "fhiclcpp/fwd.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
+#include <string>
 
 namespace pmtana
 {
@@ -40,9 +42,6 @@ namespace pmtana
     /// Alternative constructor
     AlgoThreshold(const fhicl::ParameterSet &pset,const std::string name="AlgoThreshold");
     //AlgoThreshold(const ::fcllite::PSet &pset,const std::string name="AlgoThreshold");
-
-    /// Default destructor
-    virtual ~AlgoThreshold();
 
     /// Implementation of AlgoThreshold::reset() method
     void Reset();

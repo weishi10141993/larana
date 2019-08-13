@@ -16,8 +16,10 @@
 #define ALGOSLIDINGWINDOW_H
 
 #include "PMTPulseRecoBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//#include "FhiclLite/PSet.h"
+#include "fhiclcpp/fwd.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
+
+#include <string>
 
 namespace pmtana
 {
@@ -36,9 +38,6 @@ namespace pmtana
     /// Alternative ctor
     AlgoSlidingWindow(const fhicl::ParameterSet &pset,const std::string name="SlidingWindow");
     //AlgoSlidingWindow(const ::fcllite::PSet &pset,const std::string name="SlidingWindow");
-
-    /// Default destructor
-    virtual ~AlgoSlidingWindow();
 
     /// Implementation of AlgoSlidingWindow::reset() method
     void Reset();
@@ -66,4 +65,3 @@ namespace pmtana
 #endif
 
 /** @} */ // end of doxygen group
-

@@ -18,16 +18,9 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // LArSoft includes
-#include "lardataobj/RawData/OpDetPulse.h"
-#include "lardataobj/Simulation/sim.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 #include "larana/OpticalDetector/OpDetResponseInterface.h"
 #include "larsim/Simulation/SimListUtils.h"
@@ -37,14 +30,7 @@
 
 // CLHEP includes
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoisson.h"
-
-// ROOT includes
-#include "Rtypes.h"
-#include "TH1D.h"
-#include "TF1.h"
-#include "TRandom.h"
 
 // nutools
 #include "nurandom/RandomUtils/NuRandomService.h"

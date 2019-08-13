@@ -11,7 +11,7 @@
 
 #include "SimPhotonCounter.h"
 
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/fwd.h"
 
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "OpDigiProperties.h"

@@ -12,11 +12,7 @@
 #ifndef TRUNCMEAN_H
 #define TRUNCMEAN_H
 
-#include <iostream>
-#include <algorithm>
-#include <cmath>
 #include <vector>
-#include <climits>
 #include <limits>
 
 /**
@@ -37,12 +33,6 @@ static const float kINVALID_FLOAT = std::numeric_limits<float>::max();
 class TruncMean{
 
  public:
-
-  /// Default constructor
-  TruncMean(){}
-
-  /// Default destructor
-  ~TruncMean(){}
 
   /**
      @brief Given residual range and dq vectors return truncated local dq.

@@ -13,8 +13,6 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-#include "larcore/Geometry/Geometry.h"
-#include "larcorealg/Geometry/OpDetGeo.h"
 #include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "lardataalg/DetectorInfo/LArProperties.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
@@ -23,13 +21,16 @@
 #include "lardataobj/MCBase/MCTrack.h"
 #include "larsim/MCSTReco/MCTrackCollectionAnaAlg.h"
 
-#include "FlashHypothesis.h"
 #include "FlashHypothesisCreator.h"
 #include "SimPhotonCounterAlg.h"
 #include "FlashHypothesisComparison.h"
 
-#include "TTree.h"
-#include "TH1F.h"
+class TH1F;
+class TTree;
+
+namespace geo {
+  class Geometry;
+}
 
 namespace opdet{
 

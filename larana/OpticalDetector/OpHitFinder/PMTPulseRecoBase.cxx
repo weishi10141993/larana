@@ -6,6 +6,9 @@
 
 #include "PMTPulseRecoBase.h"
 
+#include <iostream>
+#include <numeric>
+
 namespace pmtana{
 
   //*************************************************************************
@@ -20,14 +23,9 @@ namespace pmtana{
   { return _name; }
 
   //*****************************************
-  const bool PMTPulseRecoBase::Status() const
+  bool PMTPulseRecoBase::Status() const
   //*****************************************
   { return _status; }
-
-  //***************************************************************
-  PMTPulseRecoBase::~PMTPulseRecoBase()
-  //***************************************************************
-  {}
 
   //******************************************************************
   bool PMTPulseRecoBase::Reconstruct( const Waveform_t& wf,

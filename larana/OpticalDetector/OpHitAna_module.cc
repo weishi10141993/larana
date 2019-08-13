@@ -5,18 +5,28 @@
 //
 
 // LArSoft includes
+#include "larana/OpticalDetector/OpDigiProperties.h"
 #include "larcore/Geometry/Geometry.h"
-#include "lardataobj/RawData/OpDetPulse.h"
+#include "lardataobj/RecoBase/OpHit.h"
 
-// ART includes.
+// Framework includes
 #include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art_root_io/TFileService.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
-// ROOT classes.
-class TH1D;
-class TTree;
+// ROOT includes
+#include "TH1D.h"
+#include "TLorentzVector.h"
+#include "TTree.h"
 
-// C++ includes
-#include <cstring>
+// C++ Includes
+#include "math.h"
 
 namespace opdet {
 
@@ -66,42 +76,9 @@ namespace opdet {
 // from a .fcl file. It is unlikely that you'll have to make any
 // changes to this file.
 
-// Framework includes
-#include "art/Framework/Core/ModuleMacros.h"
-
 namespace opdet {
   DEFINE_ART_MODULE(OpHitAna)
 }
-
-
-// OpHitAna.cxx
-
-// LArSoft includes
-#include "lardataobj/RawData/OpDetPulse.h"
-#include "lardataobj/RecoBase/OpHit.h"
-#include "larana/OpticalDetector/OpDigiProperties.h"
-
-
-// Framework includes
-#include "art/Framework/Principal/Event.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
-// ROOT includes
-#include "TH1.h"
-#include "TTree.h"
-#include "THStack.h"
-#include "TLorentzVector.h"
-
-// C++ Includes
-#include <cstring>
-#include "math.h"
 
 namespace opdet {
 

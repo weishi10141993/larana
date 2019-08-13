@@ -4,6 +4,8 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "fhiclcpp/ParameterSet.h"
+
 #include "AlgoFixedWindow.h"
 
 namespace pmtana{
@@ -32,11 +34,6 @@ namespace pmtana{
 
     _index_end = pset.get<size_t>("EndIndex");
   }
-
-  //***************************************************************
-  AlgoFixedWindow::~AlgoFixedWindow()
-  //***************************************************************
-  {}
 
   //***************************************************************
   void AlgoFixedWindow::Reset()

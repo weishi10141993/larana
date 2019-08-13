@@ -8,11 +8,10 @@
  * Description: Class that represents a flash hypothesis (PEs per opdet) and its error
 */
 
-#include <iostream>
-#include <numeric>
-#include <vector>
 #include <cmath>
+#include <numeric>
 #include <stdexcept>
+#include <vector>
 
 namespace opdet{
 

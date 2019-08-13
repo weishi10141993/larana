@@ -5,8 +5,8 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "PedAlgoUB.h"
-#include "UtilFunc.h"
-#include "OpticalRecoException.h"
+
+#include "fhiclcpp/ParameterSet.h"
 
 namespace pmtana{
 
@@ -28,11 +28,6 @@ namespace pmtana{
   {
     _beam_gate_samples = pset.get<unsigned int>("BeamGateSamples");
   }
-
-  //***************************
-  PedAlgoUB::~PedAlgoUB()
-  //***************************
-  {}
 
   //*********************************************************************
   bool PedAlgoUB::ComputePedestal( const pmtana::Waveform_t& wf,

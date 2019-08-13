@@ -6,15 +6,9 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-extern "C" {
-#include <sys/types.h>
-#include <sys/stat.h>
-}
-
 //#include "RecoBase/Track.h"
 #include "lardataobj/AnalysisBase/Calorimetry.h"
 #include "lardataobj/AnalysisBase/ParticleID.h"
-#include "lardata/Utilities/AssociationUtil.h"
 #include "larana/ParticleIdentification/Chi2PIDAlg.h"
 
 // ROOT includes
@@ -23,27 +17,12 @@ extern "C" {
 #include "TMath.h"
 
 // Framework includes
-#include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "cetlib/search_path.h"
+#include "fhiclcpp/ParameterSet.h"
 
 //------------------------------------------------------------------------------
 pid::Chi2PIDAlg::Chi2PIDAlg(fhicl::ParameterSet const& pset)
-{
-  this->reconfigure(pset);
-}
-
-//------------------------------------------------------------------------------
-pid::Chi2PIDAlg::~Chi2PIDAlg()
-{
-}
-
-//------------------------------------------------------------------------------
-void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
 {
   fTemplateFile           = pset.get< std::string >("TemplateFile");
   fUseMedian              = pset.get< bool >("UseMedian");
@@ -64,10 +43,7 @@ void pid::Chi2PIDAlg::reconfigure(fhicl::ParameterSet const& pset)
 //  std::cout<<"Chi2PIDAlg configuration:"<<std::endl;
 //  std::cout<<"Template file: "<<fROOTfile<<std::endl;
 //  std::cout<<"fUseMedian: "<<fUseMedian<<std::endl;
-
-  return;
 }
-
 
 //------------------------------------------------------------------------------
 void pid::Chi2PIDAlg::DoParticleID(art::Ptr<anab::Calorimetry> calo,

@@ -10,12 +10,9 @@
  * Input:       Assn<recob::Hit,???> and Assn<???,anab::CosmicTag>
  * Output:      Assn<recob::Hit,anab::CosmicTag>
 */
-#include <iostream>
+#include <vector>
 
-#include "fhiclcpp/ParameterSet.h"
-
-#include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/AnalysisBase/CosmicTag.h"
+#include "fhiclcpp/fwd.h"
 
 namespace cosmic{
   class HitTagAssociatorAlg;
@@ -24,7 +21,6 @@ namespace cosmic{
 class cosmic::HitTagAssociatorAlg{
  public:
   HitTagAssociatorAlg(fhicl::ParameterSet const& p);
-  void reconfigure(fhicl::ParameterSet const& p);
 
   //possiblity of multiple tags per bridge object
   void MakeHitTagAssociations(std::vector< std::vector<size_t> > const& bridges_per_hit,

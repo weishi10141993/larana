@@ -15,13 +15,15 @@
 #ifndef PULSERECOMANAGER_H
 #define PULSERECOMANAGER_H
 
-//#include "fhiclcpp/ParameterSet.h"
-//#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
-#include "PMTPulseRecoBase.h"
-#include "PMTPedestalBase.h"
+#include <vector>
+
 namespace pmtana
 {
+
+  class PMTPedestalBase;
+  class PMTPulseRecoBase;
 
   /**
    \class PulseRecoManager
@@ -35,9 +37,6 @@ namespace pmtana
 
     /// Default constructor
     PulseRecoManager();
-
-    /// Default constructor
-    ~PulseRecoManager();
 
     /// Implementation of ana_base::analyze method
     bool Reconstruct(const pmtana::Waveform_t&) const;

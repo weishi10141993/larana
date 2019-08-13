@@ -1,5 +1,8 @@
 #include "FlashHypothesisCalculator.h"
 
+#include "larana/OpticalDetector/FlashHypothesis.h"
+#include "lardataalg/Utilities/MappedContainer.h"
+
 std::vector<double> opdet::FlashHypothesisCalculator::SegmentMidpoint(TVector3 const& pt1, TVector3 const& pt2, float XOffset)
 {
   std::vector<double> xyz_segment(3);

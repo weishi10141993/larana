@@ -11,15 +11,13 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "art_root_io/TFileService.h"
 
 #include "OpFlashAnaAlg.h"
+
+#include "TTree.h"
 
 namespace opdet {
   class OpFlashSimpleAna;
@@ -39,7 +37,6 @@ public:
 
   void analyze(art::Event const & e) override;
 
-  void reconfigure(fhicl::ParameterSet const & p) ;
   void beginJob() override;
 
 private:

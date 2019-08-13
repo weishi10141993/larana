@@ -6,9 +6,10 @@
 
 #include "PedAlgoRollingMean.h"
 #include "UtilFunc.h"
+#include "fhiclcpp/ParameterSet.h"
 
-//#include <ctime>
 #include <iostream>
+
 namespace pmtana{
 
   //*****************************************************************
@@ -44,11 +45,6 @@ namespace pmtana{
     // Random seed number generator
     //srand(static_cast<unsigned int>(time(0)));
   }
-
-  //*******************************************
-  PedAlgoRollingMean::~PedAlgoRollingMean()
-  //*******************************************
-  {}
 
   //****************************************************************************
   bool PedAlgoRollingMean::ComputePedestal( const pmtana::Waveform_t& wf,

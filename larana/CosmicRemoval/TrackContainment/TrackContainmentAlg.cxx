@@ -1,7 +1,11 @@
 #include "TrackContainmentAlg.hh"
 
+#include "fhiclcpp/ParameterSet.h"
 #include "larcorealg/Geometry/GeometryCore.h"
+
 #include <iostream>
+
+#include "TTree.h"
 
 trk::TrackContainmentAlg::TrackContainmentAlg(){}
 

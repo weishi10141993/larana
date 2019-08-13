@@ -9,6 +9,8 @@
 #include "SimPhotonCounterAlg.h"
 #include "OpDetResponseInterface.h"
 
+#include "fhiclcpp/ParameterSet.h"
+
 opdet::SimPhotonCounterAlg::SimPhotonCounterAlg(fhicl::ParameterSet const& p)
 {
   FillAllRanges( p.get< std::vector<fhicl::ParameterSet> >("SimPhotonCounterParams") );

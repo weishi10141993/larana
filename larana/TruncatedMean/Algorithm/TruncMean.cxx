@@ -1,5 +1,8 @@
 #include "TruncMean.h"
 
+#include <algorithm>
+#include <cmath>
+#include <vector>
 
 float TruncMean::CalcIterativeTruncMean(std::vector<float> v, const size_t& nmin,
 					const size_t& nmax, const size_t& currentiteration,

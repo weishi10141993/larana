@@ -12,7 +12,7 @@
 */
 #include <iostream>
 
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/fwd.h"
 
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "lardataobj/RecoBase/Track.h"
@@ -26,10 +26,9 @@
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 
-#include "TTree.h"
-#include "TH1F.h"
 #include "TVector3.h"
-
+class TH1F;
+class TTree;
 
 namespace cosmic{
   class BeamFlashTrackMatchTaggerAlg;
@@ -43,7 +42,6 @@ class cosmic::BeamFlashTrackMatchTaggerAlg{
   using Providers_t = lar::ProviderPack<geo::GeometryCore, detinfo::LArProperties>;
 
   BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p);
-  void reconfigure(fhicl::ParameterSet const& p);
 
   //how to run the algorithm
   void RunCompatibilityCheck(std::vector<recob::OpFlash> const&,

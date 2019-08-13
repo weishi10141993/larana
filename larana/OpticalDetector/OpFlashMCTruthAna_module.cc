@@ -4,20 +4,27 @@
 // detector pulses for each PMT to an output file
 //
 
-// LArSoft includes
-#include "larcore/Geometry/Geometry.h"
+// Framework includes
+#include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art_root_io/TFileService.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "fhiclcpp/ParameterSet.h"
 
+// ROOT includes
 #include "TTree.h"
 
-// ART includes.
-#include "art/Framework/Core/EDAnalyzer.h"
+// C++ Includes
+#include <iostream>
+#include "math.h"
 
-
-// C++ includes
-#include <cstring>
-
+// LArSoft includes
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
+#include "lardataobj/RecoBase/OpFlash.h"
 
 namespace opdet {
 
@@ -67,39 +74,12 @@ namespace opdet {
 // from a .fcl file. It is unlikely that you'll have to make any
 // changes to this file.
 
-// Framework includes
-#include "art/Framework/Core/ModuleMacros.h"
-
 namespace opdet {
   DEFINE_ART_MODULE(OpFlashMCTruthAna)
 }
 
 
 // OpFlashMCTruthAna.cxx
-
-// LArSoft includes
-#include "lardataobj/RawData/OpDetPulse.h"
-#include "lardataobj/RecoBase/OpFlash.h"
-
-
-// Framework includes
-#include "art/Framework/Principal/Event.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
-// ROOT includes
-#include "TLorentzVector.h"
-
-// C++ Includes
-#include <iostream>
-#include <cstring>
-#include "math.h"
 
 namespace opdet {
 

@@ -12,15 +12,13 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDProducer.h" 
 #include "art/Framework/Principal/Event.h" 
-#include "fhiclcpp/ParameterSet.h" 
-#include "messagefacility/MessageLogger/MessageLogger.h" 
+#include "fhiclcpp/fwd.h"
 #include "art_root_io/TFileService.h"
 #include "TTree.h"
 
 #include "MVAAlg.h"
 #include "lardataobj/AnalysisBase/MVAPIDResult.h"
 #include "lardataobj/RecoBase/Track.h"
-#include "lardata/Utilities/AssociationUtil.h"
 
 namespace mvapid {
 

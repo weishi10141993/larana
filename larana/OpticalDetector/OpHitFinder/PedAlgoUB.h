@@ -15,12 +15,11 @@
 #ifndef larana_OPTICALDETECTOR_PEDALGOUB_H
 #define larana_OPTICALDETECTOR_PEDALGOUB_H
 
-// STL
 #include "PMTPedestalBase.h"
-#include "fhiclcpp/ParameterSet.h"
-//m #include "PedAlgoRollingMean.h"
+#include "fhiclcpp/fwd.h"
 #include "PedAlgoRmsSlider.h"
-//#include "FhiclLite/PSet.h"
+
+#include <string>
 
 namespace pmtana
 {
@@ -40,9 +39,6 @@ namespace pmtana
     PedAlgoUB(const fhicl::ParameterSet &pset,
     //PedAlgoUB(const ::fcllite::PSet &pset,
 	      const std::string name = "PedAlgoUB");
-
-    /// Default destructor
-    virtual ~PedAlgoUB();
 
   protected:
 

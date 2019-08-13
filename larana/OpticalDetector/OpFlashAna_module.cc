@@ -6,7 +6,6 @@
 // ROOT includes
 #include "TH1.h"
 #include "TH2.h"
-#include "TLorentzVector.h"
 #include "TTree.h"
 
 // C++ includes
@@ -15,11 +14,9 @@
 
 // LArSoft includes
 #include "larcore/Geometry/Geometry.h"
-#include "lardataobj/RawData/OpDetPulse.h"
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "lardataobj/RecoBase/OpHit.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
-//#include "OpticalDetector/OpDigiProperties.h"
 
 // ART includes.
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -27,11 +24,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art_root_io/TFileService.h"
-#include "art_root_io/TFileDirectory.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 

@@ -14,8 +14,8 @@
 #ifndef larana_OPTICALDETECTOR_OPTICALRECOEXCEPTION_H
 #define larana_OPTICALDETECTOR_OPTICALRECOEXCEPTION_H
 
-#include <iostream>
 #include <exception>
+#include <string>
 
 namespace pmtana {
   /**
@@ -28,8 +28,6 @@ namespace pmtana {
 
     OpticalRecoException(const std::string& msg="");
 
-    virtual ~OpticalRecoException() throw(){};
-
     virtual const char* what() const throw();
 
   private:
@@ -40,4 +38,3 @@ namespace pmtana {
 }
 #endif
 /** @} */ // end of doxygen group
-

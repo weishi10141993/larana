@@ -1,5 +1,7 @@
 #include "larana/OpticalDetector/OpFlashAnaAlg.h"
 
+#include "TTree.h"
+
 void opdet::OpFlashAnaAlg::SetOpFlashTree(TTree* tree, bool makeOpDetPEHist)
 {
   fOpFlashTree = tree;

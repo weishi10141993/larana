@@ -6,7 +6,6 @@
 
 
 // LArSoft includes
-#include "larcore/Geometry/Geometry.h"
 #include "lardataobj/OpticalDetectorData/FIFOChannel.h"
 
 // Framework includes
@@ -18,19 +17,14 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art_root_io/TFileService.h"
 #include "art_root_io/TFileDirectory.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // ROOT includes
 #include "TH1.h"
-#include "THStack.h"
-#include "TF1.h"
-#include "TLorentzVector.h"
 
 // C++ Includes
 #include <map>
 #include <cstring>
 #include <sstream>
-#include "math.h"
 
 namespace opdet {
 
