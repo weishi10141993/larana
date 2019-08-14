@@ -10,6 +10,7 @@ art_make(
     ${ROOT_HIST}
     ${ROOT_PHYSICS}
     ${ROOT_TREE}
+    larcorealg_Geometry
     lardataobj_AnalysisBase
     lardataobj_RecoBase
     larsim_MCCheater_BackTrackerService_service
