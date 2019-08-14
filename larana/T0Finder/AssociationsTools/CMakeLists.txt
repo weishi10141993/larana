@@ -8,6 +8,7 @@ art_make(
     ${MF_MESSAGELOGGER}
     ${ROOT_CORE}
     canvas
+    larcorealg_Geometry
     larsim_MCCheater_BackTrackerService_service
 )
 
