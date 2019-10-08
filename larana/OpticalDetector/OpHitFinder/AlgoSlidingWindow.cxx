@@ -37,6 +37,8 @@ namespace pmtana{
 
     _num_presample = pset.get<size_t>("NumPreSample");
 
+    _min_width = pset.get<size_t>("MinPulseWidth",0);
+
     Reset();
 
   }
@@ -69,7 +71,7 @@ namespace pmtana{
     //threshold += _ped_mean;
 
     Reset();
-
+    
     for(size_t i=0; i<wf.size(); ++i) {
 
       double value = 0.;
@@ -88,7 +90,9 @@ namespace pmtana{
 	if(in_tail) {
 	  _pulse.t_end = i - 1;
 
-	  _pulse_v.push_back(_pulse);
+	  // Register if width is acceptable
+	  if( (_pulse.t_end - _pulse.t_start) >= _min_width )
+	    _pulse_v.push_back(_pulse);
 
 	  _pulse.reset_param();
 
@@ -108,9 +112,10 @@ namespace pmtana{
 	if(sigma_v.at(i) * _end_nsigma < _end_adc_thres) pulse_tail_threshold = _end_adc_thres;
 	else pulse_tail_threshold = sigma_v.at(i) * _end_nsigma;
 
-	int last_pulse_end_index = 0;
-	if(_pulse_v.size()) last_pulse_end_index = _pulse_v.back().t_end;
-	int buffer_num_index = (int)i - last_pulse_end_index;
+	int buffer_num_index = 0;
+	if(_pulse_v.size())
+	  buffer_num_index = (int)i - _pulse_v.back().t_end -1;
+
 	if(buffer_num_index > (int)_num_presample) buffer_num_index = _num_presample;
 
 	if(buffer_num_index<0) {
@@ -143,8 +148,13 @@ namespace pmtana{
 	in_tail = false;
       }
 
+      if( fire && value < pulse_start_threshold ) {
+	fire = false;
+	in_tail = true;
+      }
+
       if( (fire || in_tail) && _verbose ) {
-	std::cout << (fire ? "\033[93mPulsing\033[00m: " : "\033[93mPulse ending\033[00m: ")
+	std::cout << (fire ? "\033[93mPulsing\033[00m: " : "\033[93mIn-tail\033[00m: ")
 		  << "baseline: " << mean_v[i]
 		  << " std: " << sigma_v[i]
 		  << " ... adc above baseline " << value
@@ -152,17 +162,16 @@ namespace pmtana{
 
       }
 
-      if( fire && value < pulse_start_threshold ) {
-	fire = false;
-	in_tail = true;
-      }
+
 
       if( (fire || in_tail) && value < pulse_tail_threshold ){
 
 	// Found the end of a pulse
 	_pulse.t_end = i - 1;
 
-	_pulse_v.push_back(_pulse);
+	// Register if width is acceptable
+	if( (_pulse.t_end - _pulse.t_start) >= _min_width )
+	  _pulse_v.push_back(_pulse);
 
 	if(_verbose)
 	  std::cout << "\033[93mPulse End\033[00m: "
@@ -202,7 +211,9 @@ namespace pmtana{
 
       _pulse.t_end = wf.size() - 1;
 
-      _pulse_v.push_back(_pulse);
+      // Register if width is acceptable
+      if( (_pulse.t_end - _pulse.t_start) >= _min_width )
+	_pulse_v.push_back(_pulse);
 
       _pulse.reset_param();
 
