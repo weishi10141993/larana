@@ -35,7 +35,8 @@ namespace pmtana{
     _max_sigma       = pset.get<float> ("MaxSigma",         0.5  );
     _ped_range_max   = pset.get<float> ("PedRangeMax",      2150 );
     _ped_range_min   = pset.get<float> ("PedRangeMin",      100  );
-
+    _num_presample   = pset.get<int>   ("NumPreSample",     0    );
+    _num_postsample  = pset.get<int>   ("NumPostSample",    0    );
     _verbose         = pset.get<bool>  ("Verbose",          true );
     _n_wf_to_csvfile = pset.get<int>   ("NWaveformsToFile", 12   );
 
@@ -132,16 +133,76 @@ namespace pmtana{
     // Now look for rms variations
     // and change the mean and rms accordingly
     // **********
-
+    int last_good_index = -1;
     double local_mean, local_rms;
+    std::vector<double> local_mean_v(wf.size(),-1.);
+    std::vector<double> local_sigma_v(wf.size(),-1.);
 
-    int    last_good_index = -1;
-    double last_local_mean = -1;
-    double last_local_rms  = -1;
+    for (size_t i = 0; i < wf.size() - _sample_size; i++) {
 
-    std::vector<bool> ped_interapolated;
-    ped_interapolated.resize(wf.size());
-    for (size_t i = 0; i < wf.size(); i++) ped_interapolated.at(i) = false;
+      local_mean = mean(wf, i, _sample_size);
+      local_rms  = std(wf, local_mean, i, _sample_size);
+
+      if(_verbose) std::cout << "\033[93mPedAlgoRmsSlider\033[00m: i " << i 
+			     << "  local_mean: " << local_mean 
+			     << "  local_rms: " << local_rms << std::endl;
+
+      if (local_rms < _threshold) {
+
+	local_mean_v[i] = local_mean;
+	local_sigma_v[i] = local_rms;
+
+        if(_verbose)
+          std::cout << "\033[93mBelow threshold\033[00m: "
+                    << "at i " << i
+                    << " last good index was: " << last_good_index
+                    << std::endl;
+
+      }
+    }
+
+    // find the gaps (regions to be interpolated
+    last_good_index = -1;
+    std::vector<bool> ped_interapolated(wf.size(),false);
+    for(size_t i=0; i < wf.size() - _sample_size; i++) {
+
+      if(local_mean_v[i] > -0.1) {
+	// good pedestal!
+
+        if( ( last_good_index + 1 ) < (int)i ) {
+	  // finished the gap. try interpolation
+	  // 0) find where to start/end interpolation
+	  int start_tick  = last_good_index;
+	  int end_tick    = i;
+	  int start_bound = std::max(last_good_index - _num_presample, 0);
+	  int end_bound   = std::min(i + _num_postsample, (int)(wf.size()) - _sample_size);
+	  for(int j=start_tick; j>=start_bound; --j) {
+	    if(local_mean_v[j] < 0) continue;
+	    start_tick = j;
+	  }
+	  for(int j=end_tick; j<=end_bound; ++j) {
+	    if(local_mean_v[j] < 0) continue;
+	    end_tick = j;
+	  }
+
+          //this should become generic interpolation function, for now lets leave.
+          float slope = (local_mean_v[end_tick] - local_mean_v[start_tick]) / (float(end_tick - start_tick));
+
+          for(int j = start_tick + 1; j < end_tick; ++j) {
+            mean_temp_v.at(j)  = slope * ( float(j - start_tick) ) + local_mean_v[start_tick];
+            // for sigma, put either the sigma in the region before the pulse or
+            // after the pulse, depending on which one if != 0. If both are !=0 put the one after
+            // the pulse (just default), if both are zero then put zero
+            sigma_v.at(j) = (local_sigma_v[end_tick] != 0 ? local_sigma_v[end_tick] : local_sigma_v[start_tick]); // todo: fluctuate baseline
+            ped_interapolated.at(j) = true;
+          }
+	}
+
+        last_good_index = i;
+      }
+    }
+
+    /*
 
     for (size_t i = 0; i < wf.size() - _sample_size; i++) {
 
@@ -151,6 +212,9 @@ namespace pmtana{
       if(_verbose) std::cout << "\033[93mPedAlgoRmsSlider\033[00m: i " << i << "  local_mean: " << local_mean << "  local_rms: " << local_rms << std::endl;
 
       if (local_rms < _threshold) {
+
+	local_mean_v[i] = local_mean;
+	local_sigma_v[i] = local_sigma;
 
         if(_verbose)
           std::cout << "\033[93mBelow threshold\033[00m: "
@@ -181,13 +245,26 @@ namespace pmtana{
           }
         }
 
-        last_good_index = (int)i;
+	// record this mean & rms as good mean value
+        last_good_index = i;
         last_local_mean = local_mean;
         last_local_rms  = local_rms;
+	// if _num_postsample is specified, go back in time to look for it
+	if(_num_postsample >0 && (i>_num_postsample)) {
+	  int loop_start = std::max(((int)i) - _num_postsample, 0);
+	  for(int j=loop_start; j>=0; --j) {
+	    if(local_mean_v[j] <0) continue;
+	    last_good_index = j;
+	    last_local_mean = local_mean_v[j];
+	    last_local_rms  = local_sigma_v[j];
+	    break;
+	  }
+	}
       }
 
 
     }
+     */
 
 
 

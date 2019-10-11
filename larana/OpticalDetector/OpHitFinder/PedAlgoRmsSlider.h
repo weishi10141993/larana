@@ -62,6 +62,8 @@ namespace pmtana
     bool _verbose;        ///< For debugging
     int _n_wf_to_csvfile; ///< If greater than zero saves firsts waveforms with pedestal to csv file
     int _wf_saved = 0;
+    int _num_presample;   ///< number of ADCs to sample before the gap
+    int _num_postsample;  ///< number of ADCs to sample after the gap
     std::ofstream _csvfile;
 
     /// Returns the mean of the elements of the vector from start to start+nsample
