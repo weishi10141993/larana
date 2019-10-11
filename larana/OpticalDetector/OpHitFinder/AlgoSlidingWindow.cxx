@@ -77,6 +77,8 @@ namespace pmtana{
 
     int post_integration = 0;
 
+    assert(wf.size()==mean_v.size() && wf.size()==sigma_v.size());
+
     //double threshold = ( _adc_thres > (_nsigma * _ped_rms) ? _adc_thres : (_nsigma * _ped_rms) );
 
     //threshold += _ped_mean;
@@ -86,16 +88,16 @@ namespace pmtana{
     for(size_t i=0; i<wf.size(); ++i) {
 
       double value = 0.;
-      if(_positive) value = ((double)(wf[i])) -  mean_v.at(i);
-      else value = mean_v.at(i) - ((double)(wf[i]));
+      if(_positive) value = ((double)(wf[i])) -  mean_v[i];
+      else value = mean_v[i] - ((double)(wf[i]));
 
       float start_threshold = 0.;
       float tail_threshold  = 0.;
-      if(sigma_v.at(i) * _nsigma < _adc_thres) start_threshold = _adc_thres;
-      else start_threshold = sigma_v.at(i) * _nsigma;
+      if(sigma_v[i] * _nsigma < _adc_thres) start_threshold = _adc_thres;
+      else start_threshold = sigma_v[i] * _nsigma;
 
-      if(sigma_v.at(i) * _tail_nsigma < _tail_adc_thres) tail_threshold = _tail_adc_thres;
-      else tail_threshold = sigma_v.at(i) * _tail_nsigma;
+      if(sigma_v[i] * _tail_nsigma < _tail_adc_thres) tail_threshold = _tail_adc_thres;
+      else tail_threshold = sigma_v[i] * _tail_nsigma;
 
       // End pulse if significantly high peak found (new pulse)
       if( (!fire || in_tail || in_post) && ((double)value > start_threshold) ) {
@@ -120,11 +122,11 @@ namespace pmtana{
 	//
 
 	pulse_tail_threshold  = tail_threshold;
-	pulse_start_baseline  = mean_v.at(i);
+	pulse_start_baseline  = mean_v[i];
 
 	pulse_end_threshold = 0.;
-	if(sigma_v.at(i) * _end_nsigma < _end_adc_thres) pulse_end_threshold = _end_adc_thres;
-	else pulse_end_threshold = sigma_v.at(i) * _end_nsigma;
+	if(sigma_v[i] * _end_nsigma < _end_adc_thres) pulse_end_threshold = _end_adc_thres;
+	else pulse_end_threshold = sigma_v[i] * _end_nsigma;
 
 	int buffer_num_index = 0;
 	if(_pulse_v.size())
@@ -141,7 +143,7 @@ namespace pmtana{
 
 	_pulse.t_start   = i - buffer_num_index;
 	_pulse.ped_mean  = pulse_start_baseline;
-	_pulse.ped_sigma = sigma_v.at(i);
+	_pulse.ped_sigma = sigma_v[i];
 
 	for(size_t pre_index=_pulse.t_start; pre_index<i; ++pre_index) {
 
@@ -210,7 +212,7 @@ namespace pmtana{
       
       if(fire || in_tail || in_post){
 
-	//_pulse.area += ((double)value - (double)mean_v.at(i));
+	//_pulse.area += ((double)value - (double)mean_v[i]);
 	_pulse.area += value;
 
 	if(_pulse.peak < value) {

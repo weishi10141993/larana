@@ -189,12 +189,12 @@ namespace pmtana{
           float slope = (local_mean_v[end_tick] - local_mean_v[start_tick]) / (float(end_tick - start_tick));
 
           for(int j = start_tick + 1; j < end_tick; ++j) {
-            mean_temp_v.at(j)  = slope * ( float(j - start_tick) ) + local_mean_v[start_tick];
+            mean_temp_v[j]  = slope * ( float(j - start_tick) ) + local_mean_v[start_tick];
             // for sigma, put either the sigma in the region before the pulse or
             // after the pulse, depending on which one if != 0. If both are !=0 put the one after
             // the pulse (just default), if both are zero then put zero
-            sigma_v.at(j) = (local_sigma_v[end_tick] != 0 ? local_sigma_v[end_tick] : local_sigma_v[start_tick]); // todo: fluctuate baseline
-            ped_interapolated.at(j) = true;
+            sigma_v[j] = (local_sigma_v[end_tick] != 0 ? local_sigma_v[end_tick] : local_sigma_v[start_tick]); // todo: fluctuate baseline
+            ped_interapolated[j] = true;
           }
 	}
 
@@ -292,9 +292,9 @@ namespace pmtana{
           end_found = true;
 
           for (size_t j = 0; j < i; j++){
-            mean_temp_v.at(j) = local_mean;
-            sigma_v.at(j) = local_rms;
-            ped_interapolated.at(j) = true;
+            mean_temp_v[j] = local_mean;
+            sigma_v[j] = local_rms;
+            ped_interapolated[j] = true;
           }
           break;
         }
@@ -328,9 +328,9 @@ namespace pmtana{
           start_found = true;
 
           for (size_t j = wf.size()-1; j > i; j--){
-            mean_temp_v.at(j) = local_mean;
-            sigma_v.at(j) = local_rms;
-            ped_interapolated.at(j) = true;
+            mean_temp_v[j] = local_mean;
+            sigma_v[j] = local_rms;
+            ped_interapolated[j] = true;
           }
           break;
         }
@@ -362,7 +362,7 @@ namespace pmtana{
       if( i < _sample_size || i >= (wf.size() - _sample_size) ) continue;
 
       mean_v[i]  = this->CalcMean (mean_temp_v,i - _sample_size,window_size);
-      if(!ped_interapolated.at(i)){
+      if(!ped_interapolated[i]){
         sigma_v[i] = this->CalcStd  (mean_temp_v,mean_v[i],i - _sample_size,window_size);
       }
     }
@@ -371,7 +371,7 @@ namespace pmtana{
     for(size_t i=0; i<_sample_size; ++i) {
 
       mean_v[i]  = mean_v [_sample_size];
-      if(!ped_interapolated.at(i)){
+      if(!ped_interapolated[i]){
         sigma_v[i] = sigma_v[_sample_size];
       }
     }
@@ -380,7 +380,7 @@ namespace pmtana{
     for(size_t i=(mean_temp_v.size() - _sample_size); i<mean_temp_v.size(); ++i) {
 
       mean_v[i]  = mean_v [wf.size() - _sample_size -1];
-      if(!ped_interapolated.at(i)){
+      if(!ped_interapolated[i]){
         sigma_v[i] = sigma_v[wf.size() - _sample_size -1];
       }
     }
@@ -392,7 +392,7 @@ namespace pmtana{
     if (_wf_saved + 1 <= _n_wf_to_csvfile) {
       _wf_saved ++;
       for (size_t i = 0; i < wf.size(); i++) {
-        _csvfile << _wf_saved-1 << "," << i << "," << wf[i] << "," << mean_v.at(i) << "," << sigma_v[i] << std::endl;
+        _csvfile << _wf_saved-1 << "," << i << "," << wf[i] << "," << mean_v[i] << "," << sigma_v[i] << std::endl;
       }
     }
 
@@ -447,8 +447,8 @@ namespace pmtana{
        }
 
       for(size_t i=0; i<mean_v.size(); ++i) {
-        mean_v[i]  = mean_v.at  ( best_sigma_index );
-        sigma_v[i] = sigma_v.at ( best_sigma_index );
+        mean_v[i]  = mean_v  [ best_sigma_index ];
+        sigma_v[i] = sigma_v [ best_sigma_index ];
       }
     }
 
