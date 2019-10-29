@@ -200,44 +200,62 @@ namespace opdet {
     // Get the pulses from the event
     //
 
-    // Reserve a large enough array
-    int totalsize = 0;
-    for (auto label : fInputLabels)
-    {
-      art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
-      evt.getByLabel(fInputModule, label, wfHandle);
-      if (!wfHandle.isValid()) continue; // Skip non-existent collections
-      totalsize += wfHandle->size();
-    }
-
     // Load pulses into WaveformVector
-    std::vector< raw::OpDetWaveform > WaveformVector;
-    WaveformVector.reserve(totalsize);
-    for (auto label : fInputLabels)
-    {
+    if(fChannelMasks.empty() && fInputLabels.size()<2) {
       art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
-      evt.getByLabel(fInputModule, label, wfHandle);
-      if (!wfHandle.isValid()) continue; // Skip non-existent collections
+      if(fInputLabels.empty())
+	evt.getByLabel(fInputModule, wfHandle);
+      else
+	evt.getByLabel(fInputModule, fInputLabels.front(), wfHandle);	
+      assert(wfHandle.isValid());
+      RunHitFinder(*wfHandle,
+		   *HitPtr,
+		   fPulseRecoMgr,
+		   *fThreshAlg,
+		   geometry,
+		   fHitThreshold,
+		   detectorClocks,
+		   calibrator);
+    }else{
 
-      //WaveformVector.insert(WaveformVector.end(),
-      //                      wfHandle->begin(), wfHandle->end());
-      for(auto const& wf : *wfHandle)
-      {
-        if (fChannelMasks.find(wf.ChannelNumber())
-            != fChannelMasks.end()) continue;
-        WaveformVector.push_back(wf);
-      }
+      // Reserve a large enough array
+      int totalsize = 0;
+      for (auto label : fInputLabels)
+	{
+	  art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
+	  evt.getByLabel(fInputModule, label, wfHandle);
+	  if (!wfHandle.isValid()) continue; // Skip non-existent collections
+	  totalsize += wfHandle->size();
+	}
+
+      std::vector< raw::OpDetWaveform > WaveformVector;
+      WaveformVector.reserve(totalsize);
+
+      for (auto label : fInputLabels)
+	{
+	  art::Handle< std::vector< raw::OpDetWaveform > > wfHandle;
+	  evt.getByLabel(fInputModule, label, wfHandle);
+	  if (!wfHandle.isValid()) continue; // Skip non-existent collections
+	  
+	  //WaveformVector.insert(WaveformVector.end(),
+	  //                      wfHandle->begin(), wfHandle->end());
+	  for(auto const& wf : *wfHandle)
+	    {
+	      if (fChannelMasks.find(wf.ChannelNumber())
+		  != fChannelMasks.end()) continue;
+	      WaveformVector.push_back(wf);
+	    }
+	}
+      
+      RunHitFinder(WaveformVector,
+		   *HitPtr,
+		   fPulseRecoMgr,
+		   *fThreshAlg,
+		   geometry,
+		   fHitThreshold,
+		   detectorClocks,
+		   calibrator);
     }
-
-    RunHitFinder(WaveformVector,
-                 *HitPtr,
-                 fPulseRecoMgr,
-                 *fThreshAlg,
-                 geometry,
-                 fHitThreshold,
-                 detectorClocks,
-                 calibrator);
-
     // Store results into the event
     evt.put(std::move(HitPtr));
 

@@ -53,12 +53,15 @@ namespace pmtana
     bool _positive;
 
     /// A variable holder for a user-defined absolute ADC threshold value
-    float _adc_thres, _end_adc_thres;
+    float _adc_thres, _tail_adc_thres, _end_adc_thres;
+
+    /// A variable holder to ensure the minimum pulse width
+    size_t _min_width;
 
     /// A variable holder for a multiplicative factor for the pedestal standard deviation to define the threshold.
-    float _nsigma, _end_nsigma;
+    float _nsigma, _tail_nsigma, _end_nsigma;
     bool _verbose;
-    size_t _num_presample;
+    size_t _num_presample, _num_postsample;
   };
 
 }

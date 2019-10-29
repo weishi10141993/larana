@@ -27,15 +27,23 @@ namespace pmtana{
 
     _adc_thres = pset.get<float>("ADCThreshold");
 
+    _tail_adc_thres = pset.get<float>("TailADCThreshold",_adc_thres);
+
     _end_adc_thres = pset.get<float>("EndADCThreshold");
 
     _nsigma = pset.get<float>("NSigmaThreshold");
+
+    _tail_nsigma = pset.get<float>("TailNSigma",_nsigma);
 
     _end_nsigma = pset.get<float>("EndNSigmaThreshold");
 
     _verbose = pset.get<bool>("Verbosity");
 
     _num_presample = pset.get<size_t>("NumPreSample");
+
+    _num_postsample = pset.get<size_t>("NumPostSample",0);
+
+    _min_width = pset.get<size_t>("MinPulseWidth",0);
 
     Reset();
 
@@ -59,36 +67,48 @@ namespace pmtana{
 
     bool in_tail = false;
 
-    double pulse_start_threshold=0;
-    double pulse_tail_threshold =0;
+    bool in_post = false;
 
-    double pulse_start_baseline =0;
+    double pulse_tail_threshold = 0;
+
+    double pulse_end_threshold  = 0;
+
+    double pulse_start_baseline = 0;
+
+    int post_integration = 0;
+
+    assert(wf.size()==mean_v.size() && wf.size()==sigma_v.size());
 
     //double threshold = ( _adc_thres > (_nsigma * _ped_rms) ? _adc_thres : (_nsigma * _ped_rms) );
 
     //threshold += _ped_mean;
 
     Reset();
-
+    
     for(size_t i=0; i<wf.size(); ++i) {
 
       double value = 0.;
-      if(_positive) value = ((double)(wf[i])) -  mean_v.at(i);
-      else value = mean_v.at(i) - ((double)(wf[i]));
+      if(_positive) value = ((double)(wf[i])) -  mean_v[i];
+      else value = mean_v[i] - ((double)(wf[i]));
 
       float start_threshold = 0.;
+      float tail_threshold  = 0.;
+      if(sigma_v[i] * _nsigma < _adc_thres) start_threshold = _adc_thres;
+      else start_threshold = sigma_v[i] * _nsigma;
 
-      if(sigma_v.at(i) * _nsigma < _adc_thres) start_threshold = _adc_thres;
-      else start_threshold = sigma_v.at(i) * _nsigma;
+      if(sigma_v[i] * _tail_nsigma < _tail_adc_thres) tail_threshold = _tail_adc_thres;
+      else tail_threshold = sigma_v[i] * _tail_nsigma;
 
       // End pulse if significantly high peak found (new pulse)
-      if( (!fire || in_tail) && ((double)value > start_threshold) ) {
+      if( (!fire || in_tail || in_post) && ((double)value > start_threshold) ) {
 
 	// If there's a pulse, end it
 	if(in_tail) {
 	  _pulse.t_end = i - 1;
 
-	  _pulse_v.push_back(_pulse);
+	  // Register if width is acceptable
+	  if( (_pulse.t_end - _pulse.t_start) >= _min_width )
+	    _pulse_v.push_back(_pulse);
 
 	  _pulse.reset_param();
 
@@ -101,16 +121,19 @@ namespace pmtana{
 	// Found a new pulse ... try to get a few samples prior to this
 	//
 
-	pulse_start_threshold = start_threshold;
-	pulse_start_baseline  = mean_v.at(i);
+	pulse_tail_threshold  = tail_threshold;
+	pulse_start_baseline  = mean_v[i];
 
-	pulse_tail_threshold = 0.;
-	if(sigma_v.at(i) * _end_nsigma < _end_adc_thres) pulse_tail_threshold = _end_adc_thres;
-	else pulse_tail_threshold = sigma_v.at(i) * _end_nsigma;
+	pulse_end_threshold = 0.;
+	if(sigma_v[i] * _end_nsigma < _end_adc_thres) pulse_end_threshold = _end_adc_thres;
+	else pulse_end_threshold = sigma_v[i] * _end_nsigma;
 
-	int last_pulse_end_index = 0;
-	if(_pulse_v.size()) last_pulse_end_index = _pulse_v.back().t_end;
-	int buffer_num_index = (int)i - last_pulse_end_index;
+	int buffer_num_index = 0;
+	if(_pulse_v.size())
+	  buffer_num_index = (int)i - _pulse_v.back().t_end -1;
+	else
+	  buffer_num_index = std::min(_num_presample,i);
+
 	if(buffer_num_index > (int)_num_presample) buffer_num_index = _num_presample;
 
 	if(buffer_num_index<0) {
@@ -120,7 +143,7 @@ namespace pmtana{
 
 	_pulse.t_start   = i - buffer_num_index;
 	_pulse.ped_mean  = pulse_start_baseline;
-	_pulse.ped_sigma = sigma_v.at(i);
+	_pulse.ped_sigma = sigma_v[i];
 
 	for(size_t pre_index=_pulse.t_start; pre_index<i; ++pre_index) {
 
@@ -141,10 +164,17 @@ namespace pmtana{
 
 	fire = true;
 	in_tail = false;
+	in_post = false;
       }
 
-      if( (fire || in_tail) && _verbose ) {
-	std::cout << (fire ? "\033[93mPulsing\033[00m: " : "\033[93mPulse ending\033[00m: ")
+      if( fire && value < pulse_tail_threshold ) {
+	fire = false;
+	in_tail = true;
+	in_post = false;
+      }
+
+      if( (fire || in_tail || in_post) && _verbose ) {
+	std::cout << (fire ? "\033[93mPulsing\033[00m: " : "\033[93mIn-tail\033[00m: ")
 		  << "baseline: " << mean_v[i]
 		  << " std: " << sigma_v[i]
 		  << " ... adc above baseline " << value
@@ -152,17 +182,22 @@ namespace pmtana{
 
       }
 
-      if( fire && value < pulse_start_threshold ) {
-	fire = false;
-	in_tail = true;
+
+
+      if( (fire || in_tail) && value < pulse_end_threshold ) {
+	in_post = true;
+	fire = in_tail = false;
+	post_integration = _num_postsample;
       }
 
-      if( (fire || in_tail) && value < pulse_tail_threshold ){
 
+      if( in_post && post_integration<1 ) {
 	// Found the end of a pulse
 	_pulse.t_end = i - 1;
 
-	_pulse_v.push_back(_pulse);
+	// Register if width is acceptable
+	if( (_pulse.t_end - _pulse.t_start) >= _min_width )
+	  _pulse_v.push_back(_pulse);
 
 	if(_verbose)
 	  std::cout << "\033[93mPulse End\033[00m: "
@@ -172,12 +207,12 @@ namespace pmtana{
 
 	fire = false;
 	in_tail = false;
-
+	in_post = false;
       }
+      
+      if(fire || in_tail || in_post){
 
-      if(fire || in_tail){
-
-	//_pulse.area += ((double)value - (double)mean_v.at(i));
+	//_pulse.area += ((double)value - (double)mean_v[i]);
 	_pulse.area += value;
 
 	if(_pulse.peak < value) {
@@ -189,11 +224,13 @@ namespace pmtana{
 
 	}
 
+	if(in_post) --post_integration;
+
       }
 
     }
 
-    if(fire || in_tail){
+    if(fire || in_tail || in_post){
 
       // Take care of a pulse that did not finish within the readout window.
 
@@ -202,7 +239,9 @@ namespace pmtana{
 
       _pulse.t_end = wf.size() - 1;
 
-      _pulse_v.push_back(_pulse);
+      // Register if width is acceptable
+      if( (_pulse.t_end - _pulse.t_start) >= _min_width )
+	_pulse_v.push_back(_pulse);
 
       _pulse.reset_param();
 
