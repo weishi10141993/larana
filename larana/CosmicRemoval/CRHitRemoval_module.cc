@@ -123,7 +123,7 @@ fNumCRRejects(0)
     // let HitCollectionCreator declare that we are going to produce
     // hits and associations with wires and raw digits
     // (with no particular product label)
-    recob::HitCollectionCreator::declare_products(*this);
+    recob::HitCollectionCreator::declare_products(*this, "", true, false);
 
     // Report.
     mf::LogInfo("CRHitRemoval") << "CRHitRemoval configured\n";
