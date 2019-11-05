@@ -66,13 +66,11 @@ private:
                                const art::FindManyP<recob::Hit>&                   clusToHitAssns,
                                HitPtrVector&                                       hitVec);
 
-    void copyAllHits(std::vector< art::Ptr<recob::Hit>>& ,
-                     art::FindOneP<raw::RawDigit>&,
+    void copyAllHits(std::vector< art::Ptr<recob::Hit>>&,
                      art::FindOneP<recob::Wire>&,
                      recob::HitCollectionCreator&);
 
-    void copyInTimeHits(std::vector< art::Ptr<recob::Hit>>& ,
-                        art::FindOneP<raw::RawDigit>&,
+    void copyInTimeHits(std::vector< art::Ptr<recob::Hit>>&,
                         art::FindOneP<recob::Wire>&,
                         recob::HitCollectionCreator&);
 
@@ -167,25 +165,21 @@ void CRHitRemoval::produce(art::Event & evt)
     // Start by looking up the original hits
     art::Handle< std::vector<recob::Hit> > hitHandle;
     evt.getByLabel(fHitProducerLabel, hitHandle);
-
-    // also get the associated wires and raw digits;
-    // we assume they have been created by the same module as the hits
-    art::FindOneP<raw::RawDigit> ChannelHitRawDigits(hitHandle, evt, fHitProducerLabel);
-    art::FindOneP<recob::Wire>   ChannelHitWires(hitHandle, evt, fHitProducerLabel);
-
+    
     // If there are no hits then there should be no output
     if (!hitHandle.isValid()) return;
+
+    // also get the associated wires
+    // Note that we no longer assume RawDigit associations and will not preserve them if they exist
+    // we assume they have been created by the same module as the hits
+    art::FindOneP<recob::Wire> ChannelHitWires(hitHandle, evt, fHitProducerLabel);
 
     HitPtrVector ChHits;
     art::fill_ptr_vector(ChHits, hitHandle);
 
     // this object contains the hit collection
     // and its associations to wires and raw digits:
-    recob::HitCollectionCreator hcol(*this,
-                                     evt,
-                                     /* doWireAssns */ ChannelHitWires.isValid(),
-                                     /* doRawDigitAssns */ ChannelHitRawDigits.isValid()
-                                     );
+    recob::HitCollectionCreator hcol(*this, evt, ChannelHitWires.isValid(), false);
 
     // Now recover thre remaining collections of objects in the event store that we need
     // Recover the PFParticles that are ultimately associated to tracks
@@ -196,7 +190,7 @@ void CRHitRemoval::produce(art::Event & evt)
     // Without a valid collection of PFParticles we can't do the hit removal
     if (!pfParticleHandle.isValid())
     {
-        copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
+        copyAllHits(ChHits, ChannelHitWires, hcol);
 
         // put the hit collection and associations into the event
         hcol.put_into(evt);
@@ -212,7 +206,7 @@ void CRHitRemoval::produce(art::Event & evt)
     // If there are no clusters then something is really wrong
     if (!clusterHandle.isValid())
     {
-        copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
+        copyAllHits(ChHits, ChannelHitWires, hcol);
 
         // put the hit collection and associations into the event
         hcol.put_into(evt);
@@ -280,7 +274,7 @@ void CRHitRemoval::produce(art::Event & evt)
     // No cosmic tags then nothing to do here
     if (cosmicHandleVec.empty())
     {
-        copyAllHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
+        copyAllHits(ChHits, ChannelHitWires, hcol);
 
         // put the hit collection and associations into the event
         hcol.put_into(evt);
@@ -406,7 +400,7 @@ void CRHitRemoval::produce(art::Event & evt)
     }
 
     // Copy our new hit collection to the output
-    copyInTimeHits(ChHits, ChannelHitRawDigits, ChannelHitWires, hcol);
+    copyInTimeHits(ChHits, ChannelHitWires, hcol);
 
     // put the hit collection and associations into the event
     hcol.put_into(evt);
@@ -465,24 +459,21 @@ void CRHitRemoval::collectPFParticleHits(const recob::PFParticle*               
 }
 
 void CRHitRemoval::copyAllHits(std::vector< art::Ptr<recob::Hit>>& inputHits,
-                               art::FindOneP<raw::RawDigit>&       rawDigitAssns,
                                art::FindOneP<recob::Wire>&         wireAssns,
                                recob::HitCollectionCreator&        newHitCollection)
 {
     for(const auto& hitPtr : inputHits)
     {
-        art::Ptr<recob::Wire>   wire      = wireAssns.at(hitPtr.key());
-        art::Ptr<raw::RawDigit> rawdigits = rawDigitAssns.at(hitPtr.key());
+        art::Ptr<recob::Wire> wire = wireAssns.at(hitPtr.key());
 
         // just copy it
-        newHitCollection.emplace_back(*hitPtr, wire, rawdigits);
+        newHitCollection.emplace_back(*hitPtr, wire);
     }
 
     return;
 }
 
 void CRHitRemoval::copyInTimeHits(std::vector< art::Ptr<recob::Hit>>& inputHits,
-                                  art::FindOneP<raw::RawDigit>&       rawDigitAssns,
                                   art::FindOneP<recob::Wire>&         wireAssns,
                                   recob::HitCollectionCreator&        newHitCollection)
 {
@@ -491,11 +482,10 @@ void CRHitRemoval::copyInTimeHits(std::vector< art::Ptr<recob::Hit>>& inputHits,
         // Check on out of time hits
         if (hitPtr->PeakTimeMinusRMS() < fMinTickDrift || hitPtr->PeakTimePlusRMS() > fMaxTickDrift) continue;
 
-        art::Ptr<recob::Wire>   wire      = wireAssns.at(hitPtr.key());
-        art::Ptr<raw::RawDigit> rawdigits = rawDigitAssns.at(hitPtr.key());
+        art::Ptr<recob::Wire> wire = wireAssns.at(hitPtr.key());
 
         // just copy it
-        newHitCollection.emplace_back(*hitPtr, wire, rawdigits);
+        newHitCollection.emplace_back(*hitPtr, wire);
     }
 
     return;

@@ -23,7 +23,6 @@
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
 #include "lardataobj/MCBase/MCHitCollection.h"
-#include "lardataobj/RawData/RawDigit.h"
 #include "lardataobj/RecoBase/Cluster.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/Track.h"
@@ -216,9 +215,6 @@ void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   // ##################################################################
   // ### Grabbing ALL HITS in the event to monitor the backtracking ###
   // ##################################################################
-  art::Handle< std::vector<raw::RawDigit> > rawdigitHandle;
-  evt.getByLabel("daq",rawdigitHandle);
-
   art::Handle< std::vector<recob::Hit> > hitListHandle;
   evt.getByLabel(fHitsModuleLabel,hitListHandle);
   std::vector<recob::Hit> const& hitVector(*hitListHandle);
