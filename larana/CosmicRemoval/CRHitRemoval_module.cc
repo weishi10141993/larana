@@ -123,7 +123,7 @@ fNumCRRejects(0)
     // let HitCollectionCreator declare that we are going to produce
     // hits and associations with wires and raw digits
     // (with no particular product label)
-    recob::HitCollectionCreator::declare_products(*this, "", true, false);
+    recob::HitCollectionCreator::declare_products(producesCollector(), "", true, false);
 
     // Report.
     mf::LogInfo("CRHitRemoval") << "CRHitRemoval configured\n";
@@ -179,7 +179,7 @@ void CRHitRemoval::produce(art::Event & evt)
 
     // this object contains the hit collection
     // and its associations to wires and raw digits:
-    recob::HitCollectionCreator hcol(*this, evt, ChannelHitWires.isValid(), false);
+    recob::HitCollectionCreator hcol(evt, ChannelHitWires.isValid(), false);
 
     // Now recover thre remaining collections of objects in the event store that we need
     // Recover the PFParticles that are ultimately associated to tracks
