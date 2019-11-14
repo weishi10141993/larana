@@ -22,7 +22,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 
-// nutools
+// nurandom
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // CLHEP includes

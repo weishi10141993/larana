@@ -32,7 +32,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
 
-// nutools
+// nurandom
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // C++ language includes
