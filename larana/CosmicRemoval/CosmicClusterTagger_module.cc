@@ -101,7 +101,7 @@ void cosmic::CosmicClusterTagger::produce(art::Event & e) {
     anab::CosmicTagID_t tag_id = anab::CosmicTagID_t::kUnknown;
 
     art::Ptr<recob::Cluster> tCluster = ClusterVec.at(iCluster);
-    art::Ptr<recob::Track> tTrack;
+    // art::Ptr<recob::Track> tTrack; // unused
 
      std::vector<float> endPt1;
      std::vector<float> endPt2;
