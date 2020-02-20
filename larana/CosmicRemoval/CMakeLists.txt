@@ -3,9 +3,9 @@ add_subdirectory(TrackContainment)
 art_make(
   LIB_LIBRARIES
     ${FHICLCPP}
-    ${ROOT_CORE}
-    ${ROOT_HIST}
-    ${ROOT_PHYSICS}
+    ROOT::Core
+    ROOT::Hist
+    ROOT::Physics
     cetlib_except
     larcorealg_Geometry
     lardataobj_AnalysisBase
@@ -17,9 +17,9 @@ art_make(
     ${ART_ROOT_IO_TFILESERVICE_SERVICE}
     ${ART_ROOT_IO_TFILE_SUPPORT}
     ${MF_MESSAGELOGGER}
-    ${ROOT_CORE}
-    ${ROOT_PHYSICS}
-    ${ROOT_TREE}
+    ROOT::Core
+    ROOT::Physics
+    ROOT::Tree
     larana_CosmicRemoval
     larana_CosmicRemoval_TrackContainment
     larcorealg_Geometry

@@ -6,7 +6,7 @@ art_make(
     ${ART_FRAMEWORK_SERVICES_REGISTRY}
     ${ART_PERSISTENCY_PROVENANCE}
     ${MF_MESSAGELOGGER}
-    ${ROOT_CORE}
+    ROOT::Core
     canvas
     larcorealg_Geometry
     larsim_MCCheater_BackTrackerService_service

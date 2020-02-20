@@ -1,7 +1,7 @@
 art_make(
   LIB_LIBRARIES
     ${FHICLCPP}
-    ${ROOT_CORE}
+    ROOT::Core
     cetlib_except
     larcorealg_Geometry
     lardataobj_AnalysisBase
