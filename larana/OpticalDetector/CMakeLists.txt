@@ -10,11 +10,11 @@ art_make(
     ${CLHEP}
     ${FHICLCPP}
     ${MF_MESSAGELOGGER}
-    ${ROOT_CORE}
-    ${ROOT_HIST}
-    ${ROOT_PHYSICS}
-    ${ROOT_RIO}
-    ${ROOT_TREE}
+    ROOT::Core
+    ROOT::Hist
+    ROOT::Physics
+    ROOT::RIO
+    ROOT::Tree
     canvas
     cetlib_except
     larana_OpticalDetector_OpDigiProperties_service
@@ -34,8 +34,8 @@ art_make(
   SERVICE_LIBRARIES
     ${CLHEP}
     ${MF_MESSAGELOGGER}
-    ${ROOT_CORE}
-    ${ROOT_HIST}
+    ROOT::Core
+    ROOT::Hist
     larcorealg_Geometry
   )
 

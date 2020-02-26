@@ -6,8 +6,8 @@ art_make(
     ${MF_MESSAGELOGGER}
     ${FHICLCPP}
     cetlib_except
-    ${ROOT_CORE}
-    ${ROOT_HIST}
+    ROOT::Core
+    ROOT::Hist
   )
 
 install_headers()
