@@ -2,6 +2,7 @@ add_subdirectory(TrackContainment)
 
 art_make(
   LIB_LIBRARIES
+    ${ART_UTILITIES}
     ${FHICLCPP}
     ROOT::Core
     ROOT::Hist
