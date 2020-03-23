@@ -4,6 +4,7 @@
 // from the optical system, called Flashes.
 
 // LArSoft includes
+#include "larcore/CoreUtils/ServiceUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardataobj/OpticalDetectorData/OpticalRawDigit.h"
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"

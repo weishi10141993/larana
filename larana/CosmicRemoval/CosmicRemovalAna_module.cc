@@ -19,6 +19,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 // LArSoft Includes
+#include "larcore/CoreUtils/ServiceUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
