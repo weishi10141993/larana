@@ -185,7 +185,8 @@ namespace opdet {
     }
 
     auto const& geometry(*lar::providerFrom<geo::Geometry>());
-    auto const& detectorClocks(*lar::providerFrom<detinfo::DetectorClocksService>());
+    auto const clock_data =
+      art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
     auto const& calibrator(*fCalib);
     //
     // Get the pulses from the event
@@ -205,7 +206,7 @@ namespace opdet {
                    *fThreshAlg,
                    geometry,
                    fHitThreshold,
-                   detectorClocks,
+                   clock_data,
                    calibrator);
     }
     else {
@@ -241,7 +242,7 @@ namespace opdet {
                    *fThreshAlg,
                    geometry,
                    fHitThreshold,
-                   detectorClocks,
+                   clock_data,
                    calibrator);
     }
     // Store results into the event

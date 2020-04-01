@@ -4,7 +4,6 @@
 // from the optical system, called Flashes.
 
 // LArSoft includes
-#include "larcore/CoreUtils/ServiceUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardataobj/OpticalDetectorData/OpticalRawDigit.h"
 #include "lardataobj/OpticalDetectorData/OpticalTypes.h"
@@ -99,7 +98,8 @@ namespace opdet {
     evt.getByLabel(fInputModule, ordHandle);
     std::vector<optdata::OpticalRawDigit> const& ord_vec(*ordHandle);
 
-    auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
+    auto const clock_data =
+      art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
 
     for (auto ord : ord_vec) {
       optdata::Channel_t channel = ord.ChannelNumber();
@@ -109,7 +109,7 @@ namespace opdet {
 
       // Use the optical clock to conver timeSlice and frame
       // to an absolute time
-      double timeStamp = ts->OpticalClock().Time(timeSlice, frame);
+      double timeStamp = clock_data.OpticalClock().Time(timeSlice, frame);
 
       RawOpDetVecs[category]->push_back(raw::OpDetWaveform(timeStamp, channel, ord));
     }

@@ -55,15 +55,16 @@ cosmic::CosmicPFParticleTagger::CosmicPFParticleTagger(fhicl::ParameterSet const
 {
 
   ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-  auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
   auto const* geo = lar::providerFrom<geo::Geometry>();
-  auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
+  auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
+  auto const detp =
+    art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataForJob(clock_data);
 
   fDetHalfHeight = geo->DetHalfHeight();
   fDetWidth = 2. * geo->DetHalfWidth();
   fDetLength = geo->DetLength();
 
-  float fSamplingRate = detp->SamplingRate();
+  float fSamplingRate = sampling_rate(clock_data);
 
   fPFParticleModuleLabel = p.get<std::string>("PFParticleModuleLabel");
   fTrackModuleLabel = p.get<std::string>("TrackModuleLabel", "track");
@@ -74,15 +75,13 @@ cosmic::CosmicPFParticleTagger::CosmicPFParticleTagger(fhicl::ParameterSet const
   fTPCYBoundary = p.get<float>("TPCYBoundary", 5);
   fTPCZBoundary = p.get<float>("TPCZBoundary", 5);
 
-  const double driftVelocity = detp->DriftVelocity(detp->Efield(), detp->Temperature()); // cm/us
+  const double driftVelocity = detp.DriftVelocity(detp.Efield(), detp.Temperature()); // cm/us
 
-  //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks =
     2 * geo->DetHalfWidth() / (driftVelocity * fSamplingRate / 1000); // ~3200 for uB
-  fMinTickDrift = ts->Time2Tick(ts->TriggerTime());
+  fMinTickDrift = clock_data.Time2Tick(clock_data.TriggerTime());
   fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks + fEndTickPadding;
 
-  // Call appropriate Produces<>() functions here.
   produces<std::vector<anab::CosmicTag>>();
   produces<art::Assns<anab::CosmicTag, recob::Track>>();
   produces<art::Assns<recob::PFParticle, anab::CosmicTag>>();
@@ -219,7 +218,6 @@ cosmic::CosmicPFParticleTagger::produce(art::Event& evt)
       int peakLessRms = hitVec[p]->PeakTimeMinusRMS();
       int peakPlusRms = hitVec[p]->PeakTimePlusRMS();
 
-      //if( hitVec[p]->PeakTimeMinusRMS() < fMinTickDrift || hitVec[p]->PeakTimePlusRMS() > fMaxTickDrift)
       if (peakLessRms < fMinTickDrift || peakPlusRms > fMaxTickDrift) {
         if (++nOutOfTime > fMaxOutOfTime) {
           isCosmic = 1;
@@ -349,9 +347,6 @@ cosmic::CosmicPFParticleTagger::produce(art::Event& evt)
   evt.put(std::move(assnOutCosmicTagTrack));
   evt.put(std::move(assnOutCosmicTagPFParticle));
 
-  return;
-
 } // end of produce
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEFINE_ART_MODULE(cosmic::CosmicPFParticleTagger)

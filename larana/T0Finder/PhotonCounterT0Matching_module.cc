@@ -278,10 +278,10 @@ lbne::PhotonCounterT0Matching::produce(art::Event& evt)
 {
   // Access art services...
   art::ServiceHandle<geo::Geometry const> geom;
-  auto const* detprop = lar::providerFrom<detinfo::DetectorPropertiesService>();
-  auto const* timeservice = lar::providerFrom<detinfo::DetectorClocksService>();
-  //Commenting this out since it doesn't appear to actually be used.
-  //  art::ServiceHandle<cheat::BackTrackerService const> bt_serv;
+  auto const clock_data =
+    art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
+  auto const detprop =
+    art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataFor(evt, clock_data);
 
   //TrackList handle
   art::Handle<std::vector<recob::Track>> trackListHandle;
@@ -340,9 +340,9 @@ lbne::PhotonCounterT0Matching::produce(art::Event& evt)
       std::vector<art::Ptr<recob::Hit>> allHits = fmtht.at(iTrk);
       size_t nHits = allHits.size();
       trkTimeStart = allHits[nHits - 1]->PeakTime() /
-                     timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
+                     clock_data.TPCClock().Frequency(); // Got in ticks, now in us!
       trkTimeEnd =
-        allHits[0]->PeakTime() / timeservice->TPCClock().Frequency(); //Got in ticks, now in us!
+        allHits[0]->PeakTime() / clock_data.TPCClock().Frequency(); // Got in ticks, now in us!
       TrackProp(trackStart.X(),
                 trackEnd.X(),
                 TrackLength_X,
@@ -381,7 +381,7 @@ lbne::PhotonCounterT0Matching::produce(art::Event& evt)
         // Check flash could be caused by track...
         FlashTime = flashlist[iFlash]->Time(); // Got in us!
         TimeSep = trkTimeCentre - FlashTime;   // Time in us!
-        if (TimeSep < 0 || TimeSep > (fDriftWindowSize / timeservice->TPCClock().Frequency()))
+        if (TimeSep < 0 || TimeSep > (fDriftWindowSize / clock_data.TPCClock().Frequency()))
           continue; // Times compared in us!
 
         // Check flash has enough PE's to satisfy our threshold
@@ -392,7 +392,7 @@ lbne::PhotonCounterT0Matching::produce(art::Event& evt)
         PredictedX =
           (fPredictedXConstant / pow(flashlist[iFlash]->TotalPE(), fPredictedXPower)) +
           (exp(fPredictedExpConstant + (fPredictedExpGradient * flashlist[iFlash]->TotalPE())));
-        TimeSepPredX = TimeSep * detprop->DriftVelocity(); // us * cm/us = cm!
+        TimeSepPredX = TimeSep * detprop.DriftVelocity(); // us * cm/us = cm!
         DeltaPredX = fabs(TimeSepPredX - PredictedX);
         // Dependant on each point...
         for (size_t Point = 1; Point < tracklist[iTrk]->NumberTrajectoryPoints(); ++Point) {
@@ -424,8 +424,6 @@ lbne::PhotonCounterT0Matching::produce(art::Event& evt)
                     << FitParam << std::endl;
         }
         //----Select best flash------
-        //double YFitRegion = (-1 * DeltaPredX ) + 80;
-        //if ( minYZSep > YFitRegion ) continue;
         if (FitParam < BestFitParam) {
           ValidTrack = true;
           BestFlash = (int)iFlash;
@@ -460,7 +458,6 @@ lbne::PhotonCounterT0Matching::produce(art::Event& evt)
             hPhotonT0_MCT0->Fill(BestFlashTime, MCTruthT0);
             hT0_diff_full->Fill(MCTruthT0 - BestFlashTime);
             hT0_diff_zoom->Fill(MCTruthT0 - BestFlashTime);
-            //std::cout << "Size " << T0s.size() << " " << MCTruthT0 << " " << BestFlashTime << std::endl;
           }
         }
         // -- Fill TTree --
@@ -472,52 +469,6 @@ lbne::PhotonCounterT0Matching::produce(art::Event& evt)
       } // Valid Track
     }   // Loop over tracks
   }
-  /* // ------------------------------------------------- SHOWER STUFF -------------------------------------------------
-  if (showerListHandle.isValid()){
-    art::FindManyP<recob::Hit> fmsht(showerListHandle,evt, fShowerModuleLabel);
-    // Now Loop over showers....
-    size_t NShowers = showerlist.size();
-    for (size_t Shower = 0; Shower < NShowers; ++Shower) {
-      ShowerMatchID     = 0;
-      ShowerID          = 0;
-      ShowerT0          = 0;
-      std::vector< art::Ptr<recob::Hit> > allHits = fmsht.at(Shower);
-
-      std::map<int,double> showeride;
-      for(size_t h = 0; h < allHits.size(); ++h){
-	art::Ptr<recob::Hit> hit = allHits[h];
-	std::vector<sim::IDE> ides;
-	std::vector<sim::TrackIDE> TrackIDs = bt->HitToTrackID(hit);
-
-	for(size_t e = 0; e < TrackIDs.size(); ++e){
-	  showeride[TrackIDs[e].trackID] += TrackIDs[e].energy;
-	}
-      }
-      // Work out which IDE despoited the most charge in the hit if there was more than one.
-      double maxe = -1;
-      double tote = 0;
-      for (std::map<int,double>::iterator ii = showeride.begin(); ii!=showeride.end(); ++ii){
-	tote += ii->second;
-	if ((ii->second)>maxe){
-	  maxe = ii->second;
-	  ShowerID = ii->first;
-	}
-      }
-      // Now have MCParticle trackID corresponding to shower, so get PdG code and T0 etc.
-      const simb::MCParticle *particle = bt->TrackIDToParticle(ShowerID);
-      ShowerT0 = particle->T();
-      ShowerID = particle->TrackId();
-      ShowerTriggerType = 1; // Using PhotonCounter as trigger, so tigger type is 1.
-
-      T0col->push_back(anab::T0(ShowerT0,
-				ShowerTriggerType,
-				ShowerID,
-				(*T0col).size()
-				));
-      util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn);
-    }// Loop over showers
-  }
-  */
   evt.put(std::move(T0col));
   evt.put(std::move(Trackassn));
   evt.put(std::move(Showerassn));
@@ -582,7 +533,6 @@ lbne::PhotonCounterT0Matching::DistFromPoint(double StartY,
 {
   ///Calculate the distance between the centre of the flash and the centre of a line connecting two adjacent space points.
   double Length = hypot(fabs(EndY - StartY), fabs(EndZ - StartZ));
-  //  double distance = (double)((point.x - line_start.x) * (line_end.y - line_start.y) - (point.y - line_start.y) * (line_end.x - line_start.x)) / normalLength;
   double distance =
     ((PointZ - StartZ) * (EndY - StartY) - (PointY - StartY) * (EndZ - StartZ)) / Length;
   return fabs(distance);

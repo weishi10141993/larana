@@ -6,9 +6,9 @@
 #include "larana/ParticleIdentification/MVAAlg.h"
 #include "larcore/Geometry/Geometry.h"
 #include "larcorealg/CoreUtils/quiet_Math_Functor.h" // remove the wrapper when ROOT header is fixed
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "lardataalg/DetectorInfo/DetectorProperties.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -20,10 +20,8 @@
 
 #include <cmath>
 
-mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule)
-  : fCaloAlg(pset.get<fhicl::ParameterSet>("CalorimetryAlg"))
-  , fParentModule(parentModule)
-  , fReader("")
+mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset)
+  : fCaloAlg(pset.get<fhicl::ParameterSet>("CalorimetryAlg")), fReader("")
 {
   fHitLabel = pset.get<std::string>("HitLabel");
   fTrackLabel = pset.get<std::string>("TrackLabel");
@@ -141,8 +139,11 @@ mvapid::MVAAlg::RunPID(art::Event& evt,
                        art::Assns<recob::Track, anab::MVAPIDResult, void>& trackAssns,
                        art::Assns<recob::Shower, anab::MVAPIDResult, void>& showerAssns)
 {
-
-  this->PrepareEvent(evt);
+  auto const clockData =
+    art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
+  auto const detProp =
+    art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataFor(evt, clockData);
+  this->PrepareEvent(evt, clockData);
 
   for (auto trackIter = fTracks.begin(); trackIter != fTracks.end(); ++trackIter) {
     mvapid::MVAAlg::SortedObj sortedObj;
@@ -158,23 +159,9 @@ mvapid::MVAAlg::RunPID(art::Event& evt,
     this->FitAndSortTrack(*trackIter, isStoppingReco, sortedObj);
     double coreHaloRatio, concentration, conicalness;
     this->_Var_Shape(sortedObj, coreHaloRatio, concentration, conicalness);
-    double dEdxStart = CalcSegmentdEdxFrac(sortedObj, 0., 0.05);
-    double dEdxEnd = CalcSegmentdEdxFrac(sortedObj, 0.9, 1.0);
-    double dEdxPenultimate = CalcSegmentdEdxFrac(sortedObj, 0.8, 0.9);
-
-    /*
-    std::cout<<"coreHaloRatio:   "<<coreHaloRatio<<std::endl;
-    std::cout<<"concentration:   "<<concentration<<std::endl;
-    std::cout<<"conicalness:     "<<conicalness<<std::endl;
-    std::cout<<"dEdxStart: "<<dEdxStart<<std::endl;
-    std::cout<<"dEdxEnd: "<<dEdxEnd<<std::endl;
-    std::cout<<"dEdxEndRatio: ";
-    if(dEdxPenultimate < 0.1)
-    std::cout<<"1.0";
-    else
-    std::cout<<dEdxEnd/dEdxPenultimate;
-    std::cout<<std::endl;
-    */
+    double dEdxStart = CalcSegmentdEdxFrac(clockData, detProp, sortedObj, 0., 0.05);
+    double dEdxEnd = CalcSegmentdEdxFrac(clockData, detProp, sortedObj, 0.9, 1.0);
+    double dEdxPenultimate = CalcSegmentdEdxFrac(clockData, detProp, sortedObj, 0.8, 0.9);
 
     fResHolder.isTrack = 1;
     fResHolder.isStoppingReco = isStoppingReco;
@@ -196,7 +183,7 @@ mvapid::MVAAlg::RunPID(art::Event& evt,
       fResHolder.mvaOutput[*methodIter] = fReader.EvaluateMVA(*methodIter);
     }
     result.push_back(fResHolder);
-    util::CreateAssn(*fParentModule, evt, result, *trackIter, trackAssns);
+    util::CreateAssn(evt, result, *trackIter, trackAssns);
   }
 
   for (auto showerIter = fShowers.begin(); showerIter != fShowers.end(); ++showerIter) {
@@ -213,28 +200,13 @@ mvapid::MVAAlg::RunPID(art::Event& evt,
     else
       evalRatio = std::sqrt(eVals[1] * eVals[1] + eVals[2] * eVals[2]) / eVals[0];
 
-    //this->SortShower(*showerIter,TVector3(eVecs[0],eVecs[3],eVecs[6]),isStoppingReco,sortedObj);
     this->SortShower(*showerIter, isStoppingReco, sortedObj);
 
     double coreHaloRatio, concentration, conicalness;
     this->_Var_Shape(sortedObj, coreHaloRatio, concentration, conicalness);
-    double dEdxStart = CalcSegmentdEdxFrac(sortedObj, 0., 0.05);
-    double dEdxEnd = CalcSegmentdEdxFrac(sortedObj, 0.9, 1.0);
-    double dEdxPenultimate = CalcSegmentdEdxFrac(sortedObj, 0.8, 0.9);
-
-    /*
-    std::cout<<"coreHaloRatio:   "<<coreHaloRatio<<std::endl;
-    std::cout<<"concentration:   "<<concentration<<std::endl;
-    std::cout<<"conicalness:     "<<conicalness<<std::endl;
-    std::cout<<"dEdxStart: "<<dEdxStart<<std::endl;
-    std::cout<<"dEdxEnd: "<<dEdxEnd<<std::endl;
-    std::cout<<"dEdxEndRatio: ";
-    if(dEdxPenultimate < 0.1)
-    std::cout<<"1.0";
-    else
-    std::cout<<dEdxEnd/dEdxPenultimate;
-    std::cout<<std::endl;
-    */
+    double dEdxStart = CalcSegmentdEdxFrac(clockData, detProp, sortedObj, 0., 0.05);
+    double dEdxEnd = CalcSegmentdEdxFrac(clockData, detProp, sortedObj, 0.9, 1.0);
+    double dEdxPenultimate = CalcSegmentdEdxFrac(clockData, detProp, sortedObj, 0.8, 0.9);
 
     fResHolder.isTrack = 0;
     fResHolder.isStoppingReco = isStoppingReco;
@@ -258,12 +230,12 @@ mvapid::MVAAlg::RunPID(art::Event& evt,
       fResHolder.mvaOutput[*methodIter] = fReader.EvaluateMVA(*methodIter);
     }
     result.push_back(fResHolder);
-    util::CreateAssn(*fParentModule, evt, result, *showerIter, showerAssns);
+    util::CreateAssn(evt, result, *showerIter, showerAssns);
   }
 }
 
 void
-mvapid::MVAAlg::PrepareEvent(const art::Event& evt)
+mvapid::MVAAlg::PrepareEvent(const art::Event& evt, const detinfo::DetectorClocksData& clockData)
 {
 
   fHits.clear();
@@ -277,8 +249,7 @@ mvapid::MVAAlg::PrepareEvent(const art::Event& evt)
   fShowersToHits.clear();
   fShowersToSpacePoints.clear();
 
-  auto const* detProp = lar::providerFrom<detinfo::DetectorPropertiesService>();
-  fEventT0 = detProp->TriggerOffset();
+  fEventT0 = trigger_offset(clockData);
 
   art::Handle<std::vector<recob::Hit>> hitsHandle;
   evt.getByLabel(fHitLabel, hitsHandle);
@@ -521,7 +492,6 @@ mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,
 
   sortedShower.start = nearestPointStart;
   sortedShower.end = nearestPointEnd;
-  //sortedShower.dir=dir;
   sortedShower.dir = showerDir;
   sortedShower.length = (nearestPointEnd - nearestPointStart).Mag();
 
@@ -543,12 +513,7 @@ mvapid::MVAAlg::RunPCA(std::vector<art::Ptr<recob::Hit>>& hits,
                        std::vector<double>& eVals,
                        std::vector<double>& eVecs)
 {
-
-  // Define the TPrincipal
   TPrincipal* principal = new TPrincipal(3, "D");
-  // Define variables to hold the eigenvalues and eigenvectors
-  //const TMatrixD* covar = new TMatrixD();
-  //const TVectorD* meanval = new TVectorD();
 
   for (auto hitIter = hits.begin(); hitIter != hits.end(); ++hitIter) {
 
@@ -638,29 +603,35 @@ mvapid::MVAAlg::_Var_Shape(const mvapid::MVAAlg::SortedObj& track,
 }
 
 double
-mvapid::MVAAlg::CalcSegmentdEdxFrac(const mvapid::MVAAlg::SortedObj& track,
+mvapid::MVAAlg::CalcSegmentdEdxFrac(const detinfo::DetectorClocksData& clock_data,
+                                    const detinfo::DetectorPropertiesData& det_prop,
+                                    const mvapid::MVAAlg::SortedObj& track,
                                     double start,
                                     double end)
 {
 
   double trackLength = (track.end - track.start).Mag();
-  return CalcSegmentdEdxDist(track, start * trackLength, end * trackLength);
+  return CalcSegmentdEdxDist(clock_data, det_prop, track, start * trackLength, end * trackLength);
 }
 
 double
-mvapid::MVAAlg::CalcSegmentdEdxDistAtEnd(const mvapid::MVAAlg::SortedObj& track, double distAtEnd)
+mvapid::MVAAlg::CalcSegmentdEdxDistAtEnd(const detinfo::DetectorClocksData& clock_data,
+                                         const detinfo::DetectorPropertiesData& det_prop,
+                                         const mvapid::MVAAlg::SortedObj& track,
+                                         double distAtEnd)
 {
 
   double trackLength = (track.end - track.start).Mag();
-  return CalcSegmentdEdxDist(track, trackLength - distAtEnd, trackLength);
+  return CalcSegmentdEdxDist(clock_data, det_prop, track, trackLength - distAtEnd, trackLength);
 }
 
 double
-mvapid::MVAAlg::CalcSegmentdEdxDist(const mvapid::MVAAlg::SortedObj& track,
+mvapid::MVAAlg::CalcSegmentdEdxDist(const detinfo::DetectorClocksData& clock_data,
+                                    const detinfo::DetectorPropertiesData& det_prop,
+                                    const mvapid::MVAAlg::SortedObj& track,
                                     double start,
                                     double end)
 {
-
   art::ServiceHandle<geo::Geometry const> geom;
 
   double totaldEdx = 0;
@@ -695,7 +666,7 @@ mvapid::MVAAlg::CalcSegmentdEdxDist(const mvapid::MVAAlg::SortedObj& track,
     xComponent = yzPitch * dir[0] / sqrt(dir[1] * dir[1] + dir[2] * dir[2]);
     pitch3D = sqrt(xComponent * xComponent + yzPitch * yzPitch);
 
-    double dEdx = fCaloAlg.dEdx_AREA(*hit, pitch3D, fEventT0);
+    double dEdx = fCaloAlg.dEdx_AREA(clock_data, det_prop, *hit, pitch3D, fEventT0);
     if (dEdx < 50.) {
       ++nHits;
       totaldEdx += dEdx;

@@ -80,11 +80,9 @@ namespace opdet {
   void
   OpFlashFinder::produce(art::Event& evt)
   {
-
     // These are the storage pointers we will put in the event
-    std::unique_ptr<std::vector<recob::OpFlash>> flashPtr(new std::vector<recob::OpFlash>);
-    std::unique_ptr<art::Assns<recob::OpFlash, recob::OpHit>> assnPtr(
-      new art::Assns<recob::OpFlash, recob::OpHit>);
+    auto flashPtr = std::make_unique<std::vector<recob::OpFlash>>();
+    auto assnPtr = std::make_unique<art::Assns<recob::OpFlash, recob::OpHit>>();
 
     // This will keep track of what flashes will assoc to what ophits
     // at the end of processing
@@ -92,11 +90,11 @@ namespace opdet {
 
     auto const& geometry(*lar::providerFrom<geo::Geometry>());
 
-    auto const& detectorClocks(*lar::providerFrom<detinfo::DetectorClocksService>());
+    auto const clock_data =
+      art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
 
     // Get OpHits from the event
-    art::Handle<std::vector<recob::OpHit>> opHitHandle;
-    evt.getByLabel(fInputModule, opHitHandle);
+    auto const opHitHandle = evt.getValidHandle<std::vector<recob::OpHit>>(fInputModule);
 
     RunFlashFinder(*opHitHandle,
                    *flashPtr,
@@ -105,21 +103,19 @@ namespace opdet {
                    geometry,
                    fFlashThreshold,
                    fWidthTolerance,
-                   detectorClocks,
+                   clock_data,
                    fTrigCoinc);
 
     // Make the associations which we noted we need
     for (size_t i = 0; i != assocList.size(); ++i) {
       art::PtrVector<recob::OpHit> opHitPtrVector;
-      for (int const& hitIndex : assocList.at(i)) {
-        art::Ptr<recob::OpHit> opHitPtr(opHitHandle, hitIndex);
-        opHitPtrVector.push_back(opHitPtr);
+      for (size_t const hitIndex : assocList.at(i)) {
+        opHitPtrVector.emplace_back(opHitHandle, hitIndex);
       }
 
       util::CreateAssn(*this, evt, *flashPtr, opHitPtrVector, *(assnPtr.get()), i);
     }
 
-    // Store results into the event
     evt.put(std::move(flashPtr));
     evt.put(std::move(assnPtr));
   }

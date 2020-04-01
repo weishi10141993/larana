@@ -58,6 +58,7 @@
 
 // LArSoft
 #include "larcore/Geometry/Geometry.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 #include "lardataobj/AnalysisBase/T0.h"
@@ -167,8 +168,6 @@ t0::MCTruthT0Matching::beginJob()
   fTree = tfs->make<TTree>("MCTruthT0Matching", "MCTruthT0");
   fTree->Branch("TrueTrackT0", &TrueTrackT0, "TrueTrackT0/D");
   fTree->Branch("TrueTrackID", &TrueTrackID, "TrueTrackID/D");
-  //fTree->Branch("ShowerID"   ,&ShowerID   ,"ShowerID/I"   );
-  //fTree->Branch("ShowerT0"   ,&ShowerT0   ,"ShowerT0/D"   );
 }
 
 void
@@ -180,27 +179,26 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
   art::ServiceHandle<geo::Geometry const> geom;
   art::ServiceHandle<cheat::BackTrackerService const> bt_serv;
   art::ServiceHandle<cheat::ParticleInventoryService const> pi_serv;
+  auto const clockData =
+    art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
 
   //TrackList handle
   art::Handle<std::vector<recob::Track>> trackListHandle;
   std::vector<art::Ptr<recob::Track>> tracklist;
   if (evt.getByLabel(fTrackModuleLabel, trackListHandle))
     art::fill_ptr_vector(tracklist, trackListHandle);
-  //if (!trackListHandle.isValid()) trackListHandle.clear();
 
   //ShowerList handle
   art::Handle<std::vector<recob::Shower>> showerListHandle;
   std::vector<art::Ptr<recob::Shower>> showerlist;
   if (evt.getByLabel(fShowerModuleLabel, showerListHandle))
     art::fill_ptr_vector(showerlist, showerListHandle);
-  //if (!showerListHandle.isValid()) showerListHandle.clear();
 
   //PFParticleList handle
   art::Handle<std::vector<recob::PFParticle>> pfparticleListHandle;
   std::vector<art::Ptr<recob::PFParticle>> pfparticlelist;
   if (evt.getByLabel(fPFParticleModuleLabel, pfparticleListHandle))
     art::fill_ptr_vector(pfparticlelist, pfparticleListHandle);
-  //if (!pfparticleListHandle.isValid()) pfparticleListHandle.clear();
 
   auto mcpartHandle = evt.getValidHandle<std::vector<simb::MCParticle>>("largeant");
   //  simb::MCParticle const *firstParticle = &mcpartHandle->front();
@@ -211,11 +209,8 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
     new art::Assns<recob::Track, anab::T0>);
   std::unique_ptr<art::Assns<recob::Shower, anab::T0>> Showerassn(
     new art::Assns<recob::Shower, anab::T0>);
-  //    if (fMakePFParticleAssns){
   std::unique_ptr<art::Assns<recob::PFParticle, anab::T0>> PFParticleassn(
     new art::Assns<recob::PFParticle, anab::T0>);
-  //    }
-  //  }
 
   // Create associations directly between MCParticle and either recob::Track, recob::Shower, or recob::PFParticle
   // These associations contain metadata summarising the quality of the match
@@ -224,11 +219,9 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
   std::unique_ptr<art::Assns<recob::Shower, simb::MCParticle, anab::BackTrackerMatchingData>>
     MCPartShowerassn(
       new art::Assns<recob::Shower, simb::MCParticle, anab::BackTrackerMatchingData>);
-  //  if (fMakePFParticleAssns){
   std::unique_ptr<art::Assns<recob::PFParticle, simb::MCParticle, anab::BackTrackerMatchingData>>
     MCPartPFParticleassn(
       new art::Assns<recob::PFParticle, simb::MCParticle, anab::BackTrackerMatchingData>);
-  //  }
   // Association block for the hits<-->MCParticles
   std::unique_ptr<art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData>>
     MCPartHitassn(new art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData>);
@@ -256,7 +249,7 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
       auto const& mcpartList(*mcpartHandle);
       for (size_t i_h = 0; i_h < hitList.size(); ++i_h) {
         art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
-        auto trkide_list = bt_serv->HitToTrackIDEs(hitPtr);
+        auto trkide_list = bt_serv->HitToTrackIDEs(clockData, hitPtr);
         struct TrackIDEinfo {
           float E;
           float NumElectrons;
@@ -333,7 +326,7 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
       for (size_t h = 0; h < allHits.size(); ++h) {
         art::Ptr<recob::Hit> hit = allHits[h];
         std::vector<sim::IDE> ides;
-        std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
+        std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(clockData, hit);
 
         for (size_t e = 0; e < TrackIDs.size(); ++e) {
           trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;
@@ -365,9 +358,6 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
       TrueTrackT0 = particle.T();
       TrueTrackID = particle.TrackId();
       TrueTriggerType = 2; // Using MCTruth as trigger, so tigger type is 2.
-      //std::cout << "Got particle, PDG = " << particle.PdgCode() << std::endl;
-
-      //std::cout << "Filling T0col with " << TrueTrackT0 << " " << TrueTriggerType << " " << TrueTrackID << " " << (*T0col).size() << std::endl;
 
       T0col->push_back(anab::T0(TrueTrackT0, TrueTriggerType, TrueTrackID, (*T0col).size()));
       //auto diff = particle - firstParticle;
@@ -400,7 +390,7 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
       for (size_t h = 0; h < allHits.size(); ++h) {
         art::Ptr<recob::Hit> hit = allHits[h];
         std::vector<sim::IDE> ides;
-        std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
+        std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(clockData, hit);
 
         for (size_t e = 0; e < TrackIDs.size(); ++e) {
           showeride[TrackIDs[e].trackID] += TrackIDs[e].energy;
@@ -449,7 +439,6 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
   if (pfparticleListHandle.isValid()) {
     //Access pfparticles and hits
     art::FindManyP<recob::Cluster> fmcp(pfparticleListHandle, evt, fPFParticleModuleLabel);
-    //art::FindManyP<recob::Hit> fmtht(pfparticleListHandle, evt, fPfparticleModuleLabel);
 
     size_t NPfparticles = pfparticlelist.size();
 
@@ -473,7 +462,7 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
       for (size_t h = 0; h < allHits.size(); ++h) {
         art::Ptr<recob::Hit> hit = allHits[h];
         std::vector<sim::IDE> ides;
-        std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(hit);
+        std::vector<sim::TrackIDE> TrackIDs = bt_serv->HitToTrackIDEs(clockData, hit);
 
         for (size_t e = 0; e < TrackIDs.size(); ++e) {
           trkide[TrackIDs[e].trackID] += TrackIDs[e].energy;

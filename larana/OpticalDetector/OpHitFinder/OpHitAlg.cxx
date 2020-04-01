@@ -32,7 +32,7 @@ namespace opdet {
                pmtana::PMTPulseRecoBase const& threshAlg,
                geo::GeometryCore const& geometry,
                float hitThreshold,
-               detinfo::DetectorClocks const& detectorClocks,
+               detinfo::DetectorClocksData const& clocksData,
                calib::IPhotonCalibrator const& calibrator)
   {
 
@@ -54,8 +54,7 @@ namespace opdet {
       const double timeStamp = waveform.TimeStamp();
 
       for (auto const& pulse : pulses)
-        ConstructHit(
-          hitThreshold, channel, timeStamp, pulse, hitVector, detectorClocks, calibrator);
+        ConstructHit(hitThreshold, channel, timeStamp, pulse, hitVector, clocksData, calibrator);
     }
   }
 
@@ -66,19 +65,17 @@ namespace opdet {
                double timeStamp,
                pmtana::pulse_param const& pulse,
                std::vector<recob::OpHit>& hitVector,
-               detinfo::DetectorClocks const& detectorClocks,
+               detinfo::DetectorClocksData const& clocksData,
                calib::IPhotonCalibrator const& calibrator)
   {
 
     if (pulse.peak < hitThreshold) return;
 
-    //double absTime = pulse.t_max*detectorClocks.OpticalClock().TickPeriod();//timeStamp + pulse.t_max*detectorClocks.OpticalClock().TickPeriod();
-    double absTime = timeStamp + pulse.t_max * detectorClocks.OpticalClock().TickPeriod();
+    double absTime = timeStamp + pulse.t_max * clocksData.OpticalClock().TickPeriod();
 
-    double relTime = absTime - detectorClocks.TriggerTime();
-    //double relTime = pulse.t_max*detectorClocks.OpticalClock().TickPeriod() -  detectorClocks.TriggerTime() ;
+    double relTime = absTime - clocksData.TriggerTime();
 
-    int frame = detectorClocks.OpticalClock().Frame(timeStamp);
+    int frame = clocksData.OpticalClock().Frame(timeStamp);
 
     double PE = 0.0;
     if (calibrator.UseArea())
@@ -86,7 +83,7 @@ namespace opdet {
     else
       PE = calibrator.PE(pulse.peak, channel);
 
-    double width = (pulse.t_end - pulse.t_start) * detectorClocks.OpticalClock().TickPeriod();
+    double width = (pulse.t_end - pulse.t_start) * clocksData.OpticalClock().TickPeriod();
 
     hitVector.emplace_back(
       channel, relTime, absTime, frame, width, pulse.area, pulse.peak, PE, 0.0);

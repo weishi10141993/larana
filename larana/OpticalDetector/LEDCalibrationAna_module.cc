@@ -214,13 +214,11 @@ namespace opdet {
   void
   LEDCalibrationAna::analyze(const art::Event& evt)
   {
-
-    auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
+    auto const clock_data =
+      art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
 
     fRunID = evt.run();
     fEventID = evt.event();
-
-    art::ServiceHandle<art::TFileService const> tfs;
 
     // Create a handle for our vector of pulses
     art::Handle<std::vector<raw::OpDetWaveform>> OpDetWaveformHandle;
@@ -240,16 +238,16 @@ namespace opdet {
     for (size_t i = 0; i != OrgOpDigitByChannel[fTriggerChannel].size(); ++i) {
       double TimeStamp =
         OpDetWaveformHandle->at(OrgOpDigitByChannel[fTriggerChannel][i]).TimeStamp();
-      uint32_t Frame = ts->OpticalClock().Frame(TimeStamp);
-      uint32_t TimeSlice = ts->OpticalClock().Sample(TimeStamp);
+      uint32_t Frame = clock_data.OpticalClock().Frame(TimeStamp);
+      uint32_t TimeSlice = clock_data.OpticalClock().Sample(TimeStamp);
       FrameNumbersForTrig.push_back(Frame);
       TimeSlicesForTrig.push_back(TimeSlice);
     }
 
     for (size_t i = 0; i != OpDetWaveformHandle->size(); ++i) {
       double TimeStamp = OpDetWaveformHandle->at(i).TimeStamp();
-      uint32_t Frame = ts->OpticalClock().Frame(TimeStamp);
-      uint32_t TimeSlice = ts->OpticalClock().Sample(TimeStamp);
+      uint32_t Frame = clock_data.OpticalClock().Frame(TimeStamp);
+      uint32_t TimeSlice = clock_data.OpticalClock().Sample(TimeStamp);
       fShaper = OpDetWaveformHandle->at(i).ChannelNumber();
       fChannel = ShaperToChannel(fShaper);
 

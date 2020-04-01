@@ -19,7 +19,6 @@
 #include "fhiclcpp/ParameterSet.h"
 
 // LArSoft Includes
-#include "larcore/CoreUtils/ServiceUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
@@ -66,7 +65,8 @@ namespace microboone {
 
     void InitEventTree(int run_number, int event_number);
 
-    void FillMCInfo(std::vector<recob::Hit> const& hitlist,
+    void FillMCInfo(art::Event const& e,
+                    std::vector<recob::Hit> const& hitlist,
                     std::vector<hit_origin_t>& hitOrigins,
                     std::vector<sim::MCHitCollection> const& mchitCollectionVector,
                     std::map<int, const simb::MCTruth*> const& trackIDToTruthMap);
@@ -242,7 +242,7 @@ microboone::CosmicRemovalAna::analyze(const art::Event& evt)
   for (size_t p_iter = 0; p_iter < mcParticleVector.size(); p_iter++)
     trackIDToTruthMap[mcParticleVector[p_iter].TrackId()] = particle_to_truth[p_iter];
 
-  FillMCInfo(hitVector, hitOrigins, mchitcolVector, trackIDToTruthMap);
+  FillMCInfo(evt, hitVector, hitOrigins, mchitcolVector, trackIDToTruthMap);
 
   art::Handle<std::vector<recob::Track>> trackListHandle;
   evt.getByLabel(fTrackModuleLabel, trackListHandle);
@@ -379,13 +379,14 @@ microboone::CosmicRemovalAna::InitEventTree(int run_number, int event_number)
 // take in a list of hits, and determine the origin for those hits (and fill in the tree info)
 void
 microboone::CosmicRemovalAna::FillMCInfo(
+  art::Event const& e,
   std::vector<recob::Hit> const& hitlist,
   std::vector<hit_origin_t>& hitOrigins,
   std::vector<sim::MCHitCollection> const& mchitCollectionVector,
   std::map<int, const simb::MCTruth*> const& trackIdToTruthMap)
 {
-
-  auto const* ts = lar::providerFrom<detinfo::DetectorClocksService>();
+  auto const clock_data =
+    art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(e);
 
   for (size_t itr = 0; itr < hitlist.size(); itr++) {
 
@@ -395,7 +396,8 @@ microboone::CosmicRemovalAna::FillMCInfo(
     std::vector<double> energy;
 
     for (auto const& mchit : mchitCollectionVector[this_hit.Channel()]) {
-      if (std::abs(ts->TPCTDC2Tick(mchit.PeakTime()) - this_hit.PeakTime()) < fHitCompareCut) {
+      if (std::abs(clock_data.TPCTDC2Tick(mchit.PeakTime()) - this_hit.PeakTime()) <
+          fHitCompareCut) {
         trackIDs.push_back(mchit.PartTrackId());
         energy.push_back(mchit.PartEnergy());
       }

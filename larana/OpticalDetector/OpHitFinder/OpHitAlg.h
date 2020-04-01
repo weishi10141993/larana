@@ -23,7 +23,7 @@ namespace calib {
   class IPhotonCalibrator;
 }
 namespace detinfo {
-  class DetectorClocks;
+  class DetectorClocksData;
 }
 namespace pmtana {
   class PulseRecoManager;
@@ -37,7 +37,7 @@ namespace opdet {
                     pmtana::PMTPulseRecoBase const&,
                     geo::GeometryCore const&,
                     float,
-                    detinfo::DetectorClocks const&,
+                    detinfo::DetectorClocksData const&,
                     calib::IPhotonCalibrator const&);
 
   void ConstructHit(float,
@@ -45,7 +45,7 @@ namespace opdet {
                     double,
                     pmtana::pulse_param const&,
                     std::vector<recob::OpHit>&,
-                    detinfo::DetectorClocks const&,
+                    detinfo::DetectorClocksData const&,
                     calib::IPhotonCalibrator const&);
 
 } // End opdet namespace

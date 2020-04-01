@@ -18,6 +18,7 @@
 #include <utility> // std::pair<>, std::move()
 
 #include "larcore/Geometry/Geometry.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
@@ -35,10 +36,6 @@ public:
   void produce(art::Event& e) override;
 
 private:
-  // Declare member data here.
-
-  //  int         fReadOutWindowSize;
-  float fSamplingRate;
   std::string fClusterModuleLabel;
   int fDetectorWidthTicks;
   int fTickLimit;
@@ -48,23 +45,21 @@ private:
 
 cosmic::CosmicClusterTagger::CosmicClusterTagger(fhicl::ParameterSet const& p) : EDProducer{p}
 {
-
-  auto const* detp = lar::providerFrom<detinfo::DetectorPropertiesService>();
   auto const* geo = lar::providerFrom<geo::Geometry>();
 
-  fSamplingRate = detp->SamplingRate();
+  auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
+  auto const detp =
+    art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataForJob(clock_data);
+  double const samplingRate = sampling_rate(clock_data);
   fClusterModuleLabel = p.get<std::string>("ClusterModuleLabel", "cluster");
   fTickLimit = p.get<int>("TickLimit", 0);
-  const double driftVelocity = detp->DriftVelocity(detp->Efield(), detp->Temperature()); // cm/us
+  const double driftVelocity = detp.DriftVelocity(detp.Efield(), detp.Temperature()); // cm/us
 
-  //  std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks =
-    2 * geo->DetHalfWidth() / (driftVelocity * fSamplingRate / 1000); // ~3200 for uB
-  //  std::cerr << fDetectorWidthTicks<< std::endl;
+    2 * geo->DetHalfWidth() / (driftVelocity * samplingRate / 1000); // ~3200 for uB
   fMinTickDrift = p.get("MinTickDrift", 3200);
   fMaxTickDrift = fMinTickDrift + fDetectorWidthTicks;
 
-  // Call appropriate Produces<>() functions here.
   produces<std::vector<anab::CosmicTag>>();
   produces<art::Assns<recob::Cluster, anab::CosmicTag>>();
 }
@@ -72,8 +67,6 @@ cosmic::CosmicClusterTagger::CosmicClusterTagger(fhicl::ParameterSet const& p) :
 void
 cosmic::CosmicClusterTagger::produce(art::Event& e)
 {
-  // Implementation of required member function here.
-
   std::unique_ptr<std::vector<anab::CosmicTag>> cosmicTagClusterVector(
     new std::vector<anab::CosmicTag>);
   std::unique_ptr<art::Assns<recob::Cluster, anab::CosmicTag>> assnOutCosmicTagCluster(
@@ -102,16 +95,10 @@ cosmic::CosmicClusterTagger::produce(art::Event& e)
     // Doing some checks on the cluster to determine if it's a cosmic
     bool failClusterTickCheck = false;
 
-    //int timeLimit = 0;//5;
-    const std::pair<double, double> t_minmax =
-      std::minmax(tCluster->StartTick(), tCluster->EndTick());
-    double t0 = t_minmax.first;  // minimum
-    double t1 = t_minmax.second; // maximum
-    //     if( t0+fTickLimit < fDetectorWidthTicks ) { // This is into the pre-spill window
+    auto const [t0, t1] = std::minmax(tCluster->StartTick(), tCluster->EndTick());
     if (t0 + fTickLimit < fMinTickDrift) { // This is into the pre-spill window
       failClusterTickCheck = true;
     }
-    //if( t1-fTickLimit > 2*fDetectorWidthTicks ) { // This is into the post-spill window
     if (t1 - fTickLimit > fMaxTickDrift) { // This is into the post-spill window
       failClusterTickCheck = true;
     }
@@ -129,10 +116,9 @@ cosmic::CosmicClusterTagger::produce(art::Event& e)
     }
 
     // Making stuff to save!
-    //std::cerr << "Cosmic Score, isCosmic, t0, t1: " << cosmicScore << " " << isCosmic << " t's: " << t0 << " " << t1 << " | " << fReadOutWindowSize<< " | " << fDetectorWidthTicks << std::endl;
     cosmicTagClusterVector->emplace_back(endPt1, endPt2, cosmicScore, tag_id);
 
-    util::CreateAssn(*this, e, *cosmicTagClusterVector, tCluster, *assnOutCosmicTagCluster);
+    util::CreateAssn(e, *cosmicTagClusterVector, tCluster, *assnOutCosmicTagCluster);
   }
 
   /////////////////////////////////

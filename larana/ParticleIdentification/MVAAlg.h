@@ -20,6 +20,10 @@
 #include "lardataobj/RecoBase/SpacePoint.h"
 #include "lardataobj/RecoBase/Track.h"
 #include "larreco/Calorimetry/CalorimetryAlg.h"
+namespace detinfo {
+  class DetectorClocksData;
+  class DetectorPropertiesData;
+}
 
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
@@ -68,7 +72,7 @@ namespace mvapid {
       }
     };
 
-    MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule);
+    MVAAlg(fhicl::ParameterSet const& pset);
 
     void GetDetectorEdges();
 
@@ -82,7 +86,7 @@ namespace mvapid {
   private:
     int IsInActiveVol(const TVector3& pos);
 
-    void PrepareEvent(const art::Event& event);
+    void PrepareEvent(const art::Event& event, const detinfo::DetectorClocksData& clockData);
 
     void FitAndSortTrack(art::Ptr<recob::Track> track, int& isStoppingReco, SortedObj& sortedObj);
 
@@ -101,11 +105,22 @@ namespace mvapid {
                     double& concentration,
                     double& conicalness);
 
-    double CalcSegmentdEdxFrac(const SortedObj& track, double start, double end);
+    double CalcSegmentdEdxFrac(const detinfo::DetectorClocksData& clock_data,
+                               const detinfo::DetectorPropertiesData& det_prop,
+                               const SortedObj& track,
+                               double start,
+                               double end);
 
-    double CalcSegmentdEdxDist(const SortedObj& track, double start, double end);
+    double CalcSegmentdEdxDist(const detinfo::DetectorClocksData& clock_data,
+                               const detinfo::DetectorPropertiesData& det_prop,
+                               const SortedObj& track,
+                               double start,
+                               double end);
 
-    double CalcSegmentdEdxDistAtEnd(const mvapid::MVAAlg::SortedObj& track, double distAtEnd);
+    double CalcSegmentdEdxDistAtEnd(const detinfo::DetectorClocksData& clock_data,
+                                    const detinfo::DetectorPropertiesData& det_prop,
+                                    const mvapid::MVAAlg::SortedObj& track,
+                                    double distAtEnd);
 
     int LinFit(const art::Ptr<recob::Track> track, TVector3& trackPoint, TVector3& trackDir);
 
@@ -121,8 +136,6 @@ namespace mvapid {
 
     std::map<int, double> fNormToWiresY;
     std::map<int, double> fNormToWiresZ;
-
-    const art::EDProducer* fParentModule;
 
     std::string fTrackLabel;
     std::string fShowerLabel;

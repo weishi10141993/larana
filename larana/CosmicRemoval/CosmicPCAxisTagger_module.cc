@@ -28,6 +28,7 @@
 #include <iterator>
 
 #include "larcore/Geometry/Geometry.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
@@ -55,14 +56,9 @@ public:
 private:
   typedef std::vector<reco::ClusterHit2D> Hit2DVector;
 
-  void RecobToClusterHits(const art::PtrVector<recob::Hit>& recobHitVec,
-                          Hit2DVector& clusterHitVec,
-                          reco::Hit2DListPtr& hit2DListPtr) const;
-
   std::string fPFParticleModuleLabel;
   std::string fPCAxisModuleLabel;
 
-  detinfo::DetectorProperties const* fDetector;  ///<  Pointer to the detector properties
   lar_cluster3d::PrincipalComponentsAlg fPcaAlg; ///<  Principal Components algorithm
 
   int fDetectorWidthTicks;
@@ -71,22 +67,16 @@ private:
 };
 
 cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const& p)
-  : EDProducer{p}
-  , fDetector(lar::providerFrom<detinfo::DetectorPropertiesService>())
-  , fPcaAlg(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"))
-// :
-// Initialize member data here.
+  : EDProducer{p}, fPcaAlg(p.get<fhicl::ParameterSet>("PrincipalComponentsAlg"))
 {
-
-  ////////  fSptalg  = new cosmic::SpacePointAlg(p.get<fhicl::ParameterSet>("SpacePointAlg"));
-  fDetector = lar::providerFrom<detinfo::DetectorPropertiesService>();
   art::ServiceHandle<geo::Geometry const> geo;
 
   fDetHalfHeight = geo->DetHalfHeight();
   fDetWidth = 2. * geo->DetHalfWidth();
   fDetLength = geo->DetLength();
 
-  float fSamplingRate = fDetector->SamplingRate();
+  auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
+  float fSamplingRate = sampling_rate(clock_data);
 
   fPFParticleModuleLabel = p.get<std::string>("PFParticleModuleLabel");
   fPCAxisModuleLabel = p.get<std::string>("PCAxisModuleLabel");
@@ -95,14 +85,14 @@ cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const& p)
   fTPCYBoundary = p.get<float>("TPCYBoundary", 5);
   fTPCZBoundary = p.get<float>("TPCZBoundary", 5);
 
+  auto const detector =
+    art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataForJob(clock_data);
   const double driftVelocity =
-    fDetector->DriftVelocity(fDetector->Efield(), fDetector->Temperature()); // cm/us
+    detector.DriftVelocity(detector.Efield(), detector.Temperature()); // cm/us
 
-  //std::cerr << "Drift velocity is " << driftVelocity << " cm/us.  Sampling rate is: "<< fSamplingRate << " detector width: " <<  2*geo->DetHalfWidth() << std::endl;
   fDetectorWidthTicks =
     2 * geo->DetHalfWidth() / (driftVelocity * fSamplingRate / 1000); // ~3200 for uB
 
-  // Call appropriate Produces<>() functions here.
   produces<std::vector<anab::CosmicTag>>();
   produces<art::Assns<recob::PFParticle, anab::CosmicTag>>();
   produces<art::Assns<recob::PCAxis, anab::CosmicTag>>();
@@ -163,10 +153,6 @@ cosmic::CosmicPCAxisTagger::produce(art::Event& evt)
   // The outer loop is going to be over PFParticles
   for (size_t pfPartIdx = 0; pfPartIdx != pfParticleHandle->size(); pfPartIdx++) {
     art::Ptr<recob::PFParticle> pfParticle(pfParticleHandle, pfPartIdx);
-
-    // Require the PFParticle be a primary because attached hits will be daughter particles
-    //if (!pfParticle->IsPrimary()) continue;
-    // Oops! Don't do this unless traversing the heirarchy!
 
     // Recover the PCAxis vector
     std::vector<art::Ptr<recob::PCAxis>> pcAxisVec = pfPartToPCAxisAssns.at(pfPartIdx);
@@ -239,7 +225,6 @@ cosmic::CosmicPCAxisTagger::produce(art::Event& evt)
                     << ", peak + RMS: " << hit->PeakTimePlusRMS()
                     << ", det width: " << fDetectorWidthTicks << std::endl;
         }
-        //if( hit->StartTick() < fDetectorWidthTicks || hit->EndTick() > 2.*fDetectorWidthTicks)
         if (hit->PeakTimeMinusRMS() < fDetectorWidthTicks ||
             hit->PeakTimePlusRMS() > 2. * fDetectorWidthTicks) {
           isCosmic = 1;
@@ -261,7 +246,6 @@ cosmic::CosmicPCAxisTagger::produce(art::Event& evt)
       double transRMS =
         sqrt(std::pow(pcAxis->getEigenValues()[1], 2) + std::pow(pcAxis->getEigenValues()[1], 2));
 
-      //if (eigenVal0 > 10. && transRMS < 10. && transRMS / eigenVal0 < 0.1)
       if (eigenVal0 > 0. && transRMS > 0.) {
         // The idea is to find the maximum extents of this PFParticle using the PCA axis which we
         // can then use to determine proximity to a TPC boundary.
@@ -404,49 +388,6 @@ cosmic::CosmicPCAxisTagger::produce(art::Event& evt)
   evt.put(std::move(cosmicTagPFParticleVector));
   evt.put(std::move(assnOutCosmicTagPFParticle));
   evt.put(std::move(assnOutCosmicTagPCAxis));
-
-  return;
-
 } // end of produce
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//------------------------------------------------------------------------------------------------------------------------------------------
-void
-cosmic::CosmicPCAxisTagger::RecobToClusterHits(const art::PtrVector<recob::Hit>& recobHitVec,
-                                               Hit2DVector& clusterHitVec,
-                                               reco::Hit2DListPtr& hit2DListPtr) const
-{
-  /**
-     *  @brief Takes the input vector of recob::Hits and returns a vector of Cluster2D hits
-     */
-
-  // We'll need the offsets for each plane
-  std::map<geo::View_t, double> viewOffsetMap;
-
-  viewOffsetMap[geo::kU] = fDetector->GetXTicksOffset(geo::kU, 0, 0) - fDetector->TriggerOffset();
-  viewOffsetMap[geo::kV] = fDetector->GetXTicksOffset(geo::kV, 0, 0) - fDetector->TriggerOffset();
-  viewOffsetMap[geo::kW] = fDetector->GetXTicksOffset(geo::kW, 0, 0) - fDetector->TriggerOffset();
-
-  // Reserve memory for the hit vector - this is the container of the actual hits
-  clusterHitVec.reserve(recobHitVec.size());
-
-  // Reserve memory for the list of pointers to these hits - what we'll operate on
-
-  // Cycle through the recob hits to build ClusterHit2D objects and insert
-  // them into the map
-  for (const auto& recobHit : recobHitVec) {
-    const geo::WireID& hitWireID(recobHit->WireID());
-
-    double hitPeakTime(recobHit->PeakTime() - viewOffsetMap[recobHit->View()]);
-    double xPosition(fDetector->ConvertTicksToX(
-      recobHit->PeakTime(), hitWireID.Plane, hitWireID.TPC, hitWireID.Cryostat));
-
-    clusterHitVec.emplace_back(
-      reco::ClusterHit2D(0, 0., 0., xPosition, hitPeakTime, hitWireID, recobHit.get()));
-    hit2DListPtr.emplace_back(&clusterHitVec.back());
-  }
-
-  return;
-}
 
 DEFINE_ART_MODULE(cosmic::CosmicPCAxisTagger)

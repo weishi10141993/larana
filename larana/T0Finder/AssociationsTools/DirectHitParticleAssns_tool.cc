@@ -5,6 +5,7 @@
 #include "art/Utilities/ToolMacros.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "larsim/MCCheater/BackTrackerService.h"
 #include "larsim/MCCheater/ParticleInventoryService.h"
 
@@ -102,6 +103,9 @@ namespace t0 {
     art::ServiceHandle<cheat::BackTrackerService const> btService;
     art::ServiceHandle<cheat::ParticleInventoryService const> piService;
 
+    auto const clockData =
+      art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
+
     // Loop over input hit producer labels
     for (const auto& inputTag : fHitModuleLabelVec) {
       art::Handle<std::vector<recob::Hit>> hitListHandle;
@@ -123,7 +127,7 @@ namespace t0 {
       for (size_t i_h = 0; i_h < hitList.size(); ++i_h) {
         art::Ptr<recob::Hit> hitPtr(hitListHandle, i_h);
 
-        auto trkide_list = btService->HitToTrackIDEs(hitPtr);
+        auto trkide_list = btService->HitToTrackIDEs(clockData, hitPtr);
 
         double maxe(-1.);
         double tote(0.);

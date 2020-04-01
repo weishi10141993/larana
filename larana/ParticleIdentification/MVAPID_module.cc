@@ -38,7 +38,7 @@ namespace mvapid {
   }; // class MVAPID
 
   //------------------------------------------------------------------------------
-  MVAPID::MVAPID(fhicl::ParameterSet const& pset) : EDProducer{pset}, fAlg(pset, this)
+  MVAPID::MVAPID(fhicl::ParameterSet const& pset) : EDProducer{pset}, fAlg(pset)
   {
     produces<std::vector<anab::MVAPIDResult>>();
     produces<art::Assns<recob::Track, anab::MVAPIDResult, void>>();
