@@ -84,7 +84,7 @@ namespace pmtana{
     //threshold += _ped_mean;
 
     Reset();
-    
+
     for(size_t i=0; i<wf.size(); ++i) {
 
       double value = 0.;
@@ -143,7 +143,7 @@ namespace pmtana{
 
         // If there's a pulse, end we where in in_post, end the previous pulse first
         if(in_post) {
-          // Find were 
+          // Find were
           _pulse.t_end = i - buffer_num_index - 1;
 
           // Register if width is acceptable
@@ -225,7 +225,7 @@ namespace pmtana{
 	in_tail = false;
 	in_post = false;
       }
-      
+
       if(fire || in_tail || in_post){
 
 	//_pulse.area += ((double)value - (double)mean_v[i]);
