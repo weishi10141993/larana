@@ -84,7 +84,7 @@ namespace pmtana{
     //threshold += _ped_mean;
 
     Reset();
-    
+
     for(size_t i=0; i<wf.size(); ++i) {
 
       double value = 0.;
@@ -140,6 +140,22 @@ namespace pmtana{
 	  std::cerr << "\033[95m[ERROR]\033[00m Logic error! Negative buffer_num_index..." << std::endl;
 	  throw std::exception();
 	}
+
+        // If there's a pulse, end we where in in_post, end the previous pulse first
+        if(in_post) {
+          // Find were
+          _pulse.t_end = i - buffer_num_index - 1;
+
+          // Register if width is acceptable
+          if( (_pulse.t_end - _pulse.t_start) >= _min_width )
+            _pulse_v.push_back(_pulse);
+
+          _pulse.reset_param();
+
+          if(_verbose)
+          std::cout << "\033[93mPulse End\033[00m: new pulse starts during in_post: "
+                          << "baseline: " << mean_v[i] << " ... " << " ... adc above: " << value << " T=" << i << std::endl;
+        }
 
 	_pulse.t_start   = i - buffer_num_index;
 	_pulse.ped_mean  = pulse_start_baseline;
@@ -209,7 +225,7 @@ namespace pmtana{
 	in_tail = false;
 	in_post = false;
       }
-      
+
       if(fire || in_tail || in_post){
 
 	//_pulse.area += ((double)value - (double)mean_v[i]);
