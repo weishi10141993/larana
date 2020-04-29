@@ -5,69 +5,68 @@
 #ifndef MVAAlg_H
 #define MVAAlg_H
 
-#include <vector>
 #include <map>
+#include <vector>
 
-#include "fhiclcpp/ParameterSet.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/Assns.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Principal/fwd.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "fhiclcpp/ParameterSet.h"
 
+#include "lardataobj/AnalysisBase/MVAPIDResult.h"
 #include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
+#include "lardataobj/RecoBase/Track.h"
 #include "larreco/Calorimetry/CalorimetryAlg.h"
-#include "lardataobj/AnalysisBase/MVAPIDResult.h"
 
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
 #include "Math/Vector3Dfwd.h"
-#include "TVector3.h"
-#include "TLorentzVector.h"
 #include "TGraph2D.h"
+#include "TLorentzVector.h"
 #include "TMVA/Reader.h"
+#include "TVector3.h"
 
-namespace mvapid{
-
-
+namespace mvapid {
 
   //---------------------------------------------------------------
   class MVAAlg {
   public:
+    struct SortedObj {
+      TVector3 start, end, dir;
+      double length;
+      std::map<double, const art::Ptr<recob::Hit>> hitMap;
+    };
 
-struct SortedObj{
-  TVector3 start, end, dir;
-  double length;
-  std::map<double,const art::Ptr<recob::Hit> > hitMap;
-};
+    struct SumDistance2 {
+      // the TGraph is a data member of the object
+      TGraph2D* fGraph;
 
-struct SumDistance2 {
-  // the TGraph is a data member of the object
- TGraph2D* fGraph;
+      SumDistance2(TGraph2D* g) : fGraph(g) {}
 
- SumDistance2(TGraph2D* g) : fGraph(g) {}
+      // implementation of the function to be minimized
+      double
+      operator()(const double* p)
+      {
 
-  // implementation of the function to be minimized
-  double operator() (const double * p) {
+        ROOT::Math::XYZVector x0(p[0], p[2], p[4]);
+        ROOT::Math::XYZVector u(p[1], p[3], p[5]);
 
-    ROOT::Math::XYZVector x0(p[0], p[2], p[4] );
-    ROOT::Math::XYZVector u(p[1],p[3], p[5] );
-
-    u=u.Unit();
-    double * x = fGraph->GetX();
-    double * y = fGraph->GetY();
-    double * z = fGraph->GetZ();
-    int npoints = fGraph->GetN();
-    double sum = 0;
-    for (int i  = 0; i < npoints; ++i) {
-      ROOT::Math::XYZVector xp(x[i],y[i],z[i]);
-      sum += ((xp-x0).Cross(u)) .Mag2();
-    }
-    return sum;
-  }
-};
+        u = u.Unit();
+        double* x = fGraph->GetX();
+        double* y = fGraph->GetY();
+        double* z = fGraph->GetZ();
+        int npoints = fGraph->GetN();
+        double sum = 0;
+        for (int i = 0; i < npoints; ++i) {
+          ROOT::Math::XYZVector xp(x[i], y[i], z[i]);
+          sum += ((xp - x0).Cross(u)).Mag2();
+        }
+        return sum;
+      }
+    };
 
     MVAAlg(fhicl::ParameterSet const& pset, const art::EDProducer* parentModule);
 
@@ -75,38 +74,44 @@ struct SumDistance2 {
 
     void GetWireNormals();
 
-    void RunPID(art::Event& evt,std::vector<anab::MVAPIDResult>& result,
-		art::Assns<recob::Track, anab::MVAPIDResult, void>& trackAssns,
-		art::Assns<recob::Shower, anab::MVAPIDResult, void>& showerAssns);
+    void RunPID(art::Event& evt,
+                std::vector<anab::MVAPIDResult>& result,
+                art::Assns<recob::Track, anab::MVAPIDResult, void>& trackAssns,
+                art::Assns<recob::Shower, anab::MVAPIDResult, void>& showerAssns);
 
   private:
-
     int IsInActiveVol(const TVector3& pos);
 
     void PrepareEvent(const art::Event& event);
 
-    void FitAndSortTrack(art::Ptr<recob::Track> track,int& isStoppingReco,
-			 SortedObj& sortedObj);
+    void FitAndSortTrack(art::Ptr<recob::Track> track, int& isStoppingReco, SortedObj& sortedObj);
 
     //void SortShower(art::Ptr<recob::Shower> shower,TVector3 dir,int& isStoppingReco,
     //		    mvapid::MVAAlg::SortedObj& sortedShower);
-    void SortShower(art::Ptr<recob::Shower> shower,int& isStoppingReco,mvapid::MVAAlg::SortedObj& sortedShower);
+    void SortShower(art::Ptr<recob::Shower> shower,
+                    int& isStoppingReco,
+                    mvapid::MVAAlg::SortedObj& sortedShower);
 
-    void RunPCA(std::vector< art::Ptr<recob::Hit> >& hits,std::vector<double>& eVals,std::vector<double>& eVecs);
+    void RunPCA(std::vector<art::Ptr<recob::Hit>>& hits,
+                std::vector<double>& eVals,
+                std::vector<double>& eVecs);
 
     void _Var_Shape(const SortedObj& track,
-		    double& coreHaloRatio,double& concentration,
-		    double& conicalness);
+                    double& coreHaloRatio,
+                    double& concentration,
+                    double& conicalness);
 
-    double CalcSegmentdEdxFrac(const SortedObj& track,double start,double end);
+    double CalcSegmentdEdxFrac(const SortedObj& track, double start, double end);
 
-    double CalcSegmentdEdxDist(const SortedObj& track,double start,double end);
+    double CalcSegmentdEdxDist(const SortedObj& track, double start, double end);
 
-    double CalcSegmentdEdxDistAtEnd(const mvapid::MVAAlg::SortedObj& track,double distAtEnd);
+    double CalcSegmentdEdxDistAtEnd(const mvapid::MVAAlg::SortedObj& track, double distAtEnd);
 
-    int LinFit(const art::Ptr<recob::Track> track,TVector3& trackPoint,TVector3& trackDir);
+    int LinFit(const art::Ptr<recob::Track> track, TVector3& trackPoint, TVector3& trackDir);
 
-    int LinFitShower(const art::Ptr<recob::Shower> shower,TVector3& showerPoint,TVector3& showerDir);
+    int LinFitShower(const art::Ptr<recob::Shower> shower,
+                     TVector3& showerPoint,
+                     TVector3& showerDir);
 
     const calo::CalorimetryAlg fCaloAlg;
 
@@ -114,8 +119,8 @@ struct SumDistance2 {
 
     double fDetMinX, fDetMaxX, fDetMinY, fDetMaxY, fDetMinZ, fDetMaxZ;
 
-    std::map<int,double> fNormToWiresY;
-    std::map<int,double> fNormToWiresZ;
+    std::map<int, double> fNormToWiresY;
+    std::map<int, double> fNormToWiresZ;
 
     const art::EDProducer* fParentModule;
 
@@ -125,17 +130,18 @@ struct SumDistance2 {
     std::string fSpacePointLabel;
     std::string fTrackingLabel;
 
-    std::vector<art::Ptr<recob::Track> > fTracks;
-    std::vector<art::Ptr<recob::Shower> > fShowers;
-    std::vector<art::Ptr<recob::SpacePoint> > fSpacePoints;
-    std::vector<art::Ptr<recob::Hit> > fHits;
+    std::vector<art::Ptr<recob::Track>> fTracks;
+    std::vector<art::Ptr<recob::Shower>> fShowers;
+    std::vector<art::Ptr<recob::SpacePoint>> fSpacePoints;
+    std::vector<art::Ptr<recob::Hit>> fHits;
 
-    std::map<art::Ptr<recob::Track>,std::vector<art::Ptr<recob::Hit> > > fTracksToHits;
-    std::map<art::Ptr<recob::Track>,std::vector<art::Ptr<recob::SpacePoint> > > fTracksToSpacePoints;
-    std::map<art::Ptr<recob::Shower>,std::vector<art::Ptr<recob::Hit> > > fShowersToHits;
-    std::map<art::Ptr<recob::Shower>,std::vector<art::Ptr<recob::SpacePoint> > > fShowersToSpacePoints;
-    std::map<art::Ptr<recob::Hit>,art::Ptr<recob::SpacePoint> > fHitsToSpacePoints;
-    std::map<art::Ptr<recob::SpacePoint>,art::Ptr<recob::Hit > > fSpacePointsToHits;
+    std::map<art::Ptr<recob::Track>, std::vector<art::Ptr<recob::Hit>>> fTracksToHits;
+    std::map<art::Ptr<recob::Track>, std::vector<art::Ptr<recob::SpacePoint>>> fTracksToSpacePoints;
+    std::map<art::Ptr<recob::Shower>, std::vector<art::Ptr<recob::Hit>>> fShowersToHits;
+    std::map<art::Ptr<recob::Shower>, std::vector<art::Ptr<recob::SpacePoint>>>
+      fShowersToSpacePoints;
+    std::map<art::Ptr<recob::Hit>, art::Ptr<recob::SpacePoint>> fHitsToSpacePoints;
+    std::map<art::Ptr<recob::SpacePoint>, art::Ptr<recob::Hit>> fSpacePointsToHits;
 
     anab::MVAPIDResult fResHolder;
 
