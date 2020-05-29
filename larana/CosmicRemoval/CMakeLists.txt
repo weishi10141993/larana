@@ -23,6 +23,7 @@ art_make(
     ROOT::Tree
     larana_CosmicRemoval
     larana_CosmicRemoval_TrackContainment
+    lardataalg_DetectorInfo
     larcorealg_Geometry
     lardata_ArtDataHelper
     lardataobj_AnalysisBase
