@@ -292,27 +292,27 @@ namespace opdet {
     art::ServiceHandle<geo::Geometry const> geo;
 
     // get the MCtrue info of the particles
-    art::Handle< std::vector<simb::MCParticle> > mclistLARG4;
-    evt.getByLabel("largeant",mclistLARG4);
-    std::vector<simb::MCParticle> const& mcpartVec(*mclistLARG4);
+    std::vector<simb::MCParticle> const* mcpartVec = fLightAnalysisTree
+      ? evt.getPointerByLabel<std::vector<simb::MCParticle>>("largeant")
+      : nullptr;
 
     //-------------------------initializing light tree vectors------------------------
-    size_t maxNtracks = 1000;//mcpartVec.size(); --- { to be fixed soon! ]
-    //size_t maxNtracks = mcpartVec.size();
-    fSignals_vuv.clear();
-    fSignals_vuv.resize(maxNtracks);
-    fSignals_vis.clear();
-    fSignals_vis.resize(maxNtracks);
-    for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
-      fSignals_vuv[itrack].resize(geo->NOpChannels());
-      fSignals_vis[itrack].resize(geo->NOpChannels());
-    }
+    std::vector<double> totalEnergy_track;
     fstepPositions.clear();
     fstepTimes.clear();
-    //-------------------------stimation of dedx per trackID------------------------
-    //get the list of particles from this event
-    std::vector<double> totalEnergy_track(maxNtracks, 0.);
-    if(fMakeLightAnalysisTree){
+    if (fMakeLightAnalysisTree) {
+      size_t maxNtracks = 1000U; // mcpartVec->size(); --- { to be fixed soon! ]
+      fSignals_vuv.clear();
+      fSignals_vuv.resize(maxNtracks);
+      fSignals_vis.clear();
+      fSignals_vis.resize(maxNtracks);
+      for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
+        fSignals_vuv[itrack].resize(geo->NOpChannels());
+        fSignals_vis[itrack].resize(geo->NOpChannels());
+      }
+      totalEnergy_track.resize(maxNtracks, 0.);
+      //-------------------------stimation of dedx per trackID----------------------
+      //get the list of particles from this event
       const sim::ParticleList* plist = pi_serv? &(pi_serv->ParticleList()): nullptr;
 
       // loop over all sim::SimChannels in the event and make sure there are no
@@ -543,9 +543,8 @@ namespace opdet {
           std::vector<double> this_xyz;
 
           //loop over the particles
-          for(size_t i_p=0; i_p < mcpartVec.size(); i_p++){
+          for(simb::MCParticle const& pPart: *mcpartVec){
 
-	    const simb::MCParticle pPart = mcpartVec[i_p];
 	    if(pPart.Process() == "primary")
 	      fEnergy = pPart.E();
 
