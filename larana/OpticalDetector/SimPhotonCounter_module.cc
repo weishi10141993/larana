@@ -187,7 +187,7 @@ namespace opdet {
     geo->CryostatBoundaries(CryoBounds);
     std::cout<<"Cryo Boundaries"<<std::endl;
     std::cout<<"Xmin: "<<CryoBounds[0]<<" Xmax: "<<CryoBounds[1]<<" Ymin: "<<CryoBounds[2]
-	     <<" Ymax: "<<CryoBounds[3]<<" Zmin: "<<CryoBounds[4]<<" Zmax: "<<CryoBounds[5]<<std::endl;
+             <<" Ymax: "<<CryoBounds[3]<<" Zmin: "<<CryoBounds[4]<<" Zmax: "<<CryoBounds[5]<<std::endl;
 
     try {
       pi_serv = &*(art::ServiceHandle<cheat::ParticleInventoryService const>());
@@ -366,7 +366,7 @@ namespace opdet {
       std::vector< art::Handle< std::vector< sim::SimPhotons > > > photon_handles;
       evt.getManyByType(photon_handles);
       if (photon_handles.size() == 0)
-	throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
+        throw art::Exception(art::errors::ProductNotFound)<<"sim SimPhotons retrieved and you requested them.";
 
       for(auto const& mod : fInputModule){
       // sim::SimPhotonsCollection TheHitCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,mod);
@@ -374,33 +374,33 @@ namespace opdet {
 
         for (auto const& ph_handle: photon_handles) {
          // Do some checking before we proceed
-	 if (!ph_handle.isValid()) continue;
-	 if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
+         if (!ph_handle.isValid()) continue;
+         if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
 
-	bool Reflected = (ph_handle.provenance()->productInstanceName() == "Reflected");
+        bool Reflected = (ph_handle.provenance()->productInstanceName() == "Reflected");
 
-	if((*ph_handle).size()>0)
-	{
-	  if(fMakeLightAnalysisTree) {
+        if((*ph_handle).size()>0)
+        {
+          if(fMakeLightAnalysisTree) {
           //resetting the signalt to save in the analysis tree per event
-	    const int maxNtracks = 1000;
-	    for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
-	      for(size_t pmt_i=0; pmt_i!=geo->NOpChannels(); pmt_i++) {
-		fSignals_vuv[itrack][pmt_i].clear();
-		fSignals_vis[itrack][pmt_i].clear();
-	      }
-	    }
-	  }
-	}
+            const int maxNtracks = 1000;
+            for(size_t itrack=0; itrack!=maxNtracks; itrack++) {
+              for(size_t pmt_i=0; pmt_i!=geo->NOpChannels(); pmt_i++) {
+                fSignals_vuv[itrack][pmt_i].clear();
+                fSignals_vis[itrack][pmt_i].clear();
+              }
+            }
+          }
+        }
 
 
 //      if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< TheHitCollection.size()<<std::endl;
-	if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*ph_handle).size()<<std::endl;
+        if(fVerbosity > 0) std::cout<<"Found OpDet hit collection of size "<< (*ph_handle).size()<<std::endl;
 
         if((*ph_handle).size()>0)
         {
 //           for(sim::SimPhotonsCollection::const_iterator itOpDet=TheHitCollection.begin(); itOpDet!=TheHitCollection.end(); itOpDet++)
-	  for(auto const& itOpDet: (*ph_handle) )
+          for(auto const& itOpDet: (*ph_handle) )
           {
             //Reset Counters
             fCountOpDetAll=0;
@@ -429,15 +429,15 @@ namespace opdet {
                 //Get arrival time from phot
                 fTime= Phot.Time;
 
-		// special case for LibraryBuildJob: no working "Reflected" handle and all photons stored in single object - must sort using wavelength instead
-		if(fPVS->IsBuildJob() && !Reflected) { // all photons contained in object with Reflected = false flag
-	 	  // Increment per OpDet counters and fill per phot trees
+                // special case for LibraryBuildJob: no working "Reflected" handle and all photons stored in single object - must sort using wavelength instead
+                if(fPVS->IsBuildJob() && !Reflected) { // all photons contained in object with Reflected = false flag
+                   // Increment per OpDet counters and fill per phot trees
                   fCountOpDetAll++;
                   if(fMakeAllPhotonsTree){
-		    if (fWavelength < 200 || (fPVS->StoreReflected() && fWavelength > 200)) {
-         	      fThePhotonTreeAll->Fill();
+                    if (fWavelength < 200 || (fPVS->StoreReflected() && fWavelength > 200)) {
+                       fThePhotonTreeAll->Fill();
                     }
-		  }
+                  }
 
                   if(odresponse->detected(fOpChannel, Phot))
                   {
@@ -456,21 +456,21 @@ namespace opdet {
                       std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                   }
                   else {
-		    if(fVerbosity > 3)
+                    if(fVerbosity > 3)
                       std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
-		  }
+                  }
 
-		}
+                }
 
-		else {
-		  // store in appropriate trees using "Reflected" handle and fPVS->StoreReflected() flag
+                else {
+                  // store in appropriate trees using "Reflected" handle and fPVS->StoreReflected() flag
                   // Increment per OpDet counters and fill per phot trees
                   fCountOpDetAll++;
                   if(fMakeAllPhotonsTree){
-		    if (!Reflected || (fPVS->StoreReflected() && Reflected)) {
-         	      fThePhotonTreeAll->Fill();
+                    if (!Reflected || (fPVS->StoreReflected() && Reflected)) {
+                       fThePhotonTreeAll->Fill();
                     }
-		   }
+                   }
 
                   if(odresponse->detected(fOpChannel, Phot))
                   {
@@ -489,10 +489,10 @@ namespace opdet {
                       std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                   }
                   else {
-		    if(fVerbosity > 3)
+                    if(fVerbosity > 3)
                       std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
-		  }
-		}
+                  }
+                }
               }
 
 
@@ -502,7 +502,7 @@ namespace opdet {
             {
               int VoxID; double NProd;
               fPVS->RetrieveLightProd(VoxID, NProd);
-	      fPVS->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetDetected)/NProd);
+              fPVS->SetLibraryEntry(VoxID, fOpChannel, double(fCountOpDetDetected)/NProd);
 
               //store reflected light
               if(fPVS->StoreReflected())
@@ -543,8 +543,8 @@ namespace opdet {
           //loop over the particles
           for(simb::MCParticle const& pPart: *mcpartVec){
 
-	    if(pPart.Process() == "primary")
-	      fEnergy = pPart.E();
+            if(pPart.Process() == "primary")
+              fEnergy = pPart.E();
 
             //resetting the vectors
             fstepPositions.clear();
@@ -553,27 +553,27 @@ namespace opdet {
             fSignalsvis.clear();
             fdEdx = -1.;
             //filling the tree fields
-	    fTrackID = pPart.TrackId();
-	    fpdg = pPart.PdgCode();
-	    fmotherTrackID = pPart.Mother();
-	    fdEdx = totalEnergy_track[fTrackID];
-	    fSignalsvuv = fSignals_vuv[fTrackID];
-	    fSignalsvis = fSignals_vis[fTrackID];
-	    fProcess = pPart.Process();
+            fTrackID = pPart.TrackId();
+            fpdg = pPart.PdgCode();
+            fmotherTrackID = pPart.Mother();
+            fdEdx = totalEnergy_track[fTrackID];
+            fSignalsvuv = fSignals_vuv[fTrackID];
+            fSignalsvis = fSignals_vis[fTrackID];
+            fProcess = pPart.Process();
             //filling the center positions of each step
             for(size_t i_s=1; i_s < pPart.NumberTrajectoryPoints(); i_s++){
-	      this_xyz.clear();
-	      this_xyz.resize(3);
-	      this_xyz[0] = pPart.Position(i_s).X();
-	      this_xyz[1] = pPart.Position(i_s).Y();
-	      this_xyz[2] = pPart.Position(i_s).Z();
-	      fstepPositions.push_back(this_xyz);
-	      fstepTimes.push_back(pPart.Position(i_s).T());
-	    }
+              this_xyz.clear();
+              this_xyz.resize(3);
+              this_xyz[0] = pPart.Position(i_s).X();
+              this_xyz[1] = pPart.Position(i_s).Y();
+              this_xyz[2] = pPart.Position(i_s).Z();
+              fstepPositions.push_back(this_xyz);
+              fstepTimes.push_back(pPart.Position(i_s).T());
+            }
             //filling the tree per track
             fLightAnalysisTree->Fill();
           }
-	}
+        }
       }
      }
     }
@@ -591,8 +591,8 @@ namespace opdet {
       //art::Handle< std::vector<sim::SimPhotonsLite> > photonHandle;
       //evt.getByLabel(mod, photonHandle);
 
-	// Loop over direct/reflected photons
-	for (auto const& ph_handle: photon_handles) {
+        // Loop over direct/reflected photons
+        for (auto const& ph_handle: photon_handles) {
           // Do some checking before we proceed
           if (!ph_handle.isValid()) continue;
           if (ph_handle.provenance()->moduleLabel() != mod) continue;   //not the most efficient way of doing this, but preserves the logic of the module. Andrzej
@@ -620,17 +620,17 @@ namespace opdet {
           //Reset Counters
           fCountOpDetAll=0;
           fCountOpDetDetected=0;
-	  fCountOpDetReflDetected=0;
+          fCountOpDetReflDetected=0;
 
          for(auto it = PhotonsMap.begin(); it!= PhotonsMap.end(); it++)
            {
              // Calculate wavelength in nm
-	     if (Reflected) {
-		fWavelength = 450;
-	     }
-	     else {
-	     fWavelength= 128;   // original
-	     }
+             if (Reflected) {
+                fWavelength = 450;
+             }
+             else {
+             fWavelength= 128;   // original
+             }
 
              //Get arrival time from phot
              fTime= it->first;
@@ -642,24 +642,24 @@ namespace opdet {
                 fCountOpDetAll++;
                 if(fMakeAllPhotonsTree) fThePhotonTreeAll->Fill();
 
-		if(odresponse->detectedLite(fOpChannel))
+                if(odresponse->detectedLite(fOpChannel))
                 {
                   if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
                   // direct light
-		  if (!Reflected){
-		    fCountOpDetDetected++;
-		  }
-		  else if (Reflected) {
-		    fCountOpDetReflDetected++;
-		  }
-		  if(fVerbosity > 3)
+                  if (!Reflected){
+                    fCountOpDetDetected++;
+                  }
+                  else if (Reflected) {
+                    fCountOpDetReflDetected++;
+                  }
+                  if(fVerbosity > 3)
                   std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 1 "<<std::endl;
                 }
                 else
-		  if(fVerbosity > 3)
-		  {
+                  if(fVerbosity > 3)
+                  {
                   std::cout<<"OpDetResponseInterface PerPhoton : Event "<<fEventID<<" OpChannel " <<fOpChannel << " Wavelength " << fWavelength << " Detected 0 "<<std::endl;
-		  }
+                  }
               }
             }
 
