@@ -78,6 +78,15 @@ namespace opdet {
 
     private:
 
+      /// Threshold used to resolve between visible and ultraviolet light.
+      static constexpr double kVisibleThreshold = 200.0; // nm
+      
+      /// Value used when a typical visible light wavelength is needed.
+      static constexpr double kVisibleWavelength = 450.0; // nm
+      
+      /// Value used when a typical ultraviolet light wavelength is needed.
+      static constexpr double kVUVWavelength = 128.0; // nm
+      
       // Trees to output
 
       TTree * fThePhotonTreeAll;
@@ -147,6 +156,12 @@ namespace opdet {
         int channel, int nDirectPhotons, int nReflectedPhotons,
         double reflectedT0 = 0.0
         ) const;
+      
+      
+      /// Returns if we label as "visibile" a photon with specified wavelength [nm].
+      bool isVisible(double wavelength) const
+        { return fWavelength < kVisibleThreshold; }
+      
       
   };
 }
@@ -446,7 +461,7 @@ namespace opdet {
                   // Increment per OpDet counters and fill per phot trees
                   fCountOpDetAll++;
                   if(fMakeAllPhotonsTree){
-                    if (fWavelength < 200 || (fPVS->StoreReflected() && fWavelength > 200)) {
+                    if (!isVisible(fWavelength) || fPVS->StoreReflected()) {
                         fThePhotonTreeAll->Fill();
                     }
                   }
@@ -455,10 +470,10 @@ namespace opdet {
                   {
                     if(fMakeDetectedPhotonsTree) fThePhotonTreeDetected->Fill();
                     //only store direct direct light
-                    if(fWavelength < 200)
+                    if(!isVisible(fWavelength))
                       fCountOpDetDetected++;
                     // reflected and shifted light is in visible range
-                    else if(fPVS->StoreReflected() && fWavelength > 200 ) {
+                    else if(fPVS->StoreReflected()) {
                       fCountOpDetReflDetected++;
                       // find the first visible arrival time
                       if(fPVS->StoreReflT0() && fTime < fT0_vis)
@@ -627,10 +642,10 @@ namespace opdet {
               {
                 // Calculate wavelength in nm
                 if (Reflected) {
-                  fWavelength = 450;
+                  fWavelength = kVisibleThreshold;
                 }
                 else {
-                  fWavelength= 128;   // original
+                  fWavelength= kVUVWavelength;   // original
                 }
 
                 //Get arrival time from phot
