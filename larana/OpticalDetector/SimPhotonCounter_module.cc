@@ -63,6 +63,7 @@
 // C++ language includes
 #include <iostream>
 #include <cstring>
+#include <cassert>
 
 namespace opdet {
 
@@ -316,16 +317,16 @@ namespace opdet {
     // get the geometry to be able to figure out signal types and chan -> plane mappings
     art::ServiceHandle<geo::Geometry const> geo;
 
-    // get the MCtrue info of the particles
-    std::vector<simb::MCParticle> const* mcpartVec = fLightAnalysisTree
-      ? evt.getPointerByLabel<std::vector<simb::MCParticle>>("largeant")
-      : nullptr;
+    // GEANT4 info on the particles (only used if making light analysis tree)
+    std::vector<simb::MCParticle> const* mcpartVec = nullptr;
 
     //-------------------------initializing light tree vectors------------------------
     std::vector<double> totalEnergy_track;
     fstepPositions.clear();
     fstepTimes.clear();
     if (fMakeLightAnalysisTree) {
+      mcpartVec = evt.getPointerByLabel<std::vector<simb::MCParticle>>("largeant");
+      
       size_t maxNtracks = 1000U; // mcpartVec->size(); --- { to be fixed soon! ]
       fSignals_vuv.clear();
       fSignals_vuv.resize(maxNtracks);
@@ -553,6 +554,9 @@ namespace opdet {
             if(fMakeOpDetEventsTree) fTheEventTree->Fill();
           }
           if(fMakeLightAnalysisTree) {
+            assert(mcpartVec);
+            assert(fLightAnalysisTree);
+            
             std::cout<<"Filling the analysis tree"<<std::endl;
             //---------------Filling the analysis tree-----------:
             fRun = evt.run();
