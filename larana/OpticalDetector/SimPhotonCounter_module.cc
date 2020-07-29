@@ -81,13 +81,13 @@ namespace opdet {
 
       /// Threshold used to resolve between visible and ultraviolet light.
       static constexpr double kVisibleThreshold = 200.0; // nm
-      
+
       /// Value used when a typical visible light wavelength is needed.
       static constexpr double kVisibleWavelength = 450.0; // nm
-      
+
       /// Value used when a typical ultraviolet light wavelength is needed.
       static constexpr double kVUVWavelength = 128.0; // nm
-      
+
       // Trees to output
 
       TTree * fThePhotonTreeAll;
@@ -150,20 +150,20 @@ namespace opdet {
 
       cheat::ParticleInventoryService const* pi_serv = nullptr;
       phot::PhotonVisibilityService const* fPVS = nullptr;
-      
+
       bool const fUseLitePhotons;
-      
+
       void storeVisibility(
         int channel, int nDirectPhotons, int nReflectedPhotons,
         double reflectedT0 = 0.0
         ) const;
-      
-      
+
+
       /// Returns if we label as "visibile" a photon with specified wavelength [nm].
       bool isVisible(double wavelength) const
         { return fWavelength < kVisibleThreshold; }
-      
-      
+
+
   };
 }
 
@@ -192,13 +192,13 @@ namespace opdet {
     //fQE=                       pset.get<double>("QuantumEfficiency");
     //fWavelengthCutLow=         pset.get<double>("WavelengthCutLow");
     //fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");
-    
-    
+
+
     if (fPVS->IsBuildJob() && fPVS->StoreReflected() && fPVS->StoreReflT0() && fUseLitePhotons) {
       throw art::Exception(art::errors::Configuration)
         << "Building a library with reflected light time is not supported when using SimPhotonsLite.\n";
     }
-    
+
   }
 
 
@@ -326,7 +326,7 @@ namespace opdet {
     fstepTimes.clear();
     if (fMakeLightAnalysisTree) {
       mcpartVec = evt.getPointerByLabel<std::vector<simb::MCParticle>>("largeant");
-      
+
       size_t maxNtracks = 1000U; // mcpartVec->size(); --- { to be fixed soon! ]
       fSignals_vuv.clear();
       fSignals_vuv.resize(maxNtracks);
@@ -556,7 +556,7 @@ namespace opdet {
           if(fMakeLightAnalysisTree) {
             assert(mcpartVec);
             assert(fLightAnalysisTree);
-            
+
             std::cout<<"Filling the analysis tree"<<std::endl;
             //---------------Filling the analysis tree-----------:
             fRun = evt.run();
@@ -689,11 +689,11 @@ namespace opdet {
               if(fMakeOpDetsTree) fTheOpDetTree->Fill();
               fCountEventAll+=fCountOpDetAll;
               fCountEventDetected+=fCountOpDetDetected;
-              
+
               if (fPVS->IsBuildJob())
                 storeVisibility(fOpChannel, fCountOpDetDetected, fCountOpDetReflDetected, fT0_vis);
 
-              
+
               // Give per OpDet output
               if(fVerbosity >2) std::cout<<"OpDetResponseInterface PerOpDet : Event "<<fEventID<<" OpDet " << fOpChannel << " All " << fCountOpDetAll << " Det " <<fCountOpDetDetected<<std::endl;
             }
@@ -714,8 +714,8 @@ namespace opdet {
       }
     }
   } // SimPhotonCounter::analyze()
-  
-  
+
+
   // ---------------------------------------------------------------------------
   void SimPhotonCounter::storeVisibility(
     int channel, int nDirectPhotons, int nReflectedPhotons,
@@ -724,30 +724,30 @@ namespace opdet {
   {
     phot::PhotonVisibilityService& pvs
       = *(art::ServiceHandle<phot::PhotonVisibilityService>());
-    
+
     // ask PhotonVisibilityService which voxel was being served,
     // and how many photons where there generated (yikes!!);
     // this value was put there by LightSource (yikes!!)
     int VoxID;
     double NProd;
     fPVS->RetrieveLightProd(VoxID, NProd);
-    
+
     pvs.SetLibraryEntry(VoxID, channel, double(nDirectPhotons)/NProd);
 
     //store reflected light
     if(fPVS->StoreReflected()) {
       pvs.SetLibraryEntry(VoxID, channel, double(nReflectedPhotons)/NProd, true);
-      
+
       //store reflected first arrival time
       if (fPVS->StoreReflT0())
         pvs.SetLibraryReflT0Entry(VoxID, channel, reflectedT0);
-      
+
     } // if reflected
 
   } // SimPhotonCounter::storeVisibility()
-  
+
   // ---------------------------------------------------------------------------
-  
+
 }
 namespace opdet{
 
