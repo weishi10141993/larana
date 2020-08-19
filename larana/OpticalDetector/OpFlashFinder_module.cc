@@ -9,33 +9,32 @@
 //
 
 // LArSoft includes
+#include "larana/OpticalDetector/OpFlashAlg.h"
 #include "larcore/Geometry/Geometry.h"
+#include "lardata/DetectorInfoServices/DetectorClocksService.h"
+#include "lardata/Utilities/AssociationUtil.h"
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "lardataobj/RecoBase/OpHit.h"
-#include "lardata/Utilities/AssociationUtil.h"
-#include "lardata/DetectorInfoServices/DetectorClocksService.h"
-#include "larana/OpticalDetector/OpFlashAlg.h"
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // ROOT includes
 
 // C++ Includes
-#include <string>
 #include <memory>
+#include <string>
 
 namespace opdet {
 
-  class OpFlashFinder : public art::EDProducer{
+  class OpFlashFinder : public art::EDProducer {
   public:
-
     // Standard constructor and destructor for an ART module.
     explicit OpFlashFinder(const fhicl::ParameterSet&);
 
@@ -43,15 +42,13 @@ namespace opdet {
     void produce(art::Event&);
 
   private:
-
     // The parameters we'll read from the .fcl file.
     std::string fInputModule; // Input tag for OpHit collection
 
-    Int_t    fBinWidth;
-    Float_t  fFlashThreshold;
-    Float_t  fWidthTolerance;
+    Int_t fBinWidth;
+    Float_t fFlashThreshold;
+    Float_t fWidthTolerance;
     Double_t fTrigCoinc;
-
   };
 
 }
@@ -64,45 +61,40 @@ namespace opdet {
 
   //----------------------------------------------------------------------------
   // Constructor
-  OpFlashFinder::OpFlashFinder(const fhicl::ParameterSet & pset)
-    : EDProducer{pset}
+  OpFlashFinder::OpFlashFinder(const fhicl::ParameterSet& pset) : EDProducer{pset}
   {
 
     // Indicate that the Input Module comes from .fcl
-    fInputModule = pset.get< std::string >("InputModule");
+    fInputModule = pset.get<std::string>("InputModule");
 
-    fBinWidth       = pset.get< int >   ("BinWidth");
-    fFlashThreshold = pset.get< float > ("FlashThreshold");
-    fWidthTolerance = pset.get< float > ("WidthTolerance");
-    fTrigCoinc      = pset.get< double >("TrigCoinc");
+    fBinWidth = pset.get<int>("BinWidth");
+    fFlashThreshold = pset.get<float>("FlashThreshold");
+    fWidthTolerance = pset.get<float>("WidthTolerance");
+    fTrigCoinc = pset.get<double>("TrigCoinc");
 
-    produces< std::vector< recob::OpFlash > >();
-    produces< art::Assns< recob::OpFlash, recob::OpHit > >();
-
+    produces<std::vector<recob::OpFlash>>();
+    produces<art::Assns<recob::OpFlash, recob::OpHit>>();
   }
 
   //----------------------------------------------------------------------------
-  void OpFlashFinder::produce(art::Event& evt)
+  void
+  OpFlashFinder::produce(art::Event& evt)
   {
-
     // These are the storage pointers we will put in the event
-    std::unique_ptr< std::vector< recob::OpFlash > >
-                      flashPtr(new std::vector< recob::OpFlash >);
-    std::unique_ptr< art::Assns< recob::OpFlash, recob::OpHit > >
-                      assnPtr(new art::Assns< recob::OpFlash, recob::OpHit >);
+    auto flashPtr = std::make_unique<std::vector<recob::OpFlash>>();
+    auto assnPtr = std::make_unique<art::Assns<recob::OpFlash, recob::OpHit>>();
 
     // This will keep track of what flashes will assoc to what ophits
     // at the end of processing
-    std::vector< std::vector< int > > assocList;
+    std::vector<std::vector<int>> assocList;
 
-    auto const& geometry(*lar::providerFrom< geo::Geometry >());
+    auto const& geometry(*lar::providerFrom<geo::Geometry>());
 
-    auto const& detectorClocks
-       (*lar::providerFrom< detinfo::DetectorClocksService >());
+    auto const clock_data =
+      art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
 
     // Get OpHits from the event
-    art::Handle< std::vector< recob::OpHit > > opHitHandle;
-    evt.getByLabel(fInputModule, opHitHandle);
+    auto const opHitHandle = evt.getValidHandle<std::vector<recob::OpHit>>(fInputModule);
 
     RunFlashFinder(*opHitHandle,
                    *flashPtr,
@@ -111,27 +103,21 @@ namespace opdet {
                    geometry,
                    fFlashThreshold,
                    fWidthTolerance,
-                   detectorClocks,
+                   clock_data,
                    fTrigCoinc);
 
     // Make the associations which we noted we need
-    for (size_t i = 0; i != assocList.size(); ++i)
-    {
-      art::PtrVector< recob::OpHit > opHitPtrVector;
-      for (int const& hitIndex : assocList.at(i))
-      {
-        art::Ptr< recob::OpHit > opHitPtr(opHitHandle, hitIndex);
-        opHitPtrVector.push_back(opHitPtr);
+    for (size_t i = 0; i != assocList.size(); ++i) {
+      art::PtrVector<recob::OpHit> opHitPtrVector;
+      for (size_t const hitIndex : assocList.at(i)) {
+        opHitPtrVector.emplace_back(opHitHandle, hitIndex);
       }
 
-      util::CreateAssn(*this, evt, *flashPtr, opHitPtrVector,
-                                        *(assnPtr.get()), i);
+      util::CreateAssn(*this, evt, *flashPtr, opHitPtrVector, *(assnPtr.get()), i);
     }
 
-    // Store results into the event
     evt.put(std::move(flashPtr));
     evt.put(std::move(assnPtr));
-
   }
 
 } // namespace opdet

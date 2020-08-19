@@ -10,36 +10,42 @@
  * These are the algorithms used by OpHit to produce optical hits.
  */
 
+#include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 #include "larcorealg/Geometry/GeometryCore.h"
+#include "lardataalg/DetectorInfo/DetectorClocks.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
 #include "lardataobj/RecoBase/OpHit.h"
-#include "lardataalg/DetectorInfo/DetectorClocks.h"
 #include "larreco/Calibrator/IPhotonCalibrator.h"
-#include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
 
 #include <vector>
 
-namespace calib { class IPhotonCalibrator; }
-namespace detinfo { class DetectorClocks; }
-namespace pmtana { class PulseRecoManager; }
+namespace calib {
+  class IPhotonCalibrator;
+}
+namespace detinfo {
+  class DetectorClocksData;
+}
+namespace pmtana {
+  class PulseRecoManager;
+}
 
-namespace opdet{
+namespace opdet {
 
-  void RunHitFinder(std::vector< raw::OpDetWaveform > const&,
-                    std::vector< recob::OpHit >&,
+  void RunHitFinder(std::vector<raw::OpDetWaveform> const&,
+                    std::vector<recob::OpHit>&,
                     pmtana::PulseRecoManager const&,
                     pmtana::PMTPulseRecoBase const&,
                     geo::GeometryCore const&,
                     float,
-                    detinfo::DetectorClocks const&,
+                    detinfo::DetectorClocksData const&,
                     calib::IPhotonCalibrator const&);
 
   void ConstructHit(float,
                     int,
                     double,
                     pmtana::pulse_param const&,
-                    std::vector< recob::OpHit >&,
-                    detinfo::DetectorClocks const&,
+                    std::vector<recob::OpHit>&,
+                    detinfo::DetectorClocksData const&,
                     calib::IPhotonCalibrator const&);
 
 } // End opdet namespace
