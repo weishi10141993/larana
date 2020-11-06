@@ -154,7 +154,8 @@ namespace pmtana {
         // If there's a pulse, end we where in in_post, end the previous pulse first
         if (in_post) {
           // Find were
-          _pulse.t_end = i - buffer_num_index - 1;
+          _pulse.t_end = static_cast<int>(i) - buffer_num_index;
+          if (_pulse.t_end > 0) --_pulse.t_end; // leave a gap, if we can
 
           // Register if width is acceptable
           if ((_pulse.t_end - _pulse.t_start) >= _min_width) _pulse_v.push_back(_pulse);
