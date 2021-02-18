@@ -14,6 +14,8 @@
 #include "fhiclcpp/fwd.h"
 #include "canvas/Persistency/Common/Ptr.h"
 
+#include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
+
 class TProfile;
 
 namespace anab {
