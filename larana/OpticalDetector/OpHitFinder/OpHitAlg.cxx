@@ -73,7 +73,7 @@ namespace opdet {
 
     if (pulse.peak < hitThreshold) return;
 
-    double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() * (use_start_time ? pulse.t_start : pulse.t_end);
+    double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() * (use_start_time ? pulse.t_start : pulse.t_max);
 
     double relTime = absTime - clocksData.TriggerTime();
 
