@@ -38,7 +38,8 @@ namespace opdet {
                     geo::GeometryCore const&,
                     float,
                     detinfo::DetectorClocksData const&,
-                    calib::IPhotonCalibrator const&);
+                    calib::IPhotonCalibrator const&,
+		    bool use_start_time=false);
 
   void ConstructHit(float,
                     int,
@@ -46,7 +47,8 @@ namespace opdet {
                     pmtana::pulse_param const&,
                     std::vector<recob::OpHit>&,
                     detinfo::DetectorClocksData const&,
-                    calib::IPhotonCalibrator const&);
+                    calib::IPhotonCalibrator const&,
+		    bool use_start_time=false);
 
 } // End opdet namespace
 
