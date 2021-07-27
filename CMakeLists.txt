@@ -43,11 +43,14 @@ find_ups_product( art )
 find_ups_product(art_root_io)
 find_ups_product( postgresql )
 find_ups_product( eigen )
+find_ups_product( clhep )
 
 # macros for dictionary and simple_plugin
 include(ArtDictionary)
 include(ArtMake)
 include(BuildPlugins)
+
+include_directories( $ENV{EIGEN_INC} )
 
 # source
 add_subdirectory(larana)
