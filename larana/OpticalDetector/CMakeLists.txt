@@ -4,19 +4,19 @@ add_subdirectory(OpHitFinder)
 
 art_make(
   LIB_LIBRARIES
-    ${ART_FRAMEWORK_SERVICES_REGISTRY}
-    ${ART_ROOT_IO_TFILESERVICE_SERVICE}
-    ${ART_ROOT_IO_TFILE_SUPPORT}
+    art::Framework_Services_Registry
+    art_root_io::TFileService_service
+    art_root_io::tfile_support
     ${CLHEP}
-    ${FHICLCPP}
-    ${MF_MESSAGELOGGER}
+    fhiclcpp::fhiclcpp
+    messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Hist
     ROOT::Physics
     ROOT::RIO
     ROOT::Tree
-    canvas
-    cetlib_except
+    canvas::canvas
+    cetlib_except::cetlib_except
     larana_OpticalDetector_OpDigiProperties_service
     larana_OpticalDetector_OpHitFinder
     larcorealg_Geometry
@@ -25,7 +25,7 @@ art_make(
     larsim_PhotonPropagation_PhotonVisibilityService_service
     nusimdata_SimulationBase
   MODULE_LIBRARIES
-    ${ART_FRAMEWORK_SERVICES_REGISTRY}
+    art::Framework_Services_Registry
     larana_OpticalDetector
     lardataobj_RawData
     larsim_MCCheater_ParticleInventoryService_service
@@ -33,7 +33,7 @@ art_make(
     nurandom_RandomUtils_NuRandomService_service
   SERVICE_LIBRARIES
     ${CLHEP}
-    ${MF_MESSAGELOGGER}
+    messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Hist
     larcorealg_Geometry
