@@ -1,121 +1,28 @@
 #define BOOST_TEST_MODULE ( OpFlashAlg_test )
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "larana/OpticalDetector/OpFlashAlg.h"
 
-// const float HitThreshold = 3;
-const float FlashThreshold = 50;
-const double WidthTolerance = 0.5;
-// const int Channel = 1;
-// const uint32_t TimeSlice = 1000;
-// const unsigned short Frame = 1;
-// const optdata::TimeSlice_t TimeSlicesPerFrame = 102400;
-// const double opdigi_SampleFreq = 64;
-// const double TrigTimeAbs = 0.8;
-// const double SPESize = 20;
+constexpr float FlashThreshold = 50;
+constexpr double WidthTolerance = 0.5;
 
-const double tolerance = 1e-6;
+auto const tolerance = 1e-4% boost::test_tools::tolerance();
 
 BOOST_AUTO_TEST_SUITE(OpFlashAlg_test)
 
-/*
-BOOST_AUTO_TEST_CASE(ConstructHit_checkDefaultPulse)
-{
-  pmtana::pulse_param pulse;
-  std::vector<recob::OpHit> HitVector;
-  art::Service<detinfo::DetectorClocksService> ts;
-  //::detinfo::DetectorClocksService ts;
-
-  opdet::ConstructHit(HitThreshold,
-		      Channel,
-		      TimeSlice,
-		      Frame,
-		      &pulse,
-		      *ts,
-		      SPESize,
-		      HitVector);
-
-  BOOST_CHECK_EQUAL(HitVector.size(),0ul);
-
-}
-*/
-/*
-BOOST_AUTO_TEST_CASE(ConstructHit_checkPulseBelowThreshold)
-{
-  pmtana::pulse_param pulse;
-  pulse.t_start=3; pulse.t_max = 6; pulse.t_end = 9;
-  pulse.area = 4; pulse.peak = 2;
-
-  std::vector<recob::OpHit> HitVector;
-  art::Service<detinfo::DetectorClocksService> ts;
-
-  opdet::ConstructHit(HitThreshold,
-		      Channel,
-		      TimeSlice,
-		      Frame,
-		      &pulse,
-		      TimeSlicesPerFrame,
-		      opdigi_SampleFreq,
-		      TrigTimeAbs,
-		      SPESize,
-		      HitVector);
-
-  BOOST_CHECK_EQUAL(HitVector.size(),0ul);
-}
-*/
- /*
-BOOST_AUTO_TEST_CASE(ConstructHit_checkPulseAbovThreshold)
-{
-
-
-
-  pmtana::pulse_param pulse;
-  pulse.t_start=3; pulse.t_max = 6; pulse.t_end = 9;
-  pulse.area = 40; pulse.peak = 20;
-
-  std::vector<recob::OpHit> HitVector;
-
-  opdet::ConstructHit(HitThreshold,
-		      Channel,
-		      TimeSlice,
-		      Frame,
-		      &pulse,
-		      TimeSlicesPerFrame,
-		      opdigi_SampleFreq,
-		      TrigTimeAbs,
-		      SPESize,
-		      HitVector);
-
-  double peak_time_abs = (pulse.t_max + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
-  double pulse_end = (pulse.t_end + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
-  double pulse_begin = (pulse.t_start + TimeSlice + Frame*TimeSlicesPerFrame)/opdigi_SampleFreq;
-
-  BOOST_CHECK_EQUAL(HitVector.size(),1ul);
-  BOOST_CHECK_EQUAL(HitVector[0].OpChannel(),Channel);
-  BOOST_CHECK_CLOSE(HitVector[0].PeakTimeAbs(),peak_time_abs,tolerance);
-  BOOST_CHECK_CLOSE(HitVector[0].PeakTime(),peak_time_abs-TrigTimeAbs,tolerance);
-  BOOST_CHECK_EQUAL(HitVector[0].Frame(),Frame);
-  BOOST_CHECK_CLOSE(HitVector[0].Width(),pulse_end-pulse_begin,tolerance);
-  BOOST_CHECK_CLOSE(HitVector[0].Area(),pulse.area,tolerance);
-  BOOST_CHECK_CLOSE(HitVector[0].Amplitude(),pulse.peak,tolerance);
-  BOOST_CHECK_CLOSE(HitVector[0].PE(),pulse.peak/SPESize,tolerance);
-  BOOST_CHECK_CLOSE(HitVector[0].FastToTotal(),0.,tolerance);
-
-}
- */
 BOOST_AUTO_TEST_CASE(checkGetAccumIndex)
 {
 
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,0,1,0),10ul);
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,0,2,0),5ul);
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,0,3,0),3ul);
+  BOOST_TEST(opdet::GetAccumIndex(10.0,0,1,0) == 10ul);
+  BOOST_TEST(opdet::GetAccumIndex(10.0,0,2,0) == 5ul);
+  BOOST_TEST(opdet::GetAccumIndex(10.0,0,3,0) == 3ul);
 
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,1,0),15ul);
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,2,0),7ul);
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,3,0),5ul);
+  BOOST_TEST(opdet::GetAccumIndex(10.0,-5,1,0) == 15ul);
+  BOOST_TEST(opdet::GetAccumIndex(10.0,-5,2,0) == 7ul);
+  BOOST_TEST(opdet::GetAccumIndex(10.0,-5,3,0) == 5ul);
 
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,1,0.5),15ul);
-  BOOST_CHECK_EQUAL(opdet::GetAccumIndex(10.0,-5,2,1),8ul);
+  BOOST_TEST(opdet::GetAccumIndex(10.0,-5,1,0.5) == 15ul);
+  BOOST_TEST(opdet::GetAccumIndex(10.0,-5,2,1) == 8ul);
 
 }
 
@@ -132,12 +39,12 @@ BOOST_AUTO_TEST_CASE(FillAccumulator_checkBelowThreshold){
   std::vector<int> FlashesInAccumulator;
 
   opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
-			 Binned,Contributors,FlashesInAccumulator);
+                         Binned,Contributors,FlashesInAccumulator);
 
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1U);
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , (int)HitIndex );
-  BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
-  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 0U);
+  BOOST_TEST( Contributors.at(AccumIndex).size() == 1U);
+  BOOST_TEST( Contributors.at(AccumIndex).at(0) == (int)HitIndex );
+  BOOST_TEST( Binned.at(AccumIndex) == PE+PE_base );
+  BOOST_TEST( FlashesInAccumulator.size() == 0U);
 
 }
 
@@ -154,12 +61,12 @@ BOOST_AUTO_TEST_CASE(FillAccumulator_checkAboveThreshold){
   std::vector<int> FlashesInAccumulator;
 
   opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
-			 Binned,Contributors,FlashesInAccumulator);
+                         Binned,Contributors,FlashesInAccumulator);
 
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1U);
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , (int)HitIndex );
-  BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
-  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 1U);
+  BOOST_TEST( Contributors.at(AccumIndex).size() == 1U);
+  BOOST_TEST( Contributors.at(AccumIndex).at(0) == (int)HitIndex );
+  BOOST_TEST( Binned.at(AccumIndex) == PE+PE_base );
+  BOOST_TEST( FlashesInAccumulator.size() == 1U);
 
 }
 
@@ -176,23 +83,23 @@ BOOST_AUTO_TEST_CASE(FillAccumulator_checkMultipleHits){
   std::vector<int> FlashesInAccumulator;
 
   opdet::FillAccumulator(AccumIndex,HitIndex,PE,FlashThreshold,
-			 Binned,Contributors,FlashesInAccumulator);
+                         Binned,Contributors,FlashesInAccumulator);
 
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 1U);
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , (int)HitIndex );
-  BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE+PE_base );
-  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 0U);
+  BOOST_TEST( Contributors.at(AccumIndex).size() == 1U);
+  BOOST_TEST( Contributors.at(AccumIndex).at(0) == (int)HitIndex );
+  BOOST_TEST( Binned.at(AccumIndex) == PE+PE_base );
+  BOOST_TEST( FlashesInAccumulator.size() == 0U);
 
 
   unsigned int HitIndex2 = 1;
   opdet::FillAccumulator(AccumIndex,HitIndex2,PE,FlashThreshold,
-			 Binned,Contributors,FlashesInAccumulator);
+                         Binned,Contributors,FlashesInAccumulator);
 
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).size() , 2U);
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(0) , (int)HitIndex );
-  BOOST_CHECK_EQUAL( Contributors.at(AccumIndex).at(1) , (int)HitIndex2 );
-  BOOST_CHECK_EQUAL( Binned.at(AccumIndex) , PE*2+PE_base );
-  BOOST_CHECK_EQUAL( FlashesInAccumulator.size() , 1U);
+  BOOST_TEST( Contributors.at(AccumIndex).size() == 2U);
+  BOOST_TEST( Contributors.at(AccumIndex).at(0) == (int)HitIndex );
+  BOOST_TEST( Contributors.at(AccumIndex).at(1) == (int)HitIndex2 );
+  BOOST_TEST( Binned.at(AccumIndex) == PE*2+PE_base );
+  BOOST_TEST( FlashesInAccumulator.size() == 1U);
 
 }
 
@@ -207,7 +114,7 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkNoFlash)
 
   opdet::FillFlashesBySizeMap(FlashesInAccumulator,BinnedPE,1,FlashesBySize);
 
-  BOOST_CHECK_EQUAL( FlashesBySize.size() , 0U );
+  BOOST_TEST( FlashesBySize.size() == 0U );
 
 }
 
@@ -225,13 +132,13 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkOneFlash)
 
   opdet::FillFlashesBySizeMap(FlashesInAccumulator,BinnedPE,1,FlashesBySize);
 
-  BOOST_CHECK_EQUAL( FlashesBySize.size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1][0] , 2 );
+  BOOST_TEST( FlashesBySize.size() == 1U );
+  BOOST_TEST( FlashesBySize.count(50) == 1U );
+  BOOST_TEST( FlashesBySize.count(10) == 0U );
+  BOOST_TEST( FlashesBySize[50].size() == 1U );
+  BOOST_TEST( FlashesBySize[50].count(1) == 1U );
+  BOOST_TEST( FlashesBySize[50][1].size() == 1U );
+  BOOST_TEST( FlashesBySize[50][1][0] == 2 );
 
 }
 
@@ -250,15 +157,15 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkTwoFlashes)
 
   opdet::FillFlashesBySizeMap(FlashesInAccumulator,BinnedPE,1,FlashesBySize);
 
-  BOOST_CHECK_EQUAL( FlashesBySize.size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0U );
+  BOOST_TEST( FlashesBySize.size() == 1U );
+  BOOST_TEST( FlashesBySize.count(50) == 1U );
+  BOOST_TEST( FlashesBySize.count(10) == 0U );
 
-  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 2U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1][0] , 2 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1][1] , 8 );
+  BOOST_TEST( FlashesBySize[50].size() == 1U );
+  BOOST_TEST( FlashesBySize[50].count(1) == 1U );
+  BOOST_TEST( FlashesBySize[50][1].size() == 2U );
+  BOOST_TEST( FlashesBySize[50][1][0] == 2 );
+  BOOST_TEST( FlashesBySize[50][1][1] == 8 );
 
 }
 
@@ -281,33 +188,33 @@ BOOST_AUTO_TEST_CASE(FillFlashesBySizeMap_checkTwoAccumulators)
   opdet::FillFlashesBySizeMap(FlashesInAccumulator1,BinnedPE1,1,FlashesBySize);
   opdet::FillFlashesBySizeMap(FlashesInAccumulator2,BinnedPE2,2,FlashesBySize);
 
-  BOOST_CHECK_EQUAL( FlashesBySize.size() , 2U );
+  BOOST_TEST( FlashesBySize.size() == 2U );
 
-  BOOST_CHECK_EQUAL( FlashesBySize.count(50) , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(60) , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize.count(10) , 0U );
+  BOOST_TEST( FlashesBySize.count(50) == 1U );
+  BOOST_TEST( FlashesBySize.count(60) == 1U );
+  BOOST_TEST( FlashesBySize.count(10) == 0U );
 
   auto map_begin = FlashesBySize.begin();
-  BOOST_CHECK_EQUAL( map_begin->first , 60 );
+  BOOST_TEST( map_begin->first == 60 );
 
   auto map_last = FlashesBySize.end();
   map_last--;
-  BOOST_CHECK_EQUAL( map_last->first , 50 );
+  BOOST_TEST( map_last->first == 50 );
 
-  BOOST_CHECK_EQUAL( FlashesBySize[50].size() , 2U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].count(1) , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50].count(2) , 1U );
+  BOOST_TEST( FlashesBySize[50].size() == 2U );
+  BOOST_TEST( FlashesBySize[50].count(1) == 1U );
+  BOOST_TEST( FlashesBySize[50].count(2) == 1U );
 
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1].size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][1][0] , 2 );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][2].size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[50][2][0] , 8 );
+  BOOST_TEST( FlashesBySize[50][1].size() == 1U );
+  BOOST_TEST( FlashesBySize[50][1][0] == 2 );
+  BOOST_TEST( FlashesBySize[50][2].size() == 1U );
+  BOOST_TEST( FlashesBySize[50][2][0] == 8 );
 
-  BOOST_CHECK_EQUAL( FlashesBySize[60].size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[60].count(1) , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[60].count(2) , 0U );
-  BOOST_CHECK_EQUAL( FlashesBySize[60][1].size() , 1U );
-  BOOST_CHECK_EQUAL( FlashesBySize[60][1][0] , 5 );
+  BOOST_TEST( FlashesBySize[60].size() == 1U );
+  BOOST_TEST( FlashesBySize[60].count(1) == 1U );
+  BOOST_TEST( FlashesBySize[60].count(2) == 0U );
+  BOOST_TEST( FlashesBySize[60][1].size() == 1U );
+  BOOST_TEST( FlashesBySize[60][1][0] == 5 );
 }
 
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_EmptyContributors)
@@ -323,11 +230,11 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_EmptyContributors)
   std::vector<int> HitsThisFlash;
 
   opdet::FillHitsThisFlash(Contributors,
-			   Bin,
-			   HitClaimedByFlash,
-			   HitsThisFlash);
+                           Bin,
+                           HitClaimedByFlash,
+                           HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 0U);
+  BOOST_TEST( HitsThisFlash.size() == 0U);
 }
 
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_NoPrevClaimedHits)
@@ -344,13 +251,13 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_NoPrevClaimedHits)
   std::vector<int> HitsThisFlash;
 
   opdet::FillHitsThisFlash(Contributors,
-			   Bin,
-			   HitClaimedByFlash,
-			   HitsThisFlash);
+                           Bin,
+                           HitClaimedByFlash,
+                           HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 2U );
-  BOOST_CHECK_EQUAL( HitsThisFlash[0] , 1 );
-  BOOST_CHECK_EQUAL( HitsThisFlash[1] , 3 );
+  BOOST_TEST( HitsThisFlash.size() == 2U );
+  BOOST_TEST( HitsThisFlash[0] == 1 );
+  BOOST_TEST( HitsThisFlash[1] == 3 );
 }
 
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevClaimedHits)
@@ -369,40 +276,14 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevClaimedHits)
   std::vector<int> HitsThisFlash;
 
   opdet::FillHitsThisFlash(Contributors,
-			   Bin,
-			   HitClaimedByFlash,
-			   HitsThisFlash);
+                           Bin,
+                           HitClaimedByFlash,
+                           HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 1U );
-  BOOST_CHECK_EQUAL( HitsThisFlash[0] , 3 );
+  BOOST_TEST( HitsThisFlash.size() == 1U );
+  BOOST_TEST( HitsThisFlash[0] == 3 );
 }
-/*
-BOOST_AUTO_TEST_CASE(FillHitsThisFlash_PrevHitsOffset)
-{
 
-  size_t NHits_prev = 10;
-  size_t NHits = 10;
-
-  const size_t vector_size = 1;
-  std::vector< std::vector<int> > Contributors(vector_size);
-  int Bin = 0;
-  Contributors[0].push_back(11); Contributors[0].push_back(13);
-
-  std::vector<int> HitClaimedByFlash(NHits,-1);
-  HitClaimedByFlash[1] = 0;
-  HitClaimedByFlash[2] = 1;
-  std::vector<int> HitsThisFlash;
-
-  opdet::FillHitsThisFlash(Contributors,
-			   Bin,
-			   NHits_prev,
-			   HitClaimedByFlash,
-			   HitsThisFlash);
-
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 1U );
-  BOOST_CHECK_EQUAL( HitsThisFlash[0] , 13 );
-}
-*/
 BOOST_AUTO_TEST_CASE(FillHitsThisFlash_MultipleContributorVectors)
 {
 
@@ -419,13 +300,13 @@ BOOST_AUTO_TEST_CASE(FillHitsThisFlash_MultipleContributorVectors)
   std::vector<int> HitsThisFlash;
 
   opdet::FillHitsThisFlash(Contributors,
-			   1,
-			   HitClaimedByFlash,
-			   HitsThisFlash);
+                           1,
+                           HitClaimedByFlash,
+                           HitsThisFlash);
 
-  BOOST_CHECK_EQUAL( HitsThisFlash.size() , 2U );
-  BOOST_CHECK_EQUAL( HitsThisFlash[0] , 5 );
-  BOOST_CHECK_EQUAL( HitsThisFlash[1] , 6 );
+  BOOST_TEST( HitsThisFlash.size() == 2U );
+  BOOST_TEST( HitsThisFlash[0] == 5 );
+  BOOST_TEST( HitsThisFlash[1] == 6 );
 }
 
 BOOST_AUTO_TEST_CASE(ClaimHits_NoHitsThisFlash)
@@ -444,13 +325,13 @@ BOOST_AUTO_TEST_CASE(ClaimHits_NoHitsThisFlash)
   std::vector<int> HitClaimedByFlash(NHits,-1);
 
   opdet::ClaimHits(HitVector,
-		   HitsThisFlash,
-		   FlashThreshold,
-		   HitsPerFlash,
-		   HitClaimedByFlash);
+                   HitsThisFlash,
+                   FlashThreshold,
+                   HitsPerFlash,
+                   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[0], -1);
+  BOOST_TEST( HitsPerFlash.size() == 0U);
+  BOOST_TEST( HitClaimedByFlash[0] == -1);
 }
 
 BOOST_AUTO_TEST_CASE(ClaimHits_BelowFlashThreshold)
@@ -469,13 +350,13 @@ BOOST_AUTO_TEST_CASE(ClaimHits_BelowFlashThreshold)
   std::vector<int> HitClaimedByFlash(NHits,-1);
 
   opdet::ClaimHits(HitVector,
-		   HitsThisFlash,
-		   FlashThreshold,
-		   HitsPerFlash,
-		   HitClaimedByFlash);
+                   HitsThisFlash,
+                   FlashThreshold,
+                   HitsPerFlash,
+                   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[0], -1);
+  BOOST_TEST( HitsPerFlash.size() == 0U);
+  BOOST_TEST( HitClaimedByFlash[0] == -1);
 }
 
 BOOST_AUTO_TEST_CASE(ClaimHits_AboveFlashThreshold)
@@ -494,14 +375,14 @@ BOOST_AUTO_TEST_CASE(ClaimHits_AboveFlashThreshold)
   std::vector<int> HitClaimedByFlash(NHits,-1);
 
   opdet::ClaimHits(HitVector,
-		   HitsThisFlash,
-		   FlashThreshold,
-		   HitsPerFlash,
-		   HitClaimedByFlash);
+                   HitsThisFlash,
+                   FlashThreshold,
+                   HitsPerFlash,
+                   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
-  BOOST_CHECK_EQUAL( HitsPerFlash[0][0], 0);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
+  BOOST_TEST( HitsPerFlash.size() == 1U);
+  BOOST_TEST( HitsPerFlash[0][0] == 0);
+  BOOST_TEST( HitClaimedByFlash[0] == 0);
 }
 
 BOOST_AUTO_TEST_CASE(ClaimHits_OneHitThisFlash)
@@ -520,15 +401,15 @@ BOOST_AUTO_TEST_CASE(ClaimHits_OneHitThisFlash)
   std::vector<int> HitClaimedByFlash(NHits,-1);
 
   opdet::ClaimHits(HitVector,
-		   HitsThisFlash,
-		   FlashThreshold,
-		   HitsPerFlash,
-		   HitClaimedByFlash);
+                   HitsThisFlash,
+                   FlashThreshold,
+                   HitsPerFlash,
+                   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
-  BOOST_CHECK_EQUAL( HitsPerFlash[0][0], 0);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[1], -1);
+  BOOST_TEST( HitsPerFlash.size() == 1U);
+  BOOST_TEST( HitsPerFlash[0][0] == 0);
+  BOOST_TEST( HitClaimedByFlash[0] == 0);
+  BOOST_TEST( HitClaimedByFlash[1] == -1);
 }
 
 BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_BelowThreshold)
@@ -548,14 +429,14 @@ BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_BelowThreshold)
   std::vector<int> HitClaimedByFlash(NHits,-1);
 
   opdet::ClaimHits(HitVector,
-		   HitsThisFlash,
-		   FlashThreshold,
-		   HitsPerFlash,
-		   HitClaimedByFlash);
+                   HitsThisFlash,
+                   FlashThreshold,
+                   HitsPerFlash,
+                   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 0U);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[0], -1);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[1], -1);
+  BOOST_TEST( HitsPerFlash.size() == 0U);
+  BOOST_TEST( HitClaimedByFlash[0] == -1);
+  BOOST_TEST( HitClaimedByFlash[1] == -1);
 }
 
 BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_AboveThreshold)
@@ -575,49 +456,18 @@ BOOST_AUTO_TEST_CASE(ClaimHits_TwoHitsThisFlash_AboveThreshold)
   std::vector<int> HitClaimedByFlash(NHits,-1);
 
   opdet::ClaimHits(HitVector,
-		   HitsThisFlash,
-		   FlashThreshold,
-		   HitsPerFlash,
-		   HitClaimedByFlash);
+                   HitsThisFlash,
+                   FlashThreshold,
+                   HitsPerFlash,
+                   HitClaimedByFlash);
 
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
-  BOOST_CHECK_EQUAL( HitsPerFlash[0][0], 0);
-  BOOST_CHECK_EQUAL( HitsPerFlash[0][1], 1);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[1], 0);
+  BOOST_TEST( HitsPerFlash.size() == 1U);
+  BOOST_TEST( HitsPerFlash[0][0] == 0);
+  BOOST_TEST( HitsPerFlash[0][1] == 1);
+  BOOST_TEST( HitClaimedByFlash[0] == 0);
+  BOOST_TEST( HitClaimedByFlash[1] == 0);
 }
-/*
-BOOST_AUTO_TEST_CASE(ClaimHits_WithPrevHits)
-{
-  size_t NHits_prev = 10;
-  size_t NHits = 2;
 
-  //need this part to make a hit...
-  double hit_pe = 30;
-  std::vector<recob::OpHit> HitVector;
-  for(size_t i=0; i<NHits+NHits_prev; i++)
-    HitVector.emplace_back(0,0,0,0,0,0,0,hit_pe,0);
-
-  std::vector<int> HitsThisFlash;
-  HitsThisFlash.push_back(10); HitsThisFlash.push_back(11);
-  std::vector< std::vector<int> > HitsPerFlash;
-
-  std::vector<int> HitClaimedByFlash(NHits,-1);
-
-  opdet::ClaimHits(HitVector,
-		   HitsThisFlash,
-		   FlashThreshold,
-		   HitsPerFlash,
-		   NHits_prev,
-		   HitClaimedByFlash);
-
-  BOOST_CHECK_EQUAL( HitsPerFlash.size(), 1U);
-  BOOST_CHECK_EQUAL( HitsPerFlash[0][0], 10);
-  BOOST_CHECK_EQUAL( HitsPerFlash[0][1], 11);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[0], 0);
-  BOOST_CHECK_EQUAL( HitClaimedByFlash[1], 0);
-}
-*/
 BOOST_AUTO_TEST_CASE(FindSeedHit_AllUsed)
 {
 
@@ -643,18 +493,18 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_AllUsed)
   std::vector<bool> HitsUsed(NHits,true);
 
   opdet::FindSeedHit(HitsBySize,
-		     HitsUsed,
-		     HitVector,
-		     HitsThisRefinedFlash,
-		     PEAccumulated,
-		     FlashMaxTime,
-		     FlashMinTime);
+                     HitsUsed,
+                     HitVector,
+                     HitsThisRefinedFlash,
+                     PEAccumulated,
+                     FlashMaxTime,
+                     FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 0U );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , (int)NHits);
-  BOOST_CHECK_EQUAL( PEAccumulated , 0 );
-  BOOST_CHECK_EQUAL( FlashMaxTime , 0 );
-  BOOST_CHECK_EQUAL( FlashMinTime , 0 );
+  BOOST_TEST( HitsThisRefinedFlash.size() == 0U );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == (int)NHits);
+  BOOST_TEST( PEAccumulated == 0 );
+  BOOST_TEST( FlashMaxTime == 0 );
+  BOOST_TEST( FlashMinTime == 0 );
 
 }
 
@@ -683,19 +533,19 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_NoneUsed)
   std::vector<bool> HitsUsed(NHits,false);
 
   opdet::FindSeedHit(HitsBySize,
-		     HitsUsed,
-		     HitVector,
-		     HitsThisRefinedFlash,
-		     PEAccumulated,
-		     FlashMaxTime,
-		     FlashMinTime);
+                     HitsUsed,
+                     HitVector,
+                     HitsThisRefinedFlash,
+                     PEAccumulated,
+                     FlashMaxTime,
+                     FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1U );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
-  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
-  BOOST_CHECK_EQUAL( PEAccumulated , 60 );
-  BOOST_CHECK_EQUAL( FlashMaxTime , 9. );
-  BOOST_CHECK_EQUAL( FlashMinTime , -1. );
+  BOOST_TEST( HitsThisRefinedFlash.size() == 1U );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 1);
+  BOOST_TEST( HitsUsed.at(NHits-1) == true);
+  BOOST_TEST( PEAccumulated == 60 );
+  BOOST_TEST( FlashMaxTime == 9. );
+  BOOST_TEST( FlashMinTime == -1. );
 
 }
 
@@ -725,20 +575,20 @@ BOOST_AUTO_TEST_CASE(FindSeedHit_FirstUsed)
   HitsUsed[NHits-1] = true;
 
   opdet::FindSeedHit(HitsBySize,
-		     HitsUsed,
-		     HitVector,
-		     HitsThisRefinedFlash,
-		     PEAccumulated,
-		     FlashMaxTime,
-		     FlashMinTime);
+                     HitsUsed,
+                     HitVector,
+                     HitsThisRefinedFlash,
+                     PEAccumulated,
+                     FlashMaxTime,
+                     FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1U );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 2);
-  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
-  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , true);
-  BOOST_CHECK_EQUAL( PEAccumulated , 50 );
-  BOOST_CHECK_EQUAL( FlashMaxTime , 8. );
-  BOOST_CHECK_EQUAL( FlashMinTime , -2. );
+  BOOST_TEST( HitsThisRefinedFlash.size() == 1U );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 2);
+  BOOST_TEST( HitsUsed.at(NHits-1) == true);
+  BOOST_TEST( HitsUsed.at(NHits-2) == true);
+  BOOST_TEST( PEAccumulated == 50 );
+  BOOST_TEST( FlashMaxTime == 8. );
+  BOOST_TEST( FlashMinTime == -2. );
 
 }
 
@@ -766,29 +616,29 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_UsedHit)
   std::vector<bool> HitsUsed(NHits,false);
 
   opdet::FindSeedHit(HitsBySize,
-		     HitsUsed,
-		     HitVector,
-		     HitsThisRefinedFlash,
-		     PEAccumulated,
-		     FlashMaxTime,
-		     FlashMinTime);
+                     HitsUsed,
+                     HitVector,
+                     HitsThisRefinedFlash,
+                     PEAccumulated,
+                     FlashMaxTime,
+                     FlashMinTime);
 
   int HitID = 4;
   opdet::AddHitToFlash( HitID,
-			HitsUsed,
-			HitVector.at(HitID),
-			WidthTolerance,
-			HitsThisRefinedFlash,
-			PEAccumulated,
-			FlashMaxTime,
-			FlashMinTime);
+                        HitsUsed,
+                        HitVector.at(HitID),
+                        WidthTolerance,
+                        HitsThisRefinedFlash,
+                        PEAccumulated,
+                        FlashMaxTime,
+                        FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1U );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
-  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
-  BOOST_CHECK_EQUAL( PEAccumulated , 60 );
-  BOOST_CHECK_EQUAL( FlashMaxTime , 9. );
-  BOOST_CHECK_EQUAL( FlashMinTime , -1. );
+  BOOST_TEST( HitsThisRefinedFlash.size() == 1U );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 1);
+  BOOST_TEST( HitsUsed.at(NHits-1) == true);
+  BOOST_TEST( PEAccumulated == 60 );
+  BOOST_TEST( FlashMaxTime == 9. );
+  BOOST_TEST( FlashMinTime == -1. );
 
 }
 
@@ -816,30 +666,30 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_NewHit)
   std::vector<bool> HitsUsed(NHits,false);
 
   opdet::FindSeedHit(HitsBySize,
-		     HitsUsed,
-		     HitVector,
-		     HitsThisRefinedFlash,
-		     PEAccumulated,
-		     FlashMaxTime,
-		     FlashMinTime);
+                     HitsUsed,
+                     HitVector,
+                     HitsThisRefinedFlash,
+                     PEAccumulated,
+                     FlashMaxTime,
+                     FlashMinTime);
 
   int HitID = 3;
   opdet::AddHitToFlash( HitID,
-			HitsUsed,
-			HitVector.at(HitID),
-			WidthTolerance,
-			HitsThisRefinedFlash,
-			PEAccumulated,
-			FlashMaxTime,
-			FlashMinTime);
+                        HitsUsed,
+                        HitVector.at(HitID),
+                        WidthTolerance,
+                        HitsThisRefinedFlash,
+                        PEAccumulated,
+                        FlashMaxTime,
+                        FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 2U );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 2);
-  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
-  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , true);
-  BOOST_CHECK_EQUAL( PEAccumulated , 110 );
-  BOOST_CHECK_EQUAL( FlashMaxTime , 9. );
-  BOOST_CHECK_EQUAL( FlashMinTime , -2. );
+  BOOST_TEST( HitsThisRefinedFlash.size() == 2U );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 2);
+  BOOST_TEST( HitsUsed.at(NHits-1) == true);
+  BOOST_TEST( HitsUsed.at(NHits-2) == true);
+  BOOST_TEST( PEAccumulated == 110 );
+  BOOST_TEST( FlashMaxTime == 9. );
+  BOOST_TEST( FlashMinTime == -2. );
 
 }
 
@@ -867,30 +717,30 @@ BOOST_AUTO_TEST_CASE(AddHitToFlash_OutsideWidth)
   std::vector<bool> HitsUsed(NHits,false);
 
   opdet::FindSeedHit(HitsBySize,
-		     HitsUsed,
-		     HitVector,
-		     HitsThisRefinedFlash,
-		     PEAccumulated,
-		     FlashMaxTime,
-		     FlashMinTime);
+                     HitsUsed,
+                     HitVector,
+                     HitsThisRefinedFlash,
+                     PEAccumulated,
+                     FlashMaxTime,
+                     FlashMinTime);
 
   int HitID = 3;
   opdet::AddHitToFlash( HitID,
-			HitsUsed,
-			HitVector.at(HitID),
-			WidthTolerance,
-			HitsThisRefinedFlash,
-			PEAccumulated,
-			FlashMaxTime,
-			FlashMinTime);
+                        HitsUsed,
+                        HitVector.at(HitID),
+                        WidthTolerance,
+                        HitsThisRefinedFlash,
+                        PEAccumulated,
+                        FlashMaxTime,
+                        FlashMinTime);
 
-  BOOST_CHECK_EQUAL( HitsThisRefinedFlash.size() , 1U );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
-  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-1) , true);
-  BOOST_CHECK_EQUAL( HitsUsed.at(NHits-2) , false);
-  BOOST_CHECK_EQUAL( PEAccumulated , 60 );
-  BOOST_CHECK_EQUAL( FlashMaxTime , 4.05 );
-  BOOST_CHECK_EQUAL( FlashMinTime , 3.95 );
+  BOOST_TEST( HitsThisRefinedFlash.size() == 1U );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 1);
+  BOOST_TEST( HitsUsed.at(NHits-1) == true);
+  BOOST_TEST( HitsUsed.at(NHits-2) == false);
+  BOOST_TEST( PEAccumulated == 60 );
+  BOOST_TEST( FlashMaxTime == 4.05 );
+  BOOST_TEST( FlashMinTime == 3.95 );
 
 }
 
@@ -903,17 +753,17 @@ BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_AboveThreshold)
   double PEAccumulated = 60;
 
   opdet::CheckAndStoreFlash( RefinedHitsPerFlash,
-			     HitsThisRefinedFlash,
-			     PEAccumulated,
-			     FlashThreshold,
-			     HitsUsed );
+                             HitsThisRefinedFlash,
+                             PEAccumulated,
+                             FlashThreshold,
+                             HitsUsed );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 1U );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0].size(), 3U );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0], 0 );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][1], 1 );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][2], 2 );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 3);
+  BOOST_TEST( RefinedHitsPerFlash.size() == 1U );
+  BOOST_TEST( RefinedHitsPerFlash[0].size() == 3U );
+  BOOST_TEST( RefinedHitsPerFlash[0][0] == 0 );
+  BOOST_TEST( RefinedHitsPerFlash[0][1] == 1 );
+  BOOST_TEST( RefinedHitsPerFlash[0][2] == 2 );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 3);
 
 }
 
@@ -926,15 +776,15 @@ BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_AboveThreshold_OneHit)
   double PEAccumulated = 60;
 
   opdet::CheckAndStoreFlash( RefinedHitsPerFlash,
-			     HitsThisRefinedFlash,
-			     PEAccumulated,
-			     FlashThreshold,
-			     HitsUsed );
+                             HitsThisRefinedFlash,
+                             PEAccumulated,
+                             FlashThreshold,
+                             HitsUsed );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 1U );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0].size(), 1U );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0], 0 );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
+  BOOST_TEST( RefinedHitsPerFlash.size() == 1U );
+  BOOST_TEST( RefinedHitsPerFlash[0].size() == 1U );
+  BOOST_TEST( RefinedHitsPerFlash[0][0] == 0 );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 1);
 
 }
 
@@ -947,14 +797,14 @@ BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_BelowThreshold_OneHit)
   double PEAccumulated = 30;
 
   opdet::CheckAndStoreFlash( RefinedHitsPerFlash,
-			     HitsThisRefinedFlash,
-			     PEAccumulated,
-			     FlashThreshold,
-			     HitsUsed );
+                             HitsThisRefinedFlash,
+                             PEAccumulated,
+                             FlashThreshold,
+                             HitsUsed );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 0U );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
-  BOOST_CHECK_EQUAL( HitsUsed[0] , true);
+  BOOST_TEST( RefinedHitsPerFlash.size() == 0U );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 1);
+  BOOST_TEST( HitsUsed[0] == true);
 
 }
 
@@ -967,16 +817,16 @@ BOOST_AUTO_TEST_CASE(CheckAndStoreFlash_BelowThreshold_MultipleHits)
   double PEAccumulated = 30;
 
   opdet::CheckAndStoreFlash( RefinedHitsPerFlash,
-			     HitsThisRefinedFlash,
-			     PEAccumulated,
-			     FlashThreshold,
-			     HitsUsed );
+                             HitsThisRefinedFlash,
+                             PEAccumulated,
+                             FlashThreshold,
+                             HitsUsed );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size(), 0U );
-  BOOST_CHECK_EQUAL( std::count(HitsUsed.begin(),HitsUsed.end(),true) , 1);
-  BOOST_CHECK_EQUAL( HitsUsed[0] , true);
-  BOOST_CHECK_EQUAL( HitsUsed[1] , false);
-  BOOST_CHECK_EQUAL( HitsUsed[2] , false);
+  BOOST_TEST( RefinedHitsPerFlash.size() == 0U );
+  BOOST_TEST( std::count(HitsUsed.begin(),HitsUsed.end(),true) == 1);
+  BOOST_TEST( HitsUsed[0] == true);
+  BOOST_TEST( HitsUsed[1] == false);
+  BOOST_TEST( HitsUsed[2] == false);
 
 }
 
@@ -995,22 +845,22 @@ BOOST_AUTO_TEST_CASE(AddHitContribution_AddFirstHit)
     recob::OpHit currentHit(op_channel,peak_time,0,0,width,0,0,hit_pe,0);
 
     opdet::AddHitContribution( currentHit,
-			       MaxTime,
-			       MinTime,
-			       AveTime,
-			       FastToTotal,
-			       AveAbsTime,
-			       TotalPE,
-			       PEs);
+                               MaxTime,
+                               MinTime,
+                               AveTime,
+                               FastToTotal,
+                               AveAbsTime,
+                               TotalPE,
+                               PEs);
 
-    BOOST_CHECK_EQUAL( MaxTime , peak_time );
-    BOOST_CHECK_EQUAL( MinTime , peak_time );
-    BOOST_CHECK_EQUAL( AveTime , peak_time*hit_pe );
-    BOOST_CHECK_EQUAL( AveAbsTime , 0 );
-    BOOST_CHECK_EQUAL( FastToTotal , 0 );
-    BOOST_CHECK_EQUAL( TotalPE , hit_pe );
-    BOOST_CHECK_EQUAL( PEs.at(op_channel) , hit_pe );
-    BOOST_CHECK_EQUAL( PEs.at(4) , 0 );
+    BOOST_TEST( MaxTime == peak_time );
+    BOOST_TEST( MinTime == peak_time );
+    BOOST_TEST( AveTime == peak_time*hit_pe );
+    BOOST_TEST( AveAbsTime == 0 );
+    BOOST_TEST( FastToTotal == 0 );
+    BOOST_TEST( TotalPE == hit_pe );
+    BOOST_TEST( PEs.at(op_channel) == hit_pe );
+    BOOST_TEST( PEs.at(4) == 0 );
 }
 
 BOOST_AUTO_TEST_CASE(AddHitContribution_AddSecondHit)
@@ -1029,23 +879,23 @@ BOOST_AUTO_TEST_CASE(AddHitContribution_AddSecondHit)
     recob::OpHit currentHit(op_channel,peak_time,0,0,width,0,0,hit_pe,0);
 
     opdet::AddHitContribution( currentHit,
-			       MaxTime,
-			       MinTime,
-			       AveTime,
-			       FastToTotal,
-			       AveAbsTime,
-			       TotalPE,
-			       PEs);
+                               MaxTime,
+                               MinTime,
+                               AveTime,
+                               FastToTotal,
+                               AveAbsTime,
+                               TotalPE,
+                               PEs);
 
-    BOOST_CHECK_EQUAL( MaxTime , peak_time );
-    BOOST_CHECK_EQUAL( MinTime , 1 );
-    BOOST_CHECK_EQUAL( AveTime , peak_time*hit_pe+20 );
-    BOOST_CHECK_EQUAL( AveAbsTime , 0 );
-    BOOST_CHECK_EQUAL( FastToTotal , 0 );
-    BOOST_CHECK_EQUAL( TotalPE , hit_pe+20 );
-    BOOST_CHECK_EQUAL( PEs.at(op_channel) , hit_pe );
-    BOOST_CHECK_EQUAL( PEs.at(0) , 20 );
-    BOOST_CHECK_EQUAL( PEs.at(4) , 0 );
+    BOOST_TEST( MaxTime == peak_time );
+    BOOST_TEST( MinTime == 1 );
+    BOOST_TEST( AveTime == peak_time*hit_pe+20 );
+    BOOST_TEST( AveAbsTime == 0 );
+    BOOST_TEST( FastToTotal == 0 );
+    BOOST_TEST( TotalPE == hit_pe+20 );
+    BOOST_TEST( PEs.at(op_channel) == hit_pe );
+    BOOST_TEST( PEs.at(0) == 20 );
+    BOOST_TEST( PEs.at(4) == 0 );
 }
 
 
@@ -1056,9 +906,9 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_BackwardsTime)
   double jPE = 100; double jTime = -1; double jWidth=0.5;
 
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
-						jPE, jTime, jWidth);
+                                                jPE, jTime, jWidth);
 
-  BOOST_CHECK_CLOSE( result, 1e6, tolerance);
+  BOOST_TEST( result == 1e6, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_EqualFlashes)
@@ -1068,9 +918,9 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_EqualFlashes)
   double jPE = 100; double jTime = 0; double jWidth=0.5;
 
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
-						jPE, jTime, jWidth);
+                                                jPE, jTime, jWidth);
 
-  BOOST_CHECK_CLOSE( result, 0, tolerance);
+  BOOST_TEST( result == 0, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_LateFlash)
@@ -1080,11 +930,11 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_LateFlash)
   double jPE = 10; double jTime = 1.6; double jWidth=0.5;
 
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
-						jPE, jTime, jWidth);
+                                                jPE, jTime, jWidth);
 
   double good_result = (jPE - std::exp(-1)*iPE)/(std::sqrt(std::exp(-1)*iPE));
 
-  BOOST_CHECK_CLOSE( result, good_result, tolerance);
+  BOOST_TEST( result == good_result, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_VeryLateFlash)
@@ -1094,11 +944,11 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_VeryLateFlash)
   double jPE = 10; double jTime = 16; double jWidth=0.5;
 
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
-						jPE, jTime, jWidth);
+                                                jPE, jTime, jWidth);
 
   double good_result = (jPE - std::exp(-10)*iPE)/(std::sqrt(std::exp(-10)*iPE));
 
-  BOOST_CHECK_CLOSE( result, good_result, tolerance);
+  BOOST_TEST( result == good_result, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_UnequalWidths)
@@ -1108,11 +958,11 @@ BOOST_AUTO_TEST_CASE(GetLikelihoodLateLight_UnequalWidths)
   double jPE = 10; double jTime = 1.6; double jWidth=0.5;
 
   double result = opdet::GetLikelihoodLateLight(iPE, iTime, iWidth,
-						jPE, jTime, jWidth);
+                                                jPE, jTime, jWidth);
 
   double good_result = (jPE - std::exp(-1)*iPE*0.5)/(std::sqrt(std::exp(-1)*iPE*0.5));
 
-  BOOST_CHECK_CLOSE( result, good_result, tolerance);
+  BOOST_TEST( result == good_result, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_NoFlashes)
@@ -1124,10 +974,10 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_NoFlashes)
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
   opdet::MarkFlashesForRemoval(FlashVector,
-			       BeginFlash,
-			       MarkedForRemoval);
+                               BeginFlash,
+                               MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 0U );
+  BOOST_TEST( MarkedForRemoval.size() == 0U );
 
 }
 
@@ -1143,30 +993,30 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_OneFlash)
 
   std::vector<recob::OpFlash> FlashVector;
   FlashVector.emplace_back(0, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
   opdet::MarkFlashesForRemoval(FlashVector,
-			       BeginFlash,
-			       MarkedForRemoval);
+                               BeginFlash,
+                               MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 1U );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
-  BOOST_CHECK_EQUAL( FlashVector.size() , 1U );
-  BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
-  BOOST_CHECK_EQUAL( FlashVector[0].TimeWidth() , 0.5 );
+  BOOST_TEST( MarkedForRemoval.size() == 1U );
+  BOOST_TEST( MarkedForRemoval[0] == false );
+  BOOST_TEST( FlashVector.size() == 1U );
+  BOOST_TEST( FlashVector[0].Time() == 0 );
+  BOOST_TEST( FlashVector[0].TimeWidth() == 0.5 );
 
 }
 
@@ -1182,45 +1032,45 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_TwoIndieFlashes)
 
   std::vector<recob::OpFlash> FlashVector;
   FlashVector.emplace_back(0, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(1e6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
   opdet::MarkFlashesForRemoval(FlashVector,
-			       BeginFlash,
-			       MarkedForRemoval);
+                               BeginFlash,
+                               MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 2U );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[1] , false );
-  BOOST_CHECK_EQUAL( FlashVector.size() , 2U );
-  BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
-  BOOST_CHECK_EQUAL( FlashVector[1].Time() , 1e6 );
+  BOOST_TEST( MarkedForRemoval.size() == 2U );
+  BOOST_TEST( MarkedForRemoval[0] == false );
+  BOOST_TEST( MarkedForRemoval[1] == false );
+  BOOST_TEST( FlashVector.size() == 2U );
+  BOOST_TEST( FlashVector[0].Time() == 0 );
+  BOOST_TEST( FlashVector[1].Time() == 1e6 );
 
 }
 
@@ -1238,64 +1088,64 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_RemoveOneFlash)
 
   std::vector<recob::OpFlash> FlashVector;
   FlashVector.emplace_back(0, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(1.6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs_Small,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs_Small,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(1e6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
   opdet::MarkFlashesForRemoval(FlashVector,
-			       BeginFlash,
-			       MarkedForRemoval);
+                               BeginFlash,
+                               MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 3U );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[1] , true );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[2] , false );
-  BOOST_CHECK_EQUAL( FlashVector.size() , 3U );
-  BOOST_CHECK_EQUAL( FlashVector[0].Time() , 0 );
-  BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
-  BOOST_CHECK_EQUAL( FlashVector[1].Time() , 1.6 );
-  BOOST_CHECK_EQUAL( FlashVector[1].TotalPE() , 5 );
-  BOOST_CHECK_EQUAL( FlashVector[2].Time() , 1e6 );
-  BOOST_CHECK_EQUAL( FlashVector[2].TotalPE() , 100 );
+  BOOST_TEST( MarkedForRemoval.size() == 3U );
+  BOOST_TEST( MarkedForRemoval[0] == false );
+  BOOST_TEST( MarkedForRemoval[1] == true );
+  BOOST_TEST( MarkedForRemoval[2] == false );
+  BOOST_TEST( FlashVector.size() == 3U );
+  BOOST_TEST( FlashVector[0].Time() == 0 );
+  BOOST_TEST( FlashVector[0].TotalPE() == 100 );
+  BOOST_TEST( FlashVector[1].Time() == 1.6 );
+  BOOST_TEST( FlashVector[1].TotalPE() == 5 );
+  BOOST_TEST( FlashVector[2].Time() == 1e6 );
+  BOOST_TEST( FlashVector[2].TotalPE() == 100 );
 
 }
 
@@ -1313,80 +1163,80 @@ BOOST_AUTO_TEST_CASE(MarkFlashesForRemoval_IgnoreFirstFlash)
 
   std::vector<recob::OpFlash> FlashVector;
   FlashVector.emplace_back(-1e6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(0, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(1.6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs_Small,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs_Small,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(1e6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   std::vector<bool> MarkedForRemoval(NFlashes-BeginFlash,false);
 
   opdet::MarkFlashesForRemoval(FlashVector,
-			       BeginFlash,
-			       MarkedForRemoval);
+                               BeginFlash,
+                               MarkedForRemoval);
 
-  BOOST_CHECK_EQUAL( MarkedForRemoval.size() , 3U );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[0] , false );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[1] , true );
-  BOOST_CHECK_EQUAL( MarkedForRemoval[2] , false );
-  BOOST_CHECK_EQUAL( FlashVector.size() , 4U );
-  BOOST_CHECK_EQUAL( FlashVector[0].Time() , -1e6 );
-  BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
-  BOOST_CHECK_EQUAL( FlashVector[1].Time() , 0 );
-  BOOST_CHECK_EQUAL( FlashVector[1].TotalPE() , 100 );
-  BOOST_CHECK_EQUAL( FlashVector[2].Time() , 1.6 );
-  BOOST_CHECK_EQUAL( FlashVector[2].TotalPE() , 5 );
-  BOOST_CHECK_EQUAL( FlashVector[3].Time() , 1e6 );
-  BOOST_CHECK_EQUAL( FlashVector[3].TotalPE() , 100 );
+  BOOST_TEST( MarkedForRemoval.size() == 3U );
+  BOOST_TEST( MarkedForRemoval[0] == false );
+  BOOST_TEST( MarkedForRemoval[1] == true );
+  BOOST_TEST( MarkedForRemoval[2] == false );
+  BOOST_TEST( FlashVector.size() == 4U );
+  BOOST_TEST( FlashVector[0].Time() == -1e6 );
+  BOOST_TEST( FlashVector[0].TotalPE() == 100 );
+  BOOST_TEST( FlashVector[1].Time() == 0 );
+  BOOST_TEST( FlashVector[1].TotalPE() == 100 );
+  BOOST_TEST( FlashVector[2].Time() == 1.6 );
+  BOOST_TEST( FlashVector[2].TotalPE() == 5 );
+  BOOST_TEST( FlashVector[3].Time() == 1e6 );
+  BOOST_TEST( FlashVector[3].TotalPE() == 100 );
 
 }
 
@@ -1404,61 +1254,61 @@ BOOST_AUTO_TEST_CASE(RemoveFlashesFromVectors_IgnoreFirstFlash)
 
   std::vector<recob::OpFlash> FlashVector;
   FlashVector.emplace_back(-1e6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(0, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(1.6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs_Small,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs_Small,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   FlashVector.emplace_back(1e6, //time
-			   0.5, //TimeWidth,
-			   0, //AveAbsTime,
-			   0, //Frame,
-			   PEs,
-			   0, //InBeamFrame,
-			   0, //OnBeamTime,
-			   0, //FastToTotal,
-			   0, //meany,
-			   0, //widthy,
-			   0, //meanz,
-			   0, //widthz,
-			   WireCenters,
-			   WireWidths);
+                           0.5, //TimeWidth,
+                           0, //AveAbsTime,
+                           0, //Frame,
+                           PEs,
+                           0, //InBeamFrame,
+                           0, //OnBeamTime,
+                           0, //FastToTotal,
+                           0, //meany,
+                           0, //widthy,
+                           0, //meanz,
+                           0, //widthz,
+                           WireCenters,
+                           WireWidths);
   std::vector<bool> MarkedForRemoval{false, true, false};
   std::vector< std::vector<int> > RefinedHitsPerFlash(NFlashes-BeginFlash);
   RefinedHitsPerFlash[0].push_back(0);
@@ -1466,21 +1316,21 @@ BOOST_AUTO_TEST_CASE(RemoveFlashesFromVectors_IgnoreFirstFlash)
   RefinedHitsPerFlash[2].push_back(2);
 
   opdet::RemoveFlashesFromVectors(MarkedForRemoval,
-				  FlashVector,
-				  BeginFlash,
-				  RefinedHitsPerFlash);
+                                  FlashVector,
+                                  BeginFlash,
+                                  RefinedHitsPerFlash);
 
-  BOOST_CHECK_EQUAL( FlashVector.size() , 3U );
-  BOOST_CHECK_EQUAL( FlashVector[0].Time() , -1e6 );
-  BOOST_CHECK_EQUAL( FlashVector[0].TotalPE() , 100 );
-  BOOST_CHECK_EQUAL( FlashVector[1].Time() , 0 );
-  BOOST_CHECK_EQUAL( FlashVector[1].TotalPE() , 100 );
-  BOOST_CHECK_EQUAL( FlashVector[2].Time() , 1e6 );
-  BOOST_CHECK_EQUAL( FlashVector[2].TotalPE() , 100 );
+  BOOST_TEST( FlashVector.size() == 3U );
+  BOOST_TEST( FlashVector[0].Time() == -1e6 );
+  BOOST_TEST( FlashVector[0].TotalPE() == 100 );
+  BOOST_TEST( FlashVector[1].Time() == 0 );
+  BOOST_TEST( FlashVector[1].TotalPE() == 100 );
+  BOOST_TEST( FlashVector[2].Time() == 1e6 );
+  BOOST_TEST( FlashVector[2].TotalPE() == 100 );
 
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash.size() , 2U );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[0][0] , 0 );
-  BOOST_CHECK_EQUAL( RefinedHitsPerFlash[1][0] , 2 );
+  BOOST_TEST( RefinedHitsPerFlash.size() == 2U );
+  BOOST_TEST( RefinedHitsPerFlash[0][0] == 0 );
+  BOOST_TEST( RefinedHitsPerFlash[1][0] == 2 );
 
 }
 
@@ -1494,11 +1344,11 @@ BOOST_AUTO_TEST_CASE(RemoveFlashesFromVectors_NoFlashes)
   std::vector< std::vector<int> > RefinedHitsPerFlash(NFlashes-BeginFlash);
 
   opdet::RemoveFlashesFromVectors(MarkedForRemoval,
-				  FlashVector,
-				  BeginFlash,
-				  RefinedHitsPerFlash);
+                                  FlashVector,
+                                  BeginFlash,
+                                  RefinedHitsPerFlash);
 
-  BOOST_CHECK_EQUAL( FlashVector.size() , NFlashes );
+  BOOST_TEST( FlashVector.size() == NFlashes );
 
 }
 
