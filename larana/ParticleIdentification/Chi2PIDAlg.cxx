@@ -58,14 +58,18 @@ std::bitset<8> pid::Chi2PIDAlg::GetBitset(geo::PlaneID planeID){
 }
 
 //------------------------------------------------------------------------------
-anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calorimetry>> calos){
+anab::ParticleID pid::Chi2PIDAlg::DoParticleID(const std::vector<art::Ptr<anab::Calorimetry>>& calos){
 
   std::vector<anab::sParticleIDAlgScores> AlgScoresVec;
+  geo::PlaneID plid;
   
   for (size_t i_calo = 0; i_calo < calos.size(); i_calo++){
 
   art::Ptr<anab::Calorimetry> calo = calos.at(i_calo);
-
+  if(i_calo == 0)
+    plid = calo->PlaneID();
+  else if(plid != calo->PlaneID())
+    throw cet::exception("Chi2PIDAlg") << "PlaneID mismatch: " << plid << ", " << calo->PlaneID();
   int npt = 0;
   double chi2pro = 0;
   double chi2ka = 0;
@@ -205,7 +209,7 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(std::vector<art::Ptr<anab::Calori
 
   }
 
-  anab::ParticleID pidOut(AlgScoresVec);
+  anab::ParticleID pidOut(AlgScoresVec, plid);
  
   return pidOut;
 

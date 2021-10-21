@@ -36,7 +36,7 @@ namespace pid {
      */
     std::bitset<8> GetBitset(geo::PlaneID planeID);
 
-    anab::ParticleID DoParticleID(std::vector<art::Ptr<anab::Calorimetry>> calo);
+    anab::ParticleID DoParticleID(const std::vector<art::Ptr<anab::Calorimetry>>& calo);
 
   private:
 
