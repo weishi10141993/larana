@@ -74,6 +74,7 @@ namespace opdet {
     Float_t fHitThreshold;
     unsigned int fMaxOpChannel;
     bool fUseStartTime;
+    bool fVerbose;
 
     calib::IPhotonCalibrator const* fCalib = nullptr;
   };
@@ -95,11 +96,13 @@ namespace opdet {
     fGenModule = pset.get<std::string>("GenModule");
     fInputLabels = pset.get<std::vector<std::string>>("InputLabels");
     fUseStartTime = pset.get<bool>("UseStartTime", false);
+    fVerbose = pset.get<bool>("Verbose", false);
 
     for (auto const& ch :
          pset.get<std::vector<unsigned int>>("ChannelMasks", std::vector<unsigned int>()))
       fChannelMasks.insert(ch);
-    std::cout<<"ChannelMasks set? ... " << (fChannelMasks.size() > 0 ? "yes" : "no") << std::endl;
+    if (fVerbose)
+      std::cout<<"ChannelMasks set? ... " << (fChannelMasks.size() > 0 ? "yes" : "no") << std::endl;
     fHitThreshold = pset.get<float>("HitThreshold");
     bool useCalibrator = pset.get<bool>("UseCalibrator", false);
 
@@ -210,7 +213,7 @@ namespace opdet {
                    fHitThreshold,
                    clock_data,
                    calibrator,
-		   fUseStartTime);
+                   fUseStartTime);
     }
     else {
 
@@ -235,7 +238,8 @@ namespace opdet {
         //                      wfHandle->begin(), wfHandle->end());
         for (auto const& wf : *wfHandle) {
           if (fChannelMasks.find(wf.ChannelNumber()) != fChannelMasks.end()) continue;
-	  std::cout<<"Analyzing channel " << wf.ChannelNumber() << std::endl;
+          if (fVerbose)
+            std::cout<<"Analyzing channel " << wf.ChannelNumber() << std::endl;
           WaveformVector.push_back(wf);
         }
       }
@@ -248,7 +252,7 @@ namespace opdet {
                    fHitThreshold,
                    clock_data,
                    calibrator,
-		   fUseStartTime);
+                   fUseStartTime);
     }
     // Store results into the event
     evt.put(std::move(HitPtr));
