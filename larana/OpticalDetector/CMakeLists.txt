@@ -7,7 +7,7 @@ art_make(
     art::Framework_Services_Registry
     art_root_io::TFileService_service
     art_root_io::tfile_support
-    CLHEP::CLHEP
+    CLHEP::Random
     fhiclcpp::fhiclcpp
     messagefacility::MF_MessageLogger
     ROOT::Core
@@ -32,7 +32,7 @@ art_make(
     larsim_Simulation
     nurandom::RandomUtils_NuRandomService_service
   SERVICE_LIBRARIES
-    CLHEP::CLHEP
+    CLHEP::Random
     messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Hist
