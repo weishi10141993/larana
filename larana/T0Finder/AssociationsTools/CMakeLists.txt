@@ -4,7 +4,7 @@ art_make(
   TOOL_LIBRARIES
     art::Framework_Principal
     art::Framework_Services_Registry
-    ${ART_PERSISTENCY_PROVENANCE}
+    art::Persistency_Provenance
     messagefacility::MF_MessageLogger
     ROOT::Core
     canvas::canvas

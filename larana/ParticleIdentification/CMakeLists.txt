@@ -2,7 +2,7 @@ art_make(
   LIB_LIBRARIES
     art::Framework_Principal
     art::Framework_Services_Registry
-    ${ART_PERSISTENCY_PROVENANCE}
+    art::Persistency_Provenance
     art_root_io::TFileService_service
     art_root_io::tfile_support
     art::Utilities
@@ -21,7 +21,7 @@ art_make(
     larcorealg_Geometry
     lardataobj_AnalysisBase
     larreco_Calorimetry
-    nusimdata_SimulationBase
+    nusimdata::SimulationBase
   MODULE_LIBRARIES
    larana_ParticleIdentification
   )
