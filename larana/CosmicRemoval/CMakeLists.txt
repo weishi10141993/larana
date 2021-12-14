@@ -2,7 +2,7 @@ add_subdirectory(TrackContainment)
 
 art_make(
   LIB_LIBRARIES
-    ${ART_UTILITIES}
+    art::Utilities
     fhiclcpp::fhiclcpp
     ROOT::Core
     ROOT::Hist
@@ -12,7 +12,7 @@ art_make(
     lardataobj_AnalysisBase
     lardataobj_RecoBase
     larsim_PhotonPropagation_PhotonVisibilityService_service
-    nusimdata_SimulationBase
+    nusimdata::SimulationBase
   MODULE_LIBRARIES
     art::Framework_Services_Registry
     art_root_io::TFileService_service

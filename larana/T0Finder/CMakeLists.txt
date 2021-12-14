@@ -15,7 +15,7 @@ art_make(MODULE_LIBRARIES
            lardataobj_RecoBase
            larsim_MCCheater_BackTrackerService_service
            larsim_MCCheater_ParticleInventoryService_service
-           nusimdata_SimulationBase)
+           nusimdata::SimulationBase)
 
 install_headers()
 install_fhicl()

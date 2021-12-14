@@ -3,6 +3,7 @@ art_make(
   LIB_LIBRARIES
     lardataobj_RecoBase
     larcorealg_Geometry
+    art::Framework_Services_Registry
     messagefacility::MF_MessageLogger
     fhiclcpp::fhiclcpp
     cetlib_except::cetlib_except

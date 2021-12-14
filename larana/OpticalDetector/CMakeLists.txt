@@ -7,7 +7,7 @@ art_make(
     art::Framework_Services_Registry
     art_root_io::TFileService_service
     art_root_io::tfile_support
-    CLHEP::CLHEP
+    CLHEP::Random
     fhiclcpp::fhiclcpp
     messagefacility::MF_MessageLogger
     ROOT::Core
@@ -23,16 +23,16 @@ art_make(
     lardataobj_RecoBase
     larsim_MCSTReco
     larsim_PhotonPropagation_PhotonVisibilityService_service
-    nusimdata_SimulationBase
+    nusimdata::SimulationBase
   MODULE_LIBRARIES
     art::Framework_Services_Registry
     larana_OpticalDetector
     lardataobj_RawData
     larsim_MCCheater_ParticleInventoryService_service
     larsim_Simulation
-    nurandom_RandomUtils_NuRandomService_service
+    nurandom::RandomUtils_NuRandomService_service
   SERVICE_LIBRARIES
-    CLHEP::CLHEP
+    CLHEP::Random
     messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Hist
