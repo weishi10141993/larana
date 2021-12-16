@@ -67,14 +67,15 @@ void pid::Chi2ParticleID::produce(art::Event & evt)
   std::unique_ptr< art::Assns<recob::Track, anab::ParticleID> > assn(new art::Assns<recob::Track, anab::ParticleID>);
 
   if (fmcal.isValid()) {
-  for (size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter){
-    for (size_t i = 0; i<fmcal.at(trkIter).size(); ++i){
-      anab::ParticleID  pidout;
-      fChiAlg.DoParticleID(fmcal.at(trkIter)[i],pidout);
-      particleidcol->push_back(pidout);
-      util::CreateAssn(*this, evt, *particleidcol, tracklist[trkIter], *assn);
+    std::vector<art::Ptr<anab::Calorimetry>> calovec(1, art::Ptr<anab::Calorimetry>());
+    for (size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter){
+      for (size_t i = 0; i<fmcal.at(trkIter).size(); ++i){
+        calovec[0] = fmcal.at(trkIter)[i];
+        anab::ParticleID  pidout = fChiAlg.DoParticleID(calovec);
+        particleidcol->push_back(pidout);
+        util::CreateAssn(*this, evt, *particleidcol, tracklist[trkIter], *assn);
+      }
     }
-  }
   }
   evt.put(std::move(particleidcol));
   evt.put(std::move(assn));
