@@ -8,12 +8,13 @@
 
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(larana VERSION 09.04.02 LANGUAGES CXX)
+project(larana LANGUAGES CXX)
 
 # cetbuildtools contains our cmake modules
 find_package(cetbuildtools REQUIRED)
 
 include(CetCMakeEnv)
+set(${PROJECT}_CMAKE_PROJECT_VERSION_STRING 09.05.00-rc0)
 cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS CAUTIOUS
