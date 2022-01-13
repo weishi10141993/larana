@@ -8,7 +8,7 @@
 
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(larana VERSION 09.05.00 LANGUAGES CXX)
+project(larana VERSION 09.05.01 LANGUAGES CXX)
 
 # cetbuildtools contains our cmake modules
 find_package(cetbuildtools REQUIRED)
@@ -27,6 +27,7 @@ cet_report_compiler_flags()
 find_package(canvas_root_io REQUIRED)
 find_package(art REQUIRED PUBLIC)
 find_package(art_root_io REQUIRED PUBLIC)
+find_package(nusimdata REQUIRED PUBLIC)
 find_package(nug4 REQUIRED PUBLIC)
 find_package(nurandom REQUIRED PUBLIC)
 find_package(nutools REQUIRED PUBLIC)
