@@ -8,7 +8,7 @@
 
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(larana VERSION 09.05.08 LANGUAGES CXX)
+project(larana VERSION 09.05.08.01 LANGUAGES CXX)
 
 # cetbuildtools contains our cmake modules
 find_package(cetbuildtools REQUIRED)
@@ -32,7 +32,7 @@ find_package(nug4 REQUIRED PUBLIC)
 find_package(nurandom REQUIRED PUBLIC)
 find_package(nutools REQUIRED PUBLIC)
 find_package(PostgreSQL REQUIRED PUBLIC)
-find_package (Eigen3 3.3...3.3.9 REQUIRED NO_MODULE)
+find_package (Eigen3 REQUIRED NO_MODULE)
 find_package(ROOT COMPONENTS Core RIO Physics Tree Hist MathCore TMVA REQUIRED PUBLIC)
 find_package(CLHEP COMPONENTS Random REQUIRED PUBLIC)
 
