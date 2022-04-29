@@ -18,6 +18,8 @@
 class TTree;
 class TH1F;
 
+#include <vector>
+
 namespace opdet{
 
   class SimPhotonCounter;

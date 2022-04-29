@@ -16,7 +16,7 @@
 #define ALGOTHRESHOLD_H
 
 #include "PMTPulseRecoBase.h"
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
 #include <string>

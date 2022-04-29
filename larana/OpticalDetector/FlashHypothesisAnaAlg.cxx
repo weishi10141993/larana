@@ -9,12 +9,13 @@
 */
 
 #include "FlashHypothesisAnaAlg.h"
+#include "FlashHypothesis.h"
+#include "FlashHypothesisComparison.h"
+#include "FlashHypothesisCreator.h"
+#include "SimPhotonCounterAlg.h"
 
-#include "larana/OpticalDetector/FlashHypothesis.h"
-#include "larana/OpticalDetector/FlashHypothesisComparison.h"
-#include "larana/OpticalDetector/FlashHypothesisCreator.h"
-#include "larana/OpticalDetector/SimPhotonCounterAlg.h"
 #include "larcore/Geometry/Geometry.h"
+#include "lardataalg/DetectorInfo/LArProperties.h"
 #include "larcorealg/Geometry/CryostatGeo.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/Geometry/OpDetGeo.h"

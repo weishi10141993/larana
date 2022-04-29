@@ -15,6 +15,7 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "FlashHypothesis.h"
 #include "FlashUtilities.h"
 
 float opdet::FlashUtilities::CompareByError(const FlashHypothesis& fh,

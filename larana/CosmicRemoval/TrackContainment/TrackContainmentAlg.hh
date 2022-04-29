@@ -11,7 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
+
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
 

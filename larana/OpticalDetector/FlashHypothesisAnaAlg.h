@@ -11,11 +11,11 @@
  *
 */
 
-#include "fhiclcpp/ParameterSet.h"
+namespace fhicl { class ParameterSet; }
 
-#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardataalg/DetectorInfo/LArProperties.h"
-#include "larana/OpticalDetector/OpDigiProperties.h"
+namespace phot { class PhotonVisibilityServce; }
+
+namespace opdet { class OpDigiProperties; }
 
 #include "lardataobj/Simulation/SimPhotons.h"
 #include "lardataobj/MCBase/MCTrack.h"
@@ -28,9 +28,7 @@
 class TH1F;
 class TTree;
 
-namespace geo {
-  class Geometry;
-}
+namespace geo { class Geometry; }
 
 namespace opdet{
 

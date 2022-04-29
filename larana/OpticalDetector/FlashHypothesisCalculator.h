@@ -8,11 +8,11 @@
  * Description: Simple class for calculating flash hypotheses
 */
 
-#include<vector>
+#include <vector>
 
 #include "larsim/PhotonPropagation/PhotonVisibilityTypes.h" // phot::MappedCounts_t
 
-#include "TVector3.h"
+class TVector3;
 
 namespace opdet{
 

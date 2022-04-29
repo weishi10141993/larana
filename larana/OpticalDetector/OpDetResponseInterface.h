@@ -11,16 +11,13 @@
 #define OPDET_RESPONSE_INTERFACE_H
 
 // LArSoft includes
-//#include "OpticalDetectorData/OpticalTypes.h"
 #include "larcore/Geometry/Geometry.h"
-#include "lardataobj/Simulation/SimPhotons.h"
+namespace sim { struct OnePhoton; }
 
 // ART includes
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-
-#include "CLHEP/Random/RandFlat.h"
-
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+namespace fhicl { class ParameterSet; }
 
 namespace opdet
 {

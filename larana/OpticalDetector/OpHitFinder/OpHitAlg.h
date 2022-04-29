@@ -11,23 +11,15 @@
  */
 
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
-#include "larcorealg/Geometry/GeometryCore.h"
-#include "lardataalg/DetectorInfo/DetectorClocks.h"
 #include "lardataobj/RawData/OpDetWaveform.h"
 #include "lardataobj/RecoBase/OpHit.h"
-#include "larreco/Calibrator/IPhotonCalibrator.h"
 
 #include <vector>
 
-namespace calib {
-  class IPhotonCalibrator;
-}
-namespace detinfo {
-  class DetectorClocksData;
-}
-namespace pmtana {
-  class PulseRecoManager;
-}
+namespace calib { class IPhotonCalibrator; }
+namespace detinfo { class DetectorClocksData; }
+namespace geo { class GeometryCore; }
+namespace pmtana { class PulseRecoManager; }
 
 namespace opdet {
 

@@ -5,20 +5,30 @@
 
 #include "larana/ParticleIdentification/MVAAlg.h"
 #include "larcore/Geometry/Geometry.h"
-#include "larcorealg/CoreUtils/quiet_Math_Functor.h" // remove the wrapper when ROOT header is fixed
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
+#include "lardataobj/RecoBase/Hit.h"
+#include "lardataobj/RecoBase/Shower.h"
+#include "lardataobj/RecoBase/SpacePoint.h"
+#include "lardataobj/RecoBase/Track.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Principal/Event.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOneP.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "cetlib/search_path.h"
+#include "cetlib_except/exception.h"
 
 #include "TPrincipal.h"
-#include <Fit/Fitter.h>
+#include "Fit/Fitter.h"
+#include "Math/Functor.h"
 
 #include <cmath>
+#include <vector>
+#include <string>
 
 mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset)
   : fCaloAlg(pset.get<fhicl::ParameterSet>("CalorimetryAlg")), fReader("")

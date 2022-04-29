@@ -10,12 +10,23 @@
 */
 
 #include "BeamFlashTrackMatchTaggerAlg.h"
+
+#include "fhiclcpp/ParameterSet.h"
+
+#include "larcore/Geometry/Geometry.h"
+#include "lardataalg/DetectorInfo/LArProperties.h"
+#include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include <limits>
+#include <utility>
+#include <vector>
 
 #include "TH1F.h"
 #include "TTree.h"
+#include "TVector3.h"
 
 cosmic::BeamFlashTrackMatchTaggerAlg::BeamFlashTrackMatchTaggerAlg(fhicl::ParameterSet const& p)
   : COSMIC_TYPE_FLASHMATCH(anab::CosmicTagID_t::kFlash_BeamIncompatible),

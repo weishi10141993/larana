@@ -6,30 +6,31 @@
 #define MVAAlg_H
 
 #include <map>
+#include <string>
 #include <vector>
 
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Principal/fwd.h"
+namespace art { class Event; }
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "fhiclcpp/ParameterSet.h"
+namespace fhicl { class ParameterSet; }
+
+#include "larreco/Calorimetry/CalorimetryAlg.h"
 
 #include "lardataobj/AnalysisBase/MVAPIDResult.h"
-#include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/RecoBase/Shower.h"
-#include "lardataobj/RecoBase/SpacePoint.h"
-#include "lardataobj/RecoBase/Track.h"
-#include "larreco/Calorimetry/CalorimetryAlg.h"
+
 namespace detinfo {
   class DetectorClocksData;
   class DetectorPropertiesData;
 }
-
-#include "Math/GenVector/Cartesian3D.h"
-#include "Math/GenVector/DisplacementVector3D.h"
+namespace recob {
+  class Hit;
+  class Shower;
+  class SpacePoint;
+  class Track;
+}
 #include "Math/Vector3Dfwd.h"
-#include "TGraph2D.h"
 #include "TLorentzVector.h"
+#include "TGraph2D.h"
 #include "TMVA/Reader.h"
 #include "TVector3.h"
 

@@ -16,7 +16,8 @@
 #define larana_OPTICALDETECTOR_PEDALGOUB_H
 
 #include "PMTPedestalBase.h"
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
+
 #include "PedAlgoRmsSlider.h"
 
 #include <string>

@@ -18,9 +18,11 @@
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
 #include "PMTPedestalBase.h"
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
 
 #include <fstream>
+#include <string>
+#include <vector>
 
 namespace pmtana
 {

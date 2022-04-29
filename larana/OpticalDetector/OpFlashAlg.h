@@ -9,12 +9,10 @@
  * These are the algorithms used by OpFlashFinder to produce flashes.
  */
 
-#include "larcorealg/Geometry/GeometryCore.h"
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "lardataobj/RecoBase/OpHit.h"
-namespace detinfo {
-  class DetectorClocksData;
-}
+namespace detinfo { class DetectorClocksData; }
+namespace geo { class GeometryCore; }
 
 #include <functional>
 #include <map>

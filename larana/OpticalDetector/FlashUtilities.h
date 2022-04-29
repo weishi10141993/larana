@@ -14,10 +14,11 @@
 */
 
 #include <vector>
-#include "FlashHypothesis.h"
 
 namespace opdet{
 
+  class FlashHypothesis;
+  
   class FlashUtilities {
 
   public:

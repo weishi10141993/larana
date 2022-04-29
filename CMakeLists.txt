@@ -6,12 +6,12 @@
 #  buildtool [-I /install/path] -bt[i] -jN
 # ======================================================================
 
-cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
+find_package(cetmodules 3.12.00 REQUIRED)
 project(larana VERSION 09.05.11 LANGUAGES CXX)
 
 # cetbuildtools contains our cmake modules
-find_package(cetbuildtools REQUIRED)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -22,36 +22,41 @@ cet_set_compiler_flags(DIAGS CAUTIOUS
   EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs
 )
 
-cet_report_compiler_flags()
+cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
-find_package(canvas_root_io REQUIRED)
-find_package(art REQUIRED PUBLIC)
-find_package(art_root_io REQUIRED PUBLIC)
-find_package(nusimdata REQUIRED PUBLIC)
-find_package(nug4 REQUIRED PUBLIC)
-find_package(nurandom REQUIRED PUBLIC)
-find_package(nutools REQUIRED PUBLIC)
-find_package(PostgreSQL REQUIRED PUBLIC)
-find_package (Eigen3 3.3...3.3.9 REQUIRED NO_MODULE)
-find_package(ROOT COMPONENTS Core RIO Physics Tree Hist MathCore TMVA REQUIRED PUBLIC)
-find_package(CLHEP COMPONENTS Random REQUIRED PUBLIC)
+find_package(art REQUIRED EXPORT)
+find_package(art_root_io REQUIRED EXPORT)
+find_package(canvas REQUIRED EXPORT)
+find_package(canvas_root_io REQUIRED EXPORT)
+find_package(cetlib REQUIRED EXPORT)
+find_package(cetlib_except REQUIRED EXPORT)
+find_package(fhiclcpp REQUIRED EXPORT)
 
-find_ups_product( larcoreobj )
-find_ups_product( larcorealg )
-find_ups_product( larcore )
-find_ups_product( lardataobj )
-find_ups_product( lardataalg )
-find_ups_product( lardata )
-find_ups_product( larevt )
-find_ups_product( larsim )
-find_ups_product( larreco )
+find_package(nug4 REQUIRED EXPORT)
+find_package(nurandom REQUIRED EXPORT)
+find_package(nusimdata REQUIRED EXPORT)
+
+find_package(CLHEP COMPONENTS Random REQUIRED EXPORT)
+find_package(Eigen3 REQUIRED)
+find_package(PostgreSQL REQUIRED EXPORT)
+find_package(ROOT COMPONENTS Core GenVector Hist MathCore Physics RIO TMVA Tree REQUIRED EXPORT)
+
+find_package(larcore REQUIRED EXPORT)
+find_package(larcorealg REQUIRED EXPORT)
+find_package(larcoreobj REQUIRED EXPORT)
+find_package(lardata REQUIRED EXPORT)
+find_package(lardataalg REQUIRED EXPORT)
+find_package(lardataobj REQUIRED EXPORT)
+find_package(larevt REQUIRED EXPORT)
+find_package(larreco REQUIRED EXPORT)
+find_package(larsim REQUIRED EXPORT)
+
+cet_cmake_module_directories(Modules BINARY)
 
 # macros for dictionary and simple_plugin
-include(ArtDictionary)
-include(ArtMake)
+include(BuildDictionary)
+include(CetMake)
 include(BuildPlugins)
-
-include_directories( $ENV{EIGEN_INC} )
 
 # source
 add_subdirectory(larana)
@@ -60,8 +65,7 @@ add_subdirectory(larana)
 add_subdirectory(test)
 
 # ups - table and config files
-add_subdirectory(ups)
 
 # packaging utility
-include(UseCPack)
 
+cet_cmake_config()

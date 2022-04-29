@@ -18,10 +18,12 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 #include <iterator>
 
 #include "larcore/Geometry/Geometry.h"
+#include "larcore/CoreUtils/ServiceUtil.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"

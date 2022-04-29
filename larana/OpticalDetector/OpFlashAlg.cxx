@@ -15,6 +15,7 @@
 #include "TFile.h"
 #include "TH1.h"
 
+#include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 #include "lardataalg/DetectorInfo/DetectorClocks.h"

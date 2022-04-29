@@ -4,14 +4,36 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
-#include "larana/OpticalDetector/DefaultOpDetResponse.h"
+#include "larana/OpticalDetector/OpDetResponseInterface.h"
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
+#include "larcore/CoreUtils/ServiceUtil.h"
+
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-namespace opdet{
+#include <cassert>
 
+namespace opdet
+{
+    class DefaultOpDetResponse : public OpDetResponseInterface {
+    public:
 
+        DefaultOpDetResponse(fhicl::ParameterSet const& pset);
+
+    private:
+
+        void doReconfigure(fhicl::ParameterSet const& p) override;
+        bool doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const override;
+        bool doDetectedLite(int OpChannel, int &newOpChannel) const override;
+
+    }; // class DefaultOpDetResponse
+
+}
+
+DECLARE_ART_SERVICE_INTERFACE_IMPL(opdet::DefaultOpDetResponse, opdet::OpDetResponseInterface, LEGACY)
+
+namespace opdet
+{
     //--------------------------------------------------------------------
     DefaultOpDetResponse::DefaultOpDetResponse(fhicl::ParameterSet const& pset)
     {
@@ -46,8 +68,7 @@ namespace opdet{
         return true;
     }
 
-
-
 } // namespace
 
 DEFINE_ART_SERVICE_INTERFACE_IMPL(opdet::DefaultOpDetResponse, opdet::OpDetResponseInterface)
+

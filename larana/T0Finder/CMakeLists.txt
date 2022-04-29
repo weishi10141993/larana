@@ -1,23 +1,66 @@
 add_subdirectory(AssociationsTools)
 
-art_make(MODULE_LIBRARIES
-           art::Framework_Services_Registry
-           art_root_io::TFileService_service
-           art_root_io::tfile_support
-           messagefacility::MF_MessageLogger
-           ROOT::Core
-           ROOT::Hist
-           ROOT::Physics
-           ROOT::Tree
-           larcorealg_Geometry
-           lardataalg_DetectorInfo
-           lardataobj_AnalysisBase
-           lardataobj_RecoBase
-           larsim_MCCheater_BackTrackerService_service
-           larsim_MCCheater_ParticleInventoryService_service
-           nusimdata::SimulationBase)
+cet_build_plugin(MCParticleHitMatching art::EDProducer
+  LIBRARIES PRIVATE
+  larana::HitParticleAssociationsTool
+  lardataobj::RecoBase
+  nusimdata::SimulationBase
+  art::Framework_Principal
+  art_plugin_support::toolMaker
+  fhiclcpp::fhiclcpp
+)
+
+cet_build_plugin(MCParticleShowerMatching art::EDProducer
+  LIBRARIES PRIVATE
+  lardataobj::AnalysisBase
+  nusimdata::SimulationBase
+  art::Framework_Principal
+  canvas::canvas
+  fhiclcpp::fhiclcpp
+)
+
+cet_build_plugin(MCParticleTrackMatching art::EDProducer
+  LIBRARIES PRIVATE
+  lardataobj::AnalysisBase
+  lardataobj::RecoBase
+  nusimdata::SimulationBase
+  art::Framework_Principal
+  canvas::canvas
+  fhiclcpp::fhiclcpp
+)
+
+cet_build_plugin(MCTruthT0Matching art::EDProducer
+  LIBRARIES PRIVATE
+  larsim::MCCheater_BackTrackerService_service
+  larsim::MCCheater_ParticleInventoryService_service
+  lardata::AssociationUtil
+  lardata::DetectorClocksService
+  larcore::Geometry_Geometry_service
+  lardataobj::AnalysisBase
+  lardataobj::RecoBase
+  nusimdata::SimulationBase
+  art_root_io::TFileService_service
+  art::Framework_Principal
+  canvas::canvas
+  fhiclcpp::fhiclcpp
+  ROOT::Tree
+)
+
+cet_build_plugin(PhotonCounterT0Matching art::EDProducer
+  LIBRARIES PRIVATE
+  lardata::AssociationUtil
+  lardata::DetectorClocksService
+  lardata::DetectorPropertiesService
+  larcore::Geometry_Geometry_service
+  lardataobj::AnalysisBase
+  lardataobj::RecoBase
+  art_root_io::TFileService_service
+  art::Framework_Principal
+  fhiclcpp::fhiclcpp
+  ROOT::Hist
+  ROOT::Tree
+)
 
 install_headers()
 install_fhicl()
 install_source()
-install_scripts()

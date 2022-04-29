@@ -17,6 +17,8 @@
 
 #include "FlashHypothesisAnaAlg.h"
 
+#include "larana/OpticalDetector/OpDigiProperties.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "lardata/DetectorInfoServices/ServicePack.h" // lar::extractProviders()
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 

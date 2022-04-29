@@ -10,6 +10,7 @@
 
 // LArSoft includes
 #include "larana/OpticalDetector/OpFlashAlg.h"
+#include "larcore/CoreUtils/ServiceUtil.h"
 #include "larcore/Geometry/Geometry.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/Utilities/AssociationUtil.h"
@@ -21,6 +22,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "fhiclcpp/ParameterSet.h"

@@ -14,6 +14,7 @@
 #include "OpHitAlg.h"
 
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
+#include "larcorealg/Geometry/GeometryCore.h"
 #include "lardataalg/DetectorInfo/DetectorClocks.h"
 #include "lardataalg/DetectorInfo/ElecClock.h"
 #include "lardataobj/RawData/OpDetWaveform.h"

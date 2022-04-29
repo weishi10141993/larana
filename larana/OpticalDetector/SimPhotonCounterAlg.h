@@ -11,10 +11,14 @@
 
 #include "SimPhotonCounter.h"
 
-#include "fhiclcpp/fwd.h"
+#include "fhiclcpp/ParameterSet.h"
 
-#include "larcorealg/Geometry/GeometryCore.h"
-#include "OpDigiProperties.h"
+#include "lardataobj/Simulation/SimPhotons.h"
+
+namespace geo { class GeometryCore; }
+namespace opdet { class OpDigiProperties; }
+
+#include <vector>
 
 namespace opdet{
 

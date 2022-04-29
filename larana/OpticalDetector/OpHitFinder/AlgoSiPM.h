@@ -10,7 +10,7 @@
 #ifndef ALGOSIPM_H
 #define ALGOSIPM_H
 
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
 
 #include "PMTPulseRecoBase.h"
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"

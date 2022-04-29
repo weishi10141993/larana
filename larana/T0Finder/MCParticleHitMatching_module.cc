@@ -29,6 +29,10 @@
 // LArSoft
 #include "larana/T0Finder/AssociationsTools/IHitParticleAssociations.h"
 
+#include "lardataobj/RecoBase/Hit.h"
+
+#include "nusimdata/SimulationBase/MCParticle.h"
+
 namespace t0 {
   class MCParticleHitMatching;
 

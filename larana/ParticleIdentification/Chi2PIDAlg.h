@@ -11,7 +11,7 @@
 #include <string>
 #include <bitset>
 
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
 #include "canvas/Persistency/Common/Ptr.h"
 
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"

@@ -1,15 +1,31 @@
-# OpFlashFinder_module.cc is not built - it seems specific to uboone
-art_make(
-  LIB_LIBRARIES
-    lardataobj_RecoBase
-    larcorealg_Geometry
-    art::Framework_Services_Registry
-    messagefacility::MF_MessageLogger
-    fhiclcpp::fhiclcpp
-    cetlib_except::cetlib_except
-    ROOT::Core
-    ROOT::Hist
-  )
+cet_make_library(SOURCE
+  AlgoCFD.cxx
+  AlgoFixedWindow.cxx
+  AlgoSiPM.cxx
+  AlgoSlidingWindow.cxx
+  AlgoThreshold.cxx
+  OpHitAlg.cxx
+  OpticalRecoException.cxx
+  PMTPedestalBase.cxx
+  PMTPulseRecoBase.cxx
+  PedAlgoEdges.cxx
+  PedAlgoRmsSlider.cxx
+  PedAlgoRollingMean.cxx
+  PedAlgoUB.cxx
+  PulseRecoManager.cxx
+  UtilFunc.cxx
+  LIBRARIES
+  PUBLIC
+  lardataobj::RawData
+  lardataobj::RecoBase
+  PRIVATE
+  larreco::PhotonCalibrator
+  lardataalg::DetectorInfo
+  larcorealg::Geometry
+  messagefacility::MF_MessageLogger
+  fhiclcpp::fhiclcpp
+  ROOT::Hist
+)
 
 install_headers()
 install_source()

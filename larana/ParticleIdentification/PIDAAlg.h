@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
 namespace anab { class Calorimetry; }
 
 class TH1F;

@@ -1,14 +1,13 @@
-art_make(
-  LIB_LIBRARIES
-    fhiclcpp::fhiclcpp
-    ROOT::Core
-    cetlib_except::cetlib_except
-    larcorealg_Geometry
-    lardataobj_AnalysisBase
-    lardataobj_RecoBase
-  )
-
-
+cet_make_library(SOURCE TrackContainmentAlg.cxx
+  LIBRARIES
+  PUBLIC
+  lardataobj::AnalysisBase
+  lardataobj::RecoBase
+  PRIVATE
+  larcorealg::Geometry
+  fhiclcpp::fhiclcpp
+  ROOT::Tree
+)
 
 install_headers()
 install_source()

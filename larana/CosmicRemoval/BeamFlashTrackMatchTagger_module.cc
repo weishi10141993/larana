@@ -22,11 +22,13 @@
 
 #include <memory>
 
+#include "larana/OpticalDetector/OpDigiProperties.h"
 #include "larcore/Geometry/Geometry.h"
 #include "lardata/Utilities/AssociationUtil.h"
 #include "lardata/DetectorInfoServices/ServicePack.h" // lar::extractProviders()
 #include "lardata/DetectorInfoServices/LArPropertiesService.h"
 #include "lardataobj/RecoBase/Hit.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
 #include "BeamFlashTrackMatchTaggerAlg.h"
 #include "HitTagAssociatorAlg.h"
 

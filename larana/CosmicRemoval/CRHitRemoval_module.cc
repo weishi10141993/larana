@@ -27,6 +27,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOneP.h"
@@ -34,6 +35,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "larcore/Geometry/Geometry.h"
+#include "larcore/CoreUtils/ServiceUtil.h"
 #include "lardata/ArtDataHelper/HitCreator.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"

@@ -10,12 +10,13 @@
 #ifndef IMCTRUTHMATCHING_H
 #define IMCTRUTHMATCHING_H
 
-#include "fhiclcpp/ParameterSet.h"
+namespace art { class Event; }
+namespace fhicl { class ParameterSet; }
+namespace recob { class Hit; }
+namespace simb { class MCParticle; }
 
-#include "art/Framework/Principal/Event.h"
 #include "canvas/Persistency/Common/Assns.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
-#include "lardataobj/RecoBase/Hit.h"
+
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 
 ///code to link reconstructed objects back to the MC truth information

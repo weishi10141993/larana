@@ -1,4 +1,7 @@
 #include "SimPhotonCounter.h"
+
+#include "lardataobj/Simulation/SimPhotons.h"
+
 #include <iostream>
 #include <stdexcept>
 #include <algorithm>

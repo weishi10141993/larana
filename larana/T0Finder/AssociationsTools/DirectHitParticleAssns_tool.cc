@@ -1,13 +1,19 @@
 #include "larana/T0Finder/AssociationsTools/IHitParticleAssociations.h"
 
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/ToolMacros.h"
+#include "canvas/Persistency/Common/Ptr.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "larsim/MCCheater/BackTrackerService.h"
 #include "larsim/MCCheater/ParticleInventoryService.h"
+#include "lardataobj/RecoBase/Hit.h"
+
+#include "nusimdata/SimulationBase/MCParticle.h"
 
 namespace t0 {
   ////////////////////////////////////////////////////////////////////////

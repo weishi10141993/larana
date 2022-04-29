@@ -11,12 +11,13 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
 #include <iostream>
 
 #include "larcore/Geometry/Geometry.h"
-
+#include "larcore/CoreUtils/ServiceUtil.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/Track.h"
 

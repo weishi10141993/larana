@@ -8,6 +8,13 @@
 */
 
 #include "FlashHypothesisCreator.h"
+#include "OpDigiProperties.h"
+
+#include "lardataobj/RecoBase/Track.h"
+#include "lardataobj/MCBase/MCTrack.h"
+#include "lardataalg/DetectorInfo/LArProperties.h"
+#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
+#include "larcore/Geometry/Geometry.h"
 
 opdet::FlashHypothesisCollection
 opdet::FlashHypothesisCreator::GetFlashHypothesisCollection(recob::Track const& track,

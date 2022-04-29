@@ -16,11 +16,14 @@
 #include "larcore/Geometry/Geometry.h"
 
 // ART includes
-#include "fhiclcpp/ParameterSet.h"
+namespace fhicl { class ParameterSet; }
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 
 // ROOT includes
-#include "TF1.h"
+class TF1;
+
+#include <string>
+#include <vector>
 
 namespace opdet
 {

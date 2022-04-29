@@ -12,7 +12,7 @@
 */
 #include <vector>
 
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
 
 namespace cosmic{
   class HitTagAssociatorAlg;

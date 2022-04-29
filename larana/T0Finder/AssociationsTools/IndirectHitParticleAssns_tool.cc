@@ -1,8 +1,16 @@
 #include "larana/T0Finder/AssociationsTools/IHitParticleAssociations.h"
 
+#include "lardataobj/RecoBase/Hit.h"
+
+#include "nusimdata/SimulationBase/MCParticle.h"
+
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Utilities/ToolMacros.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Utilities/InputTag.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace t0
 {

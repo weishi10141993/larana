@@ -9,8 +9,13 @@
  *              comparisons with flashes and flash hypotheses.
 */
 
-#include "lardataobj/Simulation/SimPhotons.h"
+namespace sim {
+  struct OnePhoton;
+  class SimPhotons;
+}
+
 #include <numeric>
+#include <vector>
 
 namespace opdet{
 

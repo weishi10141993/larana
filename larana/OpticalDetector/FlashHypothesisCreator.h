@@ -12,14 +12,14 @@
 
 #include <vector>
 
-#include "lardataobj/RecoBase/Track.h"
-#include "lardataobj/MCBase/MCTrack.h"
+namespace detinfo { class LArProperties; }
+namespace recob { class Track; }
+namespace sim { class MCTrack; }
+namespace geo { class GeometryCore; }
+namespace opdet { class OpDigiProperties; }
+namespace phot { class PhotonVisibilityService; }
 
-#include "larcorealg/Geometry/GeometryCore.h"
-#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardataalg/DetectorInfo/LArProperties.h"
 #include "larcorealg/CoreUtils/ProviderPack.h"
-#include "larana/OpticalDetector/OpDigiProperties.h"
 
 #include "TVector3.h"
 

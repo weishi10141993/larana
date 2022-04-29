@@ -8,6 +8,7 @@
 
 #include "SimPhotonCounterAlg.h"
 #include "OpDetResponseInterface.h"
+#include "OpDigiProperties.h"
 
 #include "fhiclcpp/ParameterSet.h"
 

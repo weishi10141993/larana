@@ -11,22 +11,23 @@
  * Output:      anab::CosmicTag (and Assn<anab::CosmicTag,recob::Track>)
 */
 #include <iostream>
+#include <string>
+#include <vector>
 
-#include "fhiclcpp/fwd.h"
+namespace fhicl { class ParameterSet; }
+namespace geo { class GeometryCore; }
+namespace detinfo { class LArProperties; }
+namespace phot { class PhotonVisibilityService; }
+namespace opdet { class OpDigiProperties; }
 
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "lardataobj/RecoBase/Track.h"
 #include "lardataobj/AnalysisBase/CosmicTag.h"
+#include "larcorealg/CoreUtils/ProviderPack.h"
 
 #include "nusimdata/SimulationBase/MCParticle.h"
 
-#include "larcore/Geometry/Geometry.h"
-#include "larcorealg/CoreUtils/ProviderPack.h"
-#include "larsim/PhotonPropagation/PhotonVisibilityService.h"
-#include "lardata/DetectorInfoServices/LArPropertiesService.h"
-#include "larana/OpticalDetector/OpDigiProperties.h"
-
-#include "TVector3.h"
+class TVector3;
 class TH1F;
 class TTree;
 
