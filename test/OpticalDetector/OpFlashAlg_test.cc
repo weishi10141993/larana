@@ -3,6 +3,8 @@
 
 #include "larana/OpticalDetector/OpFlashAlg.h"
 
+#include <cmath> // std::exp
+
 constexpr float FlashThreshold = 50;
 constexpr double WidthTolerance = 0.5;
 
