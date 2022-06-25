@@ -1,0 +1,10 @@
+BEGIN_PROLOG
+
+RiseTimeThreshold:
+{
+    tool_type: RiseTimeThreshold
+    PeakRatio:         0.2
+}
+
+
+END_PROLOG
