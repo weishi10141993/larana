@@ -20,6 +20,8 @@ namespace fhicl { class ParameterSet; }
 
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
+#include "art/Utilities/make_tool.h"
+
 #include <string>
 
 namespace pmtana
@@ -63,6 +65,9 @@ namespace pmtana
     float _nsigma, _tail_nsigma, _end_nsigma;
     bool _verbose;
     size_t _num_presample, _num_postsample;
+
+    // Tool for rise time calculation
+    bool _compute_risetime;
   };
 
 }
