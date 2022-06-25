@@ -1,3 +1,5 @@
+add_subdirectory(RiseTimeTools)
+
 cet_make_library(SOURCE
   AlgoCFD.cxx
   AlgoFixedWindow.cxx
@@ -19,6 +21,7 @@ cet_make_library(SOURCE
   lardataobj::RawData
   lardataobj::RecoBase
   PRIVATE
+  art_plugin_support::toolMaker
   larreco::PhotonCalibrator
   lardataalg::DetectorInfo
   larcorealg::Geometry
