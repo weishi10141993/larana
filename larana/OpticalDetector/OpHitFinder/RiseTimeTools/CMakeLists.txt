@@ -6,6 +6,8 @@ cet_make_library(LIBRARY_NAME RiseTimeCalculatorTool INTERFACE
 
 cet_write_plugin_builder(lar::RiseTimeCalculatorTool art::tool Modules
   INSTALL_BUILDER
+  LIBRARIES CONDITIONAL
+  larana::RiseTimeCalculatorTool
 )
 
 include(lar::RiseTimeCalculatorTool)
