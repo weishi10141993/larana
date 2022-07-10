@@ -20,8 +20,6 @@ namespace fhicl { class ParameterSet; }
 
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
-#include "art/Utilities/make_tool.h"
-
 #include <string>
 
 namespace pmtana

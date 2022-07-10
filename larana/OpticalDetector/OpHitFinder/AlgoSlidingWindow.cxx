@@ -8,6 +8,8 @@
 
 #include "AlgoSlidingWindow.h"
 
+#include "art/Utilities/make_tool.h"
+
 namespace pmtana {
 
   //*********************************************************************
