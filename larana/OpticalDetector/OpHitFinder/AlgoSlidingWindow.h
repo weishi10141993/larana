@@ -37,7 +37,8 @@ namespace pmtana
     AlgoSlidingWindow(const std::string name="SlidingWindow");
 
     /// Alternative ctor
-    AlgoSlidingWindow(const fhicl::ParameterSet &pset,const std::string name="SlidingWindow");
+    AlgoSlidingWindow(const fhicl::ParameterSet &pset,
+      std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator, const std::string name="SlidingWindow");
     //AlgoSlidingWindow(const ::fcllite::PSet &pset,const std::string name="SlidingWindow");
 
     /// Implementation of AlgoSlidingWindow::reset() method
@@ -64,8 +65,6 @@ namespace pmtana
     bool _verbose;
     size_t _num_presample, _num_postsample;
 
-    // Tool for rise time calculation
-    bool _compute_risetime;
   };
 
 }
