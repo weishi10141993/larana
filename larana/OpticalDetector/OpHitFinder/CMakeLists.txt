@@ -21,7 +21,6 @@ cet_make_library(SOURCE
   lardataobj::RawData
   lardataobj::RecoBase
   PRIVATE
-  art_plugin_support::toolMaker
   larreco::PhotonCalibrator
   lardataalg::DetectorInfo
   larcorealg::Geometry
