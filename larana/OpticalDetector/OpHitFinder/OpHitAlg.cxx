@@ -34,7 +34,8 @@ namespace opdet {
                geo::GeometryCore const& geometry,
                float hitThreshold,
                detinfo::DetectorClocksData const& clocksData,
-               calib::IPhotonCalibrator const& calibrator)
+               calib::IPhotonCalibrator const& calibrator,
+               bool use_start_time)
   {
 
     for (auto const& waveform : opDetWaveformVector) {
@@ -67,18 +68,19 @@ namespace opdet {
                pmtana::pulse_param const& pulse,
                std::vector<recob::OpHit>& hitVector,
                detinfo::DetectorClocksData const& clocksData,
-               calib::IPhotonCalibrator const& calibrator)
+               calib::IPhotonCalibrator const& calibrator,
+               bool use_start_time)
   {
 
     if (pulse.peak < hitThreshold) return;
 
-    double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() * pulse.t_max;
+    double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() * (use_start_time ? pulse.t_start : pulse.t_max);
 
     double relTime = absTime - clocksData.TriggerTime();
 
     double startTime = timeStamp + clocksData.OpticalClock().TickPeriod() * pulse.t_start - clocksData.TriggerTime();
 
-    double riseTime = timeStamp + clocksData.OpticalClock().TickPeriod() * pulse.t_rise - clocksData.TriggerTime();
+    double riseTime = clocksData.OpticalClock().TickPeriod() * pulse.t_rise;
 
     int frame = clocksData.OpticalClock().Frame(timeStamp);
 
