@@ -56,7 +56,7 @@ namespace opdet {
       const double timeStamp = waveform.TimeStamp();
 
       for (auto const& pulse : pulses)
-        ConstructHit(hitThreshold, channel, timeStamp, pulse, hitVector, clocksData, calibrator);
+        ConstructHit(hitThreshold, channel, timeStamp, pulse, hitVector, clocksData, calibrator, use_start_time);
     }
   }
 
