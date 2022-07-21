@@ -23,11 +23,20 @@ namespace pmtana{
 
   //****************************************************************************************
   AlgoFixedWindow::AlgoFixedWindow(const fhicl::ParameterSet &pset,
-  //AlgoFixedWindow::AlgoFixedWindow(const ::fcllite::PSet& pset,
-				   const std::string name)
+    std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator,
+    //AlgoFixedWindow::AlgoFixedWindow(const ::fcllite::PSet& pset,
+		const std::string name)
     : PMTPulseRecoBase(name)
   //****************************************************************************************
   {
+    if(risetimecalculator!=nullptr){
+      _risetime_calc_ptr = std::move(risetimecalculator);
+      _compute_risetime=true;
+    }
+    else{
+      _compute_risetime=false;
+    }
+
     Reset();
 
     _index_start = pset.get<size_t>("StartIndex");
@@ -82,6 +91,12 @@ namespace pmtana{
     PMTPulseRecoBase::Integral(wf, _pulse_v[0].area, _index_start, _pulse_v[0].t_end);
 
     _pulse_v[0].area = _pulse_v[0].area - ( _pulse_v[0].t_end - _pulse_v[0].t_start + 1) * mean_v.front();
+
+    if(_compute_risetime)
+      _pulse_v[0].t_rise = _risetime_calc_ptr->RiseTime(
+                        {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
+                        {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
+                        true);
 
     return true;
 

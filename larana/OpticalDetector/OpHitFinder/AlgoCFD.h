@@ -40,8 +40,10 @@ namespace pmtana
     AlgoCFD(const std::string name="CFD");
 
     /// Alternative ctor
-    AlgoCFD(const fhicl::ParameterSet &pset,const std::string name="CFD");
-    //AlgoCFD(const ::fcllite::PSet &pset,const std::string name="CFD");
+    AlgoCFD(const fhicl::ParameterSet &pset,
+       std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator,
+       const std::string name="CFD");
+       //AlgoCFD(const ::fcllite::PSet &pset,const std::string name="CFD");
 
     /// Implementation of AlgoCFD::reset() method
     void Reset();

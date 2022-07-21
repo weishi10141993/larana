@@ -9,7 +9,9 @@
 namespace pmtana {
 
   //---------------------------------------------------------------------------
-  AlgoSiPM::AlgoSiPM(const fhicl::ParameterSet &pset,const std::string name)
+  AlgoSiPM::AlgoSiPM(const fhicl::ParameterSet &pset,
+    std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator,
+    const std::string name)
     : PMTPulseRecoBase(name)
   {
 
@@ -17,6 +19,14 @@ namespace pmtana {
     _min_width = pset.get< float >("MinWidth"       );
     _2nd_thres = pset.get< float >("SecondThreshold");
     _pedestal  = pset.get< float >("Pedestal"       );
+
+    if(risetimecalculator!=nullptr){
+      _risetime_calc_ptr = std::move(risetimecalculator);
+      _compute_risetime=true;
+    }
+    else{
+      std::cout<<" In AlgoSlidingWindow-.-. we have a null ptr\n";
+    }
 
 //    _nsigma = 5;
 
@@ -73,6 +83,12 @@ namespace pmtana {
         _pulse.t_end = counter - 1;
         if (record_hit && ((_pulse.t_end - _pulse.t_start) >= _min_width))
         {
+          if(_compute_risetime)
+            _pulse.t_rise = _risetime_calc_ptr->RiseTime(
+                              {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
+                              {ped_mean.begin()+_pulse.t_start, ped_mean.begin()+_pulse.t_end},
+                              true);
+
           _pulse_v.push_back(_pulse);
           record_hit = false;
         }
@@ -93,7 +109,7 @@ namespace pmtana {
 
           // Found a new maximum
           _pulse.peak  = (double(value) - double(pedestal));
-          _pulse.t_max = counter; 
+          _pulse.t_max = counter;
 
         }
         else if (!first_found)
@@ -113,6 +129,12 @@ namespace pmtana {
       _pulse.t_end = counter - 1;
       if (record_hit && ((_pulse.t_end - _pulse.t_start) >= _min_width))
       {
+        if(_compute_risetime)
+          _pulse.t_rise = _risetime_calc_ptr->RiseTime(
+                            {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
+                            {ped_mean.begin()+_pulse.t_start, ped_mean.begin()+_pulse.t_end},
+                            true);
+
         _pulse_v.push_back(_pulse);
         record_hit = false;
       }
