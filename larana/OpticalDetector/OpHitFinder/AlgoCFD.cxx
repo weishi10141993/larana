@@ -36,13 +36,7 @@ namespace pmtana{
     _start_thresh     = pset.get<double>("StartThresh");
     _end_thresh       = pset.get<double>("EndThresh");
 
-    if(risetimecalculator!=nullptr){
-      _risetime_calc_ptr = std::move(risetimecalculator);
-      _compute_risetime=true;
-    }
-    else{
-      _compute_risetime=false;
-    }
+    _risetime_calc_ptr = std::move(risetimecalculator);
 
     Reset();
 
@@ -175,12 +169,12 @@ namespace pmtana{
 	  if ( a > 0 ) _pulse.area += a;
 	}
 
-	if(_compute_risetime)
+	if(_risetime_calc_ptr)
 	  _pulse.t_rise = _risetime_calc_ptr->RiseTime(
 			    {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
 			    {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
 			    true);
-	
+
 	_pulse_v.push_back(_pulse);
       }
 

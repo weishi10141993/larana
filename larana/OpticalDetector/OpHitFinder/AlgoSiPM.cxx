@@ -20,13 +20,7 @@ namespace pmtana {
     _2nd_thres = pset.get< float >("SecondThreshold");
     _pedestal  = pset.get< float >("Pedestal"       );
 
-    if(risetimecalculator!=nullptr){
-      _risetime_calc_ptr = std::move(risetimecalculator);
-      _compute_risetime=true;
-    }
-    else{
-      std::cout<<" In AlgoSlidingWindow-.-. we have a null ptr\n";
-    }
+    _risetime_calc_ptr = std::move(risetimecalculator);
 
 //    _nsigma = 5;
 
@@ -83,7 +77,7 @@ namespace pmtana {
         _pulse.t_end = counter - 1;
         if (record_hit && ((_pulse.t_end - _pulse.t_start) >= _min_width))
         {
-          if(_compute_risetime)
+          if(_risetime_calc_ptr)
             _pulse.t_rise = _risetime_calc_ptr->RiseTime(
                               {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
                               {ped_mean.begin()+_pulse.t_start, ped_mean.begin()+_pulse.t_end},
@@ -129,7 +123,7 @@ namespace pmtana {
       _pulse.t_end = counter - 1;
       if (record_hit && ((_pulse.t_end - _pulse.t_start) >= _min_width))
       {
-        if(_compute_risetime)
+        if(_risetime_calc_ptr)
           _pulse.t_rise = _risetime_calc_ptr->RiseTime(
                             {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
                             {ped_mean.begin()+_pulse.t_start, ped_mean.begin()+_pulse.t_end},

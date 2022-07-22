@@ -46,13 +46,7 @@ namespace pmtana {
 
     _min_width = pset.get<size_t>("MinPulseWidth", 0);
 
-    if(risetimecalculator!=nullptr){
-      _risetime_calc_ptr = std::move(risetimecalculator);
-      _compute_risetime=true;
-    }
-    else{
-      _compute_risetime=false;
-    }
+    _risetime_calc_ptr = std::move(risetimecalculator);
 
     Reset();
   }
@@ -124,7 +118,7 @@ namespace pmtana {
 
           // Register if width is acceptable
           if ((_pulse.t_end - _pulse.t_start) >= _min_width) {
-            if(_compute_risetime)
+            if(_risetime_calc_ptr)
               _pulse.t_rise = _risetime_calc_ptr->RiseTime(
                                 {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
                                 {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
@@ -176,7 +170,7 @@ namespace pmtana {
 
           // Register if width is acceptable
           if ((_pulse.t_end - _pulse.t_start) >= _min_width) {
-            if(_compute_risetime)
+            if(_risetime_calc_ptr)
               _pulse.t_rise = _risetime_calc_ptr->RiseTime(
                                 {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
                                 {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
@@ -243,7 +237,7 @@ namespace pmtana {
 
         // Register if width is acceptable
         if ((_pulse.t_end - _pulse.t_start) >= _min_width) {
-          if(_compute_risetime)
+          if(_risetime_calc_ptr)
             _pulse.t_rise = _risetime_calc_ptr->RiseTime(
                               {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
                               {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
@@ -292,7 +286,7 @@ namespace pmtana {
 
       // Register if width is acceptable
       if ((_pulse.t_end - _pulse.t_start) >= _min_width) {
-        if(_compute_risetime)
+        if(_risetime_calc_ptr)
           _pulse.t_rise = _risetime_calc_ptr->RiseTime(
                             {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
                             {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},

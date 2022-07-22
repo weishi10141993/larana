@@ -126,7 +126,6 @@ namespace pmtana
     pulse_param _pulse;
 
     /// Tool for rise time calculation
-    bool _compute_risetime;
     std::unique_ptr<pmtana::RiseTimeCalculatorBase>  _risetime_calc_ptr = nullptr;
 
   protected:

@@ -36,13 +36,7 @@ namespace pmtana{
     _nsigma_start = pset.get<double>("NSigmaThresholdStart");
     _nsigma_end   = pset.get<double>("NSigmaThresholdEnd");
 
-    if(risetimecalculator!=nullptr){
-      _risetime_calc_ptr = std::move(risetimecalculator);
-      _compute_risetime=true;
-    }
-    else{
-      _compute_risetime=false;
-    }
+    _risetime_calc_ptr = std::move(risetimecalculator);
 
     Reset();
 
@@ -106,7 +100,7 @@ namespace pmtana{
 	//vic: i move t_start forward one, this helps with tail
 	_pulse.t_end = counter < wf.size()  ? counter : counter - 1;
 
-  if(_compute_risetime)
+  if(_risetime_calc_ptr)
     _pulse.t_rise = _risetime_calc_ptr->RiseTime(
                       {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
                       {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
@@ -150,7 +144,7 @@ namespace pmtana{
 
       _pulse.t_end = counter - 1;
 
-      if(_compute_risetime)
+      if(_risetime_calc_ptr)
         _pulse.t_rise = _risetime_calc_ptr->RiseTime(
                           {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
                           {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
