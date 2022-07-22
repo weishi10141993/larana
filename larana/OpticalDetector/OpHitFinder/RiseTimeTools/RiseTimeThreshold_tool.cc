@@ -34,7 +34,9 @@ namespace pmtana{
     explicit RiseTimeThreshold(art::ToolConfigTable<Config> const& config);
 
     // Method to calculate the OpFlash t0
-    double RiseTime(const pmtana::Waveform_t& wf_pulse, const pmtana::PedestalMean_t& ped_pulse, bool _positive);
+    double RiseTime(const pmtana::Waveform_t& wf_pulse,
+                    const pmtana::PedestalMean_t& ped_pulse,
+                    bool _positive) const override;
 
   private:
 
@@ -47,7 +49,9 @@ namespace pmtana{
   {
   }
 
-  double RiseTimeThreshold::RiseTime(const pmtana::Waveform_t& wf_pulse, const pmtana::PedestalMean_t& ped_pulse, bool _positive){
+  double RiseTimeThreshold::RiseTime(const pmtana::Waveform_t& wf_pulse,
+                                     const pmtana::PedestalMean_t& ped_pulse,
+                                     bool _positive) const{
 
     // Pedestal-subtracted pulse
     std::vector<double> wf_aux (ped_pulse);

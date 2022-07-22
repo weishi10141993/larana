@@ -22,7 +22,9 @@ namespace pmtana
     virtual ~RiseTimeCalculatorBase() noexcept = default;
 
     // Method to calculate the OpFlash t0
-    virtual double RiseTime(const pmtana::Waveform_t& wf_pulse, const pmtana::PedestalMean_t& ped_pulse, bool _positive) = 0;
+    virtual double RiseTime(const pmtana::Waveform_t& wf_pulse,
+                            const pmtana::PedestalMean_t& ped_pulse,
+                            bool _positive) const = 0;
 
   private:
 
