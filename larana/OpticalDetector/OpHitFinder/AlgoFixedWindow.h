@@ -43,7 +43,7 @@ namespace pmtana
 
     /// Alternative ctor
     AlgoFixedWindow(const fhicl::ParameterSet &pset,
-      std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator,
+      std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator=nullptr,
       const std::string name="FixedWindow");
     //AlgoFixedWindow(const ::fcllite::PSet &pset,const std::string name="FixedWindow");
 

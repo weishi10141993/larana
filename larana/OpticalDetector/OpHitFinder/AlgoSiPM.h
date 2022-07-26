@@ -24,7 +24,7 @@ namespace pmtana {
   public:
 
     AlgoSiPM(const fhicl::ParameterSet &pset,
-        std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator,
+        std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator=nullptr,
         const std::string name="AlgoSiPM");
 
     // Implementation of PMTPulseRecoBase::Reset() method
