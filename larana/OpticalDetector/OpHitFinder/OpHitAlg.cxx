@@ -35,7 +35,7 @@ namespace opdet {
                float hitThreshold,
                detinfo::DetectorClocksData const& clocksData,
                calib::IPhotonCalibrator const& calibrator,
-	       bool use_start_time)
+               bool use_start_time)
   {
 
     for (auto const& waveform : opDetWaveformVector) {
@@ -69,7 +69,7 @@ namespace opdet {
                std::vector<recob::OpHit>& hitVector,
                detinfo::DetectorClocksData const& clocksData,
                calib::IPhotonCalibrator const& calibrator,
-	       bool use_start_time)
+               bool use_start_time)
   {
 
     if (pulse.peak < hitThreshold) return;
@@ -77,6 +77,10 @@ namespace opdet {
     double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() * (use_start_time ? pulse.t_start : pulse.t_max);
 
     double relTime = absTime - clocksData.TriggerTime();
+
+    double startTime = timeStamp + clocksData.OpticalClock().TickPeriod() * pulse.t_start - clocksData.TriggerTime();
+
+    double riseTime = clocksData.OpticalClock().TickPeriod() * pulse.t_rise;
 
     int frame = clocksData.OpticalClock().Frame(timeStamp);
 
@@ -88,8 +92,8 @@ namespace opdet {
 
     double width = (pulse.t_end - pulse.t_start) * clocksData.OpticalClock().TickPeriod();
 
-    hitVector.emplace_back(
-      channel, relTime, absTime, frame, width, pulse.area, pulse.peak, PE, 0.0);
+    hitVector.emplace_back(channel, relTime, absTime, startTime, riseTime, frame, width, pulse.area, pulse.peak, PE, 0.0);
+
   }
 
 } // End namespace opdet

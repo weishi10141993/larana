@@ -40,7 +40,9 @@ namespace pmtana
     AlgoThreshold(const std::string name="AlgoThreshold");
 
     /// Alternative constructor
-    AlgoThreshold(const fhicl::ParameterSet &pset,const std::string name="AlgoThreshold");
+    AlgoThreshold(const fhicl::ParameterSet &pset,
+      std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator=nullptr,
+      const std::string name="AlgoThreshold");
     //AlgoThreshold(const ::fcllite::PSet &pset,const std::string name="AlgoThreshold");
 
     /// Implementation of AlgoThreshold::reset() method

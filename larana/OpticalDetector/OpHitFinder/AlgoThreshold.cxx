@@ -21,7 +21,8 @@ namespace pmtana{
 
   //************************************************************
   AlgoThreshold::AlgoThreshold(const fhicl::ParameterSet &pset,
-  //AlgoThreshold::AlgoThreshold(const ::fcllite::PSet &pset,
+    std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator,
+    //AlgoThreshold::AlgoThreshold(const ::fcllite::PSet &pset,
 			       const std::string name)
     : PMTPulseRecoBase(name)
   //*******************************************************
@@ -34,6 +35,8 @@ namespace pmtana{
 
     _nsigma_start = pset.get<double>("NSigmaThresholdStart");
     _nsigma_end   = pset.get<double>("NSigmaThresholdEnd");
+
+    _risetime_calc_ptr = std::move(risetimecalculator);
 
     Reset();
 
@@ -97,7 +100,13 @@ namespace pmtana{
 	//vic: i move t_start forward one, this helps with tail
 	_pulse.t_end = counter < wf.size()  ? counter : counter - 1;
 
-	_pulse_v.push_back(_pulse);
+  if(_risetime_calc_ptr)
+    _pulse.t_rise = _risetime_calc_ptr->RiseTime(
+                      {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
+                      {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
+                      true);
+
+  _pulse_v.push_back(_pulse);
 
 	_pulse.reset_param();
 
@@ -134,6 +143,12 @@ namespace pmtana{
       fire = false;
 
       _pulse.t_end = counter - 1;
+
+      if(_risetime_calc_ptr)
+        _pulse.t_rise = _risetime_calc_ptr->RiseTime(
+                          {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
+                          {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
+                          true);
 
       _pulse_v.push_back(_pulse);
 

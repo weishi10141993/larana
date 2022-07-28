@@ -1,3 +1,5 @@
+add_subdirectory(RiseTimeTools)
+
 cet_make_library(SOURCE
   AlgoCFD.cxx
   AlgoFixedWindow.cxx

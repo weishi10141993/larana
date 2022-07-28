@@ -20,6 +20,10 @@
 #include <vector>
 
 #include "OpticalRecoTypes.h"
+#include "larana/OpticalDetector/OpHitFinder/RiseTimeTools/RiseTimeCalculatorBase.h"
+
+#include <memory>
+
 
 namespace pmtana
 {
@@ -27,7 +31,7 @@ namespace pmtana
   struct pulse_param{
   public:
     double peak, area, ped_mean, ped_sigma;
-    double t_start, t_max, t_end;
+    double t_start, t_max, t_end, t_rise;
 
     //for vic
     double t_cfdcross;
@@ -40,7 +44,7 @@ namespace pmtana
       area = 0;
       peak = -1;
       ped_mean = ped_sigma = -1;
-      t_start = t_max = t_end = -1;
+      t_start = t_max = t_end = t_rise = -1;
       t_cfdcross = -1;
     }
 
@@ -120,6 +124,9 @@ namespace pmtana
 
     /// A subject pulse_param object to be filled with the last reconstructed pulse parameters
     pulse_param _pulse;
+
+    /// Tool for rise time calculation
+    std::unique_ptr<pmtana::RiseTimeCalculatorBase>  _risetime_calc_ptr = nullptr;
 
   protected:
 

@@ -21,8 +21,9 @@ namespace pmtana{
 
   //*********************************************************************
   AlgoCFD::AlgoCFD(const fhicl::ParameterSet &pset,
-  //AlgoCFD::AlgoCFD(const ::fcllite::PSet &pset,
-		   const std::string name)
+    std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator,
+    //AlgoCFD::AlgoCFD(const ::fcllite::PSet &pset,
+    const std::string name)
     : PMTPulseRecoBase(name)
       //*********************************************************************
   {
@@ -34,6 +35,8 @@ namespace pmtana{
     _peak_thresh      = pset.get<double>("PeakThresh");
     _start_thresh     = pset.get<double>("StartThresh");
     _end_thresh       = pset.get<double>("EndThresh");
+
+    _risetime_calc_ptr = std::move(risetimecalculator);
 
     Reset();
 
@@ -165,6 +168,12 @@ namespace pmtana{
 	  auto a = wf.at(k) - _pulse.ped_mean;
 	  if ( a > 0 ) _pulse.area += a;
 	}
+
+	if(_risetime_calc_ptr)
+	  _pulse.t_rise = _risetime_calc_ptr->RiseTime(
+			    {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
+			    {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
+			    true);
 
 	_pulse_v.push_back(_pulse);
       }

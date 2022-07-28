@@ -169,7 +169,7 @@ cet_build_plugin(OpFlashSimpleAna art::EDAnalyzer
   art_root_io::TFileService_service
   art::Framework_Principal
   art::Framework_Services_Registry
-  fhiclcpp::fhiclcpp    
+  fhiclcpp::fhiclcpp
   ROOT::Tree
 )
 

@@ -35,6 +35,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Utilities/make_tool.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -44,6 +45,18 @@
 #include <map>
 #include <memory>
 #include <string>
+
+namespace {
+  template <typename T>
+  pmtana::PMTPulseRecoBase* thresholdAlgorithm(fhicl::ParameterSet const& hit_alg_pset,
+                                               std::optional<fhicl::ParameterSet> const& rise_alg_pset)
+  {
+    if (rise_alg_pset)
+      return new T(hit_alg_pset, art::make_tool<pmtana::RiseTimeCalculatorBase>(*rise_alg_pset) );
+    else
+      return new T(hit_alg_pset, nullptr);
+  }
+}
 
 namespace opdet {
 
@@ -126,23 +139,27 @@ namespace opdet {
       fCalib = new calib::PhotonCalibratorStandard(SPEArea, SPEShift, areaToPE);
     }
 
+    // Initialize the rise time calculator tool
+    auto const rise_alg_pset = pset.get_if_present<fhicl::ParameterSet>("RiseTimeCalculator");
+
     // Initialize the hit finder algorithm
     auto const hit_alg_pset = pset.get<fhicl::ParameterSet>("HitAlgoPset");
     std::string threshAlgName = hit_alg_pset.get<std::string>("Name");
     if (threshAlgName == "Threshold")
-      fThreshAlg = new pmtana::AlgoThreshold(hit_alg_pset);
+      fThreshAlg = thresholdAlgorithm<pmtana::AlgoThreshold>(hit_alg_pset, rise_alg_pset);
     else if (threshAlgName == "SiPM")
-      fThreshAlg = new pmtana::AlgoSiPM(hit_alg_pset);
+      fThreshAlg = thresholdAlgorithm<pmtana::AlgoSiPM>(hit_alg_pset, rise_alg_pset);
     else if (threshAlgName == "SlidingWindow")
-      fThreshAlg = new pmtana::AlgoSlidingWindow(hit_alg_pset);
+      fThreshAlg = thresholdAlgorithm<pmtana::AlgoSlidingWindow>(hit_alg_pset, rise_alg_pset);
     else if (threshAlgName == "FixedWindow")
-      fThreshAlg = new pmtana::AlgoFixedWindow(hit_alg_pset);
+      fThreshAlg = thresholdAlgorithm<pmtana::AlgoFixedWindow>(hit_alg_pset, rise_alg_pset);
     else if (threshAlgName == "CFD")
-      fThreshAlg = new pmtana::AlgoCFD(hit_alg_pset);
+      fThreshAlg = thresholdAlgorithm<pmtana::AlgoCFD>(hit_alg_pset, rise_alg_pset);
     else
       throw art::Exception(art::errors::UnimplementedFeature)
         << "Cannot find implementation for " << threshAlgName << " algorithm.\n";
 
+    // Initialize the pedestal estimation algorithm
     auto const ped_alg_pset = pset.get<fhicl::ParameterSet>("PedAlgoPset");
     std::string pedAlgName = ped_alg_pset.get<std::string>("Name");
     if (pedAlgName == "Edges")
@@ -210,7 +227,7 @@ namespace opdet {
                    fHitThreshold,
                    clock_data,
                    calibrator,
-		   fUseStartTime);
+                   fUseStartTime);
     }
     else {
 
@@ -247,7 +264,7 @@ namespace opdet {
                    fHitThreshold,
                    clock_data,
                    calibrator,
-		   fUseStartTime);
+                   fUseStartTime);
     }
     // Store results into the event
     evt.put(std::move(HitPtr));
