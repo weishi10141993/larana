@@ -67,30 +67,11 @@ namespace opreco {
     //matching functions
     void match_flashes_to_tracks(std::vector<recob::OpFlash> const&,
                                  std::vector<recob::Track> const&);
-    void compare_track_and_flash(recob::Track const&, recob::OpFlash const&, bool&);
 
     void match_flashes_to_particles(std::vector<recob::OpFlash> const&,
                                     std::vector<simb::MCParticle> const&,
                                     float const&,
                                     geo::Geometry const&);
-    void compare_particle_and_flash(simb::MCParticle const&,
-                                    recob::OpFlash const&,
-                                    bool&,
-                                    float const&,
-                                    geo::Geometry const&);
-
-    void match_flashes_to_particles(std::vector<recob::Track> const&,
-                                    std::vector<simb::MCParticle> const&,
-                                    geo::Geometry const&);
-    void compare_particle_and_track(simb::MCParticle const&,
-                                    recob::Track const&,
-                                    bool&,
-                                    geo::Geometry const&);
-
-    void FillMatchTree_PF(std::vector<recob::OpFlash> const&,
-                          std::vector<simb::MCParticle> const&,
-                          float const&,
-                          geo::Geometry const&);
 
     TH1F* fTimeDiff;
     TH1F* fTimeDiff_fine;
@@ -222,16 +203,6 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
 
   MF_LOG_INFO("OpticalRecoAna") << "Number of flashes is " << flash_vector.size() << std::flush;
 
-  //art::Handle< std::vector<recob::Track> > track_handle;
-  //evt.getByLabel(fTrackModuleLabel, track_handle);
-  //std::vector<recob::Track> const& track_vector(*track_handle);
-  //fTrack_match_vector.resize(track_vector.size());
-
-  //MF_LOG_INFO ("OpticalRecoAna")
-  //<< "Number of tracks is " << track_vector.size() << std::flush;
-
-  //match_flashes_to_tracks(flash_vector, track_vector);
-
   //all this for the MC matching
   if (is_MC) {
 
@@ -248,21 +219,11 @@ void opreco::OpticalRecoAna::analyze(const art::Event& evt)
     art::ServiceHandle<geo::Geometry const> geometry_handle;
 
     match_flashes_to_particles(flash_vector, particle_list, ns_per_PMT_tick, *geometry_handle);
-    /*
-    FillMatchTree_PF(flash_vector,
-		     particle_list,
-		     ns_per_PMT_tick,
-		     *geometry_handle);
-		     */
     int n_flashes = 0;
     for (auto const& my_flash : flash_vector) {
       if (my_flash.OnBeamTime() == 1) n_flashes++;
     }
     fNBeamFlashes->Fill(n_flashes);
-
-    //check_flash_matches();
-
-    //match_tracks_to_particles(track_handle,particle_list);
   }
 }
 
@@ -279,11 +240,6 @@ void opreco::OpticalRecoAna::get_MC_particle_list(sim::ParticleList const& plist
   for (sim::ParticleList::const_iterator ipart = plist.begin(); ipart != plist.end(); ++ipart) {
 
     const simb::MCParticle* particle = (*ipart).second;
-    /*
-    std::cout << "Particle " << particle_vector.size() << " (" << (*ipart).first << ") is " << particle->PdgCode() << " (mother=" << particle->Mother()
-		<< ") with K_energy " << particle->E()-0.001*particle->Mass() << std::endl;
-      std::cout << "\t(X,Y,Z,T)=(" << particle->Vx() << "," << particle->Vy() << "," << particle->Vz() << "," << particle->T() << ")" << std::endl;
-    */
     //do not store if it's below our energy cut
     if (particle->E() < 0.001 * particle->Mass() + fKineticEnergyMin) continue;
 
@@ -303,9 +259,6 @@ void opreco::OpticalRecoAna::get_MC_particle_list(sim::ParticleList const& plist
         || pdg == 3334 //omega
     ) {
       particle_vector.emplace_back(*particle);
-      //std::cout << "Particle " << particle_vector.size() << " (" << (*ipart).first << ") is " << pdg << " (status=" << particle->StatusCode()
-      //	<< ") with K_energy " << particle->E()-0.001*particle->Mass() << std::endl;
-      //std::cout << "\t(X,Y,Z,T)=(" << particle->Vx() << "," << particle->Vy() << "," << particle->Vz() << "," << particle->T() << ")" << std::endl;
     }
   }
 }
@@ -317,19 +270,16 @@ float opreco::OpticalRecoAna::update_MC_particle_time(simb::MCParticle const& pa
 
   pass_check = false;
 
-  unsigned int tpc = 0;
-  unsigned int cstat = 0;
-
   const size_t numtraj = particle.NumberTrajectoryPoints();
   size_t t_iter = 0;
   while (t_iter < numtraj) {
     try {
       // check if the particle is inside a TPC
-      double pos[3] = {particle.Vx(t_iter), particle.Vy(t_iter), particle.Vz(t_iter)};
-      geometry.PositionToTPC(pos, tpc, cstat);
+      geo::Point_t const pos{particle.Vx(t_iter), particle.Vy(t_iter), particle.Vz(t_iter)};
+      geometry.PositionToTPC(pos);
     }
     catch (cet::exception& e) {
-      t_iter++;
+      ++t_iter;
       continue;
     }
     break;
@@ -341,46 +291,12 @@ float opreco::OpticalRecoAna::update_MC_particle_time(simb::MCParticle const& pa
   return particle.T(t_iter);
 }
 
-void opreco::OpticalRecoAna::match_flashes_to_tracks(
-  std::vector<recob::OpFlash> const& flash_vector,
-  std::vector<recob::Track> const& track_vector)
-{
-  bool matching = false;
-
-  for (size_t i_flash = 0; i_flash < flash_vector.size(); i_flash++) {
-
-    recob::OpFlash const& my_flash(flash_vector.at(i_flash));
-    if (my_flash.TotalPE() < fPEMin) continue;
-
-    for (size_t i_track = 0; i_track < track_vector.size(); i_track++) {
-
-      recob::Track const& my_track(track_vector.at(i_track));
-
-      matching = false;
-      compare_track_and_flash(my_track, my_flash, matching);
-      if (matching) {
-        fFlash_match_vector.at(i_flash).track_indices.push_back(i_track);
-        fTrack_match_vector.at(i_track).flash_indices.push_back(i_flash);
-      }
-
-    } //end inner loop over tracks
-
-  } //end loop over flashes
-
-} //end match_flashes_to_tracks
-
-void opreco::OpticalRecoAna::compare_track_and_flash(recob::Track const& track,
-                                                     recob::OpFlash const& flash,
-                                                     bool& matching)
-{}
-
 void opreco::OpticalRecoAna::match_flashes_to_particles(
   std::vector<recob::OpFlash> const& flash_vector,
   std::vector<simb::MCParticle> const& particle_vector,
   float const& ns_per_PMT_tick,
   geo::Geometry const& geometry)
 {
-
   fMatchIndex = 0;
   fMatchIndex_NotNu = 0;
   int lastFlashID = -1;
@@ -392,17 +308,12 @@ void opreco::OpticalRecoAna::match_flashes_to_particles(
     const float particle_time = update_MC_particle_time(my_particle, pass_check, geometry);
     if (!pass_check) continue;
 
-    //std::cout << "Particle " << i_particle << " (" << my_particle.PdgCode() << ")" << particle_time << std::endl;
-
     for (size_t i_flash = 0; i_flash < flash_vector.size(); i_flash++) {
 
       recob::OpFlash const& my_flash(flash_vector.at(i_flash));
       if (my_flash.TotalPE() < fPEMin) continue;
 
       const float flash_time = my_flash.Time() * ns_per_PMT_tick;
-
-      //if(my_flash.OnBeamTime())
-      //std::cout << "\tFlash " << i_flash << " time is " << flash_time << std::endl;
 
       fTimeDiff->Fill(particle_time - flash_time);
       fTimeDiff_fine->Fill(particle_time - flash_time);
@@ -434,12 +345,6 @@ void opreco::OpticalRecoAna::match_flashes_to_particles(
         fMatchTree_PF->Fill();
         fMatchIndex++;
 
-        //std::cout << "\t\tParticle (x,y,z)=(" << my_particle.Vx() << "," << my_particle.Vy() << "," << my_particle.Vz() << std::endl;
-        //std::cout << "\t\tParticle PDG = " << my_particle.PdgCode() << " mother=" << my_particle.Mother() << std::endl;
-        //std::cout << "\t\tFlash (y,z) = ("
-        //	  << my_flash.YCenter() << " +/- " << my_flash.YWidth() << ","
-        //	  << my_flash.ZCenter() << " +/- " << my_flash.ZWidth() << std::endl;
-
         fFlash_match_vector.at(i_flash).particle_indices.push_back(i_particle);
         fParticle_match_vector.at(i_particle).flash_indices.push_back(i_flash);
       }
@@ -456,84 +361,3 @@ void opreco::OpticalRecoAna::match_flashes_to_particles(
   } //end loop over flashes
 
 } //end match_flashes_to_particles
-
-void opreco::OpticalRecoAna::FillMatchTree_PF(std::vector<recob::OpFlash> const& flash_vector,
-                                              std::vector<simb::MCParticle> const& particle_vector,
-                                              float const& ns_per_PMT_tick,
-                                              geo::Geometry const& geometry)
-{
-
-  for (size_t i_flash = 0; i_flash < flash_vector.size(); i_flash++) {
-
-    recob::OpFlash const& my_flash(flash_vector.at(i_flash));
-    const float flash_time = my_flash.Time() * ns_per_PMT_tick;
-
-    for (auto i_particle : fFlash_match_vector.at(i_flash).particle_indices) {
-
-      simb::MCParticle const& my_particle(particle_vector.at(i_particle));
-      bool pass_check = false;
-      const float particle_time = update_MC_particle_time(my_particle, pass_check, geometry);
-
-      if (my_particle.Mother() == 0 && my_particle.TrackId() > 1e4) {
-
-        fParticleID = i_particle;
-        fParticleTime = particle_time;
-        fParticleVx = my_particle.Vx(0);
-        fParticleVy = my_particle.Vy(0);
-        fParticleVz = my_particle.Vz(0);
-        fFlashID = i_flash;
-        fFlashTime = flash_time;
-        fFlashY = my_flash.YCenter();
-        fFlashZ = my_flash.ZCenter();
-        fFlashYWidth = my_flash.YWidth();
-        fFlashZWidth = my_flash.ZWidth();
-
-        fMatchTree_PF->Fill();
-
-        return;
-      }
-    }
-  }
-}
-
-//currently unused...
-void opreco::OpticalRecoAna::compare_particle_and_flash(simb::MCParticle const& particle,
-                                                        recob::OpFlash const& flash,
-                                                        bool& matching,
-                                                        float const& ns_per_PMT_tick,
-                                                        geo::Geometry const& geometry)
-{}
-
-void opreco::OpticalRecoAna::match_flashes_to_particles(
-  std::vector<recob::Track> const& track_vector,
-  std::vector<simb::MCParticle> const& particle_vector,
-  geo::Geometry const& geometry)
-{
-  bool matching = false;
-
-  for (size_t i_track = 0; i_track < track_vector.size(); i_track++) {
-
-    recob::Track const& my_track(track_vector.at(i_track));
-
-    for (size_t i_particle = 0; i_particle < particle_vector.size(); i_particle++) {
-
-      simb::MCParticle const& my_particle(particle_vector.at(i_particle));
-
-      matching = false;
-      compare_particle_and_track(my_particle, my_track, matching, geometry);
-      if (matching) {
-        fTrack_match_vector.at(i_track).particle_indices.push_back(i_track);
-        fParticle_match_vector.at(i_particle).track_indices.push_back(i_track);
-      }
-
-    } //end inner loop over particles
-
-  } //end loop over tracks
-
-} //end match_tracks_to_particles
-
-void opreco::OpticalRecoAna::compare_particle_and_track(simb::MCParticle const& particle,
-                                                        recob::Track const& track,
-                                                        bool& matching,
-                                                        geo::Geometry const& geometry)
-{}

@@ -203,12 +203,11 @@ namespace opdet {
                 << std::endl;
     }
 
-    double CryoBounds[6];
-    geo->CryostatBoundaries(CryoBounds);
+    auto const CryoBounds = geo->Cryostat(0).Boundaries();
     std::cout << "Cryo Boundaries" << std::endl;
-    std::cout << "Xmin: " << CryoBounds[0] << " Xmax: " << CryoBounds[1]
-              << " Ymin: " << CryoBounds[2] << " Ymax: " << CryoBounds[3]
-              << " Zmin: " << CryoBounds[4] << " Zmax: " << CryoBounds[5] << std::endl;
+    std::cout << "Xmin: " << CryoBounds.MinX() << " Xmax: " << CryoBounds.MaxX()
+              << " Ymin: " << CryoBounds.MinY() << " Ymax: " << CryoBounds.MaxY()
+              << " Zmin: " << CryoBounds.MinZ() << " Zmax: " << CryoBounds.MaxZ() << std::endl;
 
     try {
       pi_serv = &*(art::ServiceHandle<cheat::ParticleInventoryService const>());

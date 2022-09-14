@@ -228,11 +228,11 @@ void trk::TrackContainmentAlg::ProcessTracks(
           for (auto const& i_tr : fTrackContainmentIndices[containment_level - 1]) {
 
             /*
-	      if(fDebug){
-		std::cout << "\t\t" << MinDistanceStartPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]) << std::endl;
-		std::cout << "\t\t" << MinDistanceEndPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]) << std::endl;
-	      }
-	      */
+              if(fDebug){
+                std::cout << "\t\t" << MinDistanceStartPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]) << std::endl;
+                std::cout << "\t\t" << MinDistanceEndPt(tracksVec[i_tc][i_t],tracksVec[i_tr.first][i_tr.second]) << std::endl;
+              }
+              */
 
             if (MinDistanceStartPt(tracksVec[i_tc][i_t], tracksVec[i_tr.first][i_tr.second]) <
                 fMinDistances[i_tc][i_t])
@@ -314,23 +314,22 @@ void trk::TrackContainmentAlg::ProcessTracks(
         std::cout << "Track (" << i_tc << "," << i_t << ")"
                   << " " << fTrackContainmentLevel[i_tc][i_t] << " " << fMinDistances[i_tc][i_t]
                   << std::endl;
-        std::cout << "\tS_(X,Y,Z) = (" << tracksVec[i_tc][i_t].Vertex().X() << ","
-                  << tracksVec[i_tc][i_t].Vertex().Y() << "," << tracksVec[i_tc][i_t].Vertex().Z()
-                  << ")" << std::endl;
+        auto const& vertex = tracksVec[i_tc][i_t].Vertex();
+        std::cout << "\tS_(X,Y,Z) = (" << vertex.X() << "," << vertex.Y() << "," << vertex.Z()
+                  << ")\n";
         std::cout << "\tNearest wire ..." << std::endl;
-        for (size_t i_p = 0; i_p < geo.Nplanes(); ++i_p)
+        for (unsigned int i_p = 0; i_p < geo.Nplanes(); ++i_p)
           std::cout << "\t\tPlane " << i_p << " "
-                    << geo.NearestWireID(tracksVec[i_tc][i_t].Vertex(), i_p).Wire << std::endl;
-        std::cout << "\tE_(X,Y,Z) = (" << tracksVec[i_tc][i_t].End().X() << ","
-                  << tracksVec[i_tc][i_t].End().Y() << "," << tracksVec[i_tc][i_t].End().Z() << ")"
-                  << std::endl;
+                    << geo.NearestWireID(vertex, geo::PlaneID{0, 0, i_p}).Wire << std::endl;
+
+        auto const& end = tracksVec[i_tc][i_t].End();
+        std::cout << "\tE_(X,Y,Z) = (" << end.X() << "," << end.Y() << "," << end.Z() << ")\n";
         std::cout << "\tNearest wire ..." << std::endl;
-        for (size_t i_p = 0; i_p < geo.Nplanes(); ++i_p)
+        for (unsigned int i_p = 0; i_p < geo.Nplanes(); ++i_p)
           std::cout << "\t\tPlane " << i_p << " "
-                    << geo.NearestWireID(tracksVec[i_tc][i_t].End(), i_p).Wire << std::endl;
+                    << geo.NearestWireID(end, geo::PlaneID{0, 0, i_p}).Wire << std::endl;
         std::cout << "\tLength=" << tracksVec[i_tc][i_t].Length() << std::endl;
-        std::cout << "\tSimple_length="
-                  << (tracksVec[i_tc][i_t].End() - tracksVec[i_tc][i_t].Vertex()).R() << std::endl;
+        std::cout << "\tSimple_length=" << (end - vertex).R() << std::endl;
       } //end debug statements if track contained
 
     } //end loops over tracks
