@@ -14,25 +14,25 @@
 
 class TVector3;
 
-namespace opdet{
+namespace opdet {
 
   class FlashHypothesis;
 
-  class FlashHypothesisCalculator{
+  class FlashHypothesisCalculator {
 
   public:
+    FlashHypothesisCalculator() {}
 
-    FlashHypothesisCalculator(){}
-
-    std::vector<double> SegmentMidpoint(const TVector3 &pt1, const TVector3 &pt2, float XOffset=0);
+    std::vector<double> SegmentMidpoint(const TVector3& pt1,
+                                        const TVector3& pt2,
+                                        float XOffset = 0);
     void FillFlashHypothesis(const float& yield,
-			     const float& dEdx,
-			     const TVector3& pt1,
-			     const TVector3& pt2,
-			     const std::vector<float>& qe_vector,
-			     phot::MappedCounts_t const& vis_vector,
-			     FlashHypothesis& hyp);
-
+                             const float& dEdx,
+                             const TVector3& pt1,
+                             const TVector3& pt2,
+                             const std::vector<float>& qe_vector,
+                             phot::MappedCounts_t const& vis_vector,
+                             FlashHypothesis& hyp);
   };
 
 }

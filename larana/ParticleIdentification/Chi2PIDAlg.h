@@ -8,10 +8,12 @@
 #ifndef CHI2PIDALG_H
 #define CHI2PIDALG_H
 
-#include <string>
 #include <bitset>
+#include <string>
 
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 #include "canvas/Persistency/Common/Ptr.h"
 
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
@@ -28,9 +30,8 @@ namespace pid {
   class Chi2PIDAlg {
 
   public:
-
     Chi2PIDAlg(fhicl::ParameterSet const& pset);
-    
+
     /**
      * Helper function to go from geo::PlaneID to a bitset
      */
@@ -39,17 +40,16 @@ namespace pid {
     anab::ParticleID DoParticleID(const std::vector<art::Ptr<anab::Calorimetry>>& calo);
 
   private:
-
     std::string fTemplateFile;
-    bool        fUseMedian;
+    bool fUseMedian;
     //std::string fCalorimetryModuleLabel;
     std::string fROOTfile;
 
-    TProfile *dedx_range_pro;   ///< proton template
-    TProfile *dedx_range_ka;    ///< kaon template
-    TProfile *dedx_range_pi;    ///< pion template
-    TProfile *dedx_range_mu;    ///< muon template
+    TProfile* dedx_range_pro; ///< proton template
+    TProfile* dedx_range_ka;  ///< kaon template
+    TProfile* dedx_range_pi;  ///< pion template
+    TProfile* dedx_range_mu;  ///< muon template
 
-  };//
-}// namespace
+  }; //
+} // namespace
 #endif // CHI2PIDALG_H

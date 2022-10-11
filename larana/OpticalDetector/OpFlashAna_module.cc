@@ -246,8 +246,7 @@ namespace opdet {
   }
 
   //-----------------------------------------------------------------------
-  void
-  OpFlashAna::analyze(const art::Event& evt)
+  void OpFlashAna::analyze(const art::Event& evt)
   {
 
     // Get flashes from event

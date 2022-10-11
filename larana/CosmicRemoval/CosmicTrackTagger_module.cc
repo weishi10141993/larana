@@ -16,8 +16,8 @@
 
 #include <iostream>
 
-#include "larcore/Geometry/Geometry.h"
 #include "larcore/CoreUtils/ServiceUtil.h"
+#include "larcore/Geometry/Geometry.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/Track.h"
 
@@ -78,8 +78,7 @@ cosmic::CosmicTrackTagger::CosmicTrackTagger(fhicl::ParameterSet const& p) : EDP
   produces<art::Assns<recob::Track, anab::CosmicTag>>();
 }
 
-void
-cosmic::CosmicTrackTagger::produce(art::Event& e)
+void cosmic::CosmicTrackTagger::produce(art::Event& e)
 {
   // Implementation of required member function here.
 

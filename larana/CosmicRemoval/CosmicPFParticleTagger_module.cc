@@ -22,8 +22,8 @@
 
 #include <iterator>
 
-#include "larcore/Geometry/Geometry.h"
 #include "larcore/CoreUtils/ServiceUtil.h"
+#include "larcore/Geometry/Geometry.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"
@@ -89,8 +89,7 @@ cosmic::CosmicPFParticleTagger::CosmicPFParticleTagger(fhicl::ParameterSet const
   produces<art::Assns<recob::PFParticle, anab::CosmicTag>>();
 }
 
-void
-cosmic::CosmicPFParticleTagger::produce(art::Event& evt)
+void cosmic::CosmicPFParticleTagger::produce(art::Event& evt)
 {
   // Instatiate the output
   std::unique_ptr<std::vector<anab::CosmicTag>> cosmicTagTrackVector(

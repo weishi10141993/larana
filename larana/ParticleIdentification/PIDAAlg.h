@@ -13,40 +13,42 @@
 #include <string>
 #include <vector>
 
-namespace fhicl { class ParameterSet; }
-namespace anab { class Calorimetry; }
+namespace fhicl {
+  class ParameterSet;
+}
+namespace anab {
+  class Calorimetry;
+}
 
 class TH1F;
 class TTree;
 
-namespace util{
+namespace util {
   class NormalDistribution;
 }
 
-class util::NormalDistribution{
+class util::NormalDistribution {
 
- public:
+public:
   NormalDistribution() {}
-  NormalDistribution(float,float);
+  NormalDistribution(float, float);
 
   float getValue(float);
 
- private:
+private:
   float fStepSize;
   float fMaxSigma;
   std::vector<float> fValues;
-
-
 };
 
-namespace pid{
+namespace pid {
   class PIDAAlg;
 }
 
-const unsigned int MAX_BANDWIDTHS=100;
+const unsigned int MAX_BANDWIDTHS = 100;
 
-class pid::PIDAAlg{
- public:
+class pid::PIDAAlg {
+public:
   PIDAAlg(fhicl::ParameterSet const& p);
 
   void RunPIDAAlg(std::vector<float> const&, std::vector<float> const&);
@@ -68,11 +70,10 @@ class pid::PIDAAlg{
 
   void setExponentConstant(float const& ex) { fExponentConstant = ex; }
 
-  void SetPIDATree(TTree*,TH1F*,std::vector<TH1F*>);
+  void SetPIDATree(TTree*, TH1F*, std::vector<TH1F*>);
   void FillPIDATree(unsigned int, unsigned int, unsigned int, anab::Calorimetry const&);
 
- private:
-
+private:
   const float fPIDA_BOGUS;
 
   float fExponentConstant;
@@ -92,7 +93,7 @@ class pid::PIDAAlg{
 
   void calculatePIDAMean();
   void calculatePIDASigma();
-  void calculatePIDAIntegral(std::map<double,double> const&);
+  void calculatePIDAIntegral(std::map<double, double> const&);
 
   void ClearInternalData();
 
@@ -105,25 +106,25 @@ class pid::PIDAAlg{
   std::vector<float> fpida_kde_b;
 
   //this is only for making a histogram later ...
-  std::vector< std::vector<float> > fkde_distribution;
+  std::vector<std::vector<float>> fkde_distribution;
   std::vector<float> fkde_dist_min;
   std::vector<float> fkde_dist_max;
 
   util::NormalDistribution fnormalDist;
 
-  TTree*         fPIDATree;
-  TH1F*          hPIDAvalues;
-  TH1F*          hPIDAKDE[MAX_BANDWIDTHS];
-  unsigned int   fPIDAHistNbins;
-  float          fPIDAHistMin;
-  float          fPIDAHistMax;
-  typedef struct PIDAProperties{
+  TTree* fPIDATree;
+  TH1F* hPIDAvalues;
+  TH1F* hPIDAKDE[MAX_BANDWIDTHS];
+  unsigned int fPIDAHistNbins;
+  float fPIDAHistMin;
+  float fPIDAHistMax;
+  typedef struct PIDAProperties {
     unsigned int run;
     unsigned int event;
     unsigned int calo_index;
     unsigned int planeid;
-    float        trk_range;
-    float        calo_KE;
+    float trk_range;
+    float calo_KE;
 
     unsigned int n_pid_pts;
     float mean;
@@ -137,13 +138,14 @@ class pid::PIDAAlg{
     float kde_fwhm[MAX_BANDWIDTHS];
 
     std::string leaf_structure;
-    PIDAProperties():
-    leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_pid_pts/i:mean/F:sigma/F:integral_dedx/F:integral_pida/F"){}
+    PIDAProperties()
+      : leaf_structure("run/i:event/i:calo_index/i:planeid/i:trk_range/F:calo_KE/F:n_pid_pts/"
+                       "i:mean/F:sigma/F:integral_dedx/F:integral_pida/F")
+    {}
 
   } PIDAProperties_t;
   PIDAProperties_t fPIDAProperties;
   void FillPIDAProperties(unsigned int, unsigned int, unsigned int, anab::Calorimetry const&);
-
 };
 
 #endif

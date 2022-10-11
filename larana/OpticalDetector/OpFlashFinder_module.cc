@@ -79,8 +79,7 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  OpFlashFinder::produce(art::Event& evt)
+  void OpFlashFinder::produce(art::Event& evt)
   {
     // These are the storage pointers we will put in the event
     auto flashPtr = std::make_unique<std::vector<recob::OpFlash>>();

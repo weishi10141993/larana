@@ -12,30 +12,30 @@
 */
 #include <vector>
 
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
-namespace cosmic{
+namespace cosmic {
   class HitTagAssociatorAlg;
 }
 
-class cosmic::HitTagAssociatorAlg{
- public:
+class cosmic::HitTagAssociatorAlg {
+public:
   HitTagAssociatorAlg(fhicl::ParameterSet const& p);
 
   //possiblity of multiple tags per bridge object
-  void MakeHitTagAssociations(std::vector< std::vector<size_t> > const& bridges_per_hit,
-			      std::vector< std::vector<size_t> > const& tags_per_bridges,
-			      std::vector< std::vector<size_t> >& tags_per_hit);
+  void MakeHitTagAssociations(std::vector<std::vector<size_t>> const& bridges_per_hit,
+                              std::vector<std::vector<size_t>> const& tags_per_bridges,
+                              std::vector<std::vector<size_t>>& tags_per_hit);
 
   //exactly one tag per bridge object
-  void MakeHitTagAssociations(std::vector< std::vector<size_t> > const& bridges_per_hit,
-			      std::vector<size_t> const& tag_per_bridge,
-			      std::vector< std::vector<size_t> >& tags_per_hit);
+  void MakeHitTagAssociations(std::vector<std::vector<size_t>> const& bridges_per_hit,
+                              std::vector<size_t> const& tag_per_bridge,
+                              std::vector<std::vector<size_t>>& tags_per_hit);
 
- private:
-
+private:
   //anything need to be private?
-
 };
 
 #endif

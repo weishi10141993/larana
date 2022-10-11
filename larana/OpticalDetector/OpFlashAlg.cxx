@@ -31,8 +31,7 @@
 namespace opdet {
 
   //----------------------------------------------------------------------------
-  void
-  writeHistogram(std::vector<double> const& binned)
+  void writeHistogram(std::vector<double> const& binned)
   {
     TH1D* binned_histogram = new TH1D("binned_histogram",
                                       "Collection of All OpHits;Time (ms);PEs",
@@ -50,8 +49,7 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  checkOnBeamFlash(std::vector<recob::OpFlash> const& FlashVector)
+  void checkOnBeamFlash(std::vector<recob::OpFlash> const& FlashVector)
   {
     for (auto const& flash : FlashVector)
       if (flash.OnBeamTime() == 1)
@@ -59,16 +57,15 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  RunFlashFinder(std::vector<recob::OpHit> const& HitVector,
-                 std::vector<recob::OpFlash>& FlashVector,
-                 std::vector<std::vector<int>>& AssocList,
-                 double const BinWidth,
-                 geo::GeometryCore const& geom,
-                 float const FlashThreshold,
-                 float const WidthTolerance,
-                 detinfo::DetectorClocksData const& ClocksData,
-                 float const TrigCoinc)
+  void RunFlashFinder(std::vector<recob::OpHit> const& HitVector,
+                      std::vector<recob::OpFlash>& FlashVector,
+                      std::vector<std::vector<int>>& AssocList,
+                      double const BinWidth,
+                      geo::GeometryCore const& geom,
+                      float const FlashThreshold,
+                      float const WidthTolerance,
+                      detinfo::DetectorClocksData const& ClocksData,
+                      float const TrigCoinc)
   {
     // Initial size for accumulators - will be automatically extended if needed
     int initialsize = 6400;
@@ -168,24 +165,22 @@ namespace opdet {
   } // End RunFlashFinder
 
   //----------------------------------------------------------------------------
-  unsigned int
-  GetAccumIndex(double const PeakTime,
-                double const MinTime,
-                double const BinWidth,
-                double const BinOffset)
+  unsigned int GetAccumIndex(double const PeakTime,
+                             double const MinTime,
+                             double const BinWidth,
+                             double const BinOffset)
   {
     return static_cast<unsigned int>((PeakTime - MinTime + BinOffset) / BinWidth);
   }
 
   //----------------------------------------------------------------------------
-  void
-  FillAccumulator(unsigned int const& AccumIndex,
-                  unsigned int const& HitIndex,
-                  double const PE,
-                  float const FlashThreshold,
-                  std::vector<double>& Binned,
-                  std::vector<std::vector<int>>& Contributors,
-                  std::vector<int>& FlashesInAccumulator)
+  void FillAccumulator(unsigned int const& AccumIndex,
+                       unsigned int const& HitIndex,
+                       double const PE,
+                       float const FlashThreshold,
+                       std::vector<double>& Binned,
+                       std::vector<std::vector<int>>& Contributors,
+                       std::vector<int>& FlashesInAccumulator)
   {
 
     Contributors.at(AccumIndex).push_back(HitIndex);
@@ -198,8 +193,7 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  FillFlashesBySizeMap(
+  void FillFlashesBySizeMap(
     std::vector<int> const& FlashesInAccumulator,
     std::vector<double> const& BinnedPE,
     int const& Accumulator,
@@ -210,11 +204,10 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  FillHitsThisFlash(std::vector<std::vector<int>> const& Contributors,
-                    int const& Bin,
-                    std::vector<int> const& HitClaimedByFlash,
-                    std::vector<int>& HitsThisFlash)
+  void FillHitsThisFlash(std::vector<std::vector<int>> const& Contributors,
+                         int const& Bin,
+                         std::vector<int> const& HitClaimedByFlash,
+                         std::vector<int>& HitsThisFlash)
   {
     // For each hit in the flash
     for (auto const& HitIndex : Contributors.at(Bin))
@@ -223,12 +216,11 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  ClaimHits(std::vector<recob::OpHit> const& HitVector,
-            std::vector<int> const& HitsThisFlash,
-            float const FlashThreshold,
-            std::vector<std::vector<int>>& HitsPerFlash,
-            std::vector<int>& HitClaimedByFlash)
+  void ClaimHits(std::vector<recob::OpHit> const& HitVector,
+                 std::vector<int> const& HitsThisFlash,
+                 float const FlashThreshold,
+                 std::vector<std::vector<int>>& HitsPerFlash,
+                 std::vector<int>& HitClaimedByFlash)
   {
     // Check for newly claimed hits
     double PE = 0;
@@ -246,16 +238,15 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  AssignHitsToFlash(std::vector<int> const& FlashesInAccumulator1,
-                    std::vector<int> const& FlashesInAccumulator2,
-                    std::vector<double> const& Binned1,
-                    std::vector<double> const& Binned2,
-                    std::vector<std::vector<int>> const& Contributors1,
-                    std::vector<std::vector<int>> const& Contributors2,
-                    std::vector<recob::OpHit> const& HitVector,
-                    std::vector<std::vector<int>>& HitsPerFlash,
-                    float const FlashThreshold)
+  void AssignHitsToFlash(std::vector<int> const& FlashesInAccumulator1,
+                         std::vector<int> const& FlashesInAccumulator2,
+                         std::vector<double> const& Binned1,
+                         std::vector<double> const& Binned2,
+                         std::vector<std::vector<int>> const& Contributors1,
+                         std::vector<std::vector<int>> const& Contributors2,
+                         std::vector<recob::OpHit> const& HitVector,
+                         std::vector<std::vector<int>>& HitsPerFlash,
+                         float const FlashThreshold)
   {
     // Sort all the flashes found by size. The structure is:
     // FlashesBySize[flash size][accumulator_num] = [flash_index1, flash_index2...]
@@ -297,14 +288,13 @@ namespace opdet {
   } // End AssignHitsToFlash
 
   //----------------------------------------------------------------------------
-  void
-  FindSeedHit(std::map<double, std::vector<int>, std::greater<double>> const& HitsBySize,
-              std::vector<bool>& HitsUsed,
-              std::vector<recob::OpHit> const& HitVector,
-              std::vector<int>& HitsThisRefinedFlash,
-              double& PEAccumulated,
-              double& FlashMaxTime,
-              double& FlashMinTime)
+  void FindSeedHit(std::map<double, std::vector<int>, std::greater<double>> const& HitsBySize,
+                   std::vector<bool>& HitsUsed,
+                   std::vector<recob::OpHit> const& HitVector,
+                   std::vector<int>& HitsThisRefinedFlash,
+                   double& PEAccumulated,
+                   double& FlashMaxTime,
+                   double& FlashMinTime)
   {
     for (auto const& itHit : HitsBySize)
       for (auto const& HitID : itHit.second) {
@@ -327,15 +317,14 @@ namespace opdet {
   } // End FindSeedHit
 
   //----------------------------------------------------------------------------
-  void
-  AddHitToFlash(int const& HitID,
-                std::vector<bool>& HitsUsed,
-                recob::OpHit const& currentHit,
-                double const WidthTolerance,
-                std::vector<int>& HitsThisRefinedFlash,
-                double& PEAccumulated,
-                double& FlashMaxTime,
-                double& FlashMinTime)
+  void AddHitToFlash(int const& HitID,
+                     std::vector<bool>& HitsUsed,
+                     recob::OpHit const& currentHit,
+                     double const WidthTolerance,
+                     std::vector<int>& HitsThisRefinedFlash,
+                     double& PEAccumulated,
+                     double& FlashMaxTime,
+                     double& FlashMinTime)
   {
     if (HitsUsed.at(HitID)) return;
 
@@ -355,12 +344,11 @@ namespace opdet {
   } // End AddHitToFlash
 
   //----------------------------------------------------------------------------
-  void
-  CheckAndStoreFlash(std::vector<std::vector<int>>& RefinedHitsPerFlash,
-                     std::vector<int> const& HitsThisRefinedFlash,
-                     double const PEAccumulated,
-                     float const FlashThreshold,
-                     std::vector<bool>& HitsUsed)
+  void CheckAndStoreFlash(std::vector<std::vector<int>>& RefinedHitsPerFlash,
+                          std::vector<int> const& HitsThisRefinedFlash,
+                          double const PEAccumulated,
+                          float const FlashThreshold,
+                          std::vector<bool>& HitsUsed)
   {
     // If above threshold, we just add hits to the flash vector, and move on
     if (PEAccumulated >= FlashThreshold) {
@@ -380,12 +368,11 @@ namespace opdet {
   } // End CheckAndStoreFlash
 
   //----------------------------------------------------------------------------
-  void
-  RefineHitsInFlash(std::vector<int> const& HitsThisFlash,
-                    std::vector<recob::OpHit> const& HitVector,
-                    std::vector<std::vector<int>>& RefinedHitsPerFlash,
-                    float const WidthTolerance,
-                    float const FlashThreshold)
+  void RefineHitsInFlash(std::vector<int> const& HitsThisFlash,
+                         std::vector<recob::OpHit> const& HitVector,
+                         std::vector<std::vector<int>>& RefinedHitsPerFlash,
+                         float const WidthTolerance,
+                         float const FlashThreshold)
   {
     // Sort the hits by their size using map
     // HitsBySize[HitSize] = [hit1, hit2 ...]
@@ -452,15 +439,14 @@ namespace opdet {
   } // End RefineHitsInFlash
 
   //----------------------------------------------------------------------------
-  void
-  AddHitContribution(recob::OpHit const& currentHit,
-                     double& MaxTime,
-                     double& MinTime,
-                     double& AveTime,
-                     double& FastToTotal,
-                     double& AveAbsTime,
-                     double& TotalPE,
-                     std::vector<double>& PEs)
+  void AddHitContribution(recob::OpHit const& currentHit,
+                          double& MaxTime,
+                          double& MinTime,
+                          double& AveTime,
+                          double& FastToTotal,
+                          double& AveAbsTime,
+                          double& TotalPE,
+                          std::vector<double>& PEs)
   {
     double PEThisHit = currentHit.PE();
     double TimeThisHit = currentHit.PeakTime();
@@ -479,15 +465,14 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  GetHitGeometryInfo(recob::OpHit const& currentHit,
-                     geo::GeometryCore const& geom,
-                     std::vector<double>& sumw,
-                     std::vector<double>& sumw2,
-                     double& sumy,
-                     double& sumy2,
-                     double& sumz,
-                     double& sumz2)
+  void GetHitGeometryInfo(recob::OpHit const& currentHit,
+                          geo::GeometryCore const& geom,
+                          std::vector<double>& sumw,
+                          std::vector<double>& sumw2,
+                          double& sumy,
+                          double& sumy2,
+                          double& sumz,
+                          double& sumz2)
   {
     double xyz[3];
     geom.OpDetGeoFromOpChannel(currentHit.OpChannel()).GetCenter(xyz);
@@ -511,8 +496,7 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  double
-  CalculateWidth(double const sum, double const sum_squared, double const weights_sum)
+  double CalculateWidth(double const sum, double const sum_squared, double const weights_sum)
   {
     if (sum_squared * weights_sum - sum * sum < 0)
       return 0;
@@ -521,13 +505,12 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  ConstructFlash(std::vector<int> const& HitsPerFlashVec,
-                 std::vector<recob::OpHit> const& HitVector,
-                 std::vector<recob::OpFlash>& FlashVector,
-                 geo::GeometryCore const& geom,
-                 detinfo::DetectorClocksData const& ClocksData,
-                 float const TrigCoinc)
+  void ConstructFlash(std::vector<int> const& HitsPerFlashVec,
+                      std::vector<recob::OpHit> const& HitVector,
+                      std::vector<recob::OpFlash>& FlashVector,
+                      geo::GeometryCore const& geom,
+                      detinfo::DetectorClocksData const& ClocksData,
+                      float const TrigCoinc)
   {
     double MaxTime = -std::numeric_limits<double>::max();
     double MinTime = std::numeric_limits<double>::max();
@@ -601,13 +584,12 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  double
-  GetLikelihoodLateLight(double const iPE,
-                         double const iTime,
-                         double const iWidth,
-                         double const jPE,
-                         double const jTime,
-                         double const jWidth)
+  double GetLikelihoodLateLight(double const iPE,
+                                double const iTime,
+                                double const iWidth,
+                                double const jPE,
+                                double const jTime,
+                                double const jWidth)
   {
     if (iTime > jTime) return 1e6;
 
@@ -619,10 +601,9 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  MarkFlashesForRemoval(std::vector<recob::OpFlash> const& FlashVector,
-                        size_t const BeginFlash,
-                        std::vector<bool>& MarkedForRemoval)
+  void MarkFlashesForRemoval(std::vector<recob::OpFlash> const& FlashVector,
+                             size_t const BeginFlash,
+                             std::vector<bool>& MarkedForRemoval)
   {
     for (size_t iFlash = BeginFlash; iFlash != FlashVector.size(); ++iFlash) {
 
@@ -647,11 +628,10 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  RemoveFlashesFromVectors(std::vector<bool> const& MarkedForRemoval,
-                           std::vector<recob::OpFlash>& FlashVector,
-                           size_t const BeginFlash,
-                           std::vector<std::vector<int>>& RefinedHitsPerFlash)
+  void RemoveFlashesFromVectors(std::vector<bool> const& MarkedForRemoval,
+                                std::vector<recob::OpFlash>& FlashVector,
+                                size_t const BeginFlash,
+                                std::vector<std::vector<int>>& RefinedHitsPerFlash)
   {
     for (int iFlash = MarkedForRemoval.size() - 1; iFlash != -1; --iFlash)
       if (MarkedForRemoval.at(iFlash)) {
@@ -661,9 +641,8 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  RemoveLateLight(std::vector<recob::OpFlash>& FlashVector,
-                  std::vector<std::vector<int>>& RefinedHitsPerFlash)
+  void RemoveLateLight(std::vector<recob::OpFlash>& FlashVector,
+                       std::vector<std::vector<int>>& RefinedHitsPerFlash)
   {
     std::vector<bool> MarkedForRemoval(RefinedHitsPerFlash.size(), false);
 
@@ -687,8 +666,7 @@ namespace opdet {
 
   //----------------------------------------------------------------------------
   template <typename T, typename Compare>
-  std::vector<int>
-  sort_permutation(std::vector<T> const& vec, int offset, Compare compare)
+  std::vector<int> sort_permutation(std::vector<T> const& vec, int offset, Compare compare)
   {
 
     std::vector<int> p(vec.size() - offset);
@@ -700,8 +678,7 @@ namespace opdet {
 
   //----------------------------------------------------------------------------
   template <typename T>
-  void
-  apply_permutation(std::vector<T>& vec, std::vector<int> const& p)
+  void apply_permutation(std::vector<T>& vec, std::vector<int> const& p)
   {
 
     std::vector<T> sorted_vec(p.size());

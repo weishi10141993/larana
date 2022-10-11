@@ -18,8 +18,7 @@
 #include "OpticalRecoTypes.h"
 #include <string>
 
-namespace pmtana
-{
+namespace pmtana {
 
   /**
    \class PMTPedestalBase
@@ -28,9 +27,8 @@ namespace pmtana
   class PMTPedestalBase {
 
   public:
-
     /// Default constructor
-    PMTPedestalBase(std::string name="noname");
+    PMTPedestalBase(std::string name = "noname");
 
     /// Default destructor
     virtual ~PMTPedestalBase();
@@ -54,17 +52,15 @@ namespace pmtana
     const pmtana::PedestalSigma_t& Sigma() const;
 
   protected:
-
     /**
        Method to compute pedestal: mean and sigma array should be filled per ADC.
        The length of each array is guaranteed to be same.
     */
-    virtual bool ComputePedestal( const ::pmtana::Waveform_t& wf,
-				  pmtana::PedestalMean_t&   mean_v,
-				  pmtana::PedestalSigma_t&  sigma_v) = 0;
+    virtual bool ComputePedestal(const ::pmtana::Waveform_t& wf,
+                                 pmtana::PedestalMean_t& mean_v,
+                                 pmtana::PedestalSigma_t& sigma_v) = 0;
 
   private:
-
     /// Name
     std::string _name;
 

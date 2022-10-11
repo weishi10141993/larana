@@ -19,8 +19,7 @@
 
 #include <vector>
 
-namespace pmtana
-{
+namespace pmtana {
 
   class PMTPedestalBase;
   class PMTPulseRecoBase;
@@ -34,7 +33,6 @@ namespace pmtana
   class PulseRecoManager {
 
   public:
-
     /// Default constructor
     PulseRecoManager();
 
@@ -42,19 +40,17 @@ namespace pmtana
     bool Reconstruct(const pmtana::Waveform_t&) const;
 
     /// A method to set pulse reconstruction algorithm
-    void AddRecoAlgo (pmtana::PMTPulseRecoBase* algo, PMTPedestalBase* ped_algo=nullptr);
+    void AddRecoAlgo(pmtana::PMTPulseRecoBase* algo, PMTPedestalBase* ped_algo = nullptr);
 
     /// A method to set a choice of pedestal estimation method
-    void SetDefaultPedAlgo (pmtana::PMTPedestalBase* algo);
+    void SetDefaultPedAlgo(pmtana::PMTPedestalBase* algo);
 
   private:
-
     /// pulse reconstruction algorithm pointer
-    std::vector<std::pair<pmtana::PMTPulseRecoBase*,pmtana::PMTPedestalBase*> > _reco_algo_v;
+    std::vector<std::pair<pmtana::PMTPulseRecoBase*, pmtana::PMTPedestalBase*>> _reco_algo_v;
 
     /// ped_estimator object
     PMTPedestalBase* _ped_algo;
-
   };
 }
 #endif

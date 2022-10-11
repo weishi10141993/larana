@@ -15,42 +15,42 @@
 
 #include "lardataobj/Simulation/SimPhotons.h"
 
-namespace geo { class GeometryCore; }
-namespace opdet { class OpDigiProperties; }
+namespace geo {
+  class GeometryCore;
+}
+namespace opdet {
+  class OpDigiProperties;
+}
 
 #include <vector>
 
-namespace opdet{
+namespace opdet {
 
-  class SimPhotonCounterAlg{
+  class SimPhotonCounterAlg {
 
   public:
     SimPhotonCounterAlg(fhicl::ParameterSet const&);
 
-    void InitializeCounters(geo::GeometryCore const&,
-			    opdet::OpDigiProperties const&);
+    void InitializeCounters(geo::GeometryCore const&, opdet::OpDigiProperties const&);
 
     void AddSimPhotonCollection(sim::SimPhotonsCollection const&);
     void AddSimPhotonsVector(std::vector<sim::SimPhotons> const&);
 
     void ClearCounters();
 
-    SimPhotonCounter   const& GetSimPhotonCounter(size_t);
+    SimPhotonCounter const& GetSimPhotonCounter(size_t);
     std::vector<float> const& PromptPhotonVector(size_t);
     std::vector<float> const& LatePhotonVector(size_t);
 
   private:
-
-    std::vector< std::vector<float> > fWavelengthRanges;
-    std::vector< std::vector<float> > fTimeRanges;
-    std::vector<SimPhotonCounter>     fCounters;
+    std::vector<std::vector<float>> fWavelengthRanges;
+    std::vector<std::vector<float>> fTimeRanges;
+    std::vector<SimPhotonCounter> fCounters;
 
     void FillAllRanges(std::vector<fhicl::ParameterSet> const&);
     void FillRanges(fhicl::ParameterSet const&);
-
   };
 
 }
-
 
 #endif

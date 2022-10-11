@@ -11,8 +11,12 @@
 
 #include "lardataobj/RecoBase/OpFlash.h"
 #include "lardataobj/RecoBase/OpHit.h"
-namespace detinfo { class DetectorClocksData; }
-namespace geo { class GeometryCore; }
+namespace detinfo {
+  class DetectorClocksData;
+}
+namespace geo {
+  class GeometryCore;
+}
 
 #include <functional>
 #include <map>

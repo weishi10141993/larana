@@ -9,46 +9,52 @@
 #include <iostream>
 #include <numeric>
 
-namespace pmtana{
+namespace pmtana {
 
   //*************************************************************************
-  PMTPulseRecoBase::PMTPulseRecoBase(const std::string name) : _name   (name)
-							     , _status (true)
+  PMTPulseRecoBase::PMTPulseRecoBase(const std::string name) : _name(name), _status(true)
   //*************************************************************************
-  { Reset(); }
+  {
+    Reset();
+  }
 
   //***********************************************
   const std::string& PMTPulseRecoBase::Name() const
   //***********************************************
-  { return _name; }
+  {
+    return _name;
+  }
 
   //*****************************************
   bool PMTPulseRecoBase::Status() const
   //*****************************************
-  { return _status; }
+  {
+    return _status;
+  }
 
   //******************************************************************
-  bool PMTPulseRecoBase::Reconstruct( const Waveform_t& wf,
-				      const PedestalMean_t& mean_v,
-				      const PedestalSigma_t& sigma_v )
+  bool PMTPulseRecoBase::Reconstruct(const Waveform_t& wf,
+                                     const PedestalMean_t& mean_v,
+                                     const PedestalSigma_t& sigma_v)
   //******************************************************************
   {
-    _status = this->RecoPulse(wf,mean_v,sigma_v);
+    _status = this->RecoPulse(wf, mean_v, sigma_v);
     return _status;
   }
 
   //*****************************************************************************
-  bool CheckIndex(const std::vector<short> &wf, const size_t &begin, size_t &end)
+  bool CheckIndex(const std::vector<short>& wf, const size_t& begin, size_t& end)
   //*****************************************************************************
   {
-    if(begin >= wf.size() || end >= wf.size() || begin > end){
+    if (begin >= wf.size() || end >= wf.size() || begin > end) {
 
-      std::cerr <<"Invalid arguments: waveform length = " << wf.size() << " begin = " << begin << " end = " << end << std::endl;
+      std::cerr << "Invalid arguments: waveform length = " << wf.size() << " begin = " << begin
+                << " end = " << end << std::endl;
 
       return false;
     }
 
-    if(!end) end = wf.size() - 1;
+    if (!end) end = wf.size() - 1;
 
     return true;
   }
@@ -69,18 +75,16 @@ namespace pmtana{
   //***************************************************************
   {
 
-    if(index >= _pulse_v.size()) {
+    if (index >= _pulse_v.size()) {
 
       std::cerr << "\033[93m"
-		<< "Invalid pulse index: " << index
-		<< "\033[00m"
-		<< std::endl;
+                << "Invalid pulse index: " << index << "\033[00m" << std::endl;
 
       throw std::exception();
     }
 
-    else return _pulse_v.at(index);
-
+    else
+      return _pulse_v.at(index);
   }
 
   //***************************************************************
@@ -91,14 +95,14 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool PMTPulseRecoBase::Integral(const std::vector<short> &wf,
-				  double &result,
-				  size_t begin,
-				  size_t end) const
+  bool PMTPulseRecoBase::Integral(const std::vector<short>& wf,
+                                  double& result,
+                                  size_t begin,
+                                  size_t end) const
   //***************************************************************
   {
 
-    if(!CheckIndex(wf,begin,end)) return false;
+    if (!CheckIndex(wf, begin, end)) return false;
 
     std::vector<short>::const_iterator begin_iter(wf.begin());
 
@@ -114,34 +118,33 @@ namespace pmtana{
   }
 
   //***************************************************************
-  bool PMTPulseRecoBase::Derivative(const std::vector<short> &wf,
-				    std::vector<int32_t> &diff,
-				    size_t begin,
-				    size_t end) const
+  bool PMTPulseRecoBase::Derivative(const std::vector<short>& wf,
+                                    std::vector<int32_t>& diff,
+                                    size_t begin,
+                                    size_t end) const
   //***************************************************************
   {
 
-    if(CheckIndex(wf,begin,end)){
+    if (CheckIndex(wf, begin, end)) {
 
       diff.clear();
       diff.reserve(end - begin);
 
-      for(size_t index = begin ; index <= end ; ++index)
+      for (size_t index = begin; index <= end; ++index)
 
-	diff.push_back(wf.at(index+1) - wf.at(index));
+        diff.push_back(wf.at(index + 1) - wf.at(index));
 
       return true;
     }
 
     return false;
-
   }
 
   //***************************************************************
-  size_t PMTPulseRecoBase::Max(const std::vector<short> &wf,
-			       double &result,
-			       size_t begin,
-			       size_t end) const
+  size_t PMTPulseRecoBase::Max(const std::vector<short>& wf,
+                               double& result,
+                               size_t begin,
+                               size_t end) const
   //***************************************************************
   {
 
@@ -149,23 +152,24 @@ namespace pmtana{
 
     result = 0;
 
-    if(CheckIndex(wf,begin,end)) {
+    if (CheckIndex(wf, begin, end)) {
 
-      for(size_t index = begin; index <= end; ++index)
+      for (size_t index = begin; index <= end; ++index)
 
-	if( result < wf.at(index)) { target_index = index; result = (double)(wf.at(index)); }
-
+        if (result < wf.at(index)) {
+          target_index = index;
+          result = (double)(wf.at(index));
+        }
     }
 
     return target_index;
-
   }
 
   //***************************************************************
-  size_t PMTPulseRecoBase::Min(const std::vector<short> &wf,
-			       double &result,
-			       size_t begin,
-			       size_t end) const
+  size_t PMTPulseRecoBase::Min(const std::vector<short>& wf,
+                               double& result,
+                               size_t begin,
+                               size_t end) const
   //***************************************************************
   {
 
@@ -173,15 +177,16 @@ namespace pmtana{
 
     result = 4096;
 
-    if(CheckIndex(wf,begin,end)) {
+    if (CheckIndex(wf, begin, end)) {
 
-      for(size_t index = begin; index <= end; ++index)
+      for (size_t index = begin; index <= end; ++index)
 
-	if( result > wf.at(index)) { target_index = index; result = (double)(wf.at(index)); }
-
+        if (result > wf.at(index)) {
+          target_index = index;
+          result = (double)(wf.at(index));
+        }
     }
 
     return target_index;
-
   }
 }

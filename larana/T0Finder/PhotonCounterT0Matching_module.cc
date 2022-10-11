@@ -179,8 +179,7 @@ lbne::PhotonCounterT0Matching::PhotonCounterT0Matching(fhicl::ParameterSet const
   fVerbosity = (p.get<bool>("Verbose", false));
 }
 
-void
-lbne::PhotonCounterT0Matching::beginJob()
+void lbne::PhotonCounterT0Matching::beginJob()
 {
   // Implementation of optional member function here.
   art::ServiceHandle<art::TFileService const> tfs;
@@ -273,13 +272,11 @@ lbne::PhotonCounterT0Matching::beginJob()
     1.6);
 }
 
-void
-lbne::PhotonCounterT0Matching::produce(art::Event& evt)
+void lbne::PhotonCounterT0Matching::produce(art::Event& evt)
 {
   // Access art services...
   art::ServiceHandle<geo::Geometry const> geom;
-  auto const clock_data =
-    art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
+  auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
   auto const detprop =
     art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataFor(evt, clock_data);
 
@@ -475,24 +472,23 @@ lbne::PhotonCounterT0Matching::produce(art::Event& evt)
 
 } // Produce
 // ----------------------------------------------------------------------------------------------------------------------------
-void
-lbne::PhotonCounterT0Matching::TrackProp(double TrackStart_X,
-                                         double TrackEnd_X,
-                                         double& TrackLength_X,
-                                         double& TrackCentre_X,
-                                         double TrackStart_Y,
-                                         double TrackEnd_Y,
-                                         double& TrackLength_Y,
-                                         double& TrackCentre_Y,
-                                         double TrackStart_Z,
-                                         double TrackEnd_Z,
-                                         double& TrackLength_Z,
-                                         double& TrackCentre_Z,
-                                         double trkTimeStart,
-                                         double trkTimeEnd,
-                                         double& trkTimeLengh,
-                                         double& trkTimeCentre,
-                                         double& TrackLength)
+void lbne::PhotonCounterT0Matching::TrackProp(double TrackStart_X,
+                                              double TrackEnd_X,
+                                              double& TrackLength_X,
+                                              double& TrackCentre_X,
+                                              double TrackStart_Y,
+                                              double TrackEnd_Y,
+                                              double& TrackLength_Y,
+                                              double& TrackCentre_Y,
+                                              double TrackStart_Z,
+                                              double TrackEnd_Z,
+                                              double& TrackLength_Z,
+                                              double& TrackCentre_Z,
+                                              double trkTimeStart,
+                                              double trkTimeEnd,
+                                              double& trkTimeLengh,
+                                              double& trkTimeCentre,
+                                              double& TrackLength)
 {
   ///Calculate central values for track X, Y, Z and time, as well as lengths and overall track length.
   TrackLength_X = fabs(TrackEnd_X - TrackStart_X);
@@ -523,13 +519,12 @@ lbne::PhotonCounterT0Matching::TrackProp(double TrackStart_X,
   return;
 }
 // ----------------------------------------------------------------------------------------------------------------------------
-double
-lbne::PhotonCounterT0Matching::DistFromPoint(double StartY,
-                                             double EndY,
-                                             double StartZ,
-                                             double EndZ,
-                                             double PointY,
-                                             double PointZ)
+double lbne::PhotonCounterT0Matching::DistFromPoint(double StartY,
+                                                    double EndY,
+                                                    double StartZ,
+                                                    double EndZ,
+                                                    double PointY,
+                                                    double PointZ)
 {
   ///Calculate the distance between the centre of the flash and the centre of a line connecting two adjacent space points.
   double Length = hypot(fabs(EndY - StartY), fabs(EndZ - StartZ));

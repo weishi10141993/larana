@@ -16,13 +16,14 @@
 #define ALGOTHRESHOLD_H
 
 #include "PMTPulseRecoBase.h"
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
 #include <string>
 
-namespace pmtana
-{
+namespace pmtana {
 
   /**
    \class AlgoThreshold
@@ -35,25 +36,23 @@ namespace pmtana
   class AlgoThreshold : public PMTPulseRecoBase {
 
   public:
-
     /// Default constructor
-    AlgoThreshold(const std::string name="AlgoThreshold");
+    AlgoThreshold(const std::string name = "AlgoThreshold");
 
     /// Alternative constructor
-    AlgoThreshold(const fhicl::ParameterSet &pset,
-      std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator=nullptr,
-      const std::string name="AlgoThreshold");
+    AlgoThreshold(const fhicl::ParameterSet& pset,
+                  std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator = nullptr,
+                  const std::string name = "AlgoThreshold");
     //AlgoThreshold(const ::fcllite::PSet &pset,const std::string name="AlgoThreshold");
 
     /// Implementation of AlgoThreshold::reset() method
     void Reset();
 
   protected:
-
     /// Implementation of AlgoThreshold::reco() method
     bool RecoPulse(const pmtana::Waveform_t& wf,
-		   const pmtana::PedestalMean_t& mean_v,
-		   const pmtana::PedestalSigma_t& sigma_v);
+                   const pmtana::PedestalMean_t& mean_v,
+                   const pmtana::PedestalSigma_t& sigma_v);
 
     /// A variable holder for a user-defined absolute ADC threshold value
     //double _adc_thres;
@@ -64,8 +63,6 @@ namespace pmtana
     //double _nsigma;
     double _nsigma_start;
     double _nsigma_end;
-
-
   };
 
 }

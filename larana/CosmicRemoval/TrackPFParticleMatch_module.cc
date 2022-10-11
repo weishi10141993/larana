@@ -24,83 +24,77 @@
 #include "lardataobj/RecoBase/PFParticle.h"
 #include "lardataobj/RecoBase/Track.h"
 
-namespace cosmic
-{
+namespace cosmic {
 
-class TrackPFParticleMatch : public art::EDProducer
-{
-public:
-    explicit TrackPFParticleMatch(fhicl::ParameterSet const & p);
+  class TrackPFParticleMatch : public art::EDProducer {
+  public:
+    explicit TrackPFParticleMatch(fhicl::ParameterSet const& p);
 
-    void produce(art::Event & e) override;
+    void produce(art::Event& e) override;
 
-private:
+  private:
     std::string fPFParticleModuleLabel;
     std::string fTrackModuleLabel;
-};
+  };
 
-
-TrackPFParticleMatch::TrackPFParticleMatch(fhicl::ParameterSet const & p)
-  : EDProducer{p}
-{
-    fPFParticleModuleLabel = p.get< std::string >("PFParticleModuleLabel");
-    fTrackModuleLabel      = p.get< std::string >("TrackModuleLabel", "track");
+  TrackPFParticleMatch::TrackPFParticleMatch(fhicl::ParameterSet const& p) : EDProducer{p}
+  {
+    fPFParticleModuleLabel = p.get<std::string>("PFParticleModuleLabel");
+    fTrackModuleLabel = p.get<std::string>("TrackModuleLabel", "track");
 
     // Call appropriate Produces<>() functions here.
-    produces< art::Assns<recob::Track, recob::PFParticle>>();
-}
+    produces<art::Assns<recob::Track, recob::PFParticle>>();
+  }
 
-void TrackPFParticleMatch::produce(art::Event & evt)
-{
+  void TrackPFParticleMatch::produce(art::Event& evt)
+  {
     // Instatiate the output
-    std::unique_ptr< art::Assns<recob::Track, recob::PFParticle > > trackPFParticleAssns( new art::Assns<recob::Track, recob::PFParticle>);
+    std::unique_ptr<art::Assns<recob::Track, recob::PFParticle>> trackPFParticleAssns(
+      new art::Assns<recob::Track, recob::PFParticle>);
 
     // Recover handle for PFParticles
-    art::Handle<std::vector<recob::PFParticle> > pfParticleHandle;
-    evt.getByLabel( fPFParticleModuleLabel, pfParticleHandle);
+    art::Handle<std::vector<recob::PFParticle>> pfParticleHandle;
+    evt.getByLabel(fPFParticleModuleLabel, pfParticleHandle);
 
     // Recover the clusters so we can do associations to the hits
     // In theory the clusters come from the same producer as the PFParticles
-    art::Handle<std::vector<recob::Cluster> > clusterHandle;
+    art::Handle<std::vector<recob::Cluster>> clusterHandle;
     evt.getByLabel(fPFParticleModuleLabel, clusterHandle);
 
-    if (!(pfParticleHandle.isValid() && clusterHandle.isValid()))
-    {
-        evt.put( std::move(trackPFParticleAssns) );
-        return;
+    if (!(pfParticleHandle.isValid() && clusterHandle.isValid())) {
+      evt.put(std::move(trackPFParticleAssns));
+      return;
     }
 
     // Recover the handle for the tracks
-    art::Handle<std::vector<recob::Track> > trackHandle;
-    evt.getByLabel( fTrackModuleLabel, trackHandle);
+    art::Handle<std::vector<recob::Track>> trackHandle;
+    evt.getByLabel(fTrackModuleLabel, trackHandle);
 
-    if (!trackHandle.isValid())
-    {
-        evt.put( std::move(trackPFParticleAssns) );
-        return;
+    if (!trackHandle.isValid()) {
+      evt.put(std::move(trackPFParticleAssns));
+      return;
     }
 
     // The strategy will be to build sets of maps which will enable us to go from hit to either Track or PFParticle
-    using HitToTrackMap = std::map<int, std::vector<art::Ptr<recob::Track>>>;   // Allows for hit sharing
+    using HitToTrackMap =
+      std::map<int, std::vector<art::Ptr<recob::Track>>>; // Allows for hit sharing
 
     // Build out the track/hit map first
     // Recover the track/hit associations
-    art::FindManyP<recob::Hit>  trackHitAssns(trackHandle, evt, fTrackModuleLabel);
+    art::FindManyP<recob::Hit> trackHitAssns(trackHandle, evt, fTrackModuleLabel);
 
     // Get an empty map
     HitToTrackMap hitToTrackMap;
 
     // Fill it
-    for(size_t idx = 0; idx < trackHandle->size(); idx++)
-    {
-        art::Ptr<recob::Track> track(trackHandle, idx);
+    for (size_t idx = 0; idx < trackHandle->size(); idx++) {
+      art::Ptr<recob::Track> track(trackHandle, idx);
 
-        std::vector<art::Ptr<recob::Hit>> trackHitVec = trackHitAssns.at(track.key());
+      std::vector<art::Ptr<recob::Hit>> trackHitVec = trackHitAssns.at(track.key());
 
-        for (const auto& hitPtr : trackHitVec)
-        {
-            hitToTrackMap[hitPtr.key()].push_back(track);
-        }
+      for (const auto& hitPtr : trackHitVec) {
+        hitToTrackMap[hitPtr.key()].push_back(track);
+      }
     }
 
     // Now we walk up the remaining list of associations needed to go from CR tags to hits
@@ -112,84 +106,80 @@ void TrackPFParticleMatch::produce(art::Event & evt)
     art::FindManyP<recob::Hit> clusterHitAssns(clusterHandle, evt, fPFParticleModuleLabel);
 
     // We'll store this info in a rather complicated data structure...
-    using TrackToPFParticleHitMap = std::map<art::Ptr<recob::Track>, std::map<art::Ptr<recob::PFParticle>,std::vector<art::Ptr<recob::Hit>>>>;
+    using TrackToPFParticleHitMap =
+      std::map<art::Ptr<recob::Track>,
+               std::map<art::Ptr<recob::PFParticle>, std::vector<art::Ptr<recob::Hit>>>>;
 
     TrackToPFParticleHitMap trackToPFParticleHitMap;
 
     // Now we go through the PFParticles and match hits to tracks
-    for(size_t idx = 0; idx < pfParticleHandle->size(); idx++)
-    {
-        art::Ptr<recob::PFParticle> pfParticle(pfParticleHandle, idx);
+    for (size_t idx = 0; idx < pfParticleHandle->size(); idx++) {
+      art::Ptr<recob::PFParticle> pfParticle(pfParticleHandle, idx);
 
-        // Recover associated clusters
-        std::vector<art::Ptr<recob::Cluster>> clusterVec = clusterAssns.at(pfParticle.key());
+      // Recover associated clusters
+      std::vector<art::Ptr<recob::Cluster>> clusterVec = clusterAssns.at(pfParticle.key());
 
-        // Loop through the clusters
-        for(const auto& cluster : clusterVec)
-        {
-            // Recover associated hits
-            std::vector<art::Ptr<recob::Hit>> hitVec = clusterHitAssns.at(cluster.key());
+      // Loop through the clusters
+      for (const auto& cluster : clusterVec) {
+        // Recover associated hits
+        std::vector<art::Ptr<recob::Hit>> hitVec = clusterHitAssns.at(cluster.key());
 
-            // Loop through hits and look for associated track
-            for(const auto& hit : hitVec)
-            {
-                HitToTrackMap::iterator hitToTrackItr = hitToTrackMap.find(hit.key());
+        // Loop through hits and look for associated track
+        for (const auto& hit : hitVec) {
+          HitToTrackMap::iterator hitToTrackItr = hitToTrackMap.find(hit.key());
 
-                if (hitToTrackItr != hitToTrackMap.end())
-                {
-                    for(auto& track : hitToTrackItr->second)
-                        trackToPFParticleHitMap[track][pfParticle].push_back(hit);
-                }
-            }
+          if (hitToTrackItr != hitToTrackMap.end()) {
+            for (auto& track : hitToTrackItr->second)
+              trackToPFParticleHitMap[track][pfParticle].push_back(hit);
+          }
         }
+      }
     }
 
     // Ok, now we can create the associations
-    for (auto& trackMapItr : trackToPFParticleHitMap)
-    {
-        std::vector<art::Ptr<recob::PFParticle>> pfParticleVec;
+    for (auto& trackMapItr : trackToPFParticleHitMap) {
+      std::vector<art::Ptr<recob::PFParticle>> pfParticleVec;
 
-        for(auto& pfParticleMapItr : trackMapItr.second)
-        {
-            // We need to make sure we don't associate the case where the hits are from crossing tracks
-            // which would be an illegal association.
-            // Two things to check: that more than one view is matched in the hits
-            // That some fraction of the matched hits are from the track
-            int nHitsPerView[] = {0,0,0};
+      for (auto& pfParticleMapItr : trackMapItr.second) {
+        // We need to make sure we don't associate the case where the hits are from crossing tracks
+        // which would be an illegal association.
+        // Two things to check: that more than one view is matched in the hits
+        // That some fraction of the matched hits are from the track
+        int nHitsPerView[] = {0, 0, 0};
 
-            for(const auto& hit : pfParticleMapItr.second)
-            {
-                nHitsPerView[hit->View()]++;
-            }
-
-            int nViewsWithHits(0);
-
-            for(auto& nHits : nHitsPerView) if (nHits > 0) nViewsWithHits++;
-
-            if (nViewsWithHits < 2) continue;
-
-            // Get the hits associated to the track again
-            std::vector<art::Ptr<recob::Hit>> trackHitVec = trackHitAssns.at(trackMapItr.first.key());
-
-            // Fraction of hits from track shared with PFParticle
-            float sharedHitFrac = float(pfParticleMapItr.second.size()) / float(trackHitVec.size());
-
-            if (sharedHitFrac < 0.3) continue;
-
-            // Ok, this is an association to make
-            pfParticleVec.push_back(pfParticleMapItr.first);
+        for (const auto& hit : pfParticleMapItr.second) {
+          nHitsPerView[hit->View()]++;
         }
 
-        util::CreateAssn(*this, evt, trackMapItr.first, pfParticleVec, *trackPFParticleAssns);
+        int nViewsWithHits(0);
+
+        for (auto& nHits : nHitsPerView)
+          if (nHits > 0) nViewsWithHits++;
+
+        if (nViewsWithHits < 2) continue;
+
+        // Get the hits associated to the track again
+        std::vector<art::Ptr<recob::Hit>> trackHitVec = trackHitAssns.at(trackMapItr.first.key());
+
+        // Fraction of hits from track shared with PFParticle
+        float sharedHitFrac = float(pfParticleMapItr.second.size()) / float(trackHitVec.size());
+
+        if (sharedHitFrac < 0.3) continue;
+
+        // Ok, this is an association to make
+        pfParticleVec.push_back(pfParticleMapItr.first);
+      }
+
+      util::CreateAssn(*this, evt, trackMapItr.first, pfParticleVec, *trackPFParticleAssns);
     }
 
-    evt.put( std::move(trackPFParticleAssns));
+    evt.put(std::move(trackPFParticleAssns));
 
     return;
 
-} // end of produce
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+  } // end of produce
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEFINE_ART_MODULE(TrackPFParticleMatch)
+  DEFINE_ART_MODULE(TrackPFParticleMatch)
 
 }

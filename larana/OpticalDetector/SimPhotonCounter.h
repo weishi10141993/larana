@@ -17,18 +17,35 @@ namespace sim {
 #include <numeric>
 #include <vector>
 
-namespace opdet{
+namespace opdet {
 
-  class SimPhotonCounter{
+  class SimPhotonCounter {
 
   public:
     SimPhotonCounter() {}
-    SimPhotonCounter(size_t s, float t_p1, float t_p2, float t_l1, float t_l2, float min_w=0, float max_w=1e6, float e=1.0);
+    SimPhotonCounter(size_t s,
+                     float t_p1,
+                     float t_p2,
+                     float t_l1,
+                     float t_l2,
+                     float min_w = 0,
+                     float max_w = 1e6,
+                     float e = 1.0);
 
-    SimPhotonCounter(float t_p1, float t_p2, float t_l1, float t_l2, float min_w, float max_w, const std::vector<float>& eV);
+    SimPhotonCounter(float t_p1,
+                     float t_p2,
+                     float t_l1,
+                     float t_l2,
+                     float min_w,
+                     float max_w,
+                     const std::vector<float>& eV);
 
     void SetVectorSize(size_t s)
-    { _photonVector_prompt.resize(s); _photonVector_late.resize(s); _qeVector.resize(s); }
+    {
+      _photonVector_prompt.resize(s);
+      _photonVector_late.resize(s);
+      _qeVector.resize(s);
+    }
     size_t GetVectorSize() const { return _photonVector_prompt.size(); }
 
     void SetWavelengthRanges(float min_w, float max_w);
@@ -47,10 +64,13 @@ namespace opdet{
     float QE(size_t i) const { return _qeVector.at(i); }
 
     void SetQEVector(const std::vector<float>& eV)
-    { SetVectorSize(eV.size()); _qeVector = eV; }
+    {
+      SetVectorSize(eV.size());
+      _qeVector = eV;
+    }
     std::vector<float> const& QEVector() const { return _qeVector; }
 
-    void AddOnePhoton(size_t i_opdet,const sim::OnePhoton& photon);
+    void AddOnePhoton(size_t i_opdet, const sim::OnePhoton& photon);
     void AddSimPhotons(const sim::SimPhotons& photons);
 
     void ClearVectors();
@@ -61,18 +81,23 @@ namespace opdet{
 
     std::vector<float> TotalPhotonVector() const;
     float TotalPhotonVector(size_t i) const
-    { return (PromptPhotonVector(i)+LatePhotonVector(i)); }
+    {
+      return (PromptPhotonVector(i) + LatePhotonVector(i));
+    }
 
     float PromptPhotonTotal() const
-    { return std::accumulate(_photonVector_prompt.begin(),_photonVector_prompt.end(),0.0); }
+    {
+      return std::accumulate(_photonVector_prompt.begin(), _photonVector_prompt.end(), 0.0);
+    }
     float LatePhotonTotal() const
-    { return std::accumulate(_photonVector_late.begin(),_photonVector_late.end(),0.0); }
-    float PhotonTotal() const { return (PromptPhotonTotal()+LatePhotonTotal()); }
+    {
+      return std::accumulate(_photonVector_late.begin(), _photonVector_late.end(), 0.0);
+    }
+    float PhotonTotal() const { return (PromptPhotonTotal() + LatePhotonTotal()); }
 
     void Print();
 
   private:
-
     std::vector<float> _photonVector_prompt;
     std::vector<float> _photonVector_late;
 
@@ -86,7 +111,6 @@ namespace opdet{
     float _max_wavelength;
 
     float Wavelength(const sim::OnePhoton& ph);
-
   };
 
 }

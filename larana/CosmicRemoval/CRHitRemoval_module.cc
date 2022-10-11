@@ -34,8 +34,8 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "larcore/Geometry/Geometry.h"
 #include "larcore/CoreUtils/ServiceUtil.h"
+#include "larcore/Geometry/Geometry.h"
 #include "lardata/ArtDataHelper/HitCreator.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
@@ -129,8 +129,7 @@ CRHitRemoval::CRHitRemoval(fhicl::ParameterSet const& pset)
 
 //----------------------------------------------------------------------------
 /// Begin job method.
-void
-CRHitRemoval::beginJob()
+void CRHitRemoval::beginJob()
 {
   auto const* geo = lar::providerFrom<geo::Geometry>();
   auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
@@ -159,8 +158,7 @@ CRHitRemoval::beginJob()
 /// objects, relating them to PFParticles/Tracks and removing the hits
 /// associated to those objects which are believed to be Cosmic Rays.
 ///
-void
-CRHitRemoval::produce(art::Event& evt)
+void CRHitRemoval::produce(art::Event& evt)
 {
   ++fNumEvent;
 
@@ -415,8 +413,7 @@ CRHitRemoval::produce(art::Event& evt)
 /// PFParticle and, in addition, will call itself for all daughters of the input
 /// PFParticle
 ///
-void
-CRHitRemoval::collectPFParticleHits(
+void CRHitRemoval::collectPFParticleHits(
   const recob::PFParticle* pfParticle,
   const art::Handle<std::vector<recob::PFParticle>>& pfParticleHandle,
   const art::FindManyP<recob::Cluster>& partToClusAssns,
@@ -462,10 +459,9 @@ CRHitRemoval::collectPFParticleHits(
   return;
 }
 
-void
-CRHitRemoval::copyAllHits(std::vector<art::Ptr<recob::Hit>>& inputHits,
-                          art::FindOneP<recob::Wire>& wireAssns,
-                          recob::HitCollectionCreator& newHitCollection)
+void CRHitRemoval::copyAllHits(std::vector<art::Ptr<recob::Hit>>& inputHits,
+                               art::FindOneP<recob::Wire>& wireAssns,
+                               recob::HitCollectionCreator& newHitCollection)
 {
   for (const auto& hitPtr : inputHits) {
     art::Ptr<recob::Wire> wire = wireAssns.at(hitPtr.key());
@@ -477,10 +473,9 @@ CRHitRemoval::copyAllHits(std::vector<art::Ptr<recob::Hit>>& inputHits,
   return;
 }
 
-void
-CRHitRemoval::copyInTimeHits(std::vector<art::Ptr<recob::Hit>>& inputHits,
-                             art::FindOneP<recob::Wire>& wireAssns,
-                             recob::HitCollectionCreator& newHitCollection)
+void CRHitRemoval::copyInTimeHits(std::vector<art::Ptr<recob::Hit>>& inputHits,
+                                  art::FindOneP<recob::Wire>& wireAssns,
+                                  recob::HitCollectionCreator& newHitCollection)
 {
   for (const auto& hitPtr : inputHits) {
     // Check on out of time hits
@@ -505,8 +500,7 @@ CRHitRemoval::copyInTimeHits(std::vector<art::Ptr<recob::Hit>>& inputHits,
 // hits      - Hit collection from which hits should be removed.
 // used_hits - Hits to remove.
 //
-void
-CRHitRemoval::FilterHits(HitPtrVector& hits, HitPtrVector& used_hits)
+void CRHitRemoval::FilterHits(HitPtrVector& hits, HitPtrVector& used_hits)
 {
   if (used_hits.size() > 0) {
     // Make sure both hit collections are sorted.
@@ -524,8 +518,7 @@ CRHitRemoval::FilterHits(HitPtrVector& hits, HitPtrVector& used_hits)
 
 //----------------------------------------------------------------------------
 /// End job method.
-void
-CRHitRemoval::endJob()
+void CRHitRemoval::endJob()
 {
   double aveCRPerEvent = fNumEvent > 0 ? double(fNumCRRejects) / double(fNumEvent) : 0.;
 

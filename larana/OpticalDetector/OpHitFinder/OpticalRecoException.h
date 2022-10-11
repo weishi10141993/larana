@@ -22,16 +22,14 @@ namespace pmtana {
      \class OpticalRecoRException
      Generic (base) exception class
   */
-  class OpticalRecoException : public std::exception{
+  class OpticalRecoException : public std::exception {
 
   public:
-
-    OpticalRecoException(const std::string& msg="");
+    OpticalRecoException(const std::string& msg = "");
 
     virtual const char* what() const throw();
 
   private:
-
     std::string _msg;
   };
 

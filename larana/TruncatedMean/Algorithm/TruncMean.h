@@ -12,8 +12,8 @@
 #ifndef TRUNCMEAN_H
 #define TRUNCMEAN_H
 
-#include <vector>
 #include <limits>
+#include <vector>
 
 /**
    \class TruncMean
@@ -30,10 +30,9 @@
 
 static const float kINVALID_FLOAT = std::numeric_limits<float>::max();
 
-class TruncMean{
+class TruncMean {
 
- public:
-
+public:
   /**
      @brief Given residual range and dq vectors return truncated local dq.
      Input vectors are assumed to be match pair-wise (nth entry in rr_v
@@ -51,8 +50,10 @@ class TruncMean{
      @input std::vector<float> dq_trunc_v -> passed by reference -> output stored here
      @input float nsigma -> optional parameter, number of sigma to keep around RMS for TM calculation
   */
-  void CalcTruncMeanProfile(const std::vector<float>& rr_v, const std::vector<float>& dq_v,
-			    std::vector<float>& dq_trunc_v, const float& nsigma = 1);
+  void CalcTruncMeanProfile(const std::vector<float>& rr_v,
+                            const std::vector<float>& dq_v,
+                            std::vector<float>& dq_trunc_v,
+                            const float& nsigma = 1);
 
   /**
      @brief Iteratively calculate the truncated mean of a distribution
@@ -65,29 +66,30 @@ class TruncMean{
      under which the iteration is completed, provided nmin iterations have occurred.
      @input nsigma -> number of sigma around the median value to keep when the distribution is trimmed.
    */
-  float CalcIterativeTruncMean(std::vector<float> v, const size_t& nmin,
-			       const size_t& nmax, const size_t& currentiteration,
-			       const size_t& lmin,
-			       const float& convergencelimit,
-			       const float& nsigma, const float& oldmed = kINVALID_FLOAT);
+  float CalcIterativeTruncMean(std::vector<float> v,
+                               const size_t& nmin,
+                               const size_t& nmax,
+                               const size_t& currentiteration,
+                               const size_t& lmin,
+                               const float& convergencelimit,
+                               const float& nsigma,
+                               const float& oldmed = kINVALID_FLOAT);
 
   /**
      @brief Set the smearing radius over which to take hits for truncated mean computaton.
    */
   void setRadius(const float& rad) { _rad = rad; }
 
- private:
-
-  float Mean  (const std::vector<float>& v);
+private:
+  float Mean(const std::vector<float>& v);
   float Median(const std::vector<float>& v);
-  float RMS   (const std::vector<float>& v);
+  float RMS(const std::vector<float>& v);
 
   /**
      Smearing radius over which charge from neighboring hits is scanned to calculate local
      truncated mean
    */
   double _rad;
-
 };
 
 #endif

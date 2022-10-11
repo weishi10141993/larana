@@ -48,8 +48,7 @@ namespace mvapid {
   }
 
   // ***************** //
-  void
-  MVAPID::beginJob()
+  void MVAPID::beginJob()
   {
     art::ServiceHandle<art::TFileService const> tfs;
     fTree =
@@ -63,8 +62,7 @@ namespace mvapid {
   }
 
   // ***************** //
-  void
-  MVAPID::produce(art::Event& evt)
+  void MVAPID::produce(art::Event& evt)
   {
     std::unique_ptr<std::vector<anab::MVAPIDResult>> result(new std::vector<anab::MVAPIDResult>);
     std::unique_ptr<art::Assns<recob::Track, anab::MVAPIDResult>> trackAssns(

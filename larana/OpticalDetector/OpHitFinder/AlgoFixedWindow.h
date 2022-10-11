@@ -17,14 +17,15 @@
 
 #include "PMTPulseRecoBase.h"
 
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
 #include <string>
 
-namespace pmtana
-{
+namespace pmtana {
 
   /**
    \class AlgoFixedWindow
@@ -37,29 +38,26 @@ namespace pmtana
   class AlgoFixedWindow : public PMTPulseRecoBase {
 
   public:
-
     /// Default ctor
-    AlgoFixedWindow(const std::string name="FixedWindow");
+    AlgoFixedWindow(const std::string name = "FixedWindow");
 
     /// Alternative ctor
-    AlgoFixedWindow(const fhicl::ParameterSet &pset,
-      std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator=nullptr,
-      const std::string name="FixedWindow");
+    AlgoFixedWindow(const fhicl::ParameterSet& pset,
+                    std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator = nullptr,
+                    const std::string name = "FixedWindow");
     //AlgoFixedWindow(const ::fcllite::PSet &pset,const std::string name="FixedWindow");
 
     /// Implementation of AlgoFixedWindow::reset() method
     void Reset();
 
   protected:
-
     /// Implementation of AlgoFixedWindow::reco() method
     bool RecoPulse(const pmtana::Waveform_t&,
-		   const pmtana::PedestalMean_t&,
-		   const pmtana::PedestalSigma_t&);
+                   const pmtana::PedestalMean_t&,
+                   const pmtana::PedestalSigma_t&);
 
     size_t _index_start; ///< index marker for the beginning of the pulse time window
     size_t _index_end;   ///< index marker for the end of pulse time window
-
   };
 
 }

@@ -27,51 +27,49 @@ namespace pid {
 
 class pid::Chi2ParticleID : public art::EDProducer {
 public:
-  explicit Chi2ParticleID(fhicl::ParameterSet const & p);
+  explicit Chi2ParticleID(fhicl::ParameterSet const& p);
 
-  virtual void produce(art::Event & e);
+  virtual void produce(art::Event& e);
 
 private:
-
   std::string fTrackModuleLabel;
   std::string fCalorimetryModuleLabel;
 
   Chi2PIDAlg fChiAlg;
-
 };
 
-pid::Chi2ParticleID::Chi2ParticleID(fhicl::ParameterSet const & p)
-  : EDProducer{p}
-  , fChiAlg(p.get< fhicl::ParameterSet >("Chi2PIDAlg"))
+pid::Chi2ParticleID::Chi2ParticleID(fhicl::ParameterSet const& p)
+  : EDProducer{p}, fChiAlg(p.get<fhicl::ParameterSet>("Chi2PIDAlg"))
 {
-  fTrackModuleLabel = p.get< std::string >("TrackModuleLabel");
-  fCalorimetryModuleLabel = p.get< std::string >("CalorimetryModuleLabel");
+  fTrackModuleLabel = p.get<std::string>("TrackModuleLabel");
+  fCalorimetryModuleLabel = p.get<std::string>("CalorimetryModuleLabel");
 
-  produces< std::vector<anab::ParticleID>              >();
-  produces< art::Assns<recob::Track, anab::ParticleID> >();
+  produces<std::vector<anab::ParticleID>>();
+  produces<art::Assns<recob::Track, anab::ParticleID>>();
 }
 
-void pid::Chi2ParticleID::produce(art::Event & evt)
+void pid::Chi2ParticleID::produce(art::Event& evt)
 {
-  art::Handle< std::vector<recob::Track> > trackListHandle;
-  evt.getByLabel(fTrackModuleLabel,trackListHandle);
+  art::Handle<std::vector<recob::Track>> trackListHandle;
+  evt.getByLabel(fTrackModuleLabel, trackListHandle);
 
-  std::vector<art::Ptr<recob::Track> > tracklist;
+  std::vector<art::Ptr<recob::Track>> tracklist;
   art::fill_ptr_vector(tracklist, trackListHandle);
 
   art::FindManyP<anab::Calorimetry> fmcal(trackListHandle, evt, fCalorimetryModuleLabel);
 
   //if (!fmcal.isValid()) return;
 
-  std::unique_ptr< std::vector<anab::ParticleID> > particleidcol(new std::vector<anab::ParticleID>);
-  std::unique_ptr< art::Assns<recob::Track, anab::ParticleID> > assn(new art::Assns<recob::Track, anab::ParticleID>);
+  std::unique_ptr<std::vector<anab::ParticleID>> particleidcol(new std::vector<anab::ParticleID>);
+  std::unique_ptr<art::Assns<recob::Track, anab::ParticleID>> assn(
+    new art::Assns<recob::Track, anab::ParticleID>);
 
   if (fmcal.isValid()) {
     std::vector<art::Ptr<anab::Calorimetry>> calovec(1, art::Ptr<anab::Calorimetry>());
-    for (size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter){
-      for (size_t i = 0; i<fmcal.at(trkIter).size(); ++i){
+    for (size_t trkIter = 0; trkIter < tracklist.size(); ++trkIter) {
+      for (size_t i = 0; i < fmcal.at(trkIter).size(); ++i) {
         calovec[0] = fmcal.at(trkIter)[i];
-        anab::ParticleID  pidout = fChiAlg.DoParticleID(calovec);
+        anab::ParticleID pidout = fChiAlg.DoParticleID(calovec);
         particleidcol->push_back(pidout);
         util::CreateAssn(*this, evt, *particleidcol, tracklist[trkIter], *assn);
       }
@@ -81,7 +79,6 @@ void pid::Chi2ParticleID::produce(art::Event & evt)
   evt.put(std::move(assn));
 
   return;
-
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -92,6 +89,5 @@ void pid::Chi2ParticleID::produce(art::Event & evt)
 // Generated at Fri Jul 13 16:06:02 2012 by Tingjun Yang using artmod
 // from art v1_00_11.
 ////////////////////////////////////////////////////////////////////////
-
 
 DEFINE_ART_MODULE(pid::Chi2ParticleID)

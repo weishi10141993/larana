@@ -48,11 +48,12 @@
 
 namespace {
   template <typename T>
-  pmtana::PMTPulseRecoBase* thresholdAlgorithm(fhicl::ParameterSet const& hit_alg_pset,
-                                               std::optional<fhicl::ParameterSet> const& rise_alg_pset)
+  pmtana::PMTPulseRecoBase* thresholdAlgorithm(
+    fhicl::ParameterSet const& hit_alg_pset,
+    std::optional<fhicl::ParameterSet> const& rise_alg_pset)
   {
     if (rise_alg_pset)
-      return new T(hit_alg_pset, art::make_tool<pmtana::RiseTimeCalculatorBase>(*rise_alg_pset) );
+      return new T(hit_alg_pset, art::make_tool<pmtana::RiseTimeCalculatorBase>(*rise_alg_pset));
     else
       return new T(hit_alg_pset, nullptr);
   }
@@ -188,8 +189,7 @@ namespace opdet {
   }
 
   //----------------------------------------------------------------------------
-  void
-  OpHitFinder::produce(art::Event& evt)
+  void OpHitFinder::produce(art::Event& evt)
   {
 
     // These is the storage pointer we will put in the event

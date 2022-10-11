@@ -10,30 +10,28 @@
 
 #include "lardataobj/Simulation/SimPhotons.h"
 
-namespace opdet
-{
+namespace opdet {
   class MicrobooneOpDetResponse : public OpDetResponseInterface {
-    public:
+  public:
+    MicrobooneOpDetResponse(fhicl::ParameterSet const& pset);
 
-        MicrobooneOpDetResponse(fhicl::ParameterSet const& pset);
+  private:
+    void doReconfigure(fhicl::ParameterSet const& p) override;
+    bool doDetected(int OpChannel, const sim::OnePhoton& Phot, int& newOpChannel) const override;
+    bool doDetectedLite(int OpChannel, int& newOpChannel) const override;
 
-    private:
+    float fQE; // Quantum efficiency of tube
 
-        void doReconfigure(fhicl::ParameterSet const& p) override;
-        bool doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const override;
-        bool doDetectedLite(int OpChannel, int &newOpChannel) const override;
-
-        float fQE;                     // Quantum efficiency of tube
-
-        float fWavelengthCutLow;       // Sensitive wavelength range
-        float fWavelengthCutHigh;      //
-  }; // class MicrobooneOpDetResponse
+    float fWavelengthCutLow;  // Sensitive wavelength range
+    float fWavelengthCutHigh; //
+  };                          // class MicrobooneOpDetResponse
 }
 
-DECLARE_ART_SERVICE_INTERFACE_IMPL(opdet::MicrobooneOpDetResponse, opdet::OpDetResponseInterface, LEGACY)
+DECLARE_ART_SERVICE_INTERFACE_IMPL(opdet::MicrobooneOpDetResponse,
+                                   opdet::OpDetResponseInterface,
+                                   LEGACY)
 
-namespace opdet
-{
+namespace opdet {
   //--------------------------------------------------------------------
   MicrobooneOpDetResponse::MicrobooneOpDetResponse(fhicl::ParameterSet const& pset)
   {
@@ -43,10 +41,10 @@ namespace opdet
   //--------------------------------------------------------------------
   void MicrobooneOpDetResponse::doReconfigure(fhicl::ParameterSet const& pset)
   {
-    fQE=                       pset.get<double>("QuantumEfficiency");
+    fQE = pset.get<double>("QuantumEfficiency");
     //double tempfQE=            pset.get<double>("QuantumEfficiency");
-    fWavelengthCutLow=         pset.get<double>("WavelengthCutLow");
-    fWavelengthCutHigh=        pset.get<double>("WavelengthCutHigh");
+    fWavelengthCutLow = pset.get<double>("WavelengthCutLow");
+    fWavelengthCutHigh = pset.get<double>("WavelengthCutHigh");
 
     /**
      * Don't apply QE here.  It is applied in the uboone
@@ -66,9 +64,10 @@ namespace opdet
      **/
   }
 
-
   //--------------------------------------------------------------------
-  bool MicrobooneOpDetResponse::doDetected(int OpChannel, const sim::OnePhoton& Phot, int &newOpChannel) const
+  bool MicrobooneOpDetResponse::doDetected(int OpChannel,
+                                           const sim::OnePhoton& Phot,
+                                           int& newOpChannel) const
   {
 
     newOpChannel = OpChannel;
@@ -90,7 +89,7 @@ namespace opdet
   }
 
   //--------------------------------------------------------------------
-  bool MicrobooneOpDetResponse::doDetectedLite(int OpChannel, int &newOpChannel) const
+  bool MicrobooneOpDetResponse::doDetectedLite(int OpChannel, int& newOpChannel) const
   {
     newOpChannel = OpChannel;
 

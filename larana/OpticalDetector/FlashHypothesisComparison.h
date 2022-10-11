@@ -12,53 +12,57 @@
  */
 
 #include "FlashHypothesis.h"
-#include "SimPhotonCounter.h"
 #include "FlashUtilities.h"
+#include "SimPhotonCounter.h"
 
 class TTree;
 class TH1F;
 
 #include <vector>
 
-namespace opdet{
+namespace opdet {
 
   class SimPhotonCounter;
 
-  class FlashHypothesisComparison{
+  class FlashHypothesisComparison {
 
   public:
-    FlashHypothesisComparison(){}
+    FlashHypothesisComparison() {}
 
     void SetOutputObjects(TTree*,
-			  TH1F*,TH1F*,TH1F*,
-			  TH1F*,TH1F*,TH1F*,
-			  TH1F*,TH1F*,TH1F*,
-			  const unsigned int,
-			  bool fill=true);
+                          TH1F*,
+                          TH1F*,
+                          TH1F*,
+                          TH1F*,
+                          TH1F*,
+                          TH1F*,
+                          TH1F*,
+                          TH1F*,
+                          TH1F*,
+                          const unsigned int,
+                          bool fill = true);
 
     void RunComparison(const unsigned int,
-		       const unsigned int,
-		       const FlashHypothesisCollection&,
-		       const SimPhotonCounter&,
-		       const std::vector<float>&,
-		       const std::vector<float>&);
+                       const unsigned int,
+                       const FlashHypothesisCollection&,
+                       const SimPhotonCounter&,
+                       const std::vector<float>&,
+                       const std::vector<float>&);
 
   private:
-
     FlashUtilities fUtil;
 
     void FillFlashHypothesisInfo(const FlashHypothesisCollection&,
-				 const std::vector<float>&,
-				 const std::vector<float>&);
+                                 const std::vector<float>&,
+                                 const std::vector<float>&);
 
     void FillSimPhotonCounterInfo(const SimPhotonCounter&,
-				  const std::vector<float>&,
-				  const std::vector<float>&);
+                                  const std::vector<float>&,
+                                  const std::vector<float>&);
 
-    void FillComparisonInfo(const FlashHypothesisCollection&,
-			    const SimPhotonCounter&);
+    void FillComparisonInfo(const FlashHypothesisCollection&, const SimPhotonCounter&);
 
-    bool   fFillTree;
+    bool fFillTree;
     TTree* fTree;
 
     TH1F* fHypHist_p;
@@ -115,6 +119,5 @@ namespace opdet{
   };
 
 }
-
 
 #endif

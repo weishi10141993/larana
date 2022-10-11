@@ -98,8 +98,7 @@ cosmic::CosmicPCAxisTagger::CosmicPCAxisTagger(fhicl::ParameterSet const& p)
   produces<art::Assns<recob::PCAxis, anab::CosmicTag>>();
 }
 
-void
-cosmic::CosmicPCAxisTagger::produce(art::Event& evt)
+void cosmic::CosmicPCAxisTagger::produce(art::Event& evt)
 {
   // Instatiate the output
   std::unique_ptr<std::vector<anab::CosmicTag>> cosmicTagPFParticleVector(

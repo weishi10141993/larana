@@ -16,14 +16,15 @@
 #define ALGOSLIDINGWINDOW_H
 
 #include "PMTPulseRecoBase.h"
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
 #include <string>
 
-namespace pmtana
-{
+namespace pmtana {
 
   /**
    \class AlgoSlidingWindow
@@ -32,25 +33,23 @@ namespace pmtana
   class AlgoSlidingWindow : public PMTPulseRecoBase {
 
   public:
-
     /// Default constructor
-    AlgoSlidingWindow(const std::string name="SlidingWindow");
+    AlgoSlidingWindow(const std::string name = "SlidingWindow");
 
     /// Alternative ctor
-    AlgoSlidingWindow(const fhicl::ParameterSet &pset,
-      std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator=nullptr,
-      const std::string name="SlidingWindow");
+    AlgoSlidingWindow(const fhicl::ParameterSet& pset,
+                      std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator = nullptr,
+                      const std::string name = "SlidingWindow");
     //AlgoSlidingWindow(const ::fcllite::PSet &pset,const std::string name="SlidingWindow");
 
     /// Implementation of AlgoSlidingWindow::reset() method
     void Reset();
 
   protected:
-
     /// Implementation of AlgoSlidingWindow::reco() method
     bool RecoPulse(const pmtana::Waveform_t&,
-		   const pmtana::PedestalMean_t&,
-		   const pmtana::PedestalSigma_t&);
+                   const pmtana::PedestalMean_t&,
+                   const pmtana::PedestalSigma_t&);
 
     /// A boolean to set waveform positive/negative polarity
     bool _positive;
@@ -65,7 +64,6 @@ namespace pmtana
     float _nsigma, _tail_nsigma, _end_nsigma;
     bool _verbose;
     size_t _num_presample, _num_postsample;
-
   };
 
 }

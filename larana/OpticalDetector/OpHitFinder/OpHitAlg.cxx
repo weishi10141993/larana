@@ -26,16 +26,15 @@
 
 namespace opdet {
   //----------------------------------------------------------------------------
-  void
-  RunHitFinder(std::vector<raw::OpDetWaveform> const& opDetWaveformVector,
-               std::vector<recob::OpHit>& hitVector,
-               pmtana::PulseRecoManager const& pulseRecoMgr,
-               pmtana::PMTPulseRecoBase const& threshAlg,
-               geo::GeometryCore const& geometry,
-               float hitThreshold,
-               detinfo::DetectorClocksData const& clocksData,
-               calib::IPhotonCalibrator const& calibrator,
-               bool use_start_time)
+  void RunHitFinder(std::vector<raw::OpDetWaveform> const& opDetWaveformVector,
+                    std::vector<recob::OpHit>& hitVector,
+                    pmtana::PulseRecoManager const& pulseRecoMgr,
+                    pmtana::PMTPulseRecoBase const& threshAlg,
+                    geo::GeometryCore const& geometry,
+                    float hitThreshold,
+                    detinfo::DetectorClocksData const& clocksData,
+                    calib::IPhotonCalibrator const& calibrator,
+                    bool use_start_time)
   {
 
     for (auto const& waveform : opDetWaveformVector) {
@@ -56,29 +55,37 @@ namespace opdet {
       const double timeStamp = waveform.TimeStamp();
 
       for (auto const& pulse : pulses)
-        ConstructHit(hitThreshold, channel, timeStamp, pulse, hitVector, clocksData, calibrator, use_start_time);
+        ConstructHit(hitThreshold,
+                     channel,
+                     timeStamp,
+                     pulse,
+                     hitVector,
+                     clocksData,
+                     calibrator,
+                     use_start_time);
     }
   }
 
   //----------------------------------------------------------------------------
-  void
-  ConstructHit(float hitThreshold,
-               int channel,
-               double timeStamp,
-               pmtana::pulse_param const& pulse,
-               std::vector<recob::OpHit>& hitVector,
-               detinfo::DetectorClocksData const& clocksData,
-               calib::IPhotonCalibrator const& calibrator,
-               bool use_start_time)
+  void ConstructHit(float hitThreshold,
+                    int channel,
+                    double timeStamp,
+                    pmtana::pulse_param const& pulse,
+                    std::vector<recob::OpHit>& hitVector,
+                    detinfo::DetectorClocksData const& clocksData,
+                    calib::IPhotonCalibrator const& calibrator,
+                    bool use_start_time)
   {
 
     if (pulse.peak < hitThreshold) return;
 
-    double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() * (use_start_time ? pulse.t_start : pulse.t_max);
+    double absTime = timeStamp + clocksData.OpticalClock().TickPeriod() *
+                                   (use_start_time ? pulse.t_start : pulse.t_max);
 
     double relTime = absTime - clocksData.TriggerTime();
 
-    double startTime = timeStamp + clocksData.OpticalClock().TickPeriod() * pulse.t_start - clocksData.TriggerTime();
+    double startTime =
+      timeStamp + clocksData.OpticalClock().TickPeriod() * pulse.t_start - clocksData.TriggerTime();
 
     double riseTime = clocksData.OpticalClock().TickPeriod() * pulse.t_rise;
 
@@ -92,8 +99,17 @@ namespace opdet {
 
     double width = (pulse.t_end - pulse.t_start) * clocksData.OpticalClock().TickPeriod();
 
-    hitVector.emplace_back(channel, relTime, absTime, startTime, riseTime, frame, width, pulse.area, pulse.peak, PE, 0.0);
-
+    hitVector.emplace_back(channel,
+                           relTime,
+                           absTime,
+                           startTime,
+                           riseTime,
+                           frame,
+                           width,
+                           pulse.area,
+                           pulse.peak,
+                           PE,
+                           0.0);
   }
 
 } // End namespace opdet

@@ -160,8 +160,7 @@ t0::MCTruthT0Matching::MCTruthT0Matching(fhicl::ParameterSet const& p) : EDProdu
     produces<art::Assns<recob::Hit, simb::MCParticle, anab::BackTrackerHitMatchingData>>();
 }
 
-void
-t0::MCTruthT0Matching::beginJob()
+void t0::MCTruthT0Matching::beginJob()
 {
   // Implementation of optional member function here.
   art::ServiceHandle<art::TFileService const> tfs;
@@ -170,8 +169,7 @@ t0::MCTruthT0Matching::beginJob()
   fTree->Branch("TrueTrackID", &TrueTrackID, "TrueTrackID/D");
 }
 
-void
-t0::MCTruthT0Matching::produce(art::Event& evt)
+void t0::MCTruthT0Matching::produce(art::Event& evt)
 {
   if (evt.isRealData() && !fOverrideRealData) return;
 
@@ -179,8 +177,7 @@ t0::MCTruthT0Matching::produce(art::Event& evt)
   art::ServiceHandle<geo::Geometry const> geom;
   art::ServiceHandle<cheat::BackTrackerService const> bt_serv;
   art::ServiceHandle<cheat::ParticleInventoryService const> pi_serv;
-  auto const clockData =
-    art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
+  auto const clockData = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
 
   //TrackList handle
   art::Handle<std::vector<recob::Track>> trackListHandle;

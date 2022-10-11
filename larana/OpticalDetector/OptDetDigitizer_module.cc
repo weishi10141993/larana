@@ -7,20 +7,20 @@
 // and produces a digitized waveform.
 
 // LArSoft includes
-#include "larsim/Simulation/SimListUtils.h"
-#include "lardataobj/Simulation/SimPhotons.h"
-#include "lardataobj/OpticalDetectorData/OpticalTypes.h"
-#include "lardataobj/OpticalDetectorData/ChannelData.h"
-#include "lardataobj/OpticalDetectorData/ChannelDataGroup.h"
 #include "larana/OpticalDetector/OpDigiProperties.h"
 #include "larcore/Geometry/Geometry.h"
+#include "lardataobj/OpticalDetectorData/ChannelData.h"
+#include "lardataobj/OpticalDetectorData/ChannelDataGroup.h"
+#include "lardataobj/OpticalDetectorData/OpticalTypes.h"
+#include "lardataobj/Simulation/SimPhotons.h"
+#include "larsim/Simulation/SimListUtils.h"
 
 // ART includes
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // nurandom
 #include "nurandom/RandomUtils/NuRandomService.h"
@@ -34,7 +34,7 @@
 
 namespace opdet {
 
-  class OptDetDigitizer : public art::EDProducer{
+  class OptDetDigitizer : public art::EDProducer {
   public:
     explicit OptDetDigitizer(const fhicl::ParameterSet&);
 
@@ -42,40 +42,39 @@ namespace opdet {
     void produce(art::Event&) override;
 
     // The parameters we'll read from the .fcl file.
-    std::string fInputModule;              // Input tag for OpDet collection
-    float fSampleFreq;                     // in MHz
-    float fTimeBegin;                      // in us
-    float fTimeEnd;                        // in us
-    float fQE;                             // quantum efficiency of opdet
+    std::string fInputModule;                        // Input tag for OpDet collection
+    float fSampleFreq;                               // in MHz
+    float fTimeBegin;                                // in us
+    float fTimeEnd;                                  // in us
+    float fQE;                                       // quantum efficiency of opdet
     optdata::ADC_Count_t fSaturationScale;           // adc count w/ saturation occurs
     std::vector<optdata::ADC_Count_t> fPedMeanArray; // Array of pedestal baseline (per ch)
-    float fDarkRate;                       // Noise rate in Hz
-    optdata::ADC_Count_t fPedFlucAmp;                     // Pedestal fluctuation amplitude
-    float fPedFlucRate;                    // Pedestal fluctuation rate
-  //  float fWFRandTimeOffsetLow;            // The lower bound of WF's T=0 offset from Trigger
-  //  float fWFRandTimeOffsetHigh;           // The upper bound of WF's T=0 offset from Trigger
+    float fDarkRate;                                 // Noise rate in Hz
+    optdata::ADC_Count_t fPedFlucAmp;                // Pedestal fluctuation amplitude
+    float fPedFlucRate;                              // Pedestal fluctuation rate
+    //  float fWFRandTimeOffsetLow;            // The lower bound of WF's T=0 offset from Trigger
+    //  float fWFRandTimeOffsetHigh;           // The upper bound of WF's T=0 offset from Trigger
     std::vector<double> fSinglePEWaveform;
 
     bool fSimGainSpread;
 
     CLHEP::HepRandomEngine& fEngine;
-    CLHEP::RandFlat    fFlatRandom;
+    CLHEP::RandFlat fFlatRandom;
     CLHEP::RandPoisson fPoissonRandom;
-    void AddDarkNoise (std::vector<double> &RawWF,double gain);
+    void AddDarkNoise(std::vector<double>& RawWF, double gain);
     void AddWaveform(optdata::TimeSlice_t time,
                      std::vector<double>& OldPulse,
                      std::vector<double>& NewPulse,
                      double factor,
-                     bool extend=false);
-    optdata::ChannelData ApplyDigitization (std::vector<double> const RawWF,
-                                            optdata::Channel_t const ch) const;
+                     bool extend = false);
+    optdata::ChannelData ApplyDigitization(std::vector<double> const RawWF,
+                                           optdata::Channel_t const ch) const;
     art::ServiceHandle<OpDigiProperties> fOpDigiProperties;
     art::ServiceHandle<geo::Geometry const> fGeom;
-
   };
 } // namespace opdet
 
-namespace opdet{
+namespace opdet {
 
   DEFINE_ART_MODULE(OptDetDigitizer)
 
@@ -90,19 +89,19 @@ namespace opdet {
     , fPoissonRandom{fEngine}
   {
     // Infrastructure piece
-    produces<std::vector< optdata::ChannelDataGroup> >();
+    produces<std::vector<optdata::ChannelDataGroup>>();
 
     optdata::ChannelDataGroup dg;
     // Input Module and histogram parameters come from .fcl
-    fInputModule   = pset.get<std::string>("InputModule");
-    fSimGainSpread = pset.get<bool       >("SimGainSpread");
-    fTimeBegin  = fOpDigiProperties->TimeBegin();
-    fTimeEnd    = fOpDigiProperties->TimeEnd();
+    fInputModule = pset.get<std::string>("InputModule");
+    fSimGainSpread = pset.get<bool>("SimGainSpread");
+    fTimeBegin = fOpDigiProperties->TimeBegin();
+    fTimeEnd = fOpDigiProperties->TimeEnd();
     fSampleFreq = fOpDigiProperties->SampleFreq();
-    fQE         = fOpDigiProperties->QE();
-    fDarkRate   = fOpDigiProperties->DarkRate();
+    fQE = fOpDigiProperties->QE();
+    fDarkRate = fOpDigiProperties->DarkRate();
     fPedFlucAmp = fOpDigiProperties->PedFlucAmp();
-    fPedFlucRate= fOpDigiProperties->PedFlucRate();
+    fPedFlucRate = fOpDigiProperties->PedFlucRate();
     fSaturationScale = fOpDigiProperties->SaturationScale();
     fPedMeanArray = fOpDigiProperties->PedMeanArray();
 
@@ -111,39 +110,36 @@ namespace opdet {
 
   //-------------------------------------------------
 
-  void OptDetDigitizer::AddWaveform (optdata::TimeSlice_t const time,
-                                     std::vector<double> &OldPulse,
-                                     std::vector<double> &NewPulse,
-                                     double const factor,
-                                     bool const extend)
+  void OptDetDigitizer::AddWaveform(optdata::TimeSlice_t const time,
+                                    std::vector<double>& OldPulse,
+                                    std::vector<double>& NewPulse,
+                                    double const factor,
+                                    bool const extend)
   {
-    if( (time+NewPulse.size()) > OldPulse.size() && extend )
+    if ((time + NewPulse.size()) > OldPulse.size() && extend)
       OldPulse.resize(time + NewPulse.size());
-    for(size_t i = 0; i<NewPulse.size() && (time+i)<OldPulse.size(); ++i)
-      OldPulse[time+i] += NewPulse[i] * factor;
+    for (size_t i = 0; i < NewPulse.size() && (time + i) < OldPulse.size(); ++i)
+      OldPulse[time + i] += NewPulse[i] * factor;
   }
 
   //-------------------------------------------------
 
-  void OptDetDigitizer::AddDarkNoise(std::vector<double> &RawWF, double gain){
+  void OptDetDigitizer::AddDarkNoise(std::vector<double>& RawWF, double gain)
+  {
     // Add dark noise
-    double MeanDarkPulses = fDarkRate * (fTimeEnd-fTimeBegin) / 1000000;
+    double MeanDarkPulses = fDarkRate * (fTimeEnd - fTimeBegin) / 1000000;
 
     unsigned int NumberOfPulses = fPoissonRandom.fire(MeanDarkPulses);
-    for(size_t i=0; i!=NumberOfPulses; ++i)
-      {
-        double PulseTime_ns = fTimeBegin*1000 + (fTimeEnd-fTimeBegin)*1000*(fFlatRandom.fire(1.0)); // Should be in ns
-        optdata::TimeSlice_t PulseTime_ts = fOpDigiProperties->GetTimeSlice(PulseTime_ns);
-        AddWaveform( PulseTime_ts,
-                     RawWF,
-                     fSinglePEWaveform,
-                     gain);
-      }
-
+    for (size_t i = 0; i != NumberOfPulses; ++i) {
+      double PulseTime_ns = fTimeBegin * 1000 + (fTimeEnd - fTimeBegin) * 1000 *
+                                                  (fFlatRandom.fire(1.0)); // Should be in ns
+      optdata::TimeSlice_t PulseTime_ts = fOpDigiProperties->GetTimeSlice(PulseTime_ns);
+      AddWaveform(PulseTime_ts, RawWF, fSinglePEWaveform, gain);
+    }
   }
 
   optdata::ChannelData OptDetDigitizer::ApplyDigitization(std::vector<double> const rawWF,
-                                                          optdata::Channel_t const ch ) const
+                                                          optdata::Channel_t const ch) const
   {
     //
     // Digitization includes...
@@ -156,38 +152,34 @@ namespace opdet {
     optdata::ChannelData chData(ch);
     chData.reserve(rawWF.size());
     optdata::ADC_Count_t baseMean(fPedMeanArray.at(ch));
-    for(optdata::TimeSlice_t time=0; time<rawWF.size(); ++time)
-      {
-        double thisSample = rawWF[time];
+    for (optdata::TimeSlice_t time = 0; time < rawWF.size(); ++time) {
+      double thisSample = rawWF[time];
 
-        optdata::ADC_Count_t thisCount = (optdata::ADC_Count_t)(thisSample)+baseMean;
+      optdata::ADC_Count_t thisCount = (optdata::ADC_Count_t)(thisSample) + baseMean;
 
-        // (a) amplitude digitization
-        if(CLHEP::RandFlat::shoot(1.0) < (thisSample - int(thisSample)))
-          thisCount+=1;
+      // (a) amplitude digitization
+      if (CLHEP::RandFlat::shoot(1.0) < (thisSample - int(thisSample))) thisCount += 1;
 
-        // (b) saturation
-        if(thisCount > fSaturationScale) thisCount = fSaturationScale;
+      // (b) saturation
+      if (thisCount > fSaturationScale) thisCount = fSaturationScale;
 
-        chData.push_back(thisCount);
-      }
+      chData.push_back(thisCount);
+    }
 
     // (c) pedestal fluctuation
-    double timeSpan = chData.size() * 1.e-6/(fOpDigiProperties->SampleFreq());
+    double timeSpan = chData.size() * 1.e-6 / (fOpDigiProperties->SampleFreq());
     unsigned int nFluc = CLHEP::RandPoisson::shoot(fPedFlucRate * timeSpan);
-    for(size_t i=0; i<nFluc; ++i)
-      {
-        optdata::TimeSlice_t pulseTime(CLHEP::RandFlat::shoot(0.0,(double)(chData.size())));
-        optdata::ADC_Count_t amp = chData[pulseTime];
-        if( CLHEP::RandFlat::shoot(0.,1.) > 0.5)
-          {
-            amp += fPedFlucAmp;
-            if(amp > fSaturationScale) amp=fSaturationScale;
-          }
-        else
-          amp -= fPedFlucAmp;
-        chData[pulseTime] = amp;
+    for (size_t i = 0; i < nFluc; ++i) {
+      optdata::TimeSlice_t pulseTime(CLHEP::RandFlat::shoot(0.0, (double)(chData.size())));
+      optdata::ADC_Count_t amp = chData[pulseTime];
+      if (CLHEP::RandFlat::shoot(0., 1.) > 0.5) {
+        amp += fPedFlucAmp;
+        if (amp > fSaturationScale) amp = fSaturationScale;
       }
+      else
+        amp -= fPedFlucAmp;
+      chData[pulseTime] = amp;
+    }
 
     return chData;
   }
@@ -202,15 +194,17 @@ namespace opdet {
     //
 
     // Infrastructure piece
-    std::unique_ptr< std::vector<optdata::ChannelDataGroup > > StoragePtr (new std::vector<optdata::ChannelDataGroup>);
+    std::unique_ptr<std::vector<optdata::ChannelDataGroup>> StoragePtr(
+      new std::vector<optdata::ChannelDataGroup>);
 
     // Read in the Sim Photons
-    sim::SimPhotonsCollection ThePhotCollection = sim::SimListUtils::GetSimPhotonsCollection(evt,fInputModule);
+    sim::SimPhotonsCollection ThePhotCollection =
+      sim::SimListUtils::GetSimPhotonsCollection(evt, fInputModule);
 
     // Convert units into ns from us/MHz
-    double timeBegin_ns  = fTimeBegin  *  1000;
-    double timeEnd_ns    = fTimeEnd    *  1000;
-    double sampleFreq_ns = fSampleFreq /  1000;
+    double timeBegin_ns = fTimeBegin * 1000;
+    double timeEnd_ns = fTimeEnd * 1000;
+    double sampleFreq_ns = fSampleFreq / 1000;
 
     // Compute # of timeslices to be stored in the output. This is defined by a user input (fcl file)
     optdata::TimeSlice_t timeSliceWindow(fOpDigiProperties->GetTimeSlice(timeEnd_ns));
@@ -230,8 +224,10 @@ namespace opdet {
       Define "raw" waveform container which will be filled based on G4 photon timing + SPE waveform information.
       Note this is not completely an analog waveform because it is digitized in terms of time (as it is using std::vector).
     */
-    std::vector<std::vector<double> > rawWF_HighGain(fGeom->NOpChannels(),std::vector<double>(timeSliceWindow,0.0));
-    std::vector<std::vector<double> > rawWF_LowGain(fGeom->NOpChannels(),std::vector<double>(timeSliceWindow,0.0));
+    std::vector<std::vector<double>> rawWF_HighGain(fGeom->NOpChannels(),
+                                                    std::vector<double>(timeSliceWindow, 0.0));
+    std::vector<std::vector<double>> rawWF_LowGain(fGeom->NOpChannels(),
+                                                   std::vector<double>(timeSliceWindow, 0.0));
 
     /*
       Start data processing ... see following steps
@@ -244,54 +240,59 @@ namespace opdet {
     //
 
     // For every OpDet, convert PE into waveform and combine all together
-    for(sim::SimPhotonsCollection::const_iterator itOpDet=ThePhotCollection.begin(); itOpDet!=ThePhotCollection.end(); itOpDet++)
-      {
-        const sim::SimPhotons& ThePhot=itOpDet->second;
+    for (sim::SimPhotonsCollection::const_iterator itOpDet = ThePhotCollection.begin();
+         itOpDet != ThePhotCollection.end();
+         itOpDet++) {
+      const sim::SimPhotons& ThePhot = itOpDet->second;
 
-        int ch = ThePhot.OpChannel();
-        // For every photon in the hit:
-        for(const sim::OnePhoton& Phot: ThePhot)
-          {
-            // Sample a random subset according to QE
-            if(fFlatRandom.fire(1.0)<=fQE)
-              {
-                optdata::TimeSlice_t PhotonTime(fOpDigiProperties->GetTimeSlice(Phot.Time));
-                if( Phot.Time > timeBegin_ns  &&  Phot.Time < timeEnd_ns )
-                  {
-                    if(fSimGainSpread)
-                      {
-                        AddWaveform( PhotonTime, rawWF_HighGain[ch], fSinglePEWaveform, fOpDigiProperties->HighGain(ch));
-                        AddWaveform( PhotonTime, rawWF_LowGain[ch], fSinglePEWaveform, fOpDigiProperties->LowGain(ch));
-                      }
-                    else
-                      {
-                        AddWaveform( PhotonTime, rawWF_HighGain[ch], fSinglePEWaveform, fOpDigiProperties->HighGainMean(ch));
-                        AddWaveform( PhotonTime, rawWF_LowGain[ch], fSinglePEWaveform, fOpDigiProperties->LowGainMean(ch));
-                      }
-                  }
-              } // random QE cut
-          } // for each Photon in SimPhotons
-      }
+      int ch = ThePhot.OpChannel();
+      // For every photon in the hit:
+      for (const sim::OnePhoton& Phot : ThePhot) {
+        // Sample a random subset according to QE
+        if (fFlatRandom.fire(1.0) <= fQE) {
+          optdata::TimeSlice_t PhotonTime(fOpDigiProperties->GetTimeSlice(Phot.Time));
+          if (Phot.Time > timeBegin_ns && Phot.Time < timeEnd_ns) {
+            if (fSimGainSpread) {
+              AddWaveform(
+                PhotonTime, rawWF_HighGain[ch], fSinglePEWaveform, fOpDigiProperties->HighGain(ch));
+              AddWaveform(
+                PhotonTime, rawWF_LowGain[ch], fSinglePEWaveform, fOpDigiProperties->LowGain(ch));
+            }
+            else {
+              AddWaveform(PhotonTime,
+                          rawWF_HighGain[ch],
+                          fSinglePEWaveform,
+                          fOpDigiProperties->HighGainMean(ch));
+              AddWaveform(PhotonTime,
+                          rawWF_LowGain[ch],
+                          fSinglePEWaveform,
+                          fOpDigiProperties->LowGainMean(ch));
+            }
+          }
+        } // random QE cut
+      }   // for each Photon in SimPhotons
+    }
 
     //
     // Loop over "raw" waveform (channel-wise)
     //
-    for(unsigned short iCh = 0; iCh < rawWF_LowGain.size(); ++iCh){
+    for (unsigned short iCh = 0; iCh < rawWF_LowGain.size(); ++iCh) {
       rawWF_LowGain[iCh].resize((timeEnd_ns - timeBegin_ns) * sampleFreq_ns);
       rawWF_HighGain[iCh].resize((timeEnd_ns - timeBegin_ns) * sampleFreq_ns);
 
       // Add dark noise
-      if(fSimGainSpread){
-        AddDarkNoise(rawWF_LowGain[iCh],fOpDigiProperties->LowGain(iCh));
-        AddDarkNoise(rawWF_HighGain[iCh],fOpDigiProperties->HighGain(iCh));
-      }else{
-        AddDarkNoise(rawWF_LowGain[iCh],fOpDigiProperties->LowGainMean(iCh));
-        AddDarkNoise(rawWF_HighGain[iCh],fOpDigiProperties->HighGainMean(iCh));
+      if (fSimGainSpread) {
+        AddDarkNoise(rawWF_LowGain[iCh], fOpDigiProperties->LowGain(iCh));
+        AddDarkNoise(rawWF_HighGain[iCh], fOpDigiProperties->HighGain(iCh));
+      }
+      else {
+        AddDarkNoise(rawWF_LowGain[iCh], fOpDigiProperties->LowGainMean(iCh));
+        AddDarkNoise(rawWF_HighGain[iCh], fOpDigiProperties->HighGainMean(iCh));
       }
 
       // Apply digitization and make channel data
-      optdata::ChannelData chData_HighGain(ApplyDigitization(rawWF_HighGain[iCh],iCh));
-      optdata::ChannelData chData_LowGain(ApplyDigitization(rawWF_LowGain[iCh],iCh));
+      optdata::ChannelData chData_HighGain(ApplyDigitization(rawWF_HighGain[iCh], iCh));
+      optdata::ChannelData chData_LowGain(ApplyDigitization(rawWF_LowGain[iCh], iCh));
 
       rawWFGroup_HighGain.push_back(chData_HighGain);
       rawWFGroup_LowGain.push_back(chData_LowGain);

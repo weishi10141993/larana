@@ -74,8 +74,7 @@ namespace opdet {
   }
 
   //-----------------------------------------------------------------------
-  void
-  OpticalRawDigitReformatter::produce(art::Event& evt)
+  void OpticalRawDigitReformatter::produce(art::Event& evt)
   {
 
     // These are the storage pointers we will put in the event, one per category

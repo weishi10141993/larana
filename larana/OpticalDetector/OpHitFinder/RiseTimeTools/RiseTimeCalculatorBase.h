@@ -7,15 +7,13 @@
  * @author Fran Nicolas, June 2022
  */
 
-
 #ifndef RISETIMECALCULATORBASE_H
 #define RISETIMECALCULATORBASE_H
 
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
-namespace pmtana
-{
-  class RiseTimeCalculatorBase{
+namespace pmtana {
+  class RiseTimeCalculatorBase {
 
   public:
     // Default destructor
@@ -27,7 +25,6 @@ namespace pmtana
                             bool _positive) const = 0;
 
   private:
-
   };
 }
 

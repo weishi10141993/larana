@@ -10,24 +10,31 @@
 #ifndef IMCTRUTHMATCHING_H
 #define IMCTRUTHMATCHING_H
 
-namespace art { class Event; }
-namespace fhicl { class ParameterSet; }
-namespace recob { class Hit; }
-namespace simb { class MCParticle; }
+namespace art {
+  class Event;
+}
+namespace fhicl {
+  class ParameterSet;
+}
+namespace recob {
+  class Hit;
+}
+namespace simb {
+  class MCParticle;
+}
 
 #include "canvas/Persistency/Common/Assns.h"
 
 #include "lardataobj/AnalysisBase/BackTrackerMatchingData.h"
 
 ///code to link reconstructed objects back to the MC truth information
-namespace t0
-{
+namespace t0 {
 
-using HitParticleAssociations = art::Assns<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData>;
+  using HitParticleAssociations =
+    art::Assns<simb::MCParticle, recob::Hit, anab::BackTrackerHitMatchingData>;
 
-class IHitParticleAssociations
-{
-public:
+  class IHitParticleAssociations {
+  public:
     /**
      *  @brief  Virtual Destructor
      */
@@ -44,7 +51,7 @@ public:
      *  @brief This rebuilds the internal maps
      */
     virtual void CreateHitParticleAssociations(art::Event&, HitParticleAssociations*) = 0;
-};
+  };
 
 } // namespace
 #endif // IMCTRUTHMATCHING_H

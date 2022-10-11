@@ -18,46 +18,45 @@
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
 
 #include "PMTPedestalBase.h"
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 #include <string>
 
-namespace pmtana
-{
+namespace pmtana {
 
   /**
    \class PedAlgoEdges
    A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").
   */
-  class PedAlgoEdges : public PMTPedestalBase{
+  class PedAlgoEdges : public PMTPedestalBase {
 
   public:
-
     /// Default constructor
-    PedAlgoEdges(const std::string name="PedEdges");
+    PedAlgoEdges(const std::string name = "PedEdges");
 
     /// Alternative ctor
-    PedAlgoEdges(const fhicl::ParameterSet &pset,const std::string name="PedEdges");
+    PedAlgoEdges(const fhicl::ParameterSet& pset, const std::string name = "PedEdges");
     //PedAlgoEdges(const ::fcllite::PSet &pset,const std::string name="PedEdges");
 
     /// enum to define algorithm options
-    enum PED_METHOD{
+    enum PED_METHOD {
       kHEAD = 0, ///< Use first N samples
       kTAIL,     ///< Use last N samples
       kBOTH      ///< Calculate both and use the one with smaller RMS
     };
-  protected:
 
+  protected:
     /// Method to compute a pedestal of the input waveform using "nsample" ADC samples from "start" index.
-    bool ComputePedestal( const pmtana::Waveform_t& wf,
-			  pmtana::PedestalMean_t&   mean_v,
-			  pmtana::PedestalSigma_t&  sigma_v);
+    bool ComputePedestal(const pmtana::Waveform_t& wf,
+                         pmtana::PedestalMean_t& mean_v,
+                         pmtana::PedestalSigma_t& sigma_v);
 
   private:
     size_t _nsample_front; ///< # ADC sample in front to be used
     size_t _nsample_tail;  ///< # ADC sample in tail to be used
     PED_METHOD _method;    ///< Methods
-
   };
 }
 #endif

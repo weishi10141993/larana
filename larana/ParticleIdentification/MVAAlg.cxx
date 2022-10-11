@@ -8,27 +8,27 @@
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
 #include "lardataobj/RecoBase/Hit.h"
 #include "lardataobj/RecoBase/Shower.h"
 #include "lardataobj/RecoBase/SpacePoint.h"
 #include "lardataobj/RecoBase/Track.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOneP.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "cetlib/search_path.h"
 #include "cetlib_except/exception.h"
+#include "fhiclcpp/ParameterSet.h"
 
-#include "TPrincipal.h"
 #include "Fit/Fitter.h"
 #include "Math/Functor.h"
+#include "TPrincipal.h"
 
 #include <cmath>
-#include <vector>
 #include <string>
+#include <vector>
 
 mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset)
   : fCaloAlg(pset.get<fhicl::ParameterSet>("CalorimetryAlg")), fReader("")
@@ -74,8 +74,7 @@ mvapid::MVAAlg::MVAAlg(fhicl::ParameterSet const& pset)
   }
 }
 
-int
-mvapid::MVAAlg::IsInActiveVol(const TVector3& pos)
+int mvapid::MVAAlg::IsInActiveVol(const TVector3& pos)
 {
   const double fiducialDist = 5.0;
 
@@ -87,8 +86,7 @@ mvapid::MVAAlg::IsInActiveVol(const TVector3& pos)
     return 0;
 }
 
-void
-mvapid::MVAAlg::GetDetectorEdges()
+void mvapid::MVAAlg::GetDetectorEdges()
 {
 
   art::ServiceHandle<geo::Geometry const> geom;
@@ -110,8 +108,7 @@ mvapid::MVAAlg::GetDetectorEdges()
   }
 }
 
-void
-mvapid::MVAAlg::GetWireNormals()
+void mvapid::MVAAlg::GetWireNormals()
 {
 
   art::ServiceHandle<geo::Geometry const> geom;
@@ -143,14 +140,12 @@ mvapid::MVAAlg::GetWireNormals()
   }
 }
 
-void
-mvapid::MVAAlg::RunPID(art::Event& evt,
-                       std::vector<anab::MVAPIDResult>& result,
-                       art::Assns<recob::Track, anab::MVAPIDResult, void>& trackAssns,
-                       art::Assns<recob::Shower, anab::MVAPIDResult, void>& showerAssns)
+void mvapid::MVAAlg::RunPID(art::Event& evt,
+                            std::vector<anab::MVAPIDResult>& result,
+                            art::Assns<recob::Track, anab::MVAPIDResult, void>& trackAssns,
+                            art::Assns<recob::Shower, anab::MVAPIDResult, void>& showerAssns)
 {
-  auto const clockData =
-    art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
+  auto const clockData = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
   auto const detProp =
     art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataFor(evt, clockData);
   this->PrepareEvent(evt, clockData);
@@ -244,8 +239,8 @@ mvapid::MVAAlg::RunPID(art::Event& evt,
   }
 }
 
-void
-mvapid::MVAAlg::PrepareEvent(const art::Event& evt, const detinfo::DetectorClocksData& clockData)
+void mvapid::MVAAlg::PrepareEvent(const art::Event& evt,
+                                  const detinfo::DetectorClocksData& clockData)
 {
 
   fHits.clear();
@@ -344,10 +339,9 @@ mvapid::MVAAlg::PrepareEvent(const art::Event& evt, const detinfo::DetectorClock
   }
 }
 
-void
-mvapid::MVAAlg::FitAndSortTrack(art::Ptr<recob::Track> track,
-                                int& isStoppingReco,
-                                mvapid::MVAAlg::SortedObj& sortedTrack)
+void mvapid::MVAAlg::FitAndSortTrack(art::Ptr<recob::Track> track,
+                                     int& isStoppingReco,
+                                     mvapid::MVAAlg::SortedObj& sortedTrack)
 {
 
   sortedTrack.hitMap.clear();
@@ -427,10 +421,9 @@ mvapid::MVAAlg::FitAndSortTrack(art::Ptr<recob::Track> track,
 
 //void mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,TVector3 dir,int& isStoppingReco,
 //				     mvapid::MVAAlg::SortedObj& sortedShower){
-void
-mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,
-                           int& isStoppingReco,
-                           mvapid::MVAAlg::SortedObj& sortedShower)
+void mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,
+                                int& isStoppingReco,
+                                mvapid::MVAAlg::SortedObj& sortedShower)
 {
   sortedShower.hitMap.clear();
 
@@ -518,10 +511,9 @@ mvapid::MVAAlg::SortShower(art::Ptr<recob::Shower> shower,
       std::pair<double, art::Ptr<recob::Hit>>(lengthAlongShower, *hitIter));
   }
 }
-void
-mvapid::MVAAlg::RunPCA(std::vector<art::Ptr<recob::Hit>>& hits,
-                       std::vector<double>& eVals,
-                       std::vector<double>& eVecs)
+void mvapid::MVAAlg::RunPCA(std::vector<art::Ptr<recob::Hit>>& hits,
+                            std::vector<double>& eVals,
+                            std::vector<double>& eVecs)
 {
   TPrincipal* principal = new TPrincipal(3, "D");
 
@@ -543,11 +535,10 @@ mvapid::MVAAlg::RunPCA(std::vector<art::Ptr<recob::Hit>>& hits,
     eVecs.push_back(principal->GetEigenVectors()->GetMatrixArray()[i]);
   }
 }
-void
-mvapid::MVAAlg::_Var_Shape(const mvapid::MVAAlg::SortedObj& track,
-                           double& coreHaloRatio,
-                           double& concentration,
-                           double& conicalness)
+void mvapid::MVAAlg::_Var_Shape(const mvapid::MVAAlg::SortedObj& track,
+                                double& coreHaloRatio,
+                                double& concentration,
+                                double& conicalness)
 {
 
   static const unsigned int conMinHits = 3;
@@ -612,35 +603,32 @@ mvapid::MVAAlg::_Var_Shape(const mvapid::MVAAlg::SortedObj& track,
   }
 }
 
-double
-mvapid::MVAAlg::CalcSegmentdEdxFrac(const detinfo::DetectorClocksData& clock_data,
-                                    const detinfo::DetectorPropertiesData& det_prop,
-                                    const mvapid::MVAAlg::SortedObj& track,
-                                    double start,
-                                    double end)
+double mvapid::MVAAlg::CalcSegmentdEdxFrac(const detinfo::DetectorClocksData& clock_data,
+                                           const detinfo::DetectorPropertiesData& det_prop,
+                                           const mvapid::MVAAlg::SortedObj& track,
+                                           double start,
+                                           double end)
 {
 
   double trackLength = (track.end - track.start).Mag();
   return CalcSegmentdEdxDist(clock_data, det_prop, track, start * trackLength, end * trackLength);
 }
 
-double
-mvapid::MVAAlg::CalcSegmentdEdxDistAtEnd(const detinfo::DetectorClocksData& clock_data,
-                                         const detinfo::DetectorPropertiesData& det_prop,
-                                         const mvapid::MVAAlg::SortedObj& track,
-                                         double distAtEnd)
+double mvapid::MVAAlg::CalcSegmentdEdxDistAtEnd(const detinfo::DetectorClocksData& clock_data,
+                                                const detinfo::DetectorPropertiesData& det_prop,
+                                                const mvapid::MVAAlg::SortedObj& track,
+                                                double distAtEnd)
 {
 
   double trackLength = (track.end - track.start).Mag();
   return CalcSegmentdEdxDist(clock_data, det_prop, track, trackLength - distAtEnd, trackLength);
 }
 
-double
-mvapid::MVAAlg::CalcSegmentdEdxDist(const detinfo::DetectorClocksData& clock_data,
-                                    const detinfo::DetectorPropertiesData& det_prop,
-                                    const mvapid::MVAAlg::SortedObj& track,
-                                    double start,
-                                    double end)
+double mvapid::MVAAlg::CalcSegmentdEdxDist(const detinfo::DetectorClocksData& clock_data,
+                                           const detinfo::DetectorPropertiesData& det_prop,
+                                           const mvapid::MVAAlg::SortedObj& track,
+                                           double start,
+                                           double end)
 {
   art::ServiceHandle<geo::Geometry const> geom;
 
@@ -686,8 +674,9 @@ mvapid::MVAAlg::CalcSegmentdEdxDist(const detinfo::DetectorClocksData& clock_dat
   return nHits ? totaldEdx / nHits : 0;
 }
 
-int
-mvapid::MVAAlg::LinFit(const art::Ptr<recob::Track> track, TVector3& trackPoint, TVector3& trackDir)
+int mvapid::MVAAlg::LinFit(const art::Ptr<recob::Track> track,
+                           TVector3& trackPoint,
+                           TVector3& trackDir)
 {
 
   const std::vector<art::Ptr<recob::SpacePoint>>& sp = fTracksToSpacePoints.at(track);
@@ -735,10 +724,9 @@ mvapid::MVAAlg::LinFit(const art::Ptr<recob::Track> track, TVector3& trackPoint,
   }
 }
 
-int
-mvapid::MVAAlg::LinFitShower(const art::Ptr<recob::Shower> shower,
-                             TVector3& showerPoint,
-                             TVector3& showerDir)
+int mvapid::MVAAlg::LinFitShower(const art::Ptr<recob::Shower> shower,
+                                 TVector3& showerPoint,
+                                 TVector3& showerDir)
 {
 
   const std::vector<art::Ptr<recob::SpacePoint>>& sp = fShowersToSpacePoints.at(shower);

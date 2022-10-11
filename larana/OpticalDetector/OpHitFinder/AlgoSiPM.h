@@ -10,7 +10,9 @@
 #ifndef ALGOSIPM_H
 #define ALGOSIPM_H
 
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 #include "PMTPulseRecoBase.h"
 #include "larana/OpticalDetector/OpHitFinder/OpticalRecoTypes.h"
@@ -22,10 +24,9 @@ namespace pmtana {
   class AlgoSiPM : public PMTPulseRecoBase {
 
   public:
-
-    AlgoSiPM(const fhicl::ParameterSet &pset,
-        std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator=nullptr,
-        const std::string name="AlgoSiPM");
+    AlgoSiPM(const fhicl::ParameterSet& pset,
+             std::unique_ptr<pmtana::RiseTimeCalculatorBase> risetimecalculator = nullptr,
+             const std::string name = "AlgoSiPM");
 
     // Implementation of PMTPulseRecoBase::Reset() method
     void Reset();
@@ -38,10 +39,9 @@ namespace pmtana {
     //      void SetNSigma(double v) {_nsigma = v;};
 
   protected:
-
-    bool RecoPulse( const pmtana::Waveform_t&,
-		    const pmtana::PedestalMean_t&,
-		    const pmtana::PedestalSigma_t&     );
+    bool RecoPulse(const pmtana::Waveform_t&,
+                   const pmtana::PedestalMean_t&,
+                   const pmtana::PedestalSigma_t&);
 
     // A variable holder for a user-defined absolute ADC threshold value
     double _adc_thres;
@@ -58,7 +58,6 @@ namespace pmtana {
     // A variable holder for a multiplicative factor for the pedestal
     // standard deviation to define the threshold
     //      double _nsigma;
-
   };
 
 }

@@ -18,8 +18,8 @@
 #include <string>
 #include <utility> // std::pair<>, std::move()
 
-#include "larcore/Geometry/Geometry.h"
 #include "larcore/CoreUtils/ServiceUtil.h"
+#include "larcore/Geometry/Geometry.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
 #include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "lardata/Utilities/AssociationUtil.h"
@@ -66,8 +66,7 @@ cosmic::CosmicClusterTagger::CosmicClusterTagger(fhicl::ParameterSet const& p) :
   produces<art::Assns<recob::Cluster, anab::CosmicTag>>();
 }
 
-void
-cosmic::CosmicClusterTagger::produce(art::Event& e)
+void cosmic::CosmicClusterTagger::produce(art::Event& e)
 {
   std::unique_ptr<std::vector<anab::CosmicTag>> cosmicTagClusterVector(
     new std::vector<anab::CosmicTag>);

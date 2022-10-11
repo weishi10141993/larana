@@ -9,10 +9,14 @@
 #include <string>
 #include <vector>
 
-namespace art { class Event; }
+namespace art {
+  class Event;
+}
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 #include "larreco/Calorimetry/CalorimetryAlg.h"
 
@@ -29,8 +33,8 @@ namespace recob {
   class Track;
 }
 #include "Math/Vector3Dfwd.h"
-#include "TLorentzVector.h"
 #include "TGraph2D.h"
+#include "TLorentzVector.h"
 #include "TMVA/Reader.h"
 #include "TVector3.h"
 
@@ -52,8 +56,7 @@ namespace mvapid {
       SumDistance2(TGraph2D* g) : fGraph(g) {}
 
       // implementation of the function to be minimized
-      double
-      operator()(const double* p)
+      double operator()(const double* p)
       {
 
         ROOT::Math::XYZVector x0(p[0], p[2], p[4]);

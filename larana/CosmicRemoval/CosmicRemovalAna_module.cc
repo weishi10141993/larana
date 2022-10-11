@@ -172,8 +172,7 @@ microboone::CosmicRemovalAna::CosmicRemovalAna(fhicl::ParameterSet const& pset)
 // BeginJob
 // =====================================================
 
-void
-microboone::CosmicRemovalAna::beginJob()
+void microboone::CosmicRemovalAna::beginJob()
 {
 
   //static cEventProperties_t cEventVals;
@@ -205,8 +204,7 @@ microboone::CosmicRemovalAna::beginJob()
 // =====================================================
 // Event Loop
 // =====================================================
-void
-microboone::CosmicRemovalAna::analyze(const art::Event& evt)
+void microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 {
 
   InitEventTree(evt.run(), evt.event());
@@ -331,8 +329,7 @@ microboone::CosmicRemovalAna::analyze(const art::Event& evt)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-void
-microboone::CosmicRemovalAna::InitEventTree(int run_number, int event_number)
+void microboone::CosmicRemovalAna::InitEventTree(int run_number, int event_number)
 {
 
   cEventVals.runNumber = run_number;     //evt.run();
@@ -377,16 +374,14 @@ microboone::CosmicRemovalAna::InitEventTree(int run_number, int event_number)
 
 //-------------------------------------------------------------------------------------------------------------------
 // take in a list of hits, and determine the origin for those hits (and fill in the tree info)
-void
-microboone::CosmicRemovalAna::FillMCInfo(
+void microboone::CosmicRemovalAna::FillMCInfo(
   art::Event const& e,
   std::vector<recob::Hit> const& hitlist,
   std::vector<hit_origin_t>& hitOrigins,
   std::vector<sim::MCHitCollection> const& mchitCollectionVector,
   std::map<int, const simb::MCTruth*> const& trackIdToTruthMap)
 {
-  auto const clock_data =
-    art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(e);
+  auto const clock_data = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(e);
 
   for (size_t itr = 0; itr < hitlist.size(); itr++) {
 
@@ -438,8 +433,7 @@ microboone::CosmicRemovalAna::FillMCInfo(
 } //end FillMCInfo
 
 //-------------------------------------------------------------------------------------------------------------------
-void
-microboone::CosmicRemovalAna::FillTrackInfo(
+void microboone::CosmicRemovalAna::FillTrackInfo(
   size_t const& hit_iter,
   hit_origin_t const& origin,
   float const& charge,
@@ -487,8 +481,7 @@ microboone::CosmicRemovalAna::FillTrackInfo(
 } //end FillTrackInfo
 
 //-------------------------------------------------------------------------------------------------------------------
-void
-microboone::CosmicRemovalAna::FillClusterInfo(
+void microboone::CosmicRemovalAna::FillClusterInfo(
   size_t const& hit_iter,
   hit_origin_t const& origin,
   float const& charge,
@@ -536,8 +529,8 @@ microboone::CosmicRemovalAna::FillClusterInfo(
 } //end FillClusterInfo
 
 //-------------------------------------------------------------------------------------------------------------------
-void
-microboone::CosmicRemovalAna::FillAllTagsInfo(recob::Hit const& hit, hit_origin_t const& origin)
+void microboone::CosmicRemovalAna::FillAllTagsInfo(recob::Hit const& hit,
+                                                   hit_origin_t const& origin)
 {
   if (origin == hit_origin_Cosmic) {
     cEventVals.TotalTaggedCharge_Cosmic += hit.Integral();

@@ -15,34 +15,24 @@
 
 #include <vector>
 
-namespace opdet{
+namespace opdet {
 
   class FlashHypothesis;
-  
+
   class FlashUtilities {
 
   public:
-
     FlashUtilities() {}
 
-    float CompareByError(const FlashHypothesis&,
-			 const std::vector<float>&,
-			 std::vector<float>&);
-    float CompareByFraction(const FlashHypothesis&,
-			    const std::vector<float>&,
-			    std::vector<float>&);
+    float CompareByError(const FlashHypothesis&, const std::vector<float>&, std::vector<float>&);
+    float CompareByFraction(const FlashHypothesis&, const std::vector<float>&, std::vector<float>&);
     float CompareByFraction(const std::vector<float>&,
-			    const std::vector<float>&,
-			    std::vector<float>&);
-    void GetPosition(const std::vector<float>&,
-		     const std::vector<float>&,
-		     float&, float&);
-    void GetPosition(const std::vector<float>&,
-		     const std::vector<float>&,
-		     double&, double&);
+                            const std::vector<float>&,
+                            std::vector<float>&);
+    void GetPosition(const std::vector<float>&, const std::vector<float>&, float&, float&);
+    void GetPosition(const std::vector<float>&, const std::vector<float>&, double&, double&);
 
   private:
-
   };
 
 }

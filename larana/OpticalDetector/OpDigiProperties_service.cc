@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 // LArSoft includes
-#include "larana/OpticalDetector/OpDigiProperties.h"
 #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
+#include "larana/OpticalDetector/OpDigiProperties.h"
 
 DEFINE_ART_SERVICE(opdet::OpDigiProperties)

@@ -141,8 +141,7 @@ namespace opdet {
   }
 
   //-----------------------------------------------------------------------
-  void
-  LEDCalibrationAna::endJob()
+  void LEDCalibrationAna::endJob()
   {
     art::ServiceHandle<art::TFileService const> tfs;
 
@@ -211,8 +210,7 @@ namespace opdet {
   }
 
   //-----------------------------------------------------------------------
-  void
-  LEDCalibrationAna::analyze(const art::Event& evt)
+  void LEDCalibrationAna::analyze(const art::Event& evt)
   {
     auto const clock_data =
       art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
@@ -299,8 +297,7 @@ namespace opdet {
   }
 
   //---------------------------------
-  uint32_t
-  LEDCalibrationAna::ShaperToChannel(uint32_t Shaper)
+  uint32_t LEDCalibrationAna::ShaperToChannel(uint32_t Shaper)
   {
     static std::map<uint32_t, uint32_t> ShaperToChannelMap;
     if (ShaperToChannelMap.size() == 0) {

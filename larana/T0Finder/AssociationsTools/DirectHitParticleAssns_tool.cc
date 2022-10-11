@@ -5,13 +5,13 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/ToolMacros.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
+#include "lardataobj/RecoBase/Hit.h"
 #include "larsim/MCCheater/BackTrackerService.h"
 #include "larsim/MCCheater/ParticleInventoryService.h"
-#include "lardataobj/RecoBase/Hit.h"
 
 #include "nusimdata/SimulationBase/MCParticle.h"
 
@@ -83,8 +83,7 @@ namespace t0 {
   ///
   /// pset - Fcl parameter set.
   ///
-  void
-  DirectHitParticleAssns::reconfigure(fhicl::ParameterSet const& pset)
+  void DirectHitParticleAssns::reconfigure(fhicl::ParameterSet const& pset)
   {
     fMCParticleModuleLabel = pset.get<art::InputTag>("MCParticleLabel");
     fHitModuleLabelVec = pset.get<std::vector<art::InputTag>>("HitModuleLabelVec");
@@ -97,9 +96,8 @@ namespace t0 {
   ///
   /// event - the art event used to extract all information
   ///
-  void
-  DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt,
-                                                        HitParticleAssociations* hitPartAssns)
+  void DirectHitParticleAssns::CreateHitParticleAssociations(art::Event& evt,
+                                                             HitParticleAssociations* hitPartAssns)
   {
     // This function handles the "direct" creation of hit<-->MCParticle associations through use of the BackTracker
     //
@@ -109,8 +107,7 @@ namespace t0 {
     art::ServiceHandle<cheat::BackTrackerService const> btService;
     art::ServiceHandle<cheat::ParticleInventoryService const> piService;
 
-    auto const clockData =
-      art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
+    auto const clockData = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataFor(evt);
 
     // Loop over input hit producer labels
     for (const auto& inputTag : fHitModuleLabelVec) {

@@ -30,26 +30,24 @@
 
 namespace opdet {
 
-  class OpHitAna : public art::EDAnalyzer{
+  class OpHitAna : public art::EDAnalyzer {
   public:
-
     // Standard constructor and destructor for an ART module.
     OpHitAna(const fhicl::ParameterSet&);
 
     // The analyzer routine, called once per event.
-    void analyze (const art::Event&);
+    void analyze(const art::Event&);
 
   private:
-
     // The stuff below is the part you'll most likely have to change to
     // go from this custom example to your own task.
 
     // The parameters we'll read from the .fcl file.
-    std::string fInputModule;              // Input tag for OpDet collection
-    float fSampleFreq;                     // in MHz
-    float fTimeBegin;                      // in us
-    float fTimeEnd;                        // in us
-  //  short fPEheight;                       // in ADC counts
+    std::string fInputModule; // Input tag for OpDet collection
+    float fSampleFreq;        // in MHz
+    float fTimeBegin;         // in us
+    float fTimeEnd;           // in us
+                              //  short fPEheight;                       // in ADC counts
 
     // Flags to enable or disable output of debugging TH1 / TH2s
     bool fMakeHistPerChannel;
@@ -57,17 +55,14 @@ namespace opdet {
     bool fMakeHitTree;
 
     // Output TTree and its branch variables
-    TTree * fHitTree;
-    Int_t   fEventID;
-    Int_t   fOpChannel;
+    TTree* fHitTree;
+    Int_t fEventID;
+    Int_t fOpChannel;
     Float_t fPeakTime;
     Float_t fNPe;
-
-
   };
 
 }
-
 
 // OpHitAna_module.cc
 
@@ -84,36 +79,31 @@ namespace opdet {
 
   //-----------------------------------------------------------------------
   // Constructor
-  OpHitAna::OpHitAna(fhicl::ParameterSet const& pset)
-    : EDAnalyzer(pset)
+  OpHitAna::OpHitAna(fhicl::ParameterSet const& pset) : EDAnalyzer(pset)
   {
 
     // Indicate that the Input Module comes from .fcl
     fInputModule = pset.get<std::string>("InputModule");
 
     art::ServiceHandle<OpDigiProperties> odp;
-    fTimeBegin  = odp->TimeBegin();
-    fTimeEnd    = odp->TimeEnd();
+    fTimeBegin = odp->TimeBegin();
+    fTimeEnd = odp->TimeEnd();
     fSampleFreq = odp->SampleFreq();
 
-
-    fMakeHistPerChannel     = pset.get<bool>("MakeHistPerChannel");
-    fMakeHistAllChannels    = pset.get<bool>("MakeHistAllChannels");
-    fMakeHitTree     = pset.get<bool>("MakeHitTree");
+    fMakeHistPerChannel = pset.get<bool>("MakeHistPerChannel");
+    fMakeHistAllChannels = pset.get<bool>("MakeHistAllChannels");
+    fMakeHitTree = pset.get<bool>("MakeHitTree");
 
     // If required, make TTree for output
 
-    if(fMakeHitTree)
-      {
-        art::ServiceHandle<art::TFileService const> tfs;
-	fHitTree = tfs->make<TTree>("HitTree","HitTree");
-	fHitTree->Branch("EventID",   &fEventID,   "EventID/I");
-	fHitTree->Branch("OpChannel", &fOpChannel, "OpChannel/I");
-	fHitTree->Branch("PeakTime",  &fPeakTime,  "PeakTime/F");
-	fHitTree->Branch("NPe",       &fNPe,       "NPe/F");
-      }
-
-
+    if (fMakeHitTree) {
+      art::ServiceHandle<art::TFileService const> tfs;
+      fHitTree = tfs->make<TTree>("HitTree", "HitTree");
+      fHitTree->Branch("EventID", &fEventID, "EventID/I");
+      fHitTree->Branch("OpChannel", &fOpChannel, "OpChannel/I");
+      fHitTree->Branch("PeakTime", &fPeakTime, "PeakTime/F");
+      fHitTree->Branch("NPe", &fNPe, "NPe/F");
+    }
   }
 
   //-----------------------------------------------------------------------
@@ -121,11 +111,10 @@ namespace opdet {
   {
 
     // Create a handle for our vector of pulses
-    art::Handle< std::vector< recob::OpHit > > HitHandle;
+    art::Handle<std::vector<recob::OpHit>> HitHandle;
 
     // Create string for histogram name
     char HistName[50];
-
 
     // Read in HitHandle
     evt.getByLabel(fInputModule, HitHandle);
@@ -141,57 +130,49 @@ namespace opdet {
 
     sprintf(HistName, "Event %d AllOpDets", evt.id().event());
 
-    TH1D * AllHits = nullptr;
-    if(fMakeHistAllChannels)
-      {
-	AllHits = tfs->make<TH1D>(HistName, ";t (ns);",
-				  int((fTimeEnd - fTimeBegin) * fSampleFreq),
-				  fTimeBegin * 1000.,
-				  fTimeEnd * 1000.);
-      }
+    TH1D* AllHits = nullptr;
+    if (fMakeHistAllChannels) {
+      AllHits = tfs->make<TH1D>(HistName,
+                                ";t (ns);",
+                                int((fTimeEnd - fTimeBegin) * fSampleFreq),
+                                fTimeBegin * 1000.,
+                                fTimeEnd * 1000.);
+    }
 
-    for(int i=0; i!=NOpChannels; ++i)
-      {
+    for (int i = 0; i != NOpChannels; ++i) {
 
-	sprintf(HistName, "Event %d OpDet %i", evt.id().event(), i);
-	if(fMakeHistPerChannel) HitHist.push_back ( tfs->make<TH1D>(HistName, ";t (ns);",
-							      int((fTimeEnd - fTimeBegin) * fSampleFreq),
-							      fTimeBegin * 1000.,
-							      fTimeEnd * 1000.));
-
-      }
-
+      sprintf(HistName, "Event %d OpDet %i", evt.id().event(), i);
+      if (fMakeHistPerChannel)
+        HitHist.push_back(tfs->make<TH1D>(HistName,
+                                          ";t (ns);",
+                                          int((fTimeEnd - fTimeBegin) * fSampleFreq),
+                                          fTimeBegin * 1000.,
+                                          fTimeEnd * 1000.));
+    }
 
     fEventID = evt.id().event();
 
-
     // For every OpHit in the vector
-    for(unsigned int i = 0; i < HitHandle->size(); ++i)
-      {
-	// Get OpHit
-	art::Ptr< recob::OpHit > TheHitPtr(HitHandle, i);
-	recob::OpHit TheHit = *TheHitPtr;
+    for (unsigned int i = 0; i < HitHandle->size(); ++i) {
+      // Get OpHit
+      art::Ptr<recob::OpHit> TheHitPtr(HitHandle, i);
+      recob::OpHit TheHit = *TheHitPtr;
 
-	fOpChannel = TheHit.OpChannel();
-	fNPe       = TheHit.PE();
-        fPeakTime  = TheHit.PeakTime();
+      fOpChannel = TheHit.OpChannel();
+      fNPe = TheHit.PE();
+      fPeakTime = TheHit.PeakTime();
 
-	if(fMakeHitTree)
-	  fHitTree->Fill();
+      if (fMakeHitTree) fHitTree->Fill();
 
-	if(fMakeHistPerChannel)
-	  {
-	    if(fOpChannel>int(HitHist.size()))
-	      {
-		mf::LogError("OpHitAna")<<"Error : Trying to fill channel out of range, " << fOpChannel;
-	      }
-	    HitHist[fOpChannel]->Fill(fPeakTime,fNPe);
-	  }
-
-	if(fMakeHistAllChannels) AllHits->Fill(fPeakTime, fNPe);
-
+      if (fMakeHistPerChannel) {
+        if (fOpChannel > int(HitHist.size())) {
+          mf::LogError("OpHitAna") << "Error : Trying to fill channel out of range, " << fOpChannel;
+        }
+        HitHist[fOpChannel]->Fill(fPeakTime, fNPe);
       }
 
+      if (fMakeHistAllChannels) AllHits->Fill(fPeakTime, fNPe);
+    }
   }
 
 } // namespace opdet

@@ -52,18 +52,16 @@ namespace pmtana {
   }
 
   //***************************************************************
-  void
-  AlgoSlidingWindow::Reset()
+  void AlgoSlidingWindow::Reset()
   //***************************************************************
   {
     PMTPulseRecoBase::Reset();
   }
 
   //***************************************************************
-  bool
-  AlgoSlidingWindow::RecoPulse(const pmtana::Waveform_t& wf,
-                               const pmtana::PedestalMean_t& mean_v,
-                               const pmtana::PedestalSigma_t& sigma_v)
+  bool AlgoSlidingWindow::RecoPulse(const pmtana::Waveform_t& wf,
+                                    const pmtana::PedestalMean_t& mean_v,
+                                    const pmtana::PedestalSigma_t& sigma_v)
   //***************************************************************
   {
 
@@ -118,11 +116,11 @@ namespace pmtana {
 
           // Register if width is acceptable
           if ((_pulse.t_end - _pulse.t_start) >= _min_width) {
-            if(_risetime_calc_ptr)
+            if (_risetime_calc_ptr)
               _pulse.t_rise = _risetime_calc_ptr->RiseTime(
-                                {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
-                                {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
-                                _positive);
+                {wf.begin() + _pulse.t_start, wf.begin() + _pulse.t_end},
+                {mean_v.begin() + _pulse.t_start, mean_v.begin() + _pulse.t_end},
+                _positive);
 
             _pulse_v.push_back(_pulse);
           }
@@ -170,11 +168,11 @@ namespace pmtana {
 
           // Register if width is acceptable
           if ((_pulse.t_end - _pulse.t_start) >= _min_width) {
-            if(_risetime_calc_ptr)
+            if (_risetime_calc_ptr)
               _pulse.t_rise = _risetime_calc_ptr->RiseTime(
-                                {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
-                                {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
-                                _positive);
+                {wf.begin() + _pulse.t_start, wf.begin() + _pulse.t_end},
+                {mean_v.begin() + _pulse.t_start, mean_v.begin() + _pulse.t_end},
+                _positive);
 
             _pulse_v.push_back(_pulse);
           }
@@ -237,11 +235,11 @@ namespace pmtana {
 
         // Register if width is acceptable
         if ((_pulse.t_end - _pulse.t_start) >= _min_width) {
-          if(_risetime_calc_ptr)
+          if (_risetime_calc_ptr)
             _pulse.t_rise = _risetime_calc_ptr->RiseTime(
-                              {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
-                              {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
-                              _positive);
+              {wf.begin() + _pulse.t_start, wf.begin() + _pulse.t_end},
+              {mean_v.begin() + _pulse.t_start, mean_v.begin() + _pulse.t_end},
+              _positive);
 
           _pulse_v.push_back(_pulse);
         }
@@ -286,11 +284,11 @@ namespace pmtana {
 
       // Register if width is acceptable
       if ((_pulse.t_end - _pulse.t_start) >= _min_width) {
-        if(_risetime_calc_ptr)
+        if (_risetime_calc_ptr)
           _pulse.t_rise = _risetime_calc_ptr->RiseTime(
-                            {wf.begin()+_pulse.t_start, wf.begin()+_pulse.t_end},
-                            {mean_v.begin()+_pulse.t_start, mean_v.begin()+_pulse.t_end},
-                            _positive);
+            {wf.begin() + _pulse.t_start, wf.begin() + _pulse.t_end},
+            {mean_v.begin() + _pulse.t_start, mean_v.begin() + _pulse.t_end},
+            _positive);
         _pulse_v.push_back(_pulse);
       }
 
