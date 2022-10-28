@@ -335,21 +335,20 @@ void cosmic::BeamFlashTrackMatchTaggerAlg::FillFlashProperties(
   z = 0;
   sigmaz = 0;
   sum = 0;
-  double xyz[3];
   for (unsigned int opdet = 0; opdet < opdetVector.size(); opdet++) {
     sum += opdetVector[opdet];
-    geom.Cryostat(0).OpDet(opdet).GetCenter(xyz);
-    y += opdetVector[opdet] * xyz[1];
-    z += opdetVector[opdet] * xyz[2];
+    auto const xyz = geom.Cryostat().OpDet(opdet).GetCenter();
+    y += opdetVector[opdet] * xyz.Y();
+    z += opdetVector[opdet] * xyz.Z();
   }
 
   y /= sum;
   z /= sum;
 
   for (unsigned int opdet = 0; opdet < opdetVector.size(); opdet++) {
-    geom.Cryostat(0).OpDet(opdet).GetCenter(xyz);
-    sigmay += (opdetVector[opdet] * xyz[1] - y) * (opdetVector[opdet] * xyz[1] - y);
-    sigmaz += (opdetVector[opdet] * xyz[2] - y) * (opdetVector[opdet] * xyz[2] - y);
+    auto const xyz = geom.Cryostat().OpDet(opdet).GetCenter();
+    sigmay += (opdetVector[opdet] * xyz.Y() - y) * (opdetVector[opdet] * xyz.Y() - y);
+    sigmaz += (opdetVector[opdet] * xyz.Z() - y) * (opdetVector[opdet] * xyz.Z() - y);
   }
 
   sigmay = std::sqrt(sigmay) / sum;

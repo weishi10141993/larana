@@ -48,11 +48,10 @@ void opdet::FlashHypothesisAnaAlg::FillOpDetPositions(geo::Geometry const& geom)
   fOpDetPositions_Y.resize(geom.NOpDets());
   fOpDetPositions_Z.resize(geom.NOpDets());
 
-  double xyz[3];
   for (size_t i_opdet = 0; i_opdet < geom.NOpDets(); i_opdet++) {
-    geom.Cryostat(0).OpDet(i_opdet).GetCenter(xyz);
-    fOpDetPositions_Y[i_opdet] = (float)xyz[1];
-    fOpDetPositions_Z[i_opdet] = (float)xyz[2];
+    auto const xyz = geom.Cryostat().OpDet(i_opdet).GetCenter();
+    fOpDetPositions_Y[i_opdet] = (float)xyz.Y();
+    fOpDetPositions_Z[i_opdet] = (float)xyz.Z();
   }
 }
 

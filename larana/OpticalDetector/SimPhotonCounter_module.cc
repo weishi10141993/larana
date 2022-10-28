@@ -195,15 +195,14 @@ namespace opdet {
     art::ServiceHandle<art::TFileService const> tfs;
     art::ServiceHandle<geo::Geometry const> geo;
 
-    std::cout << "Optical Channels positions:  " << geo->Cryostat(0).NOpDet() << std::endl;
-    for (int ch = 0; ch != int(geo->Cryostat(0).NOpDet()); ch++) {
-      double OpDetCenter[3];
-      geo->OpDetGeoFromOpDet(ch).GetCenter(OpDetCenter);
-      std::cout << ch << "  " << OpDetCenter[0] << "  " << OpDetCenter[1] << "  " << OpDetCenter[2]
-                << std::endl;
+    std::cout << "Optical Channels positions:  " << geo->Cryostat().NOpDet() << std::endl;
+    for (int ch = 0; ch != int(geo->Cryostat().NOpDet()); ch++) {
+      auto const OpDetCenter = geo->OpDetGeoFromOpDet(ch).GetCenter();
+      std::cout << ch << "  " << OpDetCenter.X() << "  " << OpDetCenter.Y() << "  "
+                << OpDetCenter.Z() << std::endl;
     }
 
-    auto const CryoBounds = geo->Cryostat(0).Boundaries();
+    auto const CryoBounds = geo->Cryostat().Boundaries();
     std::cout << "Cryo Boundaries" << std::endl;
     std::cout << "Xmin: " << CryoBounds.MinX() << " Xmax: " << CryoBounds.MaxX()
               << " Ymin: " << CryoBounds.MinY() << " Ymax: " << CryoBounds.MaxY()

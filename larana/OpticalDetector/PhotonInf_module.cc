@@ -77,7 +77,7 @@ namespace opdet {
     InputModules = pset.get<std::vector<std::string>>("InputModules", {"largeant"});
 
     art::ServiceHandle<geo::Geometry const> geo;
-    nOpChannels = int(geo->Cryostat(0).NOpDet());
+    nOpChannels = int(geo->Cryostat().NOpDet());
 
     num_detph.resize(nOpChannels, 0);
     num_refph.resize(nOpChannels, 0);
