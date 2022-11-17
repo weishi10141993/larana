@@ -166,17 +166,9 @@ namespace opdet {
             const sim::SimPhotons& TheHit = itOpDet;
             for (const sim::OnePhoton& Phot : TheHit) {
               Energy = Phot.Energy;
-              //                            Time   = Phot.Time;
-
-              //                            if(rec == true && (pos[0] != Phot.InitialPosition.X()/10.0 || pos[1] != Phot.InitialPosition.Y()/10.0 || pos[2] != Phot.InitialPosition.Z()/10.0))
-              //                            {
-              //                                std::cout << "Warning: Photon initial position error!!! Energy: " << Energy << std::endl;
-              //                            }
-
               num_totph[OpChannel] += 1;
 
-              if (Energy < vuv) // reflected photons
-              {
+              if (Energy < vuv)  { // reflected photons
                 num_refph[OpChannel] += 1;
               }
               else {
@@ -184,7 +176,6 @@ namespace opdet {
                 pos[0] = Phot.InitialPosition.X() / 10.0; // cm
                 pos[1] = Phot.InitialPosition.Y() / 10.0;
                 pos[2] = Phot.InitialPosition.Z() / 10.0;
-
                 rec = true;
               }
             }
