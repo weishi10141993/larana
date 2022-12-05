@@ -135,21 +135,17 @@ namespace opdet {
     float vuv = 6e-6;
 
     auto photon_handles = evt.getMany<std::vector<sim::SimPhotons>>();
-    if (photon_handles.empty())  {
+    if (photon_handles.empty()) {
       throw art::Exception(art::errors::ProductNotFound)
         << "sim SimPhotons retrieved and you requested them.";
     }
 
     for (auto const& mod : InputModules) {
       for (auto const& ph_handle : photon_handles) {
-        if (!ph_handle.isValid()) {
-          continue;
-        }
-        if (ph_handle.provenance()->moduleLabel() != mod) {
-          continue;
-        }
+        if (!ph_handle.isValid()) { continue; }
+        if (ph_handle.provenance()->moduleLabel() != mod) { continue; }
 
-        if (ph_handle->empty())  {
+        if (ph_handle->empty()) {
           for (auto const& itOpDet : (*ph_handle)) {
             OpChannel = int(itOpDet.OpChannel());
             const sim::SimPhotons& TheHit = itOpDet;
@@ -164,13 +160,13 @@ namespace opdet {
               }
               else {
                 num_detph[OpChannel] += 1;
-                
+
                 if (rec == false) {
-                    pos[0] = Phot.InitialPosition.X() / 10.0; // cm
-                    pos[1] = Phot.InitialPosition.Y() / 10.0;
-                    pos[2] = Phot.InitialPosition.Z() / 10.0;
-    
-                    rec = true;
+                  pos[0] = Phot.InitialPosition.X() / 10.0; // cm
+                  pos[1] = Phot.InitialPosition.Y() / 10.0;
+                  pos[2] = Phot.InitialPosition.Z() / 10.0;
+
+                  rec = true;
                 }
               }
             }
