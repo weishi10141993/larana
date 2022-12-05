@@ -52,8 +52,8 @@ namespace opdet {
 
   private:
     bool FillTree;
-    std::string LogFileName;              // Input tag for name of log file
-    std::vector<std::string> InputModule; // Input tag for OpDet collection
+    std::string LogFileName;               // Input tag for name of log file
+    std::vector<std::string> InputModules; // Input tag for OpDet collection
 
     std::vector<int> num_detph; // number of directly detected photons
     std::vector<int> num_refph; // number of reflected photons
@@ -74,16 +74,10 @@ namespace opdet {
     , FillTree{pset.get<bool>("FillTree")}
     , LogFileName{pset.get<std::string>("LogFileName")}
   {
-    try {
-      InputModule = pset.get<std::vector<std::string>>("InputModule", {"largeant"});
-    }
-    catch (...) {
-      InputModule.push_back(pset.get<std::string>("InputModule", "largeant"));
-    }
+    InputModules = pset.get<std::vector<std::string>>("InputModules", {"largeant"});
 
     art::ServiceHandle<geo::Geometry const> geo;
     nOpChannels = int(geo->Cryostat(0).NOpDet());
-    std::cout << "Optical Channels number:  " << nOpChannels << std::endl;
 
     num_detph.resize(nOpChannels, 0);
     num_refph.resize(nOpChannels, 0);
@@ -112,7 +106,6 @@ namespace opdet {
 
   void PhotonInf::beginJob()
   {
-    std::cout << "Open log file " << LogFileName << std::endl;
     logFile.open(LogFileName);
 
     return;
@@ -120,7 +113,6 @@ namespace opdet {
 
   void PhotonInf::endJob()
   {
-    std::cout << "Close log file " << LogFileName << std::endl;
     logFile.close();
 
     return;
@@ -130,7 +122,6 @@ namespace opdet {
   {
     art::EventNumber_t event = evt.id().event();
     EventID = int(event);
-    std::cout << "Start processing event: " << EventID << std::endl;
 
     num_detph.resize(nOpChannels, 0);
     num_refph.resize(nOpChannels, 0);
@@ -144,34 +135,26 @@ namespace opdet {
     float vuv = 6e-6;
 
     auto photon_handles = evt.getMany<std::vector<sim::SimPhotons>>();
-    if (photon_handles.size() == 0) {
+    if (photon_handles.empty())  {
       throw art::Exception(art::errors::ProductNotFound)
         << "sim SimPhotons retrieved and you requested them.";
     }
 
-    for (auto const& mod : InputModule) {
+    for (auto const& mod : InputModules) {
       for (auto const& ph_handle : photon_handles) {
         if (!ph_handle.isValid()) {
-          std::cout << "(!ph_handle.isValid())" << std::endl;
           continue;
         }
         if (ph_handle.provenance()->moduleLabel() != mod) {
-          std::cout << "(ph_handle.provenance()->moduleLabel() != mod)" << std::endl;
           continue;
         }
 
-        if ((*ph_handle).size() > 0) {
+        if (ph_handle->empty())  {
           for (auto const& itOpDet : (*ph_handle)) {
             OpChannel = int(itOpDet.OpChannel());
             const sim::SimPhotons& TheHit = itOpDet;
             for (const sim::OnePhoton& Phot : TheHit) {
               Energy = Phot.Energy;
-              //                            Time   = Phot.Time;
-
-              //                            if(rec == true && (pos[0] != Phot.InitialPosition.X()/10.0 || pos[1] != Phot.InitialPosition.Y()/10.0 || pos[2] != Phot.InitialPosition.Z()/10.0))
-              //                            {
-              //                                std::cout << "Warning: Photon initial position error!!! Energy: " << Energy << std::endl;
-              //                            }
 
               num_totph[OpChannel] += 1;
 
@@ -181,11 +164,14 @@ namespace opdet {
               }
               else {
                 num_detph[OpChannel] += 1;
-                pos[0] = Phot.InitialPosition.X() / 10.0; // cm
-                pos[1] = Phot.InitialPosition.Y() / 10.0;
-                pos[2] = Phot.InitialPosition.Z() / 10.0;
-
-                rec = true;
+                
+                if (rec == false) {
+                    pos[0] = Phot.InitialPosition.X() / 10.0; // cm
+                    pos[1] = Phot.InitialPosition.Y() / 10.0;
+                    pos[2] = Phot.InitialPosition.Z() / 10.0;
+    
+                    rec = true;
+                }
               }
             }
           }
@@ -200,7 +186,6 @@ namespace opdet {
       if (FillTree) { PhInf->Fill(); }
 
       logFile << pos[0] << ", " << pos[1] << ", " << pos[2];
-      std::cout << "Initial pos: " << pos[0] << " , " << pos[1] << " , " << pos[2];
       for (int channel = 0; channel < nOpChannels; channel++) {
         logFile << ", " << num_detph[channel] << ", " << num_refph[channel] << ", "
                 << num_totph[channel];
@@ -214,7 +199,6 @@ namespace opdet {
         num_totph[channel] = 0;
       }
       logFile << std::endl;
-      std::cout << std::endl;
       pos[0] = 0.0;
       pos[1] = 0.0;
       pos[2] = 0.0;
@@ -224,8 +208,6 @@ namespace opdet {
     }
 
     rec = false;
-    std::cout << "Finish event: " << EventID << ", total: " << numdet << ", ref:" << numref
-              << ", dir: " << numdir << " photons." << std::endl;
     return;
   }
 }

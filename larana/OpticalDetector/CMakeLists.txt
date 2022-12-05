@@ -293,6 +293,27 @@ cet_build_plugin(SimPhotonCounter art::EDAnalyzer
   ROOT::Tree
 )
 
+cet_build_pluginPhotonInf art::EDAnalyzer
+  LIBRARIES PRIVATE
+  larana::OpDetResponseService
+  larsim::MCCheater_ParticleInventoryService_service
+  larsim::PhotonPropagation_PhotonVisibilityService_service
+  larsim::Simulation
+  larcore::Geometry_Geometry_service
+  lardataobj::MCBase
+  lardataobj::Simulation
+  larcorealg::Geometry
+  nug4::ParticleNavigation
+  nusimdata::SimulationBase
+  art_root_io::TFileService_service
+  art::Framework_Principal
+  art::Framework_Services_Registry
+  messagefacility::MF_MessageLogger
+  fhiclcpp::fhiclcpp
+  ROOT::Hist
+  ROOT::Physics
+  ROOT::Tree
+)
 
 install_headers()
 install_fhicl()

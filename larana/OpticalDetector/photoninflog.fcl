@@ -4,7 +4,7 @@ standard_photoninflog:
 {
     module_type:    "PhotonInf"
     FillTree:        true
-    InputModule:     "largeant"
+    InputModules:    "largeant"
     LogFileName:     "phinf.dat"
 }
 
