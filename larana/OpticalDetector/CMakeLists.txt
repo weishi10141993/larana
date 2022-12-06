@@ -293,7 +293,7 @@ cet_build_plugin(SimPhotonCounter art::EDAnalyzer
   ROOT::Tree
 )
 
-cet_build_pluginPhotonInf art::EDAnalyzer
+cet_build_plugin(PhotonInf art::EDAnalyzer
   LIBRARIES PRIVATE
   larana::OpDetResponseService
   larsim::MCCheater_ParticleInventoryService_service
