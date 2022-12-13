@@ -2,7 +2,7 @@
  * \file RiseTimeGaussFit_tool.cc
  *
  * \brief Gaussian fit method implemented to  compute Rise time as
- * the value of the center of the first local maximum. 
+ * the value of the center of the first local maximum.
  * Fixed min threshold required set in the fhicl file
  *
  * @author Rodrigo Alvarez, Sept 2022
@@ -110,8 +110,8 @@ namespace pmtana {
                                      int low,
                                      int high,
                                      double threshold = 4.) const
-  { /** 
-    * Linear search, O(N), 1st peak should be close to the start of the vector 
+  { /**
+    * Linear search, O(N), 1st peak should be close to the start of the vector
     * for scintillation LAr Signals. Returns the position of the first local max
     **/
     double max = arr[low];
