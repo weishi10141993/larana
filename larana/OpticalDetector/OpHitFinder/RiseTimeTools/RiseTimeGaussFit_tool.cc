@@ -85,10 +85,7 @@ namespace pmtana {
 
     // Function & initial values for the fit, ROOT Gaussian:  [p0]*e**(-0.5 (x-[p1])**2 / [p2]**2)
     TF1* f = new TF1("f", "gaus", double(first_max) - fNbins, double(first_max) + fNbins);
-    std::vector<double> p_init = {wf_aux[first_max], double(first_max), fInitSigma};
-    for (long unsigned int p = 0; p < wf_aux.size(); p++)
-      f->SetParameter(p, p_init[p]);
-
+    f->SetParameters(wf_aux[first_max], first_max, fInitSigma);
     // Fit
     h_aux->Fit(f, "q", "SAME", first_max - fNbins, first_max + fNbins);
     double t_fit = f->GetParameter(1);
