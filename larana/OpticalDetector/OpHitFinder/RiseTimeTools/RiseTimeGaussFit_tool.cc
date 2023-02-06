@@ -41,7 +41,7 @@ namespace pmtana {
                     const pmtana::PedestalMean_t& ped_pulse,
                     bool _positive) const override;
     // Method to fit the first local max of the wvf above fixed threshold
-    int findFirstMax(const std::vector<double>& arr, double threshold) const;
+    std::size_t findFirstMax(const std::vector<double>& arr, double threshold) const;
 
   private:
     double fMinAmp;
@@ -103,7 +103,7 @@ namespace pmtana {
     return peak_time;
   }
 
-  int RiseTimeGaussFit::findFirstMax(const std::vector<double>& arr,
+  std::size_t RiseTimeGaussFit::findFirstMax(const std::vector<double>& arr,
                                      double threshold ) const
   { /**
     * Linear search, O(N), 1st peak should be close to the start of the vector
