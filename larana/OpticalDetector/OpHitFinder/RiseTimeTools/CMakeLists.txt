@@ -4,7 +4,6 @@ cet_make_library(LIBRARY_NAME RiseTimeCalculatorTool INTERFACE
   SOURCE 
      RiseTimeCalculatorBase.h
   LIBRARIES
-  ${ROOT_BASIC_LIB_LIST}
   ROOT::Hist
 )
 
@@ -25,7 +24,6 @@ cet_build_plugin(RiseTimeGaussFit lar::RiseTimeCalculatorTool
   LIBRARIES PRIVATE
   fhiclcpp::fhiclcpp
   ROOT::Hist
-  # ROOT::Physics
 )
 
 
