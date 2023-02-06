@@ -11,6 +11,7 @@
 #include "art/Utilities/ToolConfigTable.h"
 #include "art/Utilities/ToolMacros.h"
 #include "fhiclcpp/types/Atom.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "RiseTimeCalculatorBase.h"
 
@@ -99,7 +100,7 @@ namespace pmtana {
     }
     else {
       peak_time = first_max;
-      std::cout << "No good fit found, keeping 1st max bin instead" << std::endl;
+      mf::LogInfo("RiseTimeGaussFit") << "No good fit found, keeping 1st max bin instead";
     }
     // double peak_time= (std::abs(t_fit-first_max)<2) ?  t_fit:first_max;
 
@@ -128,7 +129,7 @@ namespace pmtana {
     }
 
     //No local maxima found.
-    std::cout << "No local max found above fixed threshold: " << threshold << std::endl;
+    mf::LogInfo("RiseTimeGaussFit") << "No local max found above fixed threshold: " << threshold;
     return 0;
   }
 }
