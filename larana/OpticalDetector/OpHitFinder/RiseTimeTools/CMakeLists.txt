@@ -23,6 +23,7 @@ cet_build_plugin(RiseTimeThreshold lar::RiseTimeCalculatorTool
 cet_build_plugin(RiseTimeGaussFit lar::RiseTimeCalculatorTool
   LIBRARIES PRIVATE
   fhiclcpp::fhiclcpp
+  messagefacility::MF_MessageLogger
   ROOT::Hist
 )
 
