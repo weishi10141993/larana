@@ -76,7 +76,7 @@ namespace pmtana {
     }
 
     // Find first local maximum
-    size_t first_max = findFirstMax(wf_aux, 0, wf_aux.size(), fMinAmp);
+    size_t first_max = findFirstMax(wf_aux, fMinAmp);
 
     // Create & fill th1
     TH1F* h_aux = new TH1F("aux", "aux", wf_aux.size(), -0.5, wf_aux.size() - 0.5);
