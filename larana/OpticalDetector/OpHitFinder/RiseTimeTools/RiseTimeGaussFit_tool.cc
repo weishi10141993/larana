@@ -103,8 +103,7 @@ namespace pmtana {
     return peak_time;
   }
 
-  std::size_t RiseTimeGaussFit::findFirstMax(const std::vector<double>& arr,
-                                     double threshold ) const
+  std::size_t RiseTimeGaussFit::findFirstMax(const std::vector<double>& arr, double threshold) const
   { /**
     * Linear search, O(N), 1st peak should be close to the start of the vector
     * for scintillation LAr Signals. Returns the position of the first local max
