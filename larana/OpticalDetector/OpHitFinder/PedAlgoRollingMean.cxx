@@ -168,7 +168,7 @@ namespace pmtana {
 
             auto presample_mean =
               edge_aware_mean(wf, last_good_index - _n_presamples, last_good_index);
-            auto postsample_mean = edge_aware_mean(wf, i, _n_presamples);
+            auto postsample_mean = edge_aware_mean(wf, i, i + _n_presamples);
 
             auto diff_pre = fabs(presample_mean - mode_mean);
             auto diff_post = fabs(postsample_mean - mode_mean);
@@ -282,7 +282,7 @@ namespace pmtana {
       }
       else {
 
-        auto presample_mean = edge_aware_mean(wf, first_index - _n_presamples, second_index);
+        auto presample_mean = edge_aware_mean(wf, second_index - _n_presamples, second_index);
 
         for (int j = second_index + 1; j < int(wf.size()); ++j) {
           //mean_v.at(j)  = floor( mean_v.at(first_index) ) + _random_shift + (double) ( rand() % _range) / _divisions;
