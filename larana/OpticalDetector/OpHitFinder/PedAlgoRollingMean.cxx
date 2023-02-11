@@ -131,9 +131,7 @@ namespace pmtana {
 
     //std::cout<<mode_mean<<" +/- "<<mode_sigma<<std::endl;
 
-    _diff_threshold *= mode_sigma;
-
-    double diff_cutoff = _diff_threshold < _diff_adc_count ? _diff_adc_count : _diff_threshold;
+    double const diff_cutoff = std::max(_diff_threshold * mode_sigma, _diff_adc_count);
 
     int last_good_index = -1;
 
