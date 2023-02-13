@@ -9,17 +9,12 @@
 //
 
 // LArSoft includes
-#include "larana/OpticalDetector/OpHitFinder/AlgoCFD.h"
-#include "larana/OpticalDetector/OpHitFinder/AlgoFixedWindow.h"
-#include "larana/OpticalDetector/OpHitFinder/AlgoSiPM.h"
-#include "larana/OpticalDetector/OpHitFinder/AlgoSlidingWindow.h"
-#include "larana/OpticalDetector/OpHitFinder/AlgoThreshold.h"
 #include "larana/OpticalDetector/OpHitFinder/OpHitAlg.h"
 #include "larana/OpticalDetector/OpHitFinder/PMTPulseRecoBase.h"
-#include "larana/OpticalDetector/OpHitFinder/PedAlgoEdges.h"
-#include "larana/OpticalDetector/OpHitFinder/PedAlgoRollingMean.h"
-#include "larana/OpticalDetector/OpHitFinder/PedAlgoUB.h"
+#include "larana/OpticalDetector/OpHitFinder/PMTPedestalBase.h"
 #include "larana/OpticalDetector/OpHitFinder/PulseRecoManager.h"
+#include "larana/OpticalDetector/IHitAlgoMakerTool.h"
+#include "larana/OpticalDetector/IPedAlgoMakerTool.h"
 #include "larcore/CoreUtils/ServiceUtil.h" // lar::providerFrom()
 #include "larcore/Geometry/Geometry.h"
 #include "lardata/DetectorInfoServices/DetectorClocksService.h"
@@ -37,6 +32,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Utilities/make_tool.h"
 #include "canvas/Utilities/Exception.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 
 // ROOT includes
@@ -47,16 +43,117 @@
 #include <string>
 
 namespace {
-  template <typename T>
-  pmtana::PMTPulseRecoBase* thresholdAlgorithm(
-    fhicl::ParameterSet const& hit_alg_pset,
-    std::optional<fhicl::ParameterSet> const& rise_alg_pset)
+  
+  /**
+   * @brief Adapts module FHiCL configuration to a algorithm maker tool config.
+   * @param baseConfig the configuration of the module
+   * @param configKey name of algorithm configuration table within `baseConfig`
+   * @param algoClassPrefix prefix of the algorithm class name
+   * @param algoNameKey (default: `"Name"`) name of the algorithm name config
+   * @return the adapted configuration
+   * 
+   * Input configuration is expected to include also:
+   *  * `configKey` table: the configuration table passed to the actual
+   *     algorithm; its content must include at least one of:
+   *      * `Name` (string): the name of the algorithm; this is usually the name
+   *        of the class trimmed of a prefix, e.g. `"SlidingWindow"` for
+   *        `pmtana::AlgoSlidingWindow`.
+   *      * `tool_type` (string): the name of the algorithm maker _art_ tool;
+   *        this is usually the name of the algorithm class, with the `Maker`
+   *        suffix, e.g. `"AlgoSlidingWindowMaker"` for the _art_ tool creating
+   *        a `pmtana::AlgoSlidingWindow`.
+   * 
+   * The output configuration is structured as:
+   *  * `configKey`: it is the original table from the input, except that
+   *    `tool_type` key is removed if it was present.
+   *  * `tool_type`: a new string that contains a copy of the original
+   *    `<configKey>.tool_type` if it was present, or a string made with
+   *    the value of the original `<configKey>.Name`, plus the prefix in
+   *    `algoClassPrefix` and the suffix `"Maker"` (e.g., if `algoClassPrefix`
+   *    is `"Algo"`, name `"SlidingWindow"` will become the _art_ tool name
+   *    `"AlgoSlidingWindowMaker"`).
+   *    If `<configKey>.Name` is also missing, `tool_type` atom is not added,
+   *    and this will result in an error when using this configuration to create
+   *    an _art_ tool.
+   * 
+   */
+  fhicl::ParameterSet makeAlgoToolConfig(
+    fhicl::ParameterSet const& baseConfig, std::string const& configKey,
+    std::string const& algoClassPrefix = "",
+    std::string const& algoNameKey = "Name"
+  ) {
+    
+    fhicl::ParameterSet toolConfig;
+    
+    // add algo configuration
+    fhicl::ParameterSet algoConfig
+      = baseConfig.get<fhicl::ParameterSet>(configKey);
+    
+    if (auto toolType = algoConfig.get_if_present<std::string>("tool_type")) {
+      toolConfig.put("tool_type", *toolType);
+      algoConfig.erase("tool_type");
+    }
+    else if (auto algoName = algoConfig.get_if_present<std::string>(algoNameKey))
+    {
+      toolConfig.put("tool_type", algoClassPrefix + *algoName + "Maker");
+      // we leave the algorithm Name in its configuration for compatibility
+    }
+    toolConfig.put(configKey, std::move(algoConfig));
+    
+    return toolConfig;
+  } // makeAlgoToolConfig()
+
+  /**
+   * @brief Adapts module FHiCL configuration to a pedestal maker tool config.
+   * @param baseConfig the configuration of the module
+   * @return the adapted configuration
+   * @see `makeAlgoToolConfig()`
+   * 
+   * This adapter operates simply like `makeAlgoToolConfig()`, using as
+   * algorithm configuration table key `"PedAlgoPset"`.
+   * 
+   */
+  fhicl::ParameterSet makePedAlgoToolConfig
+    (fhicl::ParameterSet const& baseConfig)
+    { return makeAlgoToolConfig(baseConfig, "PedAlgoPset", "PedAlgo"); }
+
+  /**
+   * @brief Adapts module FHiCL configuration to a hit finder maker tool config.
+   * @param baseConfig the configuration of the module
+   * @return the adapted configuration
+   * @see `makeAlgoToolConfig()`
+   * 
+   * Input configuration is expected to include also:
+   *  * `HitAlgoPset` table: the configuration table passed to the actual hit
+   *     finder algorithm; see `makeAlgoToolConfig()` for the requirements. 
+   *  * `RiseTimeCalculator` table: if present, it's the complete _art_ tool
+   *     configuration for the rise time calculator algorithm.
+   * 
+   * The output configuration is structured as:
+   *  * `HitAlgoPset`: it is the original table from the input, except that
+   *    `tool_type` key is removed.
+   *  * `RiseTimeCalculator`: a verbatim copy of the original table; if the
+   *    original table was missing, this one is not specified at all.
+   *  * `tool_type`: a new string with the algorithm maker tool name;
+   *    see `makeAlgoToolConfig()` for the details.
+   * 
+   */
+  fhicl::ParameterSet makeHitAlgoToolConfig
+    (fhicl::ParameterSet const& baseConfig)
   {
-    if (rise_alg_pset)
-      return new T(hit_alg_pset, art::make_tool<pmtana::RiseTimeCalculatorBase>(*rise_alg_pset));
-    else
-      return new T(hit_alg_pset, nullptr);
-  }
+    fhicl::ParameterSet toolConfig
+      = makeAlgoToolConfig(baseConfig, "HitAlgoPset", "Algo");
+    
+    // add rise time calculator configuration ("no configuration" is ok)
+    if (auto riseCalcCfg
+      = baseConfig.get_if_present<fhicl::ParameterSet>("RiseTimeCalculator")
+    ) {
+      toolConfig.put("RiseTimeCalculator", std::move(*riseCalcCfg));
+    }
+    
+    return toolConfig;
+  } // makeHitAlgoToolConfig()
+  
 }
 
 namespace opdet {
@@ -65,7 +162,6 @@ namespace opdet {
   public:
     // Standard constructor and destructor for an ART module.
     explicit OpHitFinder(const fhicl::ParameterSet&);
-    virtual ~OpHitFinder();
 
     // The producer routine, called once per event.
     void produce(art::Event&);
@@ -82,8 +178,8 @@ namespace opdet {
     std::set<unsigned int> fChannelMasks;
 
     pmtana::PulseRecoManager fPulseRecoMgr;
-    pmtana::PMTPulseRecoBase* fThreshAlg;
-    pmtana::PMTPedestalBase* fPedAlg;
+    std::unique_ptr<pmtana::PMTPulseRecoBase> const fThreshAlg;
+    std::unique_ptr<pmtana::PMTPedestalBase> const fPedAlg;
 
     Float_t fHitThreshold;
     unsigned int fMaxOpChannel;
@@ -102,7 +198,16 @@ namespace opdet {
 
   //----------------------------------------------------------------------------
   // Constructor
-  OpHitFinder::OpHitFinder(const fhicl::ParameterSet& pset) : EDProducer{pset}, fPulseRecoMgr()
+  OpHitFinder::OpHitFinder(const fhicl::ParameterSet& pset)
+    : EDProducer{pset}, fPulseRecoMgr()
+    , fThreshAlg{
+        art::make_tool<opdet::IHitAlgoMakerTool>
+          (makeHitAlgoToolConfig(pset))->makeAlgo()
+      }
+    , fPedAlg{
+        art::make_tool<opdet::IPedAlgoMakerTool>
+          (makePedAlgoToolConfig(pset))->makeAlgo()
+      }
   {
     // Indicate that the Input Module comes from .fcl
     fInputModule = pset.get<std::string>("InputModule");
@@ -140,52 +245,16 @@ namespace opdet {
       fCalib = new calib::PhotonCalibratorStandard(SPEArea, SPEShift, areaToPE);
     }
 
-    // Initialize the rise time calculator tool
-    auto const rise_alg_pset = pset.get_if_present<fhicl::ParameterSet>("RiseTimeCalculator");
-
-    // Initialize the hit finder algorithm
-    auto const hit_alg_pset = pset.get<fhicl::ParameterSet>("HitAlgoPset");
-    std::string threshAlgName = hit_alg_pset.get<std::string>("Name");
-    if (threshAlgName == "Threshold")
-      fThreshAlg = thresholdAlgorithm<pmtana::AlgoThreshold>(hit_alg_pset, rise_alg_pset);
-    else if (threshAlgName == "SiPM")
-      fThreshAlg = thresholdAlgorithm<pmtana::AlgoSiPM>(hit_alg_pset, rise_alg_pset);
-    else if (threshAlgName == "SlidingWindow")
-      fThreshAlg = thresholdAlgorithm<pmtana::AlgoSlidingWindow>(hit_alg_pset, rise_alg_pset);
-    else if (threshAlgName == "FixedWindow")
-      fThreshAlg = thresholdAlgorithm<pmtana::AlgoFixedWindow>(hit_alg_pset, rise_alg_pset);
-    else if (threshAlgName == "CFD")
-      fThreshAlg = thresholdAlgorithm<pmtana::AlgoCFD>(hit_alg_pset, rise_alg_pset);
-    else
-      throw art::Exception(art::errors::UnimplementedFeature)
-        << "Cannot find implementation for " << threshAlgName << " algorithm.\n";
-
-    // Initialize the pedestal estimation algorithm
-    auto const ped_alg_pset = pset.get<fhicl::ParameterSet>("PedAlgoPset");
-    std::string pedAlgName = ped_alg_pset.get<std::string>("Name");
-    if (pedAlgName == "Edges")
-      fPedAlg = new pmtana::PedAlgoEdges(ped_alg_pset);
-    else if (pedAlgName == "RollingMean")
-      fPedAlg = new pmtana::PedAlgoRollingMean(ped_alg_pset);
-    else if (pedAlgName == "UB")
-      fPedAlg = new pmtana::PedAlgoUB(ped_alg_pset);
-    else
-      throw art::Exception(art::errors::UnimplementedFeature)
-        << "Cannot find implementation for " << pedAlgName << " algorithm.\n";
-
     produces<std::vector<recob::OpHit>>();
 
-    fPulseRecoMgr.AddRecoAlgo(fThreshAlg);
-    fPulseRecoMgr.SetDefaultPedAlgo(fPedAlg);
-  }
+    fPulseRecoMgr.AddRecoAlgo(fThreshAlg.get());
+    fPulseRecoMgr.SetDefaultPedAlgo(fPedAlg.get());
 
-  //----------------------------------------------------------------------------
-  // Destructor
-  OpHitFinder::~OpHitFinder()
-  {
+    // show the algorithm selection on screen
+    mf::LogInfo{ "OpHitFinder" }
+      <<   "Pulse finder algorithm: '" << fThreshAlg->Name() << "'"
+      << "\nPedestal algorithm:     '" << fPedAlg->Name() << "'";
 
-    delete fThreshAlg;
-    delete fPedAlg;
   }
 
   //----------------------------------------------------------------------------
