@@ -12,7 +12,5 @@
 // framework libraries
 #include "art/Utilities/ToolMacros.h"
 
-
 // -----------------------------------------------------------------------------
 DEFINE_ART_CLASS_TOOL(opdet::HitAlgoMakerToolBase<pmtana::AlgoFixedWindow>)
-

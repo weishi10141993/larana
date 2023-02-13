@@ -3,7 +3,7 @@
  * @brief  Tool interface for creating a pedestal estimator algorithm.
  * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
  * @date   February 12, 2023
- * 
+ *
  * This library is header-only.
  */
 
@@ -17,10 +17,12 @@
 #include <memory>
 
 // -----------------------------------------------------------------------------
-namespace opdet { class IPedAlgoMakerTool; }
+namespace opdet {
+  class IPedAlgoMakerTool;
+}
 /**
  * @brief Tool interface for creating a pedestal estimator algorithm.
- * 
+ *
  * The pedestal estimator algorithms in `larana` implement a common abstraction
  * and interface (`pmtana::PMTPedestalBase`).
  * In principle, wrappers may be written as _art_ tools that implement that same
@@ -29,32 +31,30 @@ namespace opdet { class IPedAlgoMakerTool; }
  * In alternative, _art_ tools may be written to _create_ the current pedestal
  * estimator algorithms. In this case, users will use the tool only at setup
  * stage to create the algorithms, and then the tools will have no further role.
- * 
+ *
  * This class provides the interface for a tool following this second design:
  * a tool following this interface will be able to create pedestal estimator
  * algorithm objects by executing `makeAlgo()`, and that will be the only
  * function of the tool.
  */
 struct opdet::IPedAlgoMakerTool {
-  
+
   virtual ~IPedAlgoMakerTool() = default;
-  
+
   /**
    * @brief Creates and returns a new instance of pedestal estimator algorithm.
    * @return the newly created algorithm instance
-   * 
+   *
    * The returned object is completely independent of this tool: after calling
    * this function, the tool can in principle be discarded.
-   * 
+   *
    * Note that all the information necessary to the creation of the algorithm
    * must have already been passed to the tool (and stored) in the FHiCL
    * configuration on construction.
    */
   virtual std::unique_ptr<pmtana::PMTPedestalBase> makeAlgo() = 0;
-  
-  
-}; // opdet::IPedAlgoMakerTool
 
+}; // opdet::IPedAlgoMakerTool
 
 // -----------------------------------------------------------------------------
 

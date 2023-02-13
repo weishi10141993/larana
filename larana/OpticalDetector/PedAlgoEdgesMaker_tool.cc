@@ -6,13 +6,11 @@
  */
 
 // LArSoft libraries
-#include "larana/OpticalDetector/PedAlgoMakerToolBase.h"
 #include "larana/OpticalDetector/OpHitFinder/PedAlgoEdges.h"
+#include "larana/OpticalDetector/PedAlgoMakerToolBase.h"
 
 // framework libraries
 #include "art/Utilities/ToolMacros.h"
 
-
 // -----------------------------------------------------------------------------
 DEFINE_ART_CLASS_TOOL(opdet::PedAlgoMakerToolBase<pmtana::PedAlgoEdges>)
-
