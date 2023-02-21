@@ -18,7 +18,7 @@
 
 // -----------------------------------------------------------------------------
 namespace opdet {
-  class IPedAlgoMakerTool;
+  struct IPedAlgoMakerTool;
 }
 /**
  * @brief Tool interface for creating a pedestal estimator algorithm.
