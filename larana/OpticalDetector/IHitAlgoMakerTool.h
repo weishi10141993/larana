@@ -18,7 +18,7 @@
 
 // -----------------------------------------------------------------------------
 namespace opdet {
-  class IHitAlgoMakerTool;
+  struct IHitAlgoMakerTool;
 }
 /**
  * @brief Tool interface for creating a hit finder algorithm.
