@@ -315,6 +315,56 @@ cet_build_plugin(PhotonInf art::EDAnalyzer
   ROOT::Tree
 )
 
+# --- BEGIN -- hit finding algorithm maker tools -------------------------------
+cet_make_library(LIBRARY_NAME HitAlgoMakerTool INTERFACE
+  SOURCE
+    IHitAlgoMakerTool.h
+    HitAlgoMakerToolBase.h
+  )
+
+cet_write_plugin_builder(lar::HitAlgoMakerTool art::tool Modules
+  INSTALL_BUILDER
+  LIBRARIES
+    larana::OpticalDetector_OpHitFinder
+    fhiclcpp::fhiclcpp
+)
+
+include(lar::HitAlgoMakerTool)
+
+foreach(AlgoName CFD FixedWindow SiPM SlidingWindow Threshold )
+  cet_build_plugin(Algo${AlgoName}Maker lar::HitAlgoMakerTool
+    LIBRARIES PRIVATE
+      larana::OpticalDetector_OpHitFinder
+      fhiclcpp::fhiclcpp
+  )
+endforeach(AlgoName)
+# --- END ---- hit finding algorithm maker tools -------------------------------
+
+# --- BEGIN -- pedestal estimator algorithm maker tools ------------------------
+cet_make_library(LIBRARY_NAME PedAlgoMakerTool INTERFACE
+  SOURCE
+    IPedAlgoMakerTool.h
+    PedAlgoMakerToolBase.h
+  )
+
+cet_write_plugin_builder(lar::PedAlgoMakerTool art::tool Modules
+  INSTALL_BUILDER
+  LIBRARIES
+    larana::OpticalDetector_OpHitFinder
+    fhiclcpp::fhiclcpp
+)
+
+include(lar::PedAlgoMakerTool)
+
+foreach(AlgoName Edges RollingMean UB )
+  cet_build_plugin(PedAlgo${AlgoName}Maker lar::PedAlgoMakerTool
+    LIBRARIES PRIVATE
+      larana::OpticalDetector_OpHitFinder
+      fhiclcpp::fhiclcpp
+  )
+endforeach(AlgoName)
+# --- END ---- pedestal estimator algorithm maker tools ------------------------
+
 install_headers()
 install_fhicl()
 install_source()
