@@ -327,6 +327,7 @@ cet_write_plugin_builder(lar::HitAlgoMakerTool art::tool Modules
   LIBRARIES
     larana::OpticalDetector_OpHitFinder
     fhiclcpp::fhiclcpp
+    art::Utilities
 )
 
 include(lar::HitAlgoMakerTool)
@@ -352,6 +353,7 @@ cet_write_plugin_builder(lar::PedAlgoMakerTool art::tool Modules
   LIBRARIES
     larana::OpticalDetector_OpHitFinder
     fhiclcpp::fhiclcpp
+    art::Utilities
 )
 
 include(lar::PedAlgoMakerTool)
