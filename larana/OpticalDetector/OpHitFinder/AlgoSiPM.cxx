@@ -91,15 +91,12 @@ namespace pmtana {
         // Add this ADC count to the integral
         _pulse.area += (double(value) - double(pedestal));
 
-        if (!first_found && (_pulse.peak < (double(value) - double(pedestal)))) {
+        if (_pulse.peak < (double(value) - double(pedestal))) {
 
           // Found a new maximum
           _pulse.peak = (double(value) - double(pedestal));
           _pulse.t_max = counter;
         }
-        else if (!first_found)
-          // Found the first peak
-          first_found = true;
       }
 
       counter++;
