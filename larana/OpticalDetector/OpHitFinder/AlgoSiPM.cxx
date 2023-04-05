@@ -37,7 +37,6 @@ namespace pmtana {
   {
 
     bool fire = false;
-    // bool first_found = false; This parameter used to keep track of the first found peak and was the cause of a bug. We don't need it anymore.
     bool record_hit = false;
     int counter = 0;
     //    double threshold   = (_2nd_thres > (_nsigma*_ped_rms) ? _2nd_thres
@@ -60,7 +59,6 @@ namespace pmtana {
 
         // Found a new pulse
         fire = true;
-        // first_found = false;
         record_hit = false;
         _pulse.t_start = counter;
       }
