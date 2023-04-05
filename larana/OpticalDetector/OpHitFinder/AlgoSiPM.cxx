@@ -39,7 +39,6 @@ namespace pmtana {
     bool fire = false;
     bool record_hit = false;
     int counter = 0;
-    
     //    double threshold   = (_2nd_thres > (_nsigma*_ped_rms) ? _2nd_thres
     //                                                    : (_nsigma*_ped_rms));
     //double pedestal      = _pedestal;
