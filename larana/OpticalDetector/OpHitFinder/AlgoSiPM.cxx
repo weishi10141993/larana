@@ -37,7 +37,6 @@ namespace pmtana {
   {
 
     bool fire = false;
-    bool first_found = false;
     bool record_hit = false;
     int counter = 0;
     //    double threshold   = (_2nd_thres > (_nsigma*_ped_rms) ? _2nd_thres
@@ -60,7 +59,6 @@ namespace pmtana {
 
         // Found a new pulse
         fire = true;
-        first_found = false;
         record_hit = false;
         _pulse.t_start = counter;
       }
@@ -91,15 +89,12 @@ namespace pmtana {
         // Add this ADC count to the integral
         _pulse.area += (double(value) - double(pedestal));
 
-        if (!first_found && (_pulse.peak < (double(value) - double(pedestal)))) {
+        if (_pulse.peak < (double(value) - double(pedestal))) {
 
           // Found a new maximum
           _pulse.peak = (double(value) - double(pedestal));
           _pulse.t_max = counter;
         }
-        else if (!first_found)
-          // Found the first peak
-          first_found = true;
       }
 
       counter++;
