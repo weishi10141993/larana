@@ -135,7 +135,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event& e)
       tempPt2.push_back(-999);
       tempPt2.push_back(-999);
       cosmicTagTrackVector->emplace_back(tempPt1, tempPt2, -999, tag_id);
-      util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrack, *assnOutCosmicTagTrack);
+      util::CreateAssn(e, *cosmicTagTrackVector, tTrack, *assnOutCosmicTagTrack);
       continue; // I don't want to deal with these "tracks"
     }
 
@@ -227,7 +227,7 @@ void cosmic::CosmicTrackTagger::produce(art::Event& e)
 
     cosmicTagTrackVector->emplace_back(endPt1, endPt2, cosmicScore, tag_id);
 
-    util::CreateAssn(*this, e, *cosmicTagTrackVector, tTrack, *assnOutCosmicTagTrack);
+    util::CreateAssn(e, *cosmicTagTrackVector, tTrack, *assnOutCosmicTagTrack);
   }
   // END OF LOOPING OVER INSPILL TRACKS
 

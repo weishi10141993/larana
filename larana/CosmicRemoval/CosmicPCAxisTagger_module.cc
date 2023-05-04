@@ -375,12 +375,11 @@ void cosmic::CosmicPCAxisTagger::produce(art::Event& evt)
     // Create the tag object for this PFParticle and make the corresponding association
     cosmicTagPFParticleVector->emplace_back(endPt1, endPt2, cosmicScore, tag_id);
 
-    util::CreateAssn(
-      *this, evt, *cosmicTagPFParticleVector, pfParticle, *assnOutCosmicTagPFParticle);
+    util::CreateAssn(evt, *cosmicTagPFParticleVector, pfParticle, *assnOutCosmicTagPFParticle);
 
     // Loop through the tracks resulting from this PFParticle and mark them
     for (const auto& axis : pcAxisVec) {
-      util::CreateAssn(*this, evt, *cosmicTagPFParticleVector, axis, *assnOutCosmicTagPCAxis);
+      util::CreateAssn(evt, *cosmicTagPFParticleVector, axis, *assnOutCosmicTagPCAxis);
     }
   }
 

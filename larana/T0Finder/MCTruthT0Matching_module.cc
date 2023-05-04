@@ -366,7 +366,7 @@ void t0::MCTruthT0Matching::produce(art::Event& evt)
 
       art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
       MCPartTrackassn->addSingle(tracklist[iTrk], mcpartPtr, btdata);
-      if (fMakeT0Assns) { util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn); }
+      if (fMakeT0Assns) { util::CreateAssn(evt, *T0col, tracklist[iTrk], *Trackassn); }
       fTree->Fill();
 
     } // Loop over tracks
@@ -427,7 +427,7 @@ void t0::MCTruthT0Matching::produce(art::Event& evt)
         throw std::exception();
       }
       art::Ptr<simb::MCParticle> mcpartPtr(mcpartHandle, mcpart_i);
-      if (fMakeT0Assns) { util::CreateAssn(*this, evt, *T0col, showerlist[Shower], *Showerassn); }
+      if (fMakeT0Assns) { util::CreateAssn(evt, *T0col, showerlist[Shower], *Showerassn); }
       MCPartShowerassn->addSingle(showerlist[Shower], mcpartPtr, btdata);
 
     } // Loop over showers
@@ -509,9 +509,7 @@ void t0::MCTruthT0Matching::produce(art::Event& evt)
       //      const std::pair<double, double> tmp(0.5, 0.5);
       //      MCPartassn->addSingle(tracklist[iPfp], mcpartPtr, tmp);
       if (fMakePFParticleAssns) {
-        if (fMakeT0Assns) {
-          util::CreateAssn(*this, evt, *T0col, pfparticlelist[iPfp], *PFParticleassn);
-        }
+        if (fMakeT0Assns) { util::CreateAssn(evt, *T0col, pfparticlelist[iPfp], *PFParticleassn); }
         MCPartPFParticleassn->addSingle(pfparticlelist[iPfp], mcpartPtr, btdata);
       }
       fTree->Fill();

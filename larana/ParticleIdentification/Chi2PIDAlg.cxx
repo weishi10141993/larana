@@ -76,7 +76,6 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(
     double chi2ka = 0;
     double chi2pi = 0;
     double chi2mu = 0;
-    double avgdedx = 0;
     double PIDA = 0; //by Bruce Baller
     std::vector<double> vpida;
     std::vector<float> trkdedx = calo->dEdx();
@@ -87,7 +86,6 @@ anab::ParticleID pid::Chi2PIDAlg::DoParticleID(
     for (unsigned i = 0; i < trkdedx.size(); ++i) { //hits
       //ignore the first and the last point
       if (i == 0 || i == trkdedx.size() - 1) continue;
-      avgdedx += trkdedx[i];
       if (trkres[i] < 30) {
         PIDA += trkdedx[i] * pow(trkres[i], 0.42);
         vpida.push_back(trkdedx[i] * pow(trkres[i], 0.42));

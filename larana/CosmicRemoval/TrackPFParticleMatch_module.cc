@@ -170,7 +170,7 @@ namespace cosmic {
         pfParticleVec.push_back(pfParticleMapItr.first);
       }
 
-      util::CreateAssn(*this, evt, trackMapItr.first, pfParticleVec, *trackPFParticleAssns);
+      util::CreateAssn(evt, trackMapItr.first, pfParticleVec, *trackPFParticleAssns);
     }
 
     evt.put(std::move(trackPFParticleAssns));

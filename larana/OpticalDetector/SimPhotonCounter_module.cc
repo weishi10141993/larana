@@ -323,18 +323,12 @@ namespace opdet {
       //evt.getView(fG4ModuleLabel, sccol);
       for (auto const& mod : fInputModule) {
         evt.getView(mod, sccol);
-        double totalCharge = 0.0;
-        double totalEnergy = 0.0;
         //loop over the sim channels collection
         for (size_t sc = 0; sc < sccol.size(); ++sc) {
-          double numIDEs = 0.0;
-          double scCharge = 0.0;
-          double scEnergy = 0.0;
           const auto& tdcidemap = sccol[sc]->TDCIDEMap();
           //loop over all of the tdc IDE map objects
           for (auto mapitr = tdcidemap.begin(); mapitr != tdcidemap.end(); mapitr++) {
             const std::vector<sim::IDE> idevec = (*mapitr).second;
-            numIDEs += idevec.size();
             //go over all of the IDEs in a given simchannel
             for (size_t iv = 0; iv < idevec.size(); ++iv) {
               if (plist) {
@@ -344,10 +338,6 @@ namespace opdet {
                 }
               }
               if (idevec[iv].trackID < 0) continue;
-              totalCharge += idevec[iv].numElectrons;
-              scCharge += idevec[iv].numElectrons;
-              totalEnergy += idevec[iv].energy;
-              scEnergy += idevec[iv].energy;
 
               totalEnergy_track[idevec[iv].trackID] += idevec[iv].energy / 3.;
             }

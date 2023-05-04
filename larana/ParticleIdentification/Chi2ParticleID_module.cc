@@ -71,7 +71,7 @@ void pid::Chi2ParticleID::produce(art::Event& evt)
         calovec[0] = fmcal.at(trkIter)[i];
         anab::ParticleID pidout = fChiAlg.DoParticleID(calovec);
         particleidcol->push_back(pidout);
-        util::CreateAssn(*this, evt, *particleidcol, tracklist[trkIter], *assn);
+        util::CreateAssn(evt, *particleidcol, tracklist[trkIter], *assn);
       }
     }
   }

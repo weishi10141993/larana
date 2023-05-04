@@ -114,7 +114,7 @@ namespace opdet {
         opHitPtrVector.emplace_back(opHitHandle, hitIndex);
       }
 
-      util::CreateAssn(*this, evt, *flashPtr, opHitPtrVector, *(assnPtr.get()), i);
+      util::CreateAssn(evt, *flashPtr, opHitPtrVector, *(assnPtr.get()), i);
     }
 
     evt.put(std::move(flashPtr));

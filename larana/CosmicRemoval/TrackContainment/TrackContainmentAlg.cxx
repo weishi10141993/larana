@@ -176,7 +176,6 @@ void trk::TrackContainmentAlg::ProcessTracks(
 
   int containment_level = 0;
   bool track_linked = false;
-  std::size_t n_tracks = 0;
 
   fTrackContainmentLevel.clear();
   fTrackContainmentLevel.resize(tracksVec.size());
@@ -195,7 +194,6 @@ void trk::TrackContainmentAlg::ProcessTracks(
     fTrackContainmentLevel[i_tc].resize(tracksVec[i_tc].size(), -1);
     fMinDistances[i_tc].resize(tracksVec[i_tc].size(), 9e12);
     fCosmicTags[i_tc].resize(tracksVec[i_tc].size(), anab::CosmicTag(-1));
-    n_tracks += tracksVec[i_tc].size();
     for (size_t i_t = 0; i_t < tracksVec[i_tc].size(); ++i_t) {
 
       if (!IsContained(tracksVec[i_tc][i_t], geo)) {

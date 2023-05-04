@@ -112,8 +112,7 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event& evt)
   for (size_t track_iter = 0; track_iter < assnTrackTagVector.size(); track_iter++) {
     if (assnTrackTagVector[track_iter] == std::numeric_limits<size_t>::max()) continue;
     art::Ptr<recob::Track> trk_ptr(trackHandle, track_iter);
-    util::CreateAssn(
-      *this, evt, cosmicTagVector, trk_ptr, *assnTrackTag, assnTrackTagVector[track_iter]);
+    util::CreateAssn(evt, cosmicTagVector, trk_ptr, *assnTrackTag, assnTrackTagVector[track_iter]);
   }
 
   //make hit<--> tag associations, if requested
@@ -141,7 +140,7 @@ void cosmic::BeamFlashTrackMatchTagger::produce(art::Event& evt)
       art::Ptr<recob::Hit> hit_ptr(hitHandle, hit_iter);
       for (size_t tag_iter = 0; tag_iter < assnHitTagVector[hit_iter].size(); tag_iter++)
         util::CreateAssn(
-          *this, evt, cosmicTagVector, hit_ptr, *assnHitTag, assnHitTagVector[hit_iter][tag_iter]);
+          evt, cosmicTagVector, hit_ptr, *assnHitTag, assnHitTagVector[hit_iter][tag_iter]);
     }
 
     evt.put(std::move(assnHitTag));

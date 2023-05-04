@@ -462,7 +462,7 @@ void lbne::PhotonCounterT0Matching::produce(art::Event& evt)
         //Make Association
         T0col->push_back(anab::T0(
           BestFlashTime * 1e3, FlashTriggerType, (int)BestFlash, (*T0col).size(), BestFitParam));
-        util::CreateAssn(*this, evt, *T0col, tracklist[iTrk], *Trackassn);
+        util::CreateAssn(evt, *T0col, tracklist[iTrk], *Trackassn);
       } // Valid Track
     }   // Loop over tracks
   }

@@ -175,9 +175,6 @@ namespace opdet {
       }
     }
 
-    int numdet = 0;
-    int numref = 0;
-    int numdir = 0;
     if (rec == true) {
       if (FillTree) { PhInf->Fill(); }
 
@@ -185,10 +182,6 @@ namespace opdet {
       for (int channel = 0; channel < nOpChannels; channel++) {
         logFile << ", " << num_detph[channel] << ", " << num_refph[channel] << ", "
                 << num_totph[channel];
-
-        numdet += num_totph[channel];
-        numref += num_refph[channel];
-        numdir += num_detph[channel];
 
         num_detph[channel] = 0;
         num_refph[channel] = 0;

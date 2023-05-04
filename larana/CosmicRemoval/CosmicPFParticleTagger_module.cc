@@ -147,7 +147,7 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event& evt)
       tempPt2.push_back(-999);
       tempPt2.push_back(-999);
       cosmicTagTrackVector->emplace_back(tempPt1, tempPt2, 0., anab::CosmicTagID_t::kNotTagged);
-      util::CreateAssn(*this, evt, *cosmicTagTrackVector, pfParticle, *assnOutCosmicTagPFParticle);
+      util::CreateAssn(evt, *cosmicTagTrackVector, pfParticle, *assnOutCosmicTagPFParticle);
       continue;
     }
 
@@ -338,10 +338,10 @@ void cosmic::CosmicPFParticleTagger::produce(art::Event& evt)
     // Loop through the tracks resulting from this PFParticle and mark them
     cosmicTagTrackVector->emplace_back(endPt1, endPt2, cosmicScore, tag_id);
 
-    util::CreateAssn(*this, evt, *cosmicTagTrackVector, trackVec, *assnOutCosmicTagTrack);
+    util::CreateAssn(evt, *cosmicTagTrackVector, trackVec, *assnOutCosmicTagTrack);
 
     // Don't forget the association to the PFParticle
-    util::CreateAssn(*this, evt, *cosmicTagTrackVector, pfParticle, *assnOutCosmicTagPFParticle);
+    util::CreateAssn(evt, *cosmicTagTrackVector, pfParticle, *assnOutCosmicTagPFParticle);
   }
 
   evt.put(std::move(cosmicTagTrackVector));
