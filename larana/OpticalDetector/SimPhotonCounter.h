@@ -14,6 +14,7 @@ namespace sim {
   class SimPhotons;
 }
 
+#include <cstddef>
 #include <numeric>
 #include <vector>
 

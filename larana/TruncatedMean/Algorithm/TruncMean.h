@@ -12,6 +12,7 @@
 #ifndef TRUNCMEAN_H
 #define TRUNCMEAN_H
 
+#include <cstddef>
 #include <limits>
 #include <vector>
 
@@ -28,7 +29,7 @@
    doxygen documentation!
 */
 
-static const float kINVALID_FLOAT = std::numeric_limits<float>::max();
+static constexpr float kINVALID_FLOAT = std::numeric_limits<float>::max();
 
 class TruncMean {
 

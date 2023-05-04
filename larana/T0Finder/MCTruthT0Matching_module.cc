@@ -347,7 +347,7 @@ void t0::MCTruthT0Matching::produce(art::Event& evt)
         continue; // Retain this check that the BackTracker can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
-      for (auto const particle : *mcpartHandle) {
+      for (auto const& particle : *mcpartHandle) {
         mcpart_i++;
         if (TrackID == particle.TrackId()) { break; }
       }
@@ -411,7 +411,7 @@ void t0::MCTruthT0Matching::produce(art::Event& evt)
         continue; // Retain this check that the BackTracker can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
-      for (auto const particle : *mcpartHandle) {
+      for (auto const& particle : *mcpartHandle) {
         mcpart_i++;
         if (ShowerID == particle.TrackId()) { break; }
       }
@@ -483,7 +483,7 @@ void t0::MCTruthT0Matching::produce(art::Event& evt)
         continue; // Retain this check that the BackTracker can find the right particle
       // Now, loop through the MCParticle's myself to find the correct match
       int mcpart_i(-1);
-      for (auto const particle : *mcpartHandle) {
+      for (auto const& particle : *mcpartHandle) {
         mcpart_i++;
         if (TrackID == particle.TrackId()) { break; }
       }

@@ -10,6 +10,7 @@
  * Input:       Assn<recob::Hit,???> and Assn<???,anab::CosmicTag>
  * Output:      Assn<recob::Hit,anab::CosmicTag>
 */
+#include <cstddef>
 #include <vector>
 
 namespace fhicl {
