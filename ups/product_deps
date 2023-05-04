@@ -306,7 +306,7 @@ end_product_list
 ####################################
 qualifier	larreco		notes
 c14:debug	c14:debug
-c14:prof	c7:prof
+c14:prof	c14:prof
 c7:debug	c7:debug
 c7:prof		c7:prof
 e26:debug	e26:debug
