@@ -99,11 +99,11 @@ namespace opdet {
 
     int fVerbosity; // Level of output to write to std::out
 
-    bool fMakeDetectedPhotonsTree;   //
-    bool fMakeAllPhotonsTree;        //
-    bool fMakeOpDetsTree;            // Switches to turn on or off each output
-    bool fMakeOpDetEventsTree;       //
-    bool fSavePhotonOrigins;         //
+    bool fMakeDetectedPhotonsTree; //
+    bool fMakeAllPhotonsTree;      //
+    bool fMakeOpDetsTree;          // Switches to turn on or off each output
+    bool fMakeOpDetEventsTree;     //
+    bool fSavePhotonOrigins;       //
 
     //  float fQE;                     // Quantum efficiency of tube
 
