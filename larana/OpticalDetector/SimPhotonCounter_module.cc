@@ -99,10 +99,11 @@ namespace opdet {
 
     int fVerbosity; // Level of output to write to std::out
 
-    bool fMakeDetectedPhotonsTree; //
-    bool fMakeAllPhotonsTree;      //
-    bool fMakeOpDetsTree;          // Switches to turn on or off each output
-    bool fMakeOpDetEventsTree;     //
+    bool fMakeDetectedPhotonsTree;   //
+    bool fMakeAllPhotonsTree;        //
+    bool fMakeOpDetsTree;            // Switches to turn on or off each output
+    bool fMakeOpDetEventsTree;       //
+    bool fSavePhotonOrigins;         //
 
     //  float fQE;                     // Quantum efficiency of tube
 
@@ -116,6 +117,9 @@ namespace opdet {
 
     Float_t fWavelength;
     Float_t fTime;
+    Float_t foriginX;
+    Float_t foriginY;
+    Float_t foriginZ;
     //  Int_t fCount;
     Int_t fCountOpDetAll;
     Int_t fCountOpDetDetected;
@@ -175,6 +179,7 @@ namespace opdet {
     }
     fMakeAllPhotonsTree = pset.get<bool>("MakeAllPhotonsTree");
     fMakeDetectedPhotonsTree = pset.get<bool>("MakeDetectedPhotonsTree");
+    fSavePhotonOrigins = pset.get<bool>("SavePhotonOrigins");
     fMakeOpDetsTree = pset.get<bool>("MakeOpDetsTree");
     fMakeOpDetEventsTree = pset.get<bool>("MakeOpDetEventsTree");
     fMakeLightAnalysisTree = pset.get<bool>("MakeLightAnalysisTree", false);
@@ -226,6 +231,11 @@ namespace opdet {
       fThePhotonTreeAll->Branch("Wavelength", &fWavelength, "Wavelength/F");
       fThePhotonTreeAll->Branch("OpChannel", &fOpChannel, "OpChannel/I");
       fThePhotonTreeAll->Branch("Time", &fTime, "Time/F");
+      if (fSavePhotonOrigins) {
+        fThePhotonTreeAll->Branch("originX", &foriginX, "originX/F");
+        fThePhotonTreeAll->Branch("originY", &foriginY, "originY/F");
+        fThePhotonTreeAll->Branch("originZ", &foriginZ, "originZ/F");
+      }
     }
 
     if (fMakeDetectedPhotonsTree) {
@@ -234,6 +244,11 @@ namespace opdet {
       fThePhotonTreeDetected->Branch("Wavelength", &fWavelength, "Wavelength/F");
       fThePhotonTreeDetected->Branch("OpChannel", &fOpChannel, "OpChannel/I");
       fThePhotonTreeDetected->Branch("Time", &fTime, "Time/F");
+      if (fSavePhotonOrigins) {
+        fThePhotonTreeDetected->Branch("originX", &foriginX, "originX/F");
+        fThePhotonTreeDetected->Branch("originY", &foriginY, "originY/F");
+        fThePhotonTreeDetected->Branch("originZ", &foriginZ, "originZ/F");
+      }
     }
 
     if (fMakeOpDetsTree) {
@@ -416,6 +431,9 @@ namespace opdet {
 
                 //Get arrival time from phot
                 fTime = Phot.Time;
+                foriginX = Phot.InitialPosition.X();
+                foriginY = Phot.InitialPosition.Y();
+                foriginZ = Phot.InitialPosition.Z();
 
                 // special case for LibraryBuildJob: no working "Reflected" handle and all photons stored in single object - must sort using wavelength instead
                 if (fPVS->IsBuildJob() && !Reflected) {
