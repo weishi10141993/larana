@@ -179,7 +179,7 @@ namespace opdet {
     }
     fMakeAllPhotonsTree = pset.get<bool>("MakeAllPhotonsTree");
     fMakeDetectedPhotonsTree = pset.get<bool>("MakeDetectedPhotonsTree");
-    fSavePhotonOrigins = pset.get<bool>("SavePhotonOrigins");
+    fSavePhotonOrigins = pset.get<bool>("SavePhotonOrigins", false);
     fMakeOpDetsTree = pset.get<bool>("MakeOpDetsTree");
     fMakeOpDetEventsTree = pset.get<bool>("MakeOpDetEventsTree");
     fMakeLightAnalysisTree = pset.get<bool>("MakeLightAnalysisTree", false);
