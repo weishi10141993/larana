@@ -92,6 +92,7 @@ namespace opdet {
     TTree* fThePhotonTreeDetected;
     TTree* fTheOpDetTree;
     TTree* fTheEventTree;
+    //geo::GeometryCore const * fGeometry;
 
     // Parameters to read in
 
@@ -117,6 +118,13 @@ namespace opdet {
 
     Float_t fWavelength;
     Float_t fTime;
+
+    //Position of MC particle
+    std::vector<double> fposXMC;
+    std::vector<double> fposYMC;
+    std::vector<double> fposZMC;
+    std::vector<double> fenergyMC;
+
     Float_t foriginX;
     Float_t foriginY;
     Float_t foriginZ;
@@ -200,6 +208,11 @@ namespace opdet {
     art::ServiceHandle<art::TFileService const> tfs;
     art::ServiceHandle<geo::Geometry const> geo;
 
+    /* double xyzStart[3];
+    double xyzEnd[3];
+    fGeometry->WireEndPoints(0,0,2,2, xyzStart, xyzEnd);
+    std::cout<<"X coordinate of wire plane "<<xyzStart[0]<<"   "<<xyzEnd[0]<<"  Y coordinate "<<xyzStart[1]<<"   "<<xyzEnd[1]<<std::endl;*/
+
     std::cout << "Optical Channels positions:  " << geo->Cryostat().NOpDet() << std::endl;
     for (int ch = 0; ch != int(geo->Cryostat().NOpDet()); ch++) {
       auto const OpDetCenter = geo->OpDetGeoFromOpDet(ch).GetCenter();
@@ -267,6 +280,10 @@ namespace opdet {
       fTheEventTree->Branch("EventID", &fEventID, "EventID/I");
       fTheEventTree->Branch("CountAll", &fCountEventAll, "CountAll/I");
       fTheEventTree->Branch("CountDetected", &fCountEventDetected, "CountDetected/I");
+      fTheEventTree->Branch("posXMC", &fposXMC);
+      fTheEventTree->Branch("posYMC", &fposYMC);
+      fTheEventTree->Branch("posZMC", &fposZMC);
+      fTheEventTree->Branch("energyMC", &fenergyMC);
       if (fPVS->StoreReflected())
         fTheOpDetTree->Branch("CountReflDetected", &fCountOpDetReflDetected, "CountReflDetected/I");
     }
@@ -314,11 +331,26 @@ namespace opdet {
     std::vector<double> totalEnergy_track;
     fstepPositions.clear();
     fstepTimes.clear();
-    if (fMakeLightAnalysisTree) {
-      //mcpartVec = evt.getPointerByLabel<std::vector<simb::MCParticle>>("largeant");
-      mcpartVec = evt.getHandle<std::vector<simb::MCParticle>>("largeant").product();
+    fposXMC.clear();
+    fposYMC.clear();
+    fposZMC.clear();
+    fenergyMC.clear();
 
-      size_t maxNtracks = 1000U; // mcpartVec->size(); --- { to be fixed soon! ]
+    mcpartVec = evt.getHandle<std::vector<simb::MCParticle>>("largeant").product();
+    // MCparticle position
+    for (simb::MCParticle const& pPart1 : *mcpartVec) {
+      std::cout<<"MCparticle startposition "<<pPart1.Position(0).X()<<" "<<pPart1.Position(0).Y()<<" "<<pPart1.Position(0).Z()<<std::endl;
+      std::cout<<"particle energy "<<pPart1.E()<<std::endl;
+      // the length of the vector should be total captures in one evet
+      fposXMC.push_back(pPart1.Position()[0]);
+      fposYMC.push_back(pPart1.Position()[1]);
+      fposZMC.push_back(pPart1.Position()[2]);
+      fenergyMC.push_back(pPart1.E());
+    }
+
+    if (fMakeLightAnalysisTree) {
+
+      Size_t maxNtracks = 1000U; // mcpartVec->size(); --- { to be fixed soon! ]
       fSignals_vuv.clear();
       fSignals_vuv.resize(maxNtracks);
       fSignals_vis.clear();
