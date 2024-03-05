@@ -124,6 +124,7 @@ namespace opdet {
     std::vector<double> fposYMC;
     std::vector<double> fposZMC;
     std::vector<double> fenergyMC;
+    bool fpairprod;
 
     Float_t foriginX;
     Float_t foriginY;
@@ -284,6 +285,7 @@ namespace opdet {
       fTheEventTree->Branch("posYMC", &fposYMC);
       fTheEventTree->Branch("posZMC", &fposZMC);
       fTheEventTree->Branch("energyMC", &fenergyMC);
+      fTheEventTree->Branch("pairprod", &fpairprod);
       if (fPVS->StoreReflected())
         fTheOpDetTree->Branch("CountReflDetected", &fCountOpDetReflDetected, "CountReflDetected/I");
     }
@@ -335,18 +337,25 @@ namespace opdet {
     fposYMC.clear();
     fposZMC.clear();
     fenergyMC.clear();
+    fpairprod = false;
 
     mcpartVec = evt.getHandle<std::vector<simb::MCParticle>>("largeant").product();
     // MCparticle position
     for (simb::MCParticle const& pPart1 : *mcpartVec) {
-      std::cout<<"MCparticle startposition "<<pPart1.Position(0).X()<<" "<<pPart1.Position(0).Y()<<" "<<pPart1.Position(0).Z()<<std::endl;
-      std::cout<<"particle energy "<<pPart1.E()<<std::endl;
-      // the length of the vector should be total captures in one evet
+      //std::cout<<"MCparticle startposition "<<pPart1.Position(0).X()<<" "<<pPart1.Position(0).Y()<<" "<<pPart1.Position(0).Z()<<std::endl;
+      //std::cout<<"particle energy "<<pPart1.E()<<std::endl;
+      //std::cout << "E: "<< pPart1.E() <<" trkid: " << pPart1.TrackId() << " pdg: " << pPart1.PdgCode() << " motherid: " << pPart1.Mother() << std::endl;
+
+      // the length of the vector should be total particles (primary + secondary) in one evet
       fposXMC.push_back(pPart1.Position()[0]);
       fposYMC.push_back(pPart1.Position()[1]);
       fposZMC.push_back(pPart1.Position()[2]);
       fenergyMC.push_back(pPart1.E());
+
+      // Flag pair production events
+      if (pPart1.PdgCode() == -11) fpairprod = true;
     }
+
 
     if (fMakeLightAnalysisTree) {
 
@@ -583,6 +592,7 @@ namespace opdet {
 
               if (pPart.Process() == "primary") fEnergy = pPart.E();
 
+
               //resetting the vectors
               fstepPositions.clear();
               fstepTimes.clear();
@@ -597,6 +607,7 @@ namespace opdet {
               fSignalsvuv = fSignals_vuv[fTrackID];
               fSignalsvis = fSignals_vis[fTrackID];
               fProcess = pPart.Process();
+              std::cout << "LightAnalysisTree: pPart trkid: " << fTrackID << "pdg: " << fpdg << "motherid: " << fmotherTrackID << std::endl;
               //filling the center positions of each step
               for (size_t i_s = 1; i_s < pPart.NumberTrajectoryPoints(); i_s++) {
                 this_xyz.clear();
